@@ -1,4 +1,23 @@
+// {
+//   "name": "Tavly AI Docs",
+//   "navigation": []
+// }
+
 {
+  "$schema": "https://mintlify.com/docs.json",
   "name": "Tavly AI Docs",
-  "navigation": []
+  "theme": "almond", 
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#55D799",
+    "dark": "#0D9373"
+  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction"
+      ]
+    }
+  ]
 }
