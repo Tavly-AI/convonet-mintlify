@@ -1,0 +1,74 @@
+---
+title: Finetune examples
+---
+
+> Add example transcripts to a Tavly conversation flow node to show the model exactly how to respond and which transition to pick in specific situations.
+
+Finetune examples are conversation snippets you attach to a node. The model sees them as few-shot demonstrations when it generates a response or evaluates a transition condition. They are the most targeted way to fix a specific response or transition that isn't behaving as expected.
+
+Each node has two types of finetune examples:
+
+* **Conversation examples** — show the model how the agent should respond within the node (tone, phrasing, what to include or omit).
+* **Transition examples** — show the model which outgoing edge to pick given a particular conversation excerpt.
+
+## Add a finetune example
+
+1. Click the node you want to improve.
+2. In the node settings panel, scroll to **Fine-tuning Examples**.
+3. Click **Add example** and choose **Conversation** or **Transition**.
+4. Fill in the example transcript and, for transition examples, select the correct outgoing edge.
+
+## Conversation examples
+
+Use conversation examples when the model's responses are grammatically correct but miss the mark — wrong tone, too verbose, wrong information included, or a specific phrase the agent should always say.
+
+**Example**: A closing node where the agent should always confirm the appointment time before saying goodbye.
+
+```
+User: Okay, sounds good.
+Agent: Perfect — you're confirmed for Thursday at 3 PM. Talk soon, goodbye!
+```
+
+Tips:
+* Use real or realistic transcripts, not idealized ones.
+* Keep examples short and focused on the specific behavior you want.
+* Add 2–5 examples per issue; more is not always better.
+
+## Transition examples
+
+Use transition examples when the model picks the wrong outgoing edge. Each example pairs a conversation excerpt with the correct transition label.
+
+**Example**: A node with two edges — `User confirmed the appointment` and `User asked to reschedule`. If the model keeps firing the wrong one:
+
+```
+User: Actually, can we move it to Friday?
+Agent: Of course, let me check availability.
+→ Transition: User asked to reschedule
+```
+
+```
+User: Yes, Thursday at 3 works for me.
+Agent: Great, you're all set!
+→ Transition: User confirmed the appointment
+```
+
+Tips:
+* Match the example to the exact wording pattern the model is getting wrong.
+* Cover edge cases — short answers, ambiguous phrasing, or polite deflections.
+* Check the [call history transcript](/build/conversation-flow/debug-guide) to find real examples of incorrect transitions to use as training data.
+
+## When to use finetune examples
+
+| Symptom | Fix |
+|---|---|
+| Agent says the right thing but in the wrong tone | Conversation example |
+| Agent omits key information in its reply | Conversation example |
+| Agent transitions to the wrong node | Transition example |
+| Agent stays in the node when it should transition | Transition example |
+| Agent transitions too eagerly | Transition example showing a case that should *not* transition |
+
+## Limits and best practices
+
+* Finetune examples add tokens to every LLM call for that node. Keep each example concise to control cost and latency.
+* Use examples to fix specific observed failures, not as a substitute for clear node instructions.
+* If a response problem persists after adding examples, also consider splitting the node or switching to a more capable model — see the [debug guide](/build/conversation-flow/debug-guide).

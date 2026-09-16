@@ -1,0 +1,27 @@
+---
+title: Balance between transcription accuracy and latency
+---
+> Pick the right Tavly transcription mode to balance accuracy against latency — interim results for speed or context-aware results for higher accuracy.
+
+<Note> This guide only applies to cascading agents, if you are using speech to speech models, this feature does not apply. </Note>
+
+Real time transcription is a trade off between latency and accuracy. Two concepts drive this trade off:
+
+* **Interim results**: early, partial transcripts produced while the user is still speaking. They arrive fast but are generated with less context, so they contain more errors.
+* **Endpointing**: how long the transcriber waits after the user stops speaking before finalizing the transcript. Waiting longer gives the model more context and produces more accurate transcripts, at the cost of a slower response.
+
+## Transcription modes
+
+Tavly offers two transcription modes:
+
+<img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/transcription-mode.jpeg?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=46447194022d07992db5fc65dc2b931d" width="254" height="108" data-path="images/transcription-mode.jpeg" />
+
+* **Optimize for speed**: uses the latest interim results with a low endpointing setting for downstream processing. This gives the lowest latency.
+* **Optimize for accuracy**: uses results generated with a higher endpointing setting for downstream processing. The transcriber waits longer with more context to generate more accurate transcripts. This adds roughly 200ms of latency.
+
+## Which mode to use?
+
+From our benchmarking, the two modes have a similar overall WER (Word Error Rate). The difference mainly lies in capturing entities like numbers and dates.
+
+* Use **optimize for accuracy** if your use case relies heavily on capturing entities like phone numbers, account numbers, or dates correctly.
+* Use **optimize for speed** for the best latency in all other cases.

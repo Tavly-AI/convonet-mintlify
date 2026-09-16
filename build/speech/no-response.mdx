@@ -1,0 +1,13 @@
+---
+title : Make agent pause and respond with nothing
+---
+> Keep a Tavly agent silent on demand with the NO_RESPONSE_NEEDED stop sequence, so it pauses for the caller without speaking or interrupting.
+
+Sometimes you might want the agent to pause and not respond to the user, like when the user says "hold on" or "give me a minute". This is a conversational pause where the agent stays silent, not a telephony hold.
+
+We hard-coded a stop sequence in the LLM: `NO_RESPONSE_NEEDED`. Whenever this sequence is met, the response generation stops.
+You can then prompt the LLM to output nothing by writing something like:
+
+```
+- if user says "hold on", reply exactly the following: "NO_RESPONSE_NEEDED".
+```
