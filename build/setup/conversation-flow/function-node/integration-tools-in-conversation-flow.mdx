@@ -1,0 +1,37 @@
+---
+title: Integration tools in conversation flow
+---
+
+> Call HubSpot, Salesforce, Zendesk, or Cal.com tools from a Tavly AI conversation flow function node, and branch transitions on what comes back.
+
+In a conversation flow, integration tools run through a [function node](/build/conversation-flow/function-node): the node fires the tool on entry, and the flow transitions on the result. Tavly AI handles the provider's API and auth, so there's no server of your own in between. For single- and multi-prompt agents, add the same tools from the Functions section instead; see [integration tools for prompt agents](/build/single-multi-prompt/integration-tools).
+
+See the [integrations overview](/integrations/overview) for the providers Tavly AI connects to, what each one's tools do, and how to connect them. [Subagent nodes](/build/conversation-flow/subagent-node) can use integration tools too, alongside their other tool types. Integration tools can also run outside the conversation, before it starts or after it ends; see [agent workflow](/agent/agent-workflow).
+
+## Add an integration tool to a flow
+
+<Steps>
+  <Step title="Connect the provider">
+    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the [integrations overview](/integrations/overview#connect-a-provider).
+  </Step>
+
+  <Step title="Add the tool from the function menu">
+    In the flow, add a function; connected providers' tools appear in the menu grouped by provider. You can also pick **Add integration** in the menu to connect a new provider without leaving the flow.
+
+    <Frame caption="Adding a Microsoft Dynamics 365 tool to a conversation flow's function node.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/function-node-add-integration-tool.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=43f3006b516ff2967157505186395670" alt="A conversation flow editor with the Function node type ringed in blue in the node palette. The add-function dialog is open on a Microsoft Dynamics 365 connection, listing its tools: Get Contact, Search Contact, Create Contact, Update Contact, Create Task, Create Note, and Log Phone Call. Create Task is hovered, showing its description about creating a Dynamics 365 Task when a follow-up is agreed on. The Add button below the list is also ringed, and a Search Salesforce Contact function node sits on the canvas behind the dialog." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="952" data-path="images/integration/function-node-add-integration-tool.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Select it inside a function node">
+    Pick the tool in the node, as with any function. Configuration works the same as for [prompt agents](/build/single-multi-prompt/integration-tools): inputs are fixed values or filled from the conversation, response fields map to [dynamic variables](/build/dynamic-variables), and you can test the tool with a live request before the first call.
+  </Step>
+</Steps>
+
+## Branch on the result
+
+The function node considers the tool's result for transition timing (see [when transitions happen](/build/conversation-flow/function-node#when-can-transition-happen)), so your [transition conditions](/build/conversation-flow/transition-condition) can branch on what came back: one edge for "contact found", another for "no match", each leading to a different conversation node.
+
+Each tool call times out after 3 to 14 seconds, depending on the provider and tool (as of August 2026). On timeout or error the flow still transitions, so give errors their own edge rather than letting them fall through a success path.

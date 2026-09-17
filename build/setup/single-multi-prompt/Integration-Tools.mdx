@@ -1,0 +1,71 @@
+---
+title: 'Integration Tools'
+---
+
+> Add HubSpot, Salesforce, Zendesk, or Cal.com tools to a Tavly AI prompt agent: connect once, configure inputs and outputs, and test with live data.
+
+Integration tools let a single- or multi-prompt agent act on a connected provider, during the conversation or [before or after it](/agent/agent-workflow): look up the caller in a CRM, book an appointment, create a support ticket. Tavly AI handles the provider's API and auth, so unlike a [custom function](/build/single-multi-prompt/custom-function) there's no URL to host or request to verify.
+
+See the [integrations overview](/integrations/overview) for the providers Tavly AI connects to, what each one's tools do, and how to connect them.
+
+## When to use it
+
+* **Integration tool** — the action lives in a supported provider (CRM record, ticket, booking). No code, no server.
+* **[Custom function](/build/single-multi-prompt/custom-function)** — the action lives in your own systems, or a provider Tavly AI doesn't support; you host the endpoint.
+* **[Code tool](/build/single-multi-prompt/code-tool)** — self-contained logic or a simple API call that can run in Tavly AI's sandbox.
+
+## Add a tool
+
+<Steps>
+  <Step title="Connect the provider">
+    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the [integrations overview](/integrations/overview#connect-a-provider). Every agent can then use the connection.
+  </Step>
+
+  <Step title="Add the tool to the agent">
+    In your agent's **Functions** section, click **+ Add**. Connected providers and their tools appear in the menu, and **Add integration** lets you connect a new provider without leaving the agent.
+
+    <Frame caption="Adding a HubSpot tool from the agent's Functions section.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/agent-functions-add-integration.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=bd69e74c3a9aacb25f4add169593fc2e" alt="A single prompt agent's editor with the Functions section and its + Add button ringed in blue. The add menu is open on a connection named HubSpot - API key, listing HubSpot tools such as List Contact Deals, Get Deal, Create Contact, and Log Call Activity. Update Contact is hovered, showing its description: update properties on a HubSpot Contact by id when the caller confirms new or corrected details. The agent's prompt is redacted." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="948" data-path="images/integration/agent-functions-add-integration.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Configure it">
+    Pick the tool and set up its pieces:
+
+    * **Connection**: which account the tool acts on, if you've connected several.
+    * **Inputs**: each input is either a fixed value you set now (a Cal.com event type ID, a GoHighLevel pipeline) or a description the agent uses to fill the value from the conversation (the caller's preferred time).
+    * **Response variables**: map fields from the tool's result to [dynamic variables](/build/dynamic-variables), so the prompt and later tools can use them (for example, save the contact ID from **Search Contact** and pass it to **Create Task**).
+    * **Presentation**: like other tools, you can have the agent speak while the tool executes, and override the description that tells the LLM when to call it.
+
+    <Frame caption="Configuring Salesforce's Update Custom Object tool: the custom object is a fixed value picked at configuration time.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/integration-tool-config.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=03c3f525bcd2806d6c678c6b6dd9e60e" alt="The configuration dialog for Salesforce's Update Custom Object integration tool, with editable Name and Description fields. Under Data mapping, the required custom_object input's dropdown is open, listing the org's custom objects such as TavlyAI_Call_Log__c and TavlyAI_Integration_Settings__c, with TavlyAI_Integration_Event__c selected. An Add input button and Cancel and Save buttons complete the dialog." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="780" height="1008" data-path="images/integration/integration-tool-config.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Test it before the first call">
+    <Warning>
+      Test requests are sent to the connected provider for real. A lookup reads live data, and testing a create or update tool writes a real record. Use values you don't mind touching.
+    </Warning>
+
+    In the tool's config, enter real input values and click **Run a test**. Tavly AI calls the provider and shows the actual response. Tick the response fields worth keeping and click **Add selected outputs** to save them as dynamic variables, instead of typing field paths by hand.
+
+    <Frame caption="The test panel for a Search Contact tool, with three response fields selected as outputs.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/integration-tool-test.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=5a867c06819863b83a19d09aa2fd26bc" alt="The Test : Search Contact dialog for an integration tool. The left pane has a Test input section with a phone_number field and a Run a test button. The right pane shows the Test output with Fields and JSON tabs and the real response's fields as checkboxes, with LastName, FirstName, and Name checked and their values redacted. At the bottom, the selected fields appear as chips next to an Add selected outputs button." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1684" height="1554" data-path="images/integration/integration-tool-test.png" />
+      </div>
+    </Frame>
+  </Step>
+</Steps>
+
+<Tip>
+  Chain tools through response variables: a support agent calls Zendesk's **Search User** with `{{user_number}}`, saves the returned user ID to a dynamic variable, then passes it to **List User Requested Tickets** when the caller asks for a status update.
+</Tip>
+
+## Notes
+
+* Each tool call times out after 3 to 14 seconds, depending on the provider and tool (as of August 2026). On timeout or error, the agent continues the conversation — prompt it on what to say when a lookup or booking doesn't go through.
+* Conversation flow agents add these tools through a function node instead; see [integration tools in conversation flow](/build/conversation-flow/integration-tools).

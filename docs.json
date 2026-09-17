@@ -1,41 +1,154 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "almond",
   "name": "Tavly AI",
   "colors": {
-    "primary": "#fe9a00",
-    "light": "#fe9a00",
-    "dark": "#fe9a00"
+    "primary": "#196659",
+    "light": "#196659",
+    "dark": "#196659"
   },
-  "favicon": "/logo/Reacherr-logo.svg",
+  "favicon": "/logo/tavly-dark.svg",
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "get-started/introduction",
+              "get-started/build-your-first-agent-in-10-minutes"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Build Agents",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/components",
-              "essentials/reusable-snippets"
+              "build/Build-a-Tavly-AI-Agent-Overview",
+              {
+                "group": "Setup single / multi prompt agent",
+                "pages": [
+                  {
+                    "group": "Step 1: Write the prompt",
+                    "pages": [
+                      "build/setup/single-multi-prompt/Single-or-Multi-Prompt-Agent-Overview",
+                      "build/setup/single-multi-prompt/Write-a-Single-Prompt",
+                      "build/setup/single-multi-prompt/Build-a-Multi-Prompt-Agent"
+                    ]
+                  },
+                  "build/setup/single-multi-prompt/configure-basic-settings",
+                  {
+                    "group": "Step 3: Add function calling",
+                    "pages": [
+                      "build/setup/single-multi-prompt/Function-Calling-Overview",
+                      "build/setup/single-multi-prompt/End-Call",
+                      "build/setup/single-multi-prompt/Transfer-Call-Tool",
+                      "build/setup/single-multi-prompt/Send-SMS",
+                      "build/setup/single-multi-prompt/Press-Digit-IVR",
+                      "build/setup/single-multi-prompt/Custom-Function-Integration",
+                      "build/setup/single-multi-prompt/Integration-Tools",
+                      "build/setup/single-multi-prompt/Code-Tool-Run-JavaScript",
+                      "build/setup/single-multi-prompt/extract-dynamic-variables",
+                      "build/setup/single-multi-prompt/agent-transfer-tool",
+                      "build/setup/single-multi-prompt/mcp-tools"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Setup conversation flow agent",
+                "pages": [
+                  "build/setup/conversation-flow/conversation-flow-overview",
+                  "build/setup/conversation-flow/configure-global-settings",
+                  {
+                    "group": "Add nodes",
+                    "pages": [
+                      "build/setup/conversation-flow/add-nodes/nodes-and-edges",
+                      "build/setup/conversation-flow/add-nodes/conversation-node",
+                      "build/setup/conversation-flow/add-nodes/subagent-node",
+                      {
+                        "group": "Function Node",
+                        "pages": [
+                          "build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node",
+                          "build/setup/conversation-flow/function-node/custom-function-in-conversation-flow",
+                          "build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow"
+                        ]
+                      },
+                      "build/setup/conversation-flow/add-nodes/code-node-run-javascript",
+                      "build/setup/conversation-flow/add-nodes/call-transfer-node",
+                      "build/setup/conversation-flow/add-nodes/press-digit-node",
+                      "build/setup/conversation-flow/add-nodes/end-node",
+                      "build/setup/conversation-flow/add-nodes/logic-split-node",
+                      "build/setup/conversation-flow/add-nodes/sms-node",
+                      "build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node",
+                      "build/setup/conversation-flow/add-nodes/agent-transfer-node",
+                      "build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow"
+                    ]
+                  },
+                  "build/setup/conversation-flow/transition-conditions",
+                  "build/setup/conversation-flow/components",
+                  "build/setup/conversation-flow/flex-mode",
+                  "build/setup/conversation-flow/debug-guide",
+                  {
+                    "group": "Advanced features",
+                    "pages": [
+                      "build/setup/conversation-flow/advanced/global-node",
+                      "build/setup/conversation-flow/advanced/finetune-examples"
+                    ]
+                  }
+                ]
+              },
+              "build/create-chat-agent",
+              "build/agent-workflow",
+              "build/language",
+              "build/multilingual",
+              "build/language-support",
+              {
+                "group": "Understand user speech better",
+                "pages": [
+                  "build/understanding/asr-providers",
+                  "build/understanding/transcription-mode",
+                  "build/understanding/handle-background-noise"
+                ]
+              },
+              {
+                "group": "Generate better responses from LLM",
+                "pages": [
+                  "build/response/agent-handbook",
+                  "build/response/conversational-mode",
+                  "build/response/prompt-engineering-guide",
+                  "build/response/prompt-situation-guide",
+                  "build/response/llm-options"
+                ]
+              },
+              {
+                "group": "Customize the synthesized speech",
+                "pages": [
+                  "build/speech/voice",
+                  "build/speech/platform-voices",
+                  "build/speech/expressive-mode",
+                  "build/speech/tts-provider-comparison",
+                  "build/speech/add-pronounciation",
+                  "build/speech/no-response",
+                  "build/speech/add-pause",
+                  "build/speech/tts-fallback"
+                ]
+              },
+              {
+                "group": "Integrate telephony features",
+                "pages": [
+                  "build/telephony/handle-voicemail",
+                  "build/telephony/user-dtmf",
+                  "build/telephony/sip-headers"
+                ]
+              },
+              {
+                "group": "Provide context to the agent",
+                "pages": [
+                  "build/context/knowledge-base",
+                  "build/context/dynamic-variables"
+                ]
+              },
+              "build/guardrails"
             ]
           },
           {
@@ -89,43 +202,43 @@
     }
   },
   "logo": {
-    "light": "/logo/Reacherr-dark.svg",
-    "dark": "/logo/Reacherr-light.svg"
+    "light": "/logo/tavly-dark.svg",
+    "dark": "/logo/tavly-light.svg"
   },
   "navbar": {
     "links": [
       {
         "label": "Homepage",
-        "href": "https://www.reacherr.ai"
+        "href": "https://www.tavly.it/"
       },
       {
         "label": "Support",
-        "href": "mailto:support@reacherr.ai"
+        "href": "mailto:support@tavly.it"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.reacherr.ai"
+      "href": "https://app.tavly.it/"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/reacherr-ai/",
-      "github": "https://github.com/Reacherr-AI/",
-      "linkedin": "https://www.linkedin.com/company/reacherr-ai/"
+      "x": "https://x.com/tavly-it/",
+      "github": "https://github.com/tavly-it/",
+      "linkedin": "https://www.linkedin.com/company/tavly-it/"
     }
   }
 }
