@@ -18,11 +18,11 @@ Here you need to add the function first, and then select it inside the node. Thi
 
 For specific instructions on different types of functions:
 
-* [Custom Function](/build/conversation-flow/custom-function)
-* [Integration tools](/build/conversation-flow/integration-tools) from connected providers like HubSpot, Salesforce, Zendesk, and Cal.com
+* [Custom Function](/build/setup/conversation-flow/function-node/custom-function-in-conversation-flow)
+* [Integration tools](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow) from connected providers like HubSpot, Salesforce, Zendesk, and Cal.com
 
 <Note>
-  To check availability or book appointments, use the [Cal.com](/integrations/cal-com-functions) or [Calendly](/integrations/calendly-functions) integration tools. The built-in Cal.com functions are no longer offered in the node — see the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for what happens to flows that still have them.
+  To check availability or book appointments, use the Cal.com {/* broken-link: /integrations/cal-com-functions target page does not exist in this repo --> or Calendly <!-- broken-link: /integrations/calendly-functions target page does not exist in this repo --> integration tools. The built-in Cal.com functions are no longer offered in the node — see the deprecation notice <!-- broken-link: /deprecation-notice/2026/10-31_legacy_calcom_tools target page does not exist in this repo */} for what happens to flows that still have them.
 </Note>
 
 ## When can transition happen
@@ -42,9 +42,9 @@ Given that the function node takes function result into consideration for transi
 
 * **Talk While Waiting**: when enabled, a text input box will show up where you can write instructions for the agent to follow to generate an utterance like `Let me check that for you.` to say while the function is being executed. You can choose between `Prompt` and `Static Sentence`.
 * **Wait for Result**: when enabled, the agent will wait for the function to finish executing before attempting to transition to any other node. This guarantees that when you reach the next node, the result is already ready to be used.
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
+* **Global Node**: read more at [Global Node](/build/setup/conversation-flow/advanced/global-node)
 * **LLM**: choose a different model for this particular node. Will be used for function argument generation, and potentially speak during execution message generation.
-* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/conversation-flow/finetune-examples)
+* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/setup/conversation-flow/advanced/finetune-examples)
 
 ## How to tell user the result
 

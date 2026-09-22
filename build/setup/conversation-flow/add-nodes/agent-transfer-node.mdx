@@ -4,14 +4,14 @@ title : Agent Transfer Node
 
 > Agent transfer nodes (agent swap) hand a Tavly call from one AI agent to another, useful for specialized agents, language switches, and modular call flows.
 
-In advanced call flows, it's common to switch the handling agent, transferring the conversation from one AI agent to another. **Agent Transfer** (also known as **Agent Swap**) enables you to modularize tasks and re-use specialized agents without relying on [traditional phone-based transfers](/build/single-multi-prompt/transfer-call). Examples include:
+In advanced call flows, it's common to switch the handling agent, transferring the conversation from one AI agent to another. **Agent Transfer** (also known as **Agent Swap**) enables you to modularize tasks and re-use specialized agents without relying on [traditional phone-based transfers](/build/setup/single-multi-prompt/Transfer-Call-Tool). Examples include:
 
 * Transferring from a front-desk agent to an appointment-booking agent based on task.
 * Transferring from an agent speaking one language to another agent handling a different language, based on user preference.
 
 ## Why Use Agent Transfer Instead of Call Transfer?
 
-Compared to transferring to another agent using [transfer call](/build/conversation-flow/call-transfer-node), **Agent Transfer** offers significant advantages:
+Compared to transferring to another agent using [transfer call](/build/setup/conversation-flow/add-nodes/call-transfer-node), **Agent Transfer** offers significant advantages:
 
 * **Lower Latency**: The transition between agents is near-instant, much lower than transfer call.
 * **Better Reliability**: No need to create a new phone call, avoiding potential telephony failures.
@@ -31,7 +31,7 @@ All other settings (language, voice, ambient sound, voice model, LLM/model, prom
 
 Webhook delivery is configurable per transfer: by default only the source agent's webhook fires, but you can send events to the transferred agent's webhook or both.
 
-For a fuller walkthrough of what the destination agent inherits (transcript, metadata, and dynamic variables) and every configuration option, see [Agent Transfer](/build/single-multi-prompt/transfer-agent).
+For a fuller walkthrough of what the destination agent inherits (transcript, metadata, and dynamic variables) and every configuration option, see [Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool).
 
 ## Steps
 

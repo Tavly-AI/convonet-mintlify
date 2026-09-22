@@ -3,12 +3,12 @@ title :Platform voices
 ---
 > Tavly platform voices are a curated library tuned for phone conversations — clear at telecom bitrates, with automatic TTS fallback and no extra setup.
 
-Platform voices are Tavly's curated voice library, fine-tuned specifically for conversational AI over the phone. They handle fillers, pacing, and conversational rhythm well, and are calibrated for clarity at telecom bitrates. For how they compare with third-party providers like MiniMax, Cartesia, and Inworld, see the [TTS provider comparison](/build/tts-provider-comparison).
+Platform voices are Tavly's curated voice library, fine-tuned specifically for conversational AI over the phone. They handle fillers, pacing, and conversational rhythm well, and are calibrated for clarity at telecom bitrates. For how they compare with third-party providers like MiniMax, Cartesia, and Inworld, see the [TTS provider comparison](/build/speech/tts-provider-comparison).
 
 When using a platform voice, fallback is handled automatically to maintain the same voice experience — you do not need to configure a TTS fallback plan in Security & Fallback Settings.
 
 <Note>
-  If you are using a non-platform voice, you will need to [configure TTS fallback](/build/tts-fallback) manually.
+  If you are using a non-platform voice, you will need to [configure TTS fallback](/build/speech/tts-fallback) manually.
 </Note>
 
 ## Select a platform voice
@@ -17,4 +17,4 @@ Platform voices are available in the voice selector in your agent settings. You 
 
 ## Custom voice cloning
 
-You can clone your own voice as a platform voice by setting `voice_provider` to `platform` when calling the [Clone Voice](/api-references/clone-voice) API. The cloned voice will behave the same as a built-in platform voice — fallback is handled automatically and you do not need to configure TTS fallback separately.
+You can clone your own voice as a platform voice by setting `voice_provider` to `platform` when calling the Clone Voice {/* broken-link: /api-references/clone-voice target page does not exist in this repo */} API. The cloned voice will behave the same as a built-in platform voice — fallback is handled automatically and you do not need to configure TTS fallback separately.

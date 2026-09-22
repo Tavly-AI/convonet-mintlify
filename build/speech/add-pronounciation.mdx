@@ -52,7 +52,7 @@ The pronunciation dictionary is a list on the agent — you can add multiple ent
 
 ## Manage the dictionary via the API
 
-There is no dedicated pronunciation endpoint. The dictionary lives on the agent object, so manage it with the [Update Agent](/api-references/update-agent) endpoint through the `pronunciation_dictionary` field:
+There is no dedicated pronunciation endpoint. The dictionary lives on the agent object, so manage it with the Update Agent {/* broken-link: /api-references/update-agent target page does not exist in this repo */} endpoint through the `pronunciation_dictionary` field:
 
 * Send an array of entries, each with `word`, `alphabet` (`ipa`, `cmu`, `pinyin`, or `jyutping`), and `phoneme`.
 * The array you send replaces the existing dictionary, so include all entries you want to keep.

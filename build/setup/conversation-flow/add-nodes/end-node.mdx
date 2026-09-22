@@ -17,8 +17,8 @@ For example, an appointment-booking flow can end with a static closing line — 
 ## Node settings
 
 * **Speak During Execution**: When enabled, a text box appears where you define the closing message the agent speaks before hanging up. Choose **Prompt** to let the LLM generate a farewell from your instruction, or **Static Sentence** for an exact line like `Goodbye, have a nice day`.
-* **Global Node**: Make the end node reachable from anywhere in the flow when its condition is met — for example `User wants to end the call or says goodbye` — so you don't have to wire an edge to it from every node. Read more at [global node](/build/conversation-flow/global-node).
+* **Global Node**: Make the end node reachable from anywhere in the flow when its condition is met — for example `User wants to end the call or says goodbye` — so you don't have to wire an edge to it from every node. Read more at [global node](/build/setup/conversation-flow/advanced/global-node).
 
 ## End node vs End Call tool
 
-Use an end node when the call should end at a fixed point in the flow. If instead the agent should be able to end the call mid-dialogue whenever it judges the conversation complete, attach an [End Call tool](/build/single-multi-prompt/end-call) to a [subagent node](/build/conversation-flow/subagent-node).
+Use an end node when the call should end at a fixed point in the flow. If instead the agent should be able to end the call mid-dialogue whenever it judges the conversation complete, attach an [End Call tool](/build/setup/single-multi-prompt/End-Call) to a [subagent node](/build/setup/conversation-flow/add-nodes/subagent-node).

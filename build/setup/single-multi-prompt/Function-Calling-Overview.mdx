@@ -77,18 +77,18 @@ Tavly AI provides ready-to-use functions for common scenarios:
 
 | Function                                                      | Purpose                           | Common Use Cases                             |
 | ------------------------------------------------------------- | --------------------------------- | -------------------------------------------- |
-| [**End Call**](/build/single-multi-prompt/end-call)           | Terminate conversation gracefully | After completing tasks, when caller requests |
-| [**Transfer Call**](/build/single-multi-prompt/transfer-call) | Route to human agents             | Escalation, department routing               |
-| [**Press Digits**](/build/single-multi-prompt/press-digit)    | Send DTMF tones                   | Navigate IVR systems, enter codes            |
-| [**Send SMS**](/build/single-multi-prompt/send-sms)           | Send text messages                | Confirmations, follow-ups                    |
+| [**End Call**](/build/setup/single-multi-prompt/End-Call)           | Terminate conversation gracefully | After completing tasks, when caller requests |
+| [**Transfer Call**](/build/setup/single-multi-prompt/Transfer-Call-Tool) | Route to human agents             | Escalation, department routing               |
+| [**Press Digits**](/build/setup/single-multi-prompt/Press-Digit-IVR)    | Send DTMF tones                   | Navigate IVR systems, enter codes            |
+| [**Send SMS**](/build/setup/single-multi-prompt/Send-SMS)           | Send text messages                | Confirmations, follow-ups                    |
 
 <Note>
-  For appointment scheduling, use the [Cal.com integration](/integrations/cal-com) or [Calendly integration](/integrations/calendly). The built-in **Check Availability** and **Book Calendar** tools are no longer offered here — see the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for what happens to agents that still have them.
+  For appointment scheduling, use the Cal.com integration {/* broken-link: /integrations/cal-com target page does not exist in this repo --> or Calendly integration <!-- broken-link: /integrations/calendly target page does not exist in this repo -->. The built-in **Check Availability** and **Book Calendar** tools are no longer offered here — see the deprecation notice <!-- broken-link: /deprecation-notice/2026/10-31_legacy_calcom_tools target page does not exist in this repo */} for what happens to agents that still have them.
 </Note>
 
 ### 2. Integration tools
 
-Call a connected provider (HubSpot, Salesforce, Zendesk, Cal.com, and the other [supported providers](/integrations/overview#supported-providers)) live during the conversation — look up the caller, book an appointment, create a ticket. Tavly AI handles the provider's API and auth. See [integration tools](/build/single-multi-prompt/integration-tools) for setup.
+Call a connected provider (HubSpot, Salesforce, Zendesk, Cal.com, and the other supported providers {/* broken-link: /integrations/overview#supported-providers target page does not exist in this repo */}) live during the conversation — look up the caller, book an appointment, create a ticket. Tavly AI handles the provider's API and auth. See [integration tools](/build/setup/single-multi-prompt/Integration-Tools) for setup.
 
 ### 3. Custom functions
 
@@ -105,7 +105,7 @@ Create your own functions to:
 * **Error handling**: Graceful fallbacks for failures
 * **Response control**: Customize what the agent says during/after execution
 
-[Learn more about custom functions →](/build/single-multi-prompt/custom-function)
+[Learn more about custom functions →](/build/setup/single-multi-prompt/Custom-Function-Integration)
 
 ### 4. Code tool
 
@@ -115,7 +115,7 @@ Run JavaScript code directly in Tavly AI's sandbox without setting up an externa
 * **Simple API calls**: Fetch data using the built-in `fetch()` function
 * **Logic and calculations**: Implement conditional logic, math, or string operations
 
-[Learn more about Code Tool →](/build/single-multi-prompt/code-tool)
+[Learn more about Code Tool →](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript)
 
 ## Video tutorial
 
@@ -124,5 +124,5 @@ Run JavaScript code directly in Tavly AI's sandbox without setting up an externa
 ### Additional resources
 
 * [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Real-world function examples
-* [API Reference](/api-references/create-agent): Technical documentation
-* [Best Practices](/build/prompt-engineering-guide): Writing effective function prompts, 
+* API Reference {/* broken-link: /api-references/create-agent target page does not exist in this repo */}: Technical documentation
+* [Best Practices](/build/response/prompt-engineering-guide): Writing effective function prompts, 

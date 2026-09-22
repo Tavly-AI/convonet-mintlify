@@ -25,7 +25,7 @@ Transition happens when transfer fails. There's already a pre-populated edge for
     Set transfer number to be either:
 
     * a number in e.164 format, or a SIP URI in the format of `sip:username@domain` (e.g. `sip:user@tavlyai.com`).
-    * [dynamic variable](/build/dynamic-variables) that gets substituted at runtime.
+    * [dynamic variable](/build/context/dynamic-variables) that gets substituted at runtime.
     * (Optional) if your transfer destination is not in e.164 format then you can choose to keep the input as is by choosing raw format. This only applies when you are using custom telephony and does not apply when you are using Tavly Telephony. This can be useful when you want to transfer to internal pseudo numbers.
 
     <Frame>
@@ -171,5 +171,5 @@ Transition happens when transfer fails. There's already a pre-populated edge for
 ## Rest of Node Settings
 
 * **Talk While Waiting**: when enabled, a text input box will show up where you can write instructions for the agent to follow to generate an utterance like `Let me check that for you.` to say while the function is being executed. You can choose between `Prompt` and `Static Sentence`.
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
+* **Global Node**: read more at [Global Node](/build/setup/conversation-flow/advanced/global-node)
 * **LLM**: choose a different model for this particular node. Will be used for function argument generation, and potentially talk while waiting message generation.

@@ -4,7 +4,7 @@ title :  Set & parse custom SIP headers
 
 > Parse inbound and set outbound custom SIP headers in Tavly to pass metadata between systems — supported for inbound, outbound, and transfer scenarios.
 
-Use custom SIP headers to pass metadata between your systems and Tavly on a call — for example, forwarding an account ID or a caller reference from your [custom telephony](/deploy/custom-telephony) platform so the agent can use it during the conversation.
+Use custom SIP headers to pass metadata between your systems and Tavly on a call — for example, forwarding an account ID or a caller reference from your custom telephony {/* broken-link: /deploy/custom-telephony target page does not exist in this repo */} platform so the agent can use it during the conversation.
 
 <Note>SIP headers are available for phone calls only. Tavly receives SIP headers on inbound calls, and sets them on outbound calls and transfers.</Note>
 
@@ -12,7 +12,7 @@ Many SIP parsers and middleboxes assume 1024 bytes is a reasonable maximum for a
 
 ## Parse custom SIP headers for inbound calls
 
-For inbound calls, custom SIP headers (those starting with `X-` or `x-`) are received and extracted automatically into `call.custom_sip_headers`. They are also added to your [dynamic variables](/build/dynamic-variables), where you access them by stripping the `X-` or `x-` prefix. No configuration is needed.
+For inbound calls, custom SIP headers (those starting with `X-` or `x-`) are received and extracted automatically into `call.custom_sip_headers`. They are also added to your [dynamic variables](/build/context/dynamic-variables), where you access them by stripping the `X-` or `x-` prefix. No configuration is needed.
 
 For example, if this is the SIP header received for an inbound call:
 
@@ -50,5 +50,5 @@ For call transfers, you can also add custom SIP headers as needed. Each must sta
 
 If you are using:
 
-* Conversation flow agents, check out [call transfer node](/build/conversation-flow/call-transfer-node#configure-transfer) for more details.
-* Single / multi agent, check out [call transfer function](/build/single-multi-prompt/transfer-call) for more details.
+* Conversation flow agents, check out [call transfer node](/build/setup/conversation-flow/add-nodes/call-transfer-node#configure-transfer) for more details.
+* Single / multi agent, check out [call transfer function](/build/setup/single-multi-prompt/Transfer-Call-Tool) for more details.

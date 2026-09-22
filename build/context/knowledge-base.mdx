@@ -12,9 +12,9 @@ Supported sources:
 * Website content (via URLs)
 * Documents (supported formats: .bmp, .csv, .doc, .docx, .eml, .epub, .heic, .html, .jpeg, .md, .msg, .odt, .org, .p7s, .pdf, .png, .ppt, .pptx, .rst, .rtf, .tiff, .txt, .tsv, .xls, .xlsx, .xml)
 * Custom text snippets
-* Google Docs, Sheets, and Drive files, synced through [Google Drive knowledge base sync](/integrations/google-drive-knowledge-base)
-* Microsoft OneDrive files, synced through [OneDrive knowledge base sync](/integrations/microsoft-onedrive-knowledge-base)
-* Notion pages, synced through [Notion knowledge base sync](/integrations/notion-knowledge-base)
+* Google Docs, Sheets, and Drive files, synced through Google Drive knowledge base sync {/* broken-link: /integrations/google-drive-knowledge-base target page does not exist in this repo */}
+* Microsoft OneDrive files, synced through OneDrive knowledge base sync {/* broken-link: /integrations/microsoft-onedrive-knowledge-base target page does not exist in this repo */}
+* Notion pages, synced through Notion knowledge base sync {/* broken-link: /integrations/notion-knowledge-base target page does not exist in this repo */}
 
 <Note>
   Content that lives in an app without a native integration, such as OneNote, can still be used. Export it to a supported format like PDF, DOCX, HTML, or Markdown and upload it as a document. Exported files don't stay in sync with the source app, so re-upload after the content changes.
@@ -89,15 +89,15 @@ You can create multiple knowledge bases to overcome these limits. An agent can h
        * Ideal for specific instructions or data
 
     4. **Google Drive**: Sync Docs, Sheets, and files from a connected Drive
-       * [Connect Google Drive](/integrations/google-drive) first; the Add menu then lists your connected accounts. See [Google Drive knowledge base sync](/integrations/google-drive-knowledge-base) for picking files and how refresh works.
+       * Connect Google Drive {/* broken-link: /integrations/google-drive target page does not exist in this repo --> first; the Add menu then lists your connected accounts. See Google Drive knowledge base sync <!-- broken-link: /integrations/google-drive-knowledge-base target page does not exist in this repo */} for picking files and how refresh works.
        * With auto-refresh enabled, changed files re-sync on the next daily refresh
 
     5. **Microsoft OneDrive**: Sync files from a connected personal or work OneDrive
-       * [Connect OneDrive](/integrations/microsoft-onedrive) first; the Add menu then lists your connected accounts. See [OneDrive knowledge base sync](/integrations/microsoft-onedrive-knowledge-base) for picking files, supported formats, and how refresh works.
+       * Connect OneDrive {/* broken-link: /integrations/microsoft-onedrive target page does not exist in this repo --> first; the Add menu then lists your connected accounts. See OneDrive knowledge base sync <!-- broken-link: /integrations/microsoft-onedrive-knowledge-base target page does not exist in this repo */} for picking files, supported formats, and how refresh works.
        * Microsoft's file picker opens in a pop-up, so allow pop-ups for the dashboard
 
     6. **Notion**: Sync pages from a connected Notion workspace
-       * [Connect Notion](/integrations/notion) first and share pages with the connection in Notion; the Add menu then lists your connected accounts. See [Notion knowledge base sync](/integrations/notion-knowledge-base) for picking pages, what syncs from a page, and how refresh works.
+       * Connect Notion {/* broken-link: /integrations/notion target page does not exist in this repo --> first and share pages with the connection in Notion; the Add menu then lists your connected accounts. See Notion knowledge base sync <!-- broken-link: /integrations/notion-knowledge-base target page does not exist in this repo */} for picking pages, what syncs from a page, and how refresh works.
        * Each page is its own source; nested pages are added separately
 
     <Frame caption="The Add Knowledge Base dialog with the source-type menu open.">
@@ -179,11 +179,11 @@ You can create multiple knowledge bases to overcome these limits. An agent can h
   </Step>
 </Steps>
 
-Your agent will now use this information when responding to queries related to the added content. Retrieved knowledge base content will be appended to the LLM prompt under the header **## Related Knowledge Base Contexts**. Because these chunks are part of the prompt, they count toward the [prompt token surcharge](/accounts/billing-exceptions#rule-2-llm-price-scaling-for--4000-token-prompt-length). Retrieving more chunks raises the token count.
+Your agent will now use this information when responding to queries related to the added content. Retrieved knowledge base content will be appended to the LLM prompt under the header **## Related Knowledge Base Contexts**. Because these chunks are part of the prompt, they count toward the prompt token surcharge {/* broken-link: /accounts/billing-exceptions#rule-2-llm-price-scaling-for--4000-token-prompt-length target page does not exist in this repo */}. Retrieving more chunks raises the token count.
 
 ## Check what the agent retrieved
 
-To see exactly which chunks the agent pulled on a given turn, open the call in [Call History](/features/session-history) and go to its transcript. Any agent message that used the knowledge base shows a **Knowledge Base Retrieval** link above it.
+To see exactly which chunks the agent pulled on a given turn, open the call in Call History {/* broken-link: /features/session-history target page does not exist in this repo */} and go to its transcript. Any agent message that used the knowledge base shows a **Knowledge Base Retrieval** link above it.
 
 <Frame caption="A Knowledge Base Retrieval link above an agent turn in the call transcript.">
   <img src="https://mintcdn.com/retellai/sw161dEamz6pW1mD/images/knowledge-base/kb-retrieval-link.png?fit=max&auto=format&n=sw161dEamz6pW1mD&q=85&s=3f194b7c92d2ffe920dcbad4bc4fe884" alt="Call transcript with a Knowledge Base Retrieval link, outlined in blue, between a user message and the agent's response." style={{ maxHeight: 420 }} width="1200" height="638" data-path="images/knowledge-base/kb-retrieval-link.png" />
@@ -195,7 +195,7 @@ Select the link to open a dialog that lists each retrieved chunk (**Chunk 1**, *
   <img src="https://mintcdn.com/retellai/sw161dEamz6pW1mD/images/knowledge-base/kb-retrieval-dialog.png?fit=max&auto=format&n=sw161dEamz6pW1mD&q=85&s=29df642da4823129ab67c97389b2a680" alt="Knowledge Base Retrieval dialog titled Chunk 1, showing the retrieved knowledge base text and an Expand toggle." style={{ maxHeight: 460 }} width="1800" height="894" data-path="images/knowledge-base/kb-retrieval-dialog.png" />
 </Frame>
 
-Use this to debug retrieval. If the agent answered incorrectly, check whether the relevant chunk was retrieved. If it wasn't, raise **Chunks to retrieve**, lower the **Similarity Threshold**, or improve your source formatting (see [Best practices](#best-practices)). If the chunk was retrieved but the agent ignored it, fix the agent's prompt. The same retrieval view is available in [Chat History](/features/session-history) for chat agents.
+Use this to debug retrieval. If the agent answered incorrectly, check whether the relevant chunk was retrieved. If it wasn't, raise **Chunks to retrieve**, lower the **Similarity Threshold**, or improve your source formatting (see [Best practices](#best-practices)). If the chunk was retrieved but the agent ignored it, fix the agent's prompt. The same retrieval view is available in Chat History {/* broken-link: /features/session-history target page does not exist in this repo */} for chat agents.
 
 ## FAQ
 

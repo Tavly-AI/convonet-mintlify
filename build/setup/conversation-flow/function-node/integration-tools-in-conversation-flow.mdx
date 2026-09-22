@@ -4,15 +4,15 @@ title: Integration tools in conversation flow
 
 > Call HubSpot, Salesforce, Zendesk, or Cal.com tools from a Tavly AI conversation flow function node, and branch transitions on what comes back.
 
-In a conversation flow, integration tools run through a [function node](/build/conversation-flow/function-node): the node fires the tool on entry, and the flow transitions on the result. Tavly AI handles the provider's API and auth, so there's no server of your own in between. For single- and multi-prompt agents, add the same tools from the Functions section instead; see [integration tools for prompt agents](/build/single-multi-prompt/integration-tools).
+In a conversation flow, integration tools run through a [function node](/build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node): the node fires the tool on entry, and the flow transitions on the result. Tavly AI handles the provider's API and auth, so there's no server of your own in between. For single- and multi-prompt agents, add the same tools from the Functions section instead; see [integration tools for prompt agents](/build/setup/single-multi-prompt/Integration-Tools).
 
-See the [integrations overview](/integrations/overview) for the providers Tavly AI connects to, what each one's tools do, and how to connect them. [Subagent nodes](/build/conversation-flow/subagent-node) can use integration tools too, alongside their other tool types. Integration tools can also run outside the conversation, before it starts or after it ends; see [agent workflow](/agent/agent-workflow).
+See the integrations overview {/* broken-link: /integrations/overview target page does not exist in this repo */} for the providers Tavly AI connects to, what each one's tools do, and how to connect them. [Subagent nodes](/build/setup/conversation-flow/add-nodes/subagent-node) can use integration tools too, alongside their other tool types. Integration tools can also run outside the conversation, before it starts or after it ends; see [agent workflow](/build/agent-workflow).
 
 ## Add an integration tool to a flow
 
 <Steps>
   <Step title="Connect the provider">
-    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the [integrations overview](/integrations/overview#connect-a-provider).
+    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the integrations overview {/* broken-link: /integrations/overview#connect-a-provider target page does not exist in this repo */}.
   </Step>
 
   <Step title="Add the tool from the function menu">
@@ -26,12 +26,12 @@ See the [integrations overview](/integrations/overview) for the providers Tavly 
   </Step>
 
   <Step title="Select it inside a function node">
-    Pick the tool in the node, as with any function. Configuration works the same as for [prompt agents](/build/single-multi-prompt/integration-tools): inputs are fixed values or filled from the conversation, response fields map to [dynamic variables](/build/dynamic-variables), and you can test the tool with a live request before the first call.
+    Pick the tool in the node, as with any function. Configuration works the same as for [prompt agents](/build/setup/single-multi-prompt/Integration-Tools): inputs are fixed values or filled from the conversation, response fields map to [dynamic variables](/build/context/dynamic-variables), and you can test the tool with a live request before the first call.
   </Step>
 </Steps>
 
 ## Branch on the result
 
-The function node considers the tool's result for transition timing (see [when transitions happen](/build/conversation-flow/function-node#when-can-transition-happen)), so your [transition conditions](/build/conversation-flow/transition-condition) can branch on what came back: one edge for "contact found", another for "no match", each leading to a different conversation node.
+The function node considers the tool's result for transition timing (see [when transitions happen](/build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node#when-can-transition-happen)), so your [transition conditions](/build/setup/conversation-flow/transition-conditions) can branch on what came back: one edge for "contact found", another for "no match", each leading to a different conversation node.
 
 Each tool call times out after 3 to 14 seconds, depending on the provider and tool (as of August 2026). On timeout or error the flow still transitions, so give errors their own edge rather than letting them fall through a success path.

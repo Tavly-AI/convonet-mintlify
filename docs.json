@@ -23,7 +23,7 @@
           {
             "group": "Build Agents",
             "pages": [
-              "build/Build-a-Tavly-AI-Agent-Overview",
+              "build/build-a-tavly-ai-agent-overview",
               {
                 "group": "Setup single / multi prompt agent",
                 "pages": [
@@ -31,7 +31,7 @@
                     "group": "Step 1: Write the prompt",
                     "pages": [
                       "build/setup/single-multi-prompt/Single-or-Multi-Prompt-Agent-Overview",
-                      "build/setup/single-multi-prompt/Write-a-Single-Prompt",
+                      "build/setup/single-multi-prompt/Write-a-single-prompt",
                       "build/setup/single-multi-prompt/Build-a-Multi-Prompt-Agent"
                     ]
                   },

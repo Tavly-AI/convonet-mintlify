@@ -4,7 +4,7 @@ title: 'Nodes and Edges'
 
 > Nodes are the building blocks of Tavly conversation flows. Learn every node type, how edges connect them, and how transition conditions advance calls.
 
-A conversation flow is a graph of **nodes** connected by **edges**. Each node handles one step of the call — talking with the user, running a tool, branching on data, transferring, or ending the call. Each edge carries a [transition condition](/build/conversation-flow/transition-condition) that decides when the agent moves to the next node.
+A conversation flow is a graph of **nodes** connected by **edges**. Each node handles one step of the call — talking with the user, running a tool, branching on data, transferring, or ending the call. Each edge carries a [transition condition](/build/setup/conversation-flow/transition-conditions) that decides when the agent moves to the next node.
 
 Breaking the conversation into nodes lets you control, fine-tune, and debug each step independently — you can change one part of the flow without touching the rest.
 
@@ -14,28 +14,28 @@ Each node type plays a specific role. Pick the type that matches what the step n
 
 ### Dialogue nodes
 
-* [**Conversation Node**](/build/conversation-flow/conversation-node): Pure dialogue with the user — no tool calling. The agent can hold a multi-turn conversation within a single node, so you don't need a new node for every line. Supports two instruction modes: **Prompt** (the LLM generates responses dynamically) and **Static Sentence** (the agent says a fixed line first, then continues dynamically if the conversation stays in the node). Transitions are evaluated after each user response.
-* [**Subagent Node**](/build/conversation-flow/subagent-node): Dialogue where the agent can also call tools/functions based on context. Unlike a function node (which executes deterministically on entry), the LLM decides **whether and when** to invoke each tool from what the user says. Supports multiple tools per node and stays active across multiple turns and tool calls before transitioning. Use a function node instead when a tool must always run at that step.
-* [**Extract DV Node**](/build/conversation-flow/extract-dv-node): Extracts information from the conversation so far and stores it as dynamic variables on entry — not for dialogue. The LLM analyzes the full conversation to capture each value you define by name, description, and type (Text, Number, Enum, or Boolean). Useful for structured data that downstream nodes or Post Call Extraction need.
+* [**Conversation Node**](/build/setup/conversation-flow/add-nodes/conversation-node): Pure dialogue with the user — no tool calling. The agent can hold a multi-turn conversation within a single node, so you don't need a new node for every line. Supports two instruction modes: **Prompt** (the LLM generates responses dynamically) and **Static Sentence** (the agent says a fixed line first, then continues dynamically if the conversation stays in the node). Transitions are evaluated after each user response.
+* [**Subagent Node**](/build/setup/conversation-flow/add-nodes/subagent-node): Dialogue where the agent can also call tools/functions based on context. Unlike a function node (which executes deterministically on entry), the LLM decides **whether and when** to invoke each tool from what the user says. Supports multiple tools per node and stays active across multiple turns and tool calls before transitioning. Use a function node instead when a tool must always run at that step.
+* [**Extract DV Node**](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node): Extracts information from the conversation so far and stores it as dynamic variables on entry — not for dialogue. The LLM analyzes the full conversation to capture each value you define by name, description, and type (Text, Number, Enum, or Boolean). Useful for structured data that downstream nodes or Post Call Extraction need.
 
 ### Action nodes
 
-* [**Function Node**](/build/conversation-flow/function-node): Executes a single tool/function deterministically on node entry — not for dialogue. Turn on **Wait for Result** when the next hop depends on the return value, then branch on the outcome directly from this node. The agent can optionally speak while it runs (e.g. "Let me check that for you").
-* [**Code Node**](/build/conversation-flow/code-node): Runs JavaScript in Tavly's sandbox on entry — no external server needed. Best for data transformation, calculations, formatting, and simple read-only lookups via `fetch()`. Has access to dynamic variables and call metadata, and can store return values into dynamic variables. For anything needing secrets, authentication, or writes, use a custom function instead.
-* [**SMS Node**](/build/conversation-flow/sms-node): Sends an SMS during an active phone call, to the caller or another number. Requires an SMS-enabled or SMS-approved Tavly number. Transitions once the SMS succeeds or fails. *(Voice agents only.)*
-* [**MCP Node**](/build/conversation-flow/mcp-node): Calls a tool on an external MCP (Model Context Protocol) server on entry. Connect your server, select a tool, and optionally extract response values into dynamic variables for later nodes. The agent can speak while it runs.
+* [**Function Node**](/build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node): Executes a single tool/function deterministically on node entry — not for dialogue. Turn on **Wait for Result** when the next hop depends on the return value, then branch on the outcome directly from this node. The agent can optionally speak while it runs (e.g. "Let me check that for you").
+* [**Code Node**](/build/setup/conversation-flow/add-nodes/code-node-run-javascript): Runs JavaScript in Tavly's sandbox on entry — no external server needed. Best for data transformation, calculations, formatting, and simple read-only lookups via `fetch()`. Has access to dynamic variables and call metadata, and can store return values into dynamic variables. For anything needing secrets, authentication, or writes, use a custom function instead.
+* [**SMS Node**](/build/setup/conversation-flow/add-nodes/sms-node): Sends an SMS during an active phone call, to the caller or another number. Requires an SMS-enabled or SMS-approved Tavly number. Transitions once the SMS succeeds or fails. *(Voice agents only.)*
+* [**MCP Node**](/build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow): Calls a tool on an external MCP (Model Context Protocol) server on entry. Connect your server, select a tool, and optionally extract response values into dynamic variables for later nodes. The agent can speak while it runs.
 
 ### Call control nodes
 
-* [**Call Transfer Node**](/build/conversation-flow/call-transfer-node): Transfers the call to another phone number or SIP URI. The agent doesn't speak in this node — put a conversation node with **Skip Response** before it for a line like "Let me transfer you." Supports cold, warm (with human detection, whisper/three-way messages), and agentic warm transfer. Use this node — not a conversation node — whenever the agent should transfer to a human. *(Voice agents only.)*
-* [**Transfer Agent Node**](/build/conversation-flow/transfer-agent-node): Hands the conversation to a different Tavly agent mid-call. Near-instant (no new phone call), the destination agent inherits the full conversation history, and no separate phone number is needed. Preferred over call transfer when routing between AI agents (e.g. front-desk → booking, or language-based routing).
-* [**Press Digit Node**](/build/conversation-flow/press-digit-node): Navigates IVR menus by sending DTMF tones. The agent doesn't speak — it listens to IVR prompts and infers which digit to press from your instruction, evaluating on each IVR utterance. Give clear guidance on which options to choose and which to avoid. *(Voice agents only.)*
-* [**End Node**](/build/conversation-flow/end-node): Ends the call. Enable **Speak During Execution** with an instruction so the agent gives a closing message before hanging up; otherwise the call ends abruptly.
+* [**Call Transfer Node**](/build/setup/conversation-flow/add-nodes/call-transfer-node): Transfers the call to another phone number or SIP URI. The agent doesn't speak in this node — put a conversation node with **Skip Response** before it for a line like "Let me transfer you." Supports cold, warm (with human detection, whisper/three-way messages), and agentic warm transfer. Use this node — not a conversation node — whenever the agent should transfer to a human. *(Voice agents only.)*
+* [**Transfer Agent Node**](/build/setup/conversation-flow/add-nodes/agent-transfer-node): Hands the conversation to a different Tavly agent mid-call. Near-instant (no new phone call), the destination agent inherits the full conversation history, and no separate phone number is needed. Preferred over call transfer when routing between AI agents (e.g. front-desk → booking, or language-based routing).
+* [**Press Digit Node**](/build/setup/conversation-flow/add-nodes/press-digit-node): Navigates IVR menus by sending DTMF tones. The agent doesn't speak — it listens to IVR prompts and infers which digit to press from your instruction, evaluating on each IVR utterance. Give clear guidance on which options to choose and which to avoid. *(Voice agents only.)*
+* [**End Node**](/build/setup/conversation-flow/add-nodes/end-node): Ends the call. Enable **Speak During Execution** with an instruction so the agent gives a closing message before hanging up; otherwise the call ends abruptly.
 
 ### Logic and structure
 
-* [**Logic Split Node**](/build/conversation-flow/logic-split-node): Evaluates conditions and branches the flow immediately on entry — the agent doesn't speak. Useful for splitting on dynamic variables or conditions without stacking everything onto the previous node. Always has an else destination as a fallback so the flow never gets stuck.
-* [**Subflow**](/build/conversation-flow/components): Packages a reusable subflow (a group of nodes) that appears as a single node on the main canvas. Subflows can be local to one agent or shared across agents in a library; they run their internal nodes and return control to the main flow via an exit node. Tools defined inside a subflow stay scoped to it.
+* [**Logic Split Node**](/build/setup/conversation-flow/add-nodes/logic-split-node): Evaluates conditions and branches the flow immediately on entry — the agent doesn't speak. Useful for splitting on dynamic variables or conditions without stacking everything onto the previous node. Always has an else destination as a fallback so the flow never gets stuck.
+* [**Subflow**](/build/setup/conversation-flow/components): Packages a reusable subflow (a group of nodes) that appears as a single node on the main canvas. Subflows can be local to one agent or shared across agents in a library; they run their internal nodes and return control to the main flow via an exit node. Tools defined inside a subflow stay scoped to it.
 
 ## How nodes connect
 
@@ -46,7 +46,7 @@ Every node except the end node moves the call forward through edges. A node can 
 * **Always edge** transitions unconditionally after the user responds.
 * **Skip Response edge** appears when the node's Skip Response setting is on: the node transitions as soon as the agent finishes speaking, without waiting for a reply.
 
-How conditions are written, and the exact order they're evaluated in, is covered in [transition conditions](/build/conversation-flow/transition-condition).
+How conditions are written, and the exact order they're evaluated in, is covered in [transition conditions](/build/setup/conversation-flow/transition-conditions).
 
 ## Add a node
 
@@ -68,7 +68,7 @@ How conditions are written, and the exact order they're evaluated in, is covered
   </Step>
 
   <Step title="Add transition conditions">
-    Click the bottom part of the node to add edges, then write a [transition condition](/build/conversation-flow/transition-condition) for each.
+    Click the bottom part of the node to add edges, then write a [transition condition](/build/setup/conversation-flow/transition-conditions) for each.
   </Step>
 
   <Step title="Connect node">

@@ -4,7 +4,7 @@ title : MCP node in conversation flow
 
 > Add an MCP node to a Tavly conversation flow to call remote MCP server tools during a live call, with custom headers and authentication.
 
-The MCP node is used to call tools on your MCP server. It's not intended for having a conversation with the user, but the agent can still talk while in this node if needed. For single- and multi-prompt agents, connect an MCP server through the response engine instead — see [MCP tools for single and multi-prompt agents](/build/single-multi-prompt/mcp).
+The MCP node is used to call tools on your MCP server. It's not intended for having a conversation with the user, but the agent can still talk while in this node if needed. For single- and multi-prompt agents, connect an MCP server through the response engine instead — see [MCP tools for single and multi-prompt agents](/build/setup/single-multi-prompt/mcp-tools).
 
 <Frame>
   <img width="250px" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/mcp/node.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=e0bfeacf317232bd2956dcd06f8190a7" data-path="images/cf/mcp/node.png" />
@@ -24,7 +24,7 @@ The MCP node is used to call tools on your MCP server. It's not intended for hav
   <Step title="Set request headers (optional)">
     You can define custom headers to include with the request Tavly sends to your MCP Server.
 
-    Headers and query parameters are the only way Tavly authenticates to your MCP server — most often an auth header such as `Authorization: Bearer <token>`. Tavly doesn't run an interactive OAuth flow; if your server requires OAuth, obtain the access token outside of Tavly and pass it in a header. Values can include [dynamic variables](/build/dynamic-variables), so you can pass a per-call token as `{{access_token}}`.
+    Headers and query parameters are the only way Tavly authenticates to your MCP server — most often an auth header such as `Authorization: Bearer <token>`. Tavly doesn't run an interactive OAuth flow; if your server requires OAuth, obtain the access token outside of Tavly and pass it in a header. Values can include [dynamic variables](/build/context/dynamic-variables), so you can pass a per-call token as `{{access_token}}`.
 
     <Note>To restrict your MCP server to requests from Tavly, allowlist Tavly's outbound IP address: `100.20.5.228`.</Note>
 
@@ -75,5 +75,5 @@ The MCP node is used to call tools on your MCP server. It's not intended for hav
 
 ## Node Settings
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/conversation-flow/finetune-examples)
+* **Global Node**: read more at [Global Node](/build/setup/conversation-flow/advanced/global-node)
+* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/setup/conversation-flow/advanced/finetune-examples)

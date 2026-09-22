@@ -13,7 +13,7 @@ For example, a Code node can normalize an appointment timestamp, return an
 `appointment_label`, and let the flow route based on whether the timestamp was
 valid.
 
-If you use a single- or multi-prompt agent, see [Code Tool](/build/single-multi-prompt/code-tool).
+If you use a single- or multi-prompt agent, see [Code Tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript).
 
 <Frame caption="A Code node on the conversation flow canvas.">
   <img src="https://mintcdn.com/retellai/9xto-Or-KLZnnbLr/images/cf/code-node.png?fit=max&auto=format&n=9xto-Or-KLZnnbLr&q=85&s=47f4edf2355f4b2f96ca573723392a7f" alt="Conversation flow canvas with a Code node that has an Open button for its code configuration and an outgoing transition." width="150" height="159" data-path="images/cf/code-node.png" />
@@ -33,7 +33,7 @@ If you use a single- or multi-prompt agent, see [Code Tool](/build/single-multi-
   Use a Code node only for logic that can run without secrets. Dynamic variables
   and metadata are stored in plaintext with the call or chat record. For
   authentication, secret management, internal systems, or production writes, use
-  a [custom function](/build/conversation-flow/custom-function) hosted on your
+  a [custom function](/build/setup/conversation-flow/function-node/custom-function-in-conversation-flow) hosted on your
   backend.
 </Warning>
 
@@ -102,7 +102,7 @@ The code runs inside a QuickJS sandbox. Top-level `await` is supported.
 
 ### `dv`: dynamic variables
 
-Read [dynamic variables](/build/dynamic-variables) as properties of `dv`. All
+Read [dynamic variables](/build/context/dynamic-variables) as properties of `dv`. All
 values in `dv` are strings, including values stored by earlier nodes.
 
 ```javascript theme={"dark"}
@@ -122,8 +122,8 @@ such as `call_id`, `chat_id`, `session_type`, `direction`, `user_number`, and
 
 ### `metadata`: call or chat metadata
 
-Read metadata passed when you create the [phone call](/api-references/create-phone-call)
-or [chat](/api-references/create-chat).
+Read metadata passed when you create the phone call {/* broken-link: /api-references/create-phone-call target page does not exist in this repo */}
+or chat {/* broken-link: /api-references/create-chat target page does not exist in this repo */}.
 
 ```javascript theme={"dark"}
 const customerId = metadata.customer_id;
@@ -228,7 +228,7 @@ running, the agent can still respond to that turn. Turning **Talk While
 Waiting** off suppresses the node's entry message; it doesn't block responses
 to caller interruptions.
 
-Use [transition conditions](/build/conversation-flow/transition-condition) that
+Use [transition conditions](/build/setup/conversation-flow/transition-conditions) that
 check stored result fields before the agent confirms an action succeeded.
 
 ## Node settings

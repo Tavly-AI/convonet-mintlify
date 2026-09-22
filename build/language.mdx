@@ -24,14 +24,14 @@ The chosen voice must support the chosen language. The dashboard hides unsupport
 
 ## Need more than one language?
 
-<Card title="Configure a multilingual agent" icon="globe" href="/agent/multilingual">
+<Card title="Configure a multilingual agent" icon="globe" href="/build/multilingual">
   For agents that serve callers in different languages, see the multilingual guide.
 </Card>
 
-If you already know the caller's language at call time (for example, from CRM context or the dialed number), prefer overriding the language per call via the [inbound call webhook](/features/inbound-call-webhook). This gives you single-language accuracy on each call without limiting which customers the agent can serve.
+If you already know the caller's language at call time (for example, from CRM context or the dialed number), prefer overriding the language per call via the inbound call webhook {/* broken-link: /features/inbound-call-webhook target page does not exist in this repo */}. This gives you single-language accuracy on each call without limiting which customers the agent can serve.
 
 <Note>
-  Speech recognition often confuses closely related languages — for example **Cantonese vs. Mandarin Chinese**, or Cantonese mixed with English. If your callers speak these, keep the agent single-language and route each caller to the right agent (or set the language per call) instead of relying on auto-detect. See [Closely related languages are hard to distinguish](/agent/multilingual#closely-related-languages-are-hard-to-distinguish) for details.
+  Speech recognition often confuses closely related languages — for example **Cantonese vs. Mandarin Chinese**, or Cantonese mixed with English. If your callers speak these, keep the agent single-language and route each caller to the right agent (or set the language per call) instead of relying on auto-detect. See [Closely related languages are hard to distinguish](/build/multilingual#closely-related-languages-are-hard-to-distinguish) for details.
 </Note>
 
 ## Supported languages
@@ -40,6 +40,6 @@ The language you pick must be supported by both your chosen **voice provider** (
 
 On any agent page, open the language picker — the dropdown shows the live set of supported languages and updates as you change the voice provider, voice (and pinned voice model), and ASR provider. The same picker works in both single-language and multiselect modes. Unsupported combinations are greyed out, with a tooltip explaining which selection is blocking each one.
 
-For a full per-language breakdown of which voice and speech recognition providers cover each language, see [Language support by provider](/build/language-support). Still picking your stack? See the [TTS provider comparison](/build/tts-provider-comparison) and [speech recognition providers](/build/asr-providers) for provider-level coverage and trade-offs.
+For a full per-language breakdown of which voice and speech recognition providers cover each language, see [Language support by provider](/build/language-support). Still picking your stack? See the [TTS provider comparison](/build/speech/tts-provider-comparison) and [speech recognition providers](/build/understanding/asr-providers) for provider-level coverage and trade-offs.
 
 For locale variants (for example, British English vs. US English, European Spanish vs. Latin American Spanish), the dashboard's language picker exposes the specific dialect codes when supported.

@@ -17,9 +17,9 @@ Add the Press Digit tool when a single-prompt or multi-prompt voice agent places
 
 Reach for a different feature when:
 
-* You're building a **conversation flow** agent. Use the [Press Digit Node](/build/conversation-flow/press-digit-node) instead, which handles IVR navigation as a dedicated node with its own transitions.
-* You want to capture digits the **caller** presses, like a PIN or menu choice, rather than press digits yourself. See [Capture DTMF input from user](/build/user-dtmf).
-* You just want the agent to **hang up** when it hits an IVR instead of navigating it. See [IVR hangup](/build/handle-voicemail#ivr-hangup).
+* You're building a **conversation flow** agent. Use the [Press Digit Node](/build/setup/conversation-flow/add-nodes/press-digit-node) instead, which handles IVR navigation as a dedicated node with its own transitions.
+* You want to capture digits the **caller** presses, like a PIN or menu choice, rather than press digits yourself. See [Capture DTMF input from user](/build/telephony/user-dtmf).
+* You just want the agent to **hang up** when it hits an IVR instead of navigating it. See [IVR hangup](/build/telephony/handle-voicemail#ivr-hangup).
 
 <Note>
   Press Digit is voice-only. It isn't available for chat agents.
@@ -183,7 +183,7 @@ Reach for a different feature when:
 
 ## Using a custom LLM
 
-If you run your own LLM instead of Tavly AI LLM, you don't add the Press Digit tool. Instead, set `digit_to_press` on your response in the [LLM WebSocket protocol](/api-references/llm-websocket#response-event), and Tavly AI sends the DTMF tones after the associated content finishes. Have the agent stay silent for that response so it doesn't speak while pressing. See [function calling for a custom LLM](/integrate-llm/integrate-function-calling#transfer-and-press-digits) for a worked example.
+If you run your own LLM instead of Tavly AI LLM, you don't add the Press Digit tool. Instead, set `digit_to_press` on your response in the LLM WebSocket protocol {/* broken-link: /api-references/llm-websocket#response-event target page does not exist in this repo -->, and Tavly AI sends the DTMF tones after the associated content finishes. Have the agent stay silent for that response so it doesn't speak while pressing. See function calling for a custom LLM <!-- broken-link: /integrate-llm/integrate-function-calling#transfer-and-press-digits target page does not exist in this repo */} for a worked example.
 
 ## FAQ
 
@@ -203,7 +203,7 @@ If you run your own LLM instead of Tavly AI LLM, you don't add the Press Digit t
 
 ## Related
 
-* [Press Digit Node](/build/conversation-flow/press-digit-node): the equivalent for conversation flow agents.
-* [Capture DTMF input from user](/build/user-dtmf): accept keypad input from the caller.
-* [Handle voicemail and IVR](/build/handle-voicemail): detect voicemails and IVRs, or hang up automatically.
-* [Function calling](/build/single-multi-prompt/function-calling): the full set of tools you can add to an agent.
+* [Press Digit Node](/build/setup/conversation-flow/add-nodes/press-digit-node): the equivalent for conversation flow agents.
+* [Capture DTMF input from user](/build/telephony/user-dtmf): accept keypad input from the caller.
+* [Handle voicemail and IVR](/build/telephony/handle-voicemail): detect voicemails and IVRs, or hang up automatically.
+* [Function calling](/build/setup/single-multi-prompt/Function-Calling-Overview): the full set of tools you can add to an agent.

@@ -40,6 +40,6 @@ By default, the agent won't end the call automatically. You'll need to configure
 
 The steps above configure the agent to hang up on its own. You can also work with call termination through the API:
 
-* **Stop an ongoing call**: Call [Stop Call](/api-references/stop-call) (`POST /v2/stop-call/{call_id}`) to immediately end a live call from your server.
-* **Add the End Call tool programmatically**: Include a tool with `type: end_call` in `general_tools` when you [create](/api-references/create-retell-llm) or [update](/api-references/update-retell-llm) a Tavly AI LLM. This is equivalent to adding the tool in the dashboard.
-* **Custom LLM integrations**: If you bring your own LLM over WebSocket, set `end_call: true` in your response and Tavly AI ends the call after the content is fully spoken. See the [LLM WebSocket reference](/api-references/llm-websocket).
+* **Stop an ongoing call**: Call Stop Call {/* broken-link: /api-references/stop-call target page does not exist in this repo */} (`POST /v2/stop-call/{call_id}`) to immediately end a live call from your server.
+* **Add the End Call tool programmatically**: Include a tool with `type: end_call` in `general_tools` when you create {/* broken-link: /api-references/create-retell-llm target page does not exist in this repo --> or update <!-- broken-link: /api-references/update-retell-llm target page does not exist in this repo */} a Tavly AI LLM. This is equivalent to adding the tool in the dashboard.
+* **Custom LLM integrations**: If you bring your own LLM over WebSocket, set `end_call: true` in your response and Tavly AI ends the call after the content is fully spoken. See the LLM WebSocket reference {/* broken-link: /api-references/llm-websocket target page does not exist in this repo */}.

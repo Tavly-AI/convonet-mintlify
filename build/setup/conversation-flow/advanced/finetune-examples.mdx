@@ -55,7 +55,7 @@ Agent: Great, you're all set!
 Tips:
 * Match the example to the exact wording pattern the model is getting wrong.
 * Cover edge cases — short answers, ambiguous phrasing, or polite deflections.
-* Check the [call history transcript](/build/conversation-flow/debug-guide) to find real examples of incorrect transitions to use as training data.
+* Check the [call history transcript](/build/setup/conversation-flow/debug-guide) to find real examples of incorrect transitions to use as training data.
 
 ## When to use finetune examples
 
@@ -71,4 +71,4 @@ Tips:
 
 * Finetune examples add tokens to every LLM call for that node. Keep each example concise to control cost and latency.
 * Use examples to fix specific observed failures, not as a substitute for clear node instructions.
-* If a response problem persists after adding examples, also consider splitting the node or switching to a more capable model — see the [debug guide](/build/conversation-flow/debug-guide).
+* If a response problem persists after adding examples, also consider splitting the node or switching to a more capable model — see the [debug guide](/build/setup/conversation-flow/debug-guide).
