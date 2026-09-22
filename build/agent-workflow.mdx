@@ -4,7 +4,7 @@ title : Agent workflow
 
 > Run pre-call and post-call functions on a Tavly AI agent: look up the caller before the agent speaks, then log the outcome and create follow-ups.
 
-An agent's **Workflow** page is where you run functions outside the conversation: before the agent speaks, so it starts already knowing who it's talking to, and after the session ends, so your systems are updated without anyone touching them. Voice agents call these **pre-call** and **post-call functions**; chat agents get the same two slots, named **pre-chat** and **post-chat functions**. A function can be a tool from a [connected provider](/integrations/overview), an HTTP request to your own endpoint, a code snippet, or an SMS.
+An agent's **Workflow** page is where you run functions outside the conversation: before the agent speaks, so it starts already knowing who it's talking to, and after the session ends, so your systems are updated without anyone touching them. Voice agents call these **pre-call** and **post-call functions**; chat agents get the same two slots, named **pre-chat** and **post-chat functions**. A function can be a tool from a connected provider {/* broken-link: /integrations/overview target page does not exist in this repo */}, an HTTP request to your own endpoint, a code snippet, or an SMS.
 
 Each slot is a dependency graph rather than a flat list. Functions with no dependency all start at once, and a function that depends on another waits for its output.
 
@@ -36,7 +36,7 @@ Reach for a post-call or post-chat function when the work happens after the conv
 * **Create the follow-up.** Open a task, a ticket, or a callback when the conversation agreed to one.
 * **Notify.** Text the caller a confirmation, or push the result to your own endpoint.
 
-Keep a tool in the conversation itself when the agent needs the result *while* it's talking, like checking calendar availability for a time the caller just named. See [integration tools for prompt agents](/build/single-multi-prompt/integration-tools) and [integration tools in conversation flow](/build/conversation-flow/integration-tools) for that surface.
+Keep a tool in the conversation itself when the agent needs the result *while* it's talking, like checking calendar availability for a time the caller just named. See [integration tools for prompt agents](/build/setup/single-multi-prompt/Integration-Tools) and [integration tools in conversation flow](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow) for that surface.
 
 <Note>
   Workflow functions are configured on the dashboard only (as of August 2026). They are not part of the public API, so you can't set them through `create-agent` or `update-agent`.
@@ -48,7 +48,7 @@ Both slots take the same four kinds of function, from the same **+** menu:
 
 | Function             | What it does                                                                                                                                      | Available in                      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **Integration tool** | A tool from a [connected provider](/integrations/overview) — HubSpot, Salesforce, Dynamics 365, GoHighLevel, Zoho CRM, Zendesk, Calendly, Cal.com | Both slots, both channels         |
+| **Integration tool** | A tool from a connected provider {/* broken-link: /integrations/overview target page does not exist in this repo */} — HubSpot, Salesforce, Dynamics 365, GoHighLevel, Zoho CRM, Zendesk, Calendly, Cal.com | Both slots, both channels         |
 | **Custom function**  | An HTTP request to your own endpoint. The request body carries the session object — under `call` on a voice agent, `chat` on a chat agent         | Both slots, both channels         |
 | **Code**             | JavaScript run in Tavly's sandbox — reshape a value, compute a date, call a small API                                                            | Both slots, both channels         |
 | **SMS**              | Send a text message, with the body written by the LLM from the transcript                                                                         | Post-call only, voice agents only |
@@ -67,7 +67,7 @@ Saving an SMS function in the pre-call slot, or on a chat agent, is rejected: th
   </Step>
 
   <Step title="Configure it">
-    Give it a **Name**. This is how other functions refer to it, so it must be unique within that slot. Then set its inputs and outputs in the **Function fields** card. Every input is either a literal you set now, which may be a `{{variable}}` reference, or a description the LLM fills in; every output you keep is what the agent sees and, optionally, a dynamic variable. On a pre-call function the inputs start on a literal rather than a description, since there's no conversation to infer from yet, but you can switch any of them. [Configure a tool's inputs and outputs](/integrations/overview#configure-a-tools-inputs-and-outputs) covers the modes and the test run in full.
+    Give it a **Name**. This is how other functions refer to it, so it must be unique within that slot. Then set its inputs and outputs in the **Function fields** card. Every input is either a literal you set now, which may be a `{{variable}}` reference, or a description the LLM fills in; every output you keep is what the agent sees and, optionally, a dynamic variable. On a pre-call function the inputs start on a literal rather than a description, since there's no conversation to infer from yet, but you can switch any of them. Configure a tool's inputs and outputs {/* broken-link: /integrations/overview#configure-a-tools-inputs-and-outputs target page does not exist in this repo */} covers the modes and the test run in full.
   </Step>
 
   <Step title="Chain the next one">
@@ -92,7 +92,7 @@ A chain can be at most 4 functions deep, and each slot holds at most 15 function
 
 ## Pass a response from one function to the next
 
-Chaining works through [dynamic variables](/build/dynamic-variables). On the function's **Output** tab, give a response field a name in the **Dynamic variable** column; downstream functions then reference it as `{{that_name}}` in any input, and the agent's prompt can use it too.
+Chaining works through [dynamic variables](/build/context/dynamic-variables). On the function's **Output** tab, give a response field a name in the **Dynamic variable** column; downstream functions then reference it as `{{that_name}}` in any input, and the agent's prompt can use it too.
 
 <Frame caption="Pinning a function input to a dynamic variable: typing `{{` in a value field opens the picker.">
   <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
@@ -111,15 +111,15 @@ If a `{{variable}}` in an input has no value — the function it came from didn'
 
 ### Variables a post-conversation function can use
 
-Post-call and post-chat functions run after [Post Call Extraction](/features/post-call-analysis-overview), so they can read its results on top of everything available during the session:
+Post-call and post-chat functions run after Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */}, so they can read its results on top of everything available during the session:
 
 | Voice                         | Chat                          | What it holds                                                                                        |
 | ----------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `{{call_summary}}`            | `{{chat_summary}}`            | The analysis summary                                                                                 |
 | `{{call_successful}}`         | `{{chat_successful}}`         | Whether the analysis judged the session successful                                                   |
 | `{{user_sentiment}}`          | `{{user_sentiment}}`          | The user's sentiment                                                                                 |
-| One per custom analysis field | One per custom analysis field | Named after the field, from your [Post Call Extraction](/features/post-call-analysis-overview) setup |
-| `{{disconnection_reason}}`    | `{{disconnection_reason}}`    | Why the session ended — see [call disconnect reasons](/reliability/debug-call-disconnect)            |
+| One per custom analysis field | One per custom analysis field | Named after the field, from your Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */} setup |
+| `{{disconnection_reason}}`    | `{{disconnection_reason}}`    | Why the session ended — see call disconnect reasons {/* broken-link: /reliability/debug-call-disconnect target page does not exist in this repo */}            |
 | `{{call_status}}`             | `{{chat_status}}`             | The session's final status                                                                           |
 
 These are available to post-conversation functions only; nothing earlier can read them, because the analysis hasn't run yet.
@@ -153,7 +153,7 @@ A support line answers with the caller's name and their open ticket already in c
 
 The prompt then opens with `Greet {{caller_name}} by name.` and the agent already has the ticket list in context, so "what's the status of my ticket?" is answered on the first turn instead of the third.
 
-The same pair works on a [chat agent](/build/create-chat-agent) as pre-chat functions. Swap `{{user_number}}` for whichever [dynamic variable](/build/dynamic-variables) your chat is started with, such as an email address passed in when the widget opens.
+The same pair works on a [chat agent](/build/create-chat-agent) as pre-chat functions. Swap `{{user_number}}` for whichever [dynamic variable](/build/context/dynamic-variables) your chat is started with, such as an email address passed in when the widget opens.
 
 ### Log the session and open a follow-up task
 
@@ -166,7 +166,7 @@ A sales agent writes every conversation back to HubSpot, and creates a task only
 **Post-call functions:**
 
 1. `log_hubspot_call` — HubSpot **Log Call Activity** on `{{hubspot_contact_id}}`, with the body set to `{{call_summary}}`. Gated on **All**: `{{call_summary}}` exists, so a call that never got far enough to analyze writes nothing.
-2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function beside `log_hubspot_call` so both writes go out at once. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom [Post Call Extraction](/features/post-call-analysis-overview) field. Its subject is a description the LLM fills in from the transcript.
+2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function beside `log_hubspot_call` so both writes go out at once. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */} field. Its subject is a description the LLM fills in from the transcript.
 
 The session is logged every time it completes; the task appears only on the conversations that earned one.
 
@@ -213,7 +213,7 @@ A failure stays inside the function it happened in. A function that errors, time
 
 ## See what ran
 
-Open the call in [call and chat history](/features/session-history) and read the transcript. Pre-call function calls sit under a **Before call** divider at the top, the conversation follows **Call started**, and post-call ones sit under **Call ended** at the bottom. Each entry shows the arguments sent and the response returned, so you can tell a bad input apart from a provider error. During a live call, the same entries collapse under **Before conversation** in the live transcript.
+Open the call in call and chat history {/* broken-link: /features/session-history target page does not exist in this repo */} and read the transcript. Pre-call function calls sit under a **Before call** divider at the top, the conversation follows **Call started**, and post-call ones sit under **Call ended** at the bottom. Each entry shows the arguments sent and the response returned, so you can tell a bad input apart from a provider error. During a live call, the same entries collapse under **Before conversation** in the live transcript.
 
 Chat sessions run their pre-chat and post-chat functions the same way.
 

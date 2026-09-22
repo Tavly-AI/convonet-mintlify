@@ -3,11 +3,11 @@ title : Handle voicemail and IVR
 ---
 > Configure Tavly agents to detect voicemails and IVR systems on outbound calls and choose what to do next — hang up, leave a message, or navigate the menu.
 
-When making [outbound calls](/deploy/outbound-call), your agent may reach a voicemail or an IVR (Interactive Voice Response) menu instead of a person. You can configure the agent to detect these automatically and choose what happens next.
+When making outbound calls {/* broken-link: /deploy/outbound-call target page does not exist in this repo */}, your agent may reach a voicemail or an IVR (Interactive Voice Response) menu instead of a person. You can configure the agent to detect these automatically and choose what happens next.
 
 For example, an outbound reminder campaign can leave a callback message whenever it reaches a voicemail, instead of hanging up silently.
 
-To capture keypad input from the person on the other end, see [capture DTMF input](/build/user-dtmf).
+To capture keypad input from the person on the other end, see [capture DTMF input](/build/telephony/user-dtmf).
 
 <Frame caption="Voicemail and IVR options in the agent's Call Settings.">
   <img height="300" src="https://mintcdn.com/retellai/_fOA1onl6tLJVhDl/images/voicemail_ivr.png?fit=max&auto=format&n=_fOA1onl6tLJVhDl&q=85&s=00ca575ac97c4bcfa9e14f3ef0d4472c" alt="Call Settings panel with Voicemail Detection toggled on, Voicemail Response set to 'Leave a message' with a static callback sentence, and IVR Hangup toggled on." data-path="images/voicemail_ivr.png" />
@@ -18,7 +18,7 @@ To capture keypad input from the person on the other end, see [capture DTMF inpu
 The system runs voicemail detection continuously within a timeout window. You can choose what happens when a voicemail is detected:
 
 * **Hang up** — disconnect immediately, even if the voicemail greeting is still playing.
-* **Leave a message** — wait for the agent's turn to speak, then deliver a message. Supports [dynamic variables](/build/dynamic-variables).
+* **Leave a message** — wait for the agent's turn to speak, then deliver a message. Supports [dynamic variables](/build/context/dynamic-variables).
 
 If the timeout is reached without detecting a voicemail, detection stops and the call continues normally.
 
@@ -42,7 +42,7 @@ If the timeout is reached without detecting a voicemail, detection stops and the
 When enabled, the system detects if your outbound call reaches an IVR (automated phone menu) system and automatically hangs up the call.
 
 <Note>
-  IVR hangup is separate from [IVR navigation](/build/single-multi-prompt/press-digit), which lets your agent interact with and navigate through IVR menus using DTMF tones.
+  IVR hangup is separate from [IVR navigation](/build/setup/single-multi-prompt/Press-Digit-IVR), which lets your agent interact with and navigate through IVR menus using DTMF tones.
 </Note>
 
 To enable, navigate to your agent settings, then open **Call Settings** and toggle on **IVR Hangup**.
@@ -51,7 +51,7 @@ To enable, navigate to your agent settings, then open **Call Settings** and togg
 
 <AccordionGroup>
   <Accordion title="Does voicemail detection work on inbound calls?">
-    No. Voicemail and IVR detection only run on [outbound calls](/deploy/outbound-call), where your agent dials out and may reach a voicemail or automated menu. On inbound calls a person is calling your agent, so there is no voicemail to detect and these settings have no effect.
+    No. Voicemail and IVR detection only run on outbound calls {/* broken-link: /deploy/outbound-call target page does not exist in this repo */}, where your agent dials out and may reach a voicemail or automated menu. On inbound calls a person is calling your agent, so there is no voicemail to detect and these settings have no effect.
   </Accordion>
 
   <Accordion title="The voicemail isn't being hung up even though hang up is enabled. What's wrong?">
@@ -67,7 +67,7 @@ To enable, navigate to your agent settings, then open **Call Settings** and togg
   </Accordion>
 
   <Accordion title="How can I tell if a call reached a voicemail or IVR?">
-    If voicemail is detected, the call will have a [disconnection reason](/reliability/debug-call-disconnect) of `voicemail_reached`. If IVR is detected, the disconnection reason will be `ivr_reached`.
+    If voicemail is detected, the call will have a disconnection reason {/* broken-link: /reliability/debug-call-disconnect target page does not exist in this repo */} of `voicemail_reached`. If IVR is detected, the disconnection reason will be `ivr_reached`.
   </Accordion>
 
   <Accordion title="If the voicemail greeting keeps playing, will the agent hang up?">

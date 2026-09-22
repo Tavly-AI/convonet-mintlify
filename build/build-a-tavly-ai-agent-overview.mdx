@@ -15,38 +15,38 @@ Building an agent means deciding how it understands callers, decides what to say
 Every agent is either a **voice agent** (talks on phone calls) or a [**chat agent**](/build/create-chat-agent) (text-only, reachable via API, an embeddable widget, or SMS). When creating a voice agent, choose between:
 
 <CardGroup cols={2}>
-  <Card title="Conversation Flow Agent" icon="diagram-project" href="/build/conversation-flow/overview">
+  <Card title="Conversation Flow Agent" icon="diagram-project" href="/build/setup/conversation-flow/conversation-flow-overview">
     Build a node-by-node call flow with explicit transitions. Best for structured, multi-step, or high-stakes calls where you need predictable behavior.
   </Card>
 
-  <Card title="Single Prompt Agent" icon="file-lines" href="/build/single-multi-prompt/prompt-overview">
+  <Card title="Single Prompt Agent" icon="file-lines" href="/build/setup/single-multi-prompt/Single-or-Multi-Prompt-Agent-Overview">
     Define the whole agent with one prompt. Fastest to set up, and a good fit for simple, linear conversations with a handful of functions.
   </Card>
 </CardGroup>
 
 <Note>
-  The dashboard also lists **Multi-Prompt Agent** as a legacy option. It still works for agents already built on it, but build new structured agents on a conversation flow instead. See the [single/multi-prompt overview](/build/single-multi-prompt/prompt-overview) if you're maintaining an existing multi-prompt agent.
+  The dashboard also lists **Multi-Prompt Agent** as a legacy option. It still works for agents already built on it, but build new structured agents on a conversation flow instead. See the [single/multi-prompt overview](/build/setup/single-multi-prompt/Single-or-Multi-Prompt-Agent-Overview) if you're maintaining an existing multi-prompt agent.
 </Note>
 
 ## Understand what callers say
 
-Tavly picks a speech recognition [provider](/build/asr-providers) for your agent's configured [languages](/build/language-support). You can also tune [how transcription behaves](/build/transcription-mode) mid-call and [filter out background noise](/build/handle-background-noise) so it doesn't get transcribed as speech.
+Tavly picks a speech recognition [provider](/build/understanding/asr-providers) for your agent's configured [languages](/build/language-support). You can also tune [how transcription behaves](/build/understanding/transcription-mode) mid-call and [filter out background noise](/build/understanding/handle-background-noise) so it doesn't get transcribed as speech.
 
 ## Generate better responses from the LLM
 
-Beyond the prompt itself, you can turn on [Agent Handbook](/build/agent-handbook) presets for personality, accuracy, and safety, enable [Conversational Mode](/build/conversational-mode) to make replies sound more natural, and follow the [prompt engineering guide](/build/prompt-engineering-guide) for structure and edge cases. [LLM options](/build/llm-options) control model-level settings, including temperature, fast tier, and structured output.
+Beyond the prompt itself, you can turn on [Agent Handbook](/build/response/agent-handbook) presets for personality, accuracy, and safety, enable [Conversational Mode](/build/response/conversational-mode) to make replies sound more natural, and follow the [prompt engineering guide](/build/response/prompt-engineering-guide) for structure and edge cases. [LLM options](/build/response/llm-options) control model-level settings, including temperature, fast tier, and structured output.
 
 ## Customize the voice
 
-Pick a [platform](/build/platform-voices) or [custom voice](/build/voice), including cloned voices, and tune how it delivers speech: [expressiveness](/build/expressive-mode), [pauses](/build/add-pause), [pausing silently when the caller asks it to wait](/build/no-response), and a [fallback TTS provider](/build/tts-fallback) if the primary one fails.
+Pick a [platform](/build/speech/platform-voices) or [custom voice](/build/speech/voice), including cloned voices, and tune how it delivers speech: [expressiveness](/build/speech/expressive-mode), [pauses](/build/speech/add-pause), [pausing silently when the caller asks it to wait](/build/speech/no-response), and a [fallback TTS provider](/build/speech/tts-fallback) if the primary one fails.
 
 ## Handle telephony scenarios
 
-Configure what the agent does when a call isn't a normal back-and-forth: detect and respond to [voicemail and IVR menus](/build/handle-voicemail), capture [DTMF keypad input](/build/user-dtmf) from the caller, and pass metadata between systems with [custom SIP headers](/build/telephony/sip-headers).
+Configure what the agent does when a call isn't a normal back-and-forth: detect and respond to [voicemail and IVR menus](/build/telephony/handle-voicemail), capture [DTMF keypad input](/build/telephony/user-dtmf) from the caller, and pass metadata between systems with [custom SIP headers](/build/telephony/sip-headers).
 
 ## Give your agent context
 
-Attach a [knowledge base](/build/knowledge-base) of URLs, documents, or text so the agent retrieves accurate answers instead of relying only on the prompt, and inject per-call data like names or account IDs with [dynamic variables](/build/dynamic-variables).
+Attach a [knowledge base](/build/context/knowledge-base) of URLs, documents, or text so the agent retrieves accurate answers instead of relying only on the prompt, and inject per-call data like names or account IDs with [dynamic variables](/build/context/dynamic-variables).
 
 ## Add guardrails
 
@@ -54,6 +54,6 @@ Turn on [guardrails](/build/guardrails) to automatically catch prohibited topics
 
 ## Test and deploy
 
-Once the agent is configured, validate it in the [LLM Playground or simulation testing](/test/test-overview), then [purchase a number](/deploy/purchase-number) or [connect your own via SIP](/deploy/custom-telephony) to take calls.
+Once the agent is configured, validate it in the LLM Playground or simulation testing {/* broken-link: /test/test-overview target page does not exist in this repo -->, then purchase a number <!-- broken-link: /deploy/purchase-number target page does not exist in this repo --> or connect your own via SIP <!-- broken-link: /deploy/custom-telephony target page does not exist in this repo */} to take calls.
 
-If you manage agent configuration in code, follow the [TypeScript SDK agent creation guide](/get-started/create-agent-with-sdk) to create the response engine and agent, test the draft, and publish a version.
+If you manage agent configuration in code, follow the TypeScript SDK agent creation guide {/* broken-link: /get-started/create-agent-with-sdk target page does not exist in this repo */} to create the response engine and agent, test the draft, and publish a version.

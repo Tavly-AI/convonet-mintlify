@@ -14,7 +14,7 @@ Reach for a custom function whenever the agent needs live data from your systems
 * **Take an action in your backend** — create a support ticket, update a record, send a confirmation.
 * **Branch on your own logic** — call an endpoint that decides where the flow goes next.
 
-Custom functions run inside a [function node](/build/conversation-flow/function-node). If the logic is self-contained and doesn't need your server, a [code node](/build/conversation-flow/code-node) runs it in a sandbox with no endpoint to host, and for common CRM, helpdesk, and calendar actions, [integration tools](/build/conversation-flow/integration-tools) call the provider directly.
+Custom functions run inside a [function node](/build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node). If the logic is self-contained and doesn't need your server, a [code node](/build/setup/conversation-flow/add-nodes/code-node-run-javascript) runs it in a sandbox with no endpoint to host, and for common CRM, helpdesk, and calendar actions, [integration tools](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow) call the provider directly.
 
 ### Example: order status lookup
 
@@ -53,7 +53,7 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 
   <Step title="Set request headers (optional)">
-    Define custom headers to include with the request. Header values can be static or include [dynamic variables](/build/dynamic-variables), such as an auth token you pass in as `{{token}}`.
+    Define custom headers to include with the request. Header values can be static or include [dynamic variables](/build/context/dynamic-variables), such as an auth token you pass in as `{{token}}`.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" alt="Request headers configuration with an Authorization header set to a dynamic variable" width="830" height="132" data-path="images/custom-function/headers.png" />
@@ -61,7 +61,7 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 
   <Step title="Set query parameters (optional)">
-    Define query parameters as key/value pairs that Tavly AI appends to the endpoint URL. Values are applied directly and can include [dynamic variables](/build/dynamic-variables). Query parameters are never filled in by the LLM — for LLM-supplied values, use the request body parameters below.
+    Define query parameters as key/value pairs that Tavly AI appends to the endpoint URL. Values are applied directly and can include [dynamic variables](/build/context/dynamic-variables). Query parameters are never filled in by the LLM — for LLM-supplied values, use the request body parameters below.
   </Step>
 
   <Step title="Define parameters">
@@ -111,7 +111,7 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 
   <Step title="Set response variables (optional)">
-    Extract values from the JSON response and save them as [dynamic variables](/build/dynamic-variables) to use later in the conversation.
+    Extract values from the JSON response and save them as [dynamic variables](/build/context/dynamic-variables) to use later in the conversation.
 
     Point each variable at a field in the response using dot notation, with array indexing where needed — for example `user.name` or `data.items[0].id`. This works only when your endpoint returns a JSON object.
 
@@ -147,7 +147,7 @@ When the function is called, Tavly AI sends a request to your endpoint with the 
   * `Content-Type: application/json` (for POST, PUT, and PATCH).
 * Body (JSON, for POST, PUT, and PATCH only)
   * `name`: the name of the custom function.
-  * `call`: the call object, for context about the call. It includes the transcript up to the moment the request is sent. See [Get Call](/api-references/get-call) for the full object.
+  * `call`: the call object, for context about the call. It includes the transcript up to the moment the request is sent. See Get Call {/* broken-link: /api-references/get-call target page does not exist in this repo */} for the full object.
   * `args`: the function's arguments, as a JSON object.
 
 <Note>

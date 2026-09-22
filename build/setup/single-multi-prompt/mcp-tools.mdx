@@ -4,7 +4,7 @@ title: 'MCP Tools for single/multi-prompt agents'
 
 > Connect a Tavly single- or multi-prompt agent to a remote MCP server so it can call the server's tools during a live voice or chat conversation.
 
-Connect your single- or multi-prompt agent to a remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, and the agent can call that server's tools during a live call. Instead of wiring up one [custom function](/build/single-multi-prompt/custom-function) per action, you point the agent at an MCP server once and choose which of its tools the agent can use.
+Connect your single- or multi-prompt agent to a remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, and the agent can call that server's tools during a live call. Instead of wiring up one [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration) per action, you point the agent at an MCP server once and choose which of its tools the agent can use.
 
 ## When to use MCP tools
 
@@ -14,10 +14,10 @@ Use an MCP server when the tools your agent needs already sit behind an MCP inte
 * **You want many tools from one integration** — connect once, then pick which of the server's tools the agent can access, instead of configuring each endpoint separately.
 * **You use a third-party MCP server** — connect to a hosted MCP service (search, CRM, internal tooling) that already speaks the protocol.
 
-If you only need to call your own API endpoint, a [custom function](/build/single-multi-prompt/custom-function) is simpler — there's no MCP server to run. For self-contained logic that doesn't need a server, use a [code tool](/build/single-multi-prompt/code-tool).
+If you only need to call your own API endpoint, a [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration) is simpler — there's no MCP server to run. For self-contained logic that doesn't need a server, use a [code tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript).
 
 <Note>
-  This page is about connecting your agent **to** a remote MCP server so it can call that server's tools. It's not the same as [Tavly's own MCP server](/get-started/mcp-server), which lets MCP clients like Cursor and Claude Desktop manage your Tavly account.
+  This page is about connecting your agent **to** a remote MCP server so it can call that server's tools. It's not the same as Tavly's own MCP server {/* broken-link: /get-started/mcp-server target page does not exist in this repo */}, which lets MCP clients like Cursor and Claude Desktop manage your Tavly account.
 </Note>
 
 ### Example: order lookup over MCP
@@ -26,7 +26,7 @@ A retail support team already runs an MCP server that exposes `lookup_order` and
 
 ## How it works
 
-You attach the MCP server to the agent, and each tool you enable becomes a tool the agent can call whenever your prompt and the tool's description tell it to — the same way [custom functions](/build/single-multi-prompt/custom-function) and [prebuilt functions](/build/single-multi-prompt/function-calling) work. Tavly connects to the server over Streamable HTTP, lists the server's tools, and calls a tool with arguments the LLM fills in from the conversation. The tool's response is handed back to the agent, which can speak it, act on it, or save parts of it as [dynamic variables](/build/dynamic-variables).
+You attach the MCP server to the agent, and each tool you enable becomes a tool the agent can call whenever your prompt and the tool's description tell it to — the same way [custom functions](/build/setup/single-multi-prompt/Custom-Function-Integration) and [prebuilt functions](/build/setup/single-multi-prompt/Function-Calling-Overview) work. Tavly connects to the server over Streamable HTTP, lists the server's tools, and calls a tool with arguments the LLM fills in from the conversation. The tool's response is handed back to the agent, which can speak it, act on it, or save parts of it as [dynamic variables](/build/context/dynamic-variables).
 
 ## Connect an MCP server
 
@@ -46,11 +46,11 @@ You attach the MCP server to the agent, and each tool you enable becomes a tool 
   </Step>
 
   <Step title="Set request headers (optional)">
-    Under **Headers**, add the key/value pairs Tavly sends with the MCP connection request — most often an auth header such as `Authorization: Bearer <token>`. Click **New key value pair** for each header. Values can include [dynamic variables](/build/dynamic-variables), so you can pass a per-call token as `{{api_key}}`.
+    Under **Headers**, add the key/value pairs Tavly sends with the MCP connection request — most often an auth header such as `Authorization: Bearer <token>`. Click **New key value pair** for each header. Values can include [dynamic variables](/build/context/dynamic-variables), so you can pass a per-call token as `{{api_key}}`.
   </Step>
 
   <Step title="Set query parameters (optional)">
-    Under **Query Parameters**, add key/value pairs Tavly appends to the server URL as a query string. Use this for servers that authenticate or route by query parameter. Values can include [dynamic variables](/build/dynamic-variables) too.
+    Under **Query Parameters**, add key/value pairs Tavly appends to the server URL as a query string. Use this for servers that authenticate or route by query parameter. Values can include [dynamic variables](/build/context/dynamic-variables) too.
   </Step>
 
   <Step title="Save the server">
@@ -68,7 +68,7 @@ You attach the MCP server to the agent, and each tool you enable becomes a tool 
   </Step>
 
   <Step title="Set response variables (optional)">
-    In **Store Fields as Variables**, extract values from the tool's response and save them as [dynamic variables](/build/dynamic-variables) to use later in the call. Each row maps a variable name to the path of a field in the response, using dot notation with array indexing where needed — for example `user.name` or `data.items[0].id`. This works only when the tool returns a JSON object.
+    In **Store Fields as Variables**, extract values from the tool's response and save them as [dynamic variables](/build/context/dynamic-variables) to use later in the call. Each row maps a variable name to the path of a field in the response, using dot notation with array indexing where needed — for example `user.name` or `data.items[0].id`. This works only when the tool returns a JSON object.
 
     For example, from this response you could save the name and reference it later as `{{user_name}}`:
 
@@ -106,7 +106,7 @@ You attach the MCP server to the agent, and each tool you enable becomes a tool 
 
 <AccordionGroup>
   <Accordion title="What's the difference between an MCP tool and a custom function?">
-    Both let the agent take an action mid-call. A [custom function](/build/single-multi-prompt/custom-function) calls one HTTP endpoint you host. An MCP tool connects to a remote MCP server that can expose many tools through a single connection, and Tavly discovers those tools from the server. Use MCP when the tools already live behind an MCP server; use a custom function to call your own API directly.
+    Both let the agent take an action mid-call. A [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration) calls one HTTP endpoint you host. An MCP tool connects to a remote MCP server that can expose many tools through a single connection, and Tavly discovers those tools from the server. Use MCP when the tools already live behind an MCP server; use a custom function to call your own API directly.
   </Accordion>
 
   <Accordion title="Why isn't my agent calling the tool?">
@@ -122,15 +122,15 @@ You attach the MCP server to the agent, and each tool you enable becomes a tool 
   </Accordion>
 
   <Accordion title="My MCP server requires OAuth. Can Tavly handle the OAuth flow?">
-    No. Tavly authenticates to your MCP server only through the request headers and query parameters you configure — it doesn't run an interactive OAuth authorization flow. If your server requires OAuth, obtain the access token outside of Tavly and pass it in a header such as `Authorization: Bearer <token>`. For short-lived tokens, use a [dynamic variable](/build/dynamic-variables) like `{{access_token}}` in the header value and pass a fresh token with each call.
+    No. Tavly authenticates to your MCP server only through the request headers and query parameters you configure — it doesn't run an interactive OAuth authorization flow. If your server requires OAuth, obtain the access token outside of Tavly and pass it in a header such as `Authorization: Bearer <token>`. For short-lived tokens, use a [dynamic variable](/build/context/dynamic-variables) like `{{access_token}}` in the header value and pass a fresh token with each call.
   </Accordion>
 
   <Accordion title="Can I restrict my MCP server to requests from Tavly?">
-    Yes. Tavly's outbound requests come from the IP address `100.20.5.228`, the same address used for [custom functions](/build/single-multi-prompt/custom-function) and [webhooks](/features/webhook-overview). Allowlist it at your firewall, and add a secret in the request headers or query parameters as a second check.
+    Yes. Tavly's outbound requests come from the IP address `100.20.5.228`, the same address used for [custom functions](/build/setup/single-multi-prompt/Custom-Function-Integration) and webhooks {/* broken-link: /features/webhook-overview target page does not exist in this repo */}. Allowlist it at your firewall, and add a secret in the request headers or query parameters as a second check.
   </Accordion>
 
   <Accordion title="Can I use dynamic variables in the MCP server URL?">
-    Yes. The URL accepts [dynamic variables](/build/dynamic-variables) the same way headers and query parameters do — for example `https://mcp.example.com/{{tenant_id}}`. Tavly fills them in when it connects. Every variable in the URL must resolve at call time; if one is still unset, the connection fails with an error instead of calling an incomplete URL.
+    Yes. The URL accepts [dynamic variables](/build/context/dynamic-variables) the same way headers and query parameters do — for example `https://mcp.example.com/{{tenant_id}}`. Tavly fills them in when it connects. Every variable in the URL must resolve at call time; if one is still unset, the connection fails with an error instead of calling an incomplete URL.
   </Accordion>
 
   <Accordion title="Does Tavly retry a failed tool call?">
@@ -142,6 +142,6 @@ You attach the MCP server to the agent, and each tool you enable becomes a tool 
   </Accordion>
 
   <Accordion title="Can I use MCP tools in a conversation flow agent instead?">
-    Yes. Conversation flow agents call MCP tools through a dedicated [MCP node](/build/conversation-flow/mcp-node) rather than adding them to the response engine. The server configuration (URL, headers, query params) is the same; the difference is where the tool call fits in the flow.
+    Yes. Conversation flow agents call MCP tools through a dedicated [MCP node](/build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow) rather than adding them to the response engine. The server configuration (URL, headers, query params) is the same; the difference is where the tool call fits in the flow.
   </Accordion>
 </AccordionGroup>

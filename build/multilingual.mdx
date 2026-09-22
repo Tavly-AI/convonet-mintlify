@@ -3,7 +3,7 @@ title : Configure a multilingual agent
 ---
 > Configure a Tavly multilingual agent: pick which languages it supports, understand ASR and TTS accuracy trade-offs, and when single-language is a better fit.
 
-Use a multilingual agent when callers may speak in different languages and you can't determine which language ahead of time. If you can determine the language at the start of a call (for example, from CRM context or the dialed number), you'll get better accuracy by keeping the agent single-language and overriding the language per call via the [inbound call webhook](/features/inbound-call-webhook).
+Use a multilingual agent when callers may speak in different languages and you can't determine which language ahead of time. If you can determine the language at the start of a call (for example, from CRM context or the dialed number), you'll get better accuracy by keeping the agent single-language and overriding the language per call via the inbound call webhook {/* broken-link: /features/inbound-call-webhook target page does not exist in this repo */}.
 
 ## Granular language selection
 
@@ -40,7 +40,7 @@ Speech recognition struggles most on languages that share vocabulary, phonemes, 
 
 For these combinations:
 
-* **Prefer single-language agents.** If you know the caller's language ahead of time — from CRM data, the dialed number, or a language-selection IVR step — spin up one agent per language and route callers to the right one, or override the language per call via the [inbound call webhook](/features/inbound-call-webhook).
+* **Prefer single-language agents.** If you know the caller's language ahead of time — from CRM data, the dialed number, or a language-selection IVR step — spin up one agent per language and route callers to the right one, or override the language per call via the inbound call webhook {/* broken-link: /features/inbound-call-webhook target page does not exist in this repo */}.
 * **Don't rely on auto-detect to separate close variants.** A multilingual agent that includes both Cantonese and Mandarin will mix them up frequently no matter which voice or ASR provider you pick.
 * **English mixed with a Chinese variant is a separate constraint.** Not every ASR provider covers Cantonese, and even fewer cover Cantonese together with Mandarin or English in the multilingual pipeline — check the picker in the dashboard for currently supported combinations, and see [Language support by provider](/build/language-support) for a per-language breakdown.
 

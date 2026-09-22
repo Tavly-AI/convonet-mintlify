@@ -12,7 +12,7 @@ For example, a lending agent can call a Code Tool to calculate a repayment
 amount from values already stored in dynamic variables, then use the returned
 amount in its next response.
 
-If you use a conversation flow agent, see [Code node](/build/conversation-flow/code-node).
+If you use a conversation flow agent, see [Code node](/build/setup/conversation-flow/add-nodes/code-node-run-javascript).
 
 ## When to use Code Tool
 
@@ -27,7 +27,7 @@ If you use a conversation flow agent, see [Code node](/build/conversation-flow/c
 <Note>
   Code Tool doesn't accept LLM-supplied parameters. The sandbox receives only the
   current `dv` and `metadata` objects. If the LLM must compose arguments when it
-  calls the tool, use a [custom function](/build/single-multi-prompt/custom-function).
+  calls the tool, use a [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration).
 </Note>
 
 <Warning>
@@ -127,7 +127,7 @@ The code runs inside a QuickJS sandbox. Top-level `await` is supported.
 
 ### `dv`: dynamic variables
 
-Read [dynamic variables](/build/dynamic-variables) as properties of `dv`. All
+Read [dynamic variables](/build/context/dynamic-variables) as properties of `dv`. All
 values in `dv` are strings, including values stored by earlier tools.
 
 ```javascript theme={"dark"}
@@ -147,7 +147,7 @@ such as `call_id`, `chat_id`, `session_type`, `direction`, `user_number`, and
 
 Code Tool has no parameter schema. If the tool needs values mentioned by the
 caller, extract them into dynamic variables first with an
-[Extract Dynamic Variable tool](/build/single-multi-prompt/extract-dv) or return
+[Extract Dynamic Variable tool](/build/setup/single-multi-prompt/extract-dynamic-variables) or return
 them as response variables from an earlier tool. Because the LLM selects tools,
 it can skip a separate extraction tool. Use a custom function when arguments must be composed
 at call time, or a conversation flow when the extraction and calculation must
@@ -155,8 +155,8 @@ run in a fixed sequence.
 
 ### `metadata`: call or chat metadata
 
-Read metadata passed when you create the [phone call](/api-references/create-phone-call)
-or [chat](/api-references/create-chat).
+Read metadata passed when you create the phone call {/* broken-link: /api-references/create-phone-call target page does not exist in this repo */}
+or chat {/* broken-link: /api-references/create-chat target page does not exist in this repo */}.
 
 ```javascript theme={"dark"}
 const customerId = metadata.customer_id;

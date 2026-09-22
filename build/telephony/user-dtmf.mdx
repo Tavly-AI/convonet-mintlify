@@ -15,7 +15,7 @@ Reach for DTMF capture whenever a caller needs to enter something more reliably 
 * Confirming a menu choice ("Press 1 to confirm, 2 to reschedule").
 * Capturing numeric input in a noisy environment where speech recognition is unreliable.
 
-To capture voicemail or IVR responses on outbound calls instead, see [handle voicemail and IVR](/build/handle-voicemail).
+To capture voicemail or IVR responses on outbound calls instead, see [handle voicemail and IVR](/build/telephony/handle-voicemail).
 
 ## DTMF input completion options
 
@@ -48,7 +48,7 @@ And the transcript would look like this:
 
 <AccordionGroup>
   <Accordion title="Which DTMF format does Tavly capture?">
-    Tavly captures RFC 2833 DTMF (keypad tones sent as RTP events) by default. If digits aren't being recognized, you can confirm how they were sent by [analyzing the call's PCAP file](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events) in Wireshark.
+    Tavly captures RFC 2833 DTMF (keypad tones sent as RTP events) by default. If digits aren't being recognized, you can confirm how they were sent by analyzing the call's PCAP file {/* broken-link: /reliability/debug-calls-pcap#extract-and-inspect-dtmf-events target page does not exist in this repo */} in Wireshark.
   </Accordion>
 
   <Accordion title="What happens if I set more than one completion option?">
@@ -56,6 +56,6 @@ And the transcript would look like this:
   </Accordion>
 
   <Accordion title="Digits the caller pressed aren't showing up. What should I check?">
-    Confirm the agent prompted for keypad input, then inspect the PCAP for a DTMF payload-type mismatch between the SDP and the RTP packets. See [debug SIP calls using PCAP files](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events).
+    Confirm the agent prompted for keypad input, then inspect the PCAP for a DTMF payload-type mismatch between the SDP and the RTP packets. See debug SIP calls using PCAP files {/* broken-link: /reliability/debug-calls-pcap#extract-and-inspect-dtmf-events target page does not exist in this repo */}.
   </Accordion>
 </AccordionGroup>

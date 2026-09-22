@@ -42,7 +42,7 @@ If the instructions are concise but the agent struggles to follow them, try usin
 
 #### Add conversation finetune examples
 
-To achieve a specific response style, add conversation finetune examples. Learn more in our [Finetune Examples](/build/conversation-flow/finetune-examples) guide.
+To achieve a specific response style, add conversation finetune examples. Learn more in our [Finetune Examples](/build/setup/conversation-flow/advanced/finetune-examples) guide.
 
 #### Adjust the LLM temperature
 
@@ -55,17 +55,17 @@ If the agent's responses are inconsistent, try adjusting the LLM temperature:
 If the agent isn't transitioning to the expected node, try these solutions:
 
 * Review your transition conditions: Ensure they precisely match your intended triggers. Consider prompt engineering or breaking down complex conditions into multiple simpler ones.
-* Add transition finetune examples: Provide examples to help the model understand your expectations. See our [Finetune Examples](/build/conversation-flow/finetune-examples) guide.
-* Remove numbered labels from prompts: Items like "PRIORITY 1" or "Step 2" in your global prompt or node instructions can be confused with transition options and trigger a transition whose condition was never met. Use letters ("PRIORITY A") or descriptive names instead — see the [transition conditions FAQ](/build/conversation-flow/transition-condition#faq).
+* Add transition finetune examples: Provide examples to help the model understand your expectations. See our [Finetune Examples](/build/setup/conversation-flow/advanced/finetune-examples) guide.
+* Remove numbered labels from prompts: Items like "PRIORITY 1" or "Step 2" in your global prompt or node instructions can be confused with transition options and trigger a transition whose condition was never met. Use letters ("PRIORITY A") or descriptive names instead — see the [transition conditions FAQ](/build/setup/conversation-flow/transition-conditions#faq).
 
 To handle missing transition scenarios:
 
-* Add more nodes to cover edge cases, particularly global nodes for handling unexpected situations. Learn more about [Global Nodes](/build/conversation-flow/global-node).
+* Add more nodes to cover edge cases, particularly global nodes for handling unexpected situations. Learn more about [Global Nodes](/build/setup/conversation-flow/advanced/global-node).
 * Make transition conditions more flexible and general.
 
 ### Issue: Actual conversation does not match the flow graph
 
 When users deviate from the defined flow:
 
-* Add key steps as global nodes to allow users to skip or jump between nodes. This is particularly useful for inbound support cases without a rigid call structure. See our [Global Node](/build/conversation-flow/global-node) guide.
+* Add key steps as global nodes to allow users to skip or jump between nodes. This is particularly useful for inbound support cases without a rigid call structure. See our [Global Node](/build/setup/conversation-flow/advanced/global-node) guide.
 * Make node instructions more flexible and let the model handle the details naturally.

@@ -52,7 +52,7 @@ Dynamic variables can be used in:
   </Step>
 
   <Step title="Test your dynamic variables">
-    Before deploying, test your dynamic variables using the web interface. You can also set test values for each variable in a [simulation test case](/test/llm-simulation-testing), so automated test runs resolve placeholders the same way real calls do.
+    Before deploying, test your dynamic variables using the web interface. You can also set test values for each variable in a simulation test case {/* broken-link: /test/llm-simulation-testing target page does not exist in this repo */}, so automated test runs resolve placeholders the same way real calls do.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/dynamic.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=d7fd0be7594df5ff87f27d5d551b03fb" alt="Testing dynamic variables in dashboard" data-path="images/dynamic.png" />
@@ -70,7 +70,7 @@ Dynamic variables can be used in:
   <Step title="Implement in production">
     ### For Outbound Calls
 
-    When using the [Create Phone Call](/api-references/create-phone-call) API, set your variables in the
+    When using the Create Phone Call {/* broken-link: /api-references/create-phone-call target page does not exist in this repo */} API, set your variables in the
     `tavly` field. Note that all values must be strings:
 
     ```json theme={"dark"}
@@ -83,12 +83,12 @@ Dynamic variables can be used in:
 
     ### For Inbound Calls
 
-    You can supply dynamic variables in the [Inbound Call Webhook](/features/inbound-call-webhook). More details are at the linked doc.
+    You can supply dynamic variables in the Inbound Call Webhook {/* broken-link: /features/inbound-call-webhook target page does not exist in this repo */}. More details are at the linked doc.
   </Step>
 </Steps>
 
 > **Important:** All values in `tavly_llm_dynamic_variables` must be strings. Numbers, booleans, or other data types are
-> not supported. A number is stored as `"42"` and a boolean as `"true"`. In a [Code Tool](/build/single-multi-prompt/code-tool) or [code node](/build/conversation-flow/code-node), cast them before use — for example `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`.
+> not supported. A number is stored as `"42"` and a boolean as `"true"`. In a [Code Tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript) or [code node](/build/setup/conversation-flow/add-nodes/code-node-run-javascript), cast them before use — for example `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`.
 
 <Note>The spaces around the variable name will be trimmed when evaluating the variable.</Note>
 
@@ -138,11 +138,11 @@ These variables are only available for chat sessions:
 
 ### Post-conversation Variables
 
-These variables exist only after the session ends, so only a post-call or post-chat function on the [agent's workflow](/agent/agent-workflow) can read them: `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, `{{call_status}}`, and one variable per custom [Post Call Extraction](/features/post-call-analysis-overview) field, named after the field. On chat agents the first two are `{{chat_summary}}` and `{{chat_successful}}`, and the status is `{{chat_status}}`.
+These variables exist only after the session ends, so only a post-call or post-chat function on the [agent's workflow](/build/agent-workflow) can read them: `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, `{{call_status}}`, and one variable per custom Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */} field, named after the field. On chat agents the first two are `{{chat_summary}}` and `{{chat_successful}}`, and the status is `{{chat_status}}`.
 
 ### Contact Variables
 
-When a phone call matches a [contact](/features/contacts) by phone number, that contact's fields are passed in as variables automatically. You get `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and one variable per custom contact field, named after the field. Nothing is passed when no contact matches, so write the prompt to read correctly without them. See [contact memory](/integrations/build-contact-memory) for filling those fields from past conversations.
+When a phone call matches a contact {/* broken-link: /features/contacts target page does not exist in this repo --> by phone number, that contact's fields are passed in as variables automatically. You get `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and one variable per custom contact field, named after the field. Nothing is passed when no contact matches, so write the prompt to read correctly without them. See contact memory <!-- broken-link: /integrations/build-contact-memory target page does not exist in this repo */} for filling those fields from past conversations.
 
 ## Nested Variables
 
@@ -209,5 +209,5 @@ Otherwise, greet the customer by name.
 ### Additional Resources
 
 * [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Examples and patterns from the Tavly community
-* [API Reference](/api-references/create-phone-call): Full documentation on passing dynamic variables
-* [Inbound Webhook Guide](/features/inbound-call-webhook): Setting variables for incoming calls
+* API Reference {/* broken-link: /api-references/create-phone-call target page does not exist in this repo */}: Full documentation on passing dynamic variables
+* Inbound Webhook Guide {/* broken-link: /features/inbound-call-webhook target page does not exist in this repo */}: Setting variables for incoming calls

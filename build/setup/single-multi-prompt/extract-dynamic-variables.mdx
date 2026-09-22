@@ -5,7 +5,7 @@ title: 'Extract Dynamic Variables'
 > Add the Extract Dynamic Variable tool to a Tavly AI single- or multi-prompt agent to capture values from a call as typed dynamic variables.
 
 The Extract Dynamic Variable tool captures values from the conversation while a
-call is in progress and stores them as [dynamic variables](/build/dynamic-variables)
+call is in progress and stores them as [dynamic variables](/build/context/dynamic-variables)
 your agent can reuse in later turns. The agent decides when to call it from the
 tool's name, the variables you define, and your agent prompt.
 
@@ -13,7 +13,7 @@ For example, a booking agent can extract the caller's name and email as soon as
 they give them, then reference `{{user_name}}` in its confirmation and pass
 `{{user_email}}` to a later custom function that creates the appointment.
 
-If you use a conversation flow agent, see [Extract Dynamic Variable node](/build/conversation-flow/extract-dv-node).
+If you use a conversation flow agent, see [Extract Dynamic Variable node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node).
 
 ## When to use it
 
@@ -23,13 +23,13 @@ personalize a later response, branch on it, or send it to a function or transfer
 | Need                                                                 | Use                                                                                           |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Reuse a captured value later in the same call                        | **Extract Dynamic Variable tool**                                                             |
-| Collect structured data only for after the call (analytics, webhook) | [Post Call Extraction](/features/post-call-analysis-overview)                                 |
-| Run the extraction on a fixed step in a set sequence                 | [Extract Dynamic Variable node](/build/conversation-flow/extract-dv-node) (conversation flow) |
-| Compute or transform values in code                                  | [Code Tool](/build/single-multi-prompt/code-tool)                                             |
+| Collect structured data only for after the call (analytics, webhook) | Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */}                                 |
+| Run the extraction on a fixed step in a set sequence                 | [Extract Dynamic Variable node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node) (conversation flow) |
+| Compute or transform values in code                                  | [Code Tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript)                                             |
 
 Because the agent chooses when to call the tool, extraction isn't guaranteed to
 run at an exact point. When a value must be captured in a strict order, use a
-[conversation flow](/build/conversation-flow/extract-dv-node) instead.
+[conversation flow](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node) instead.
 
 ## Create the tool
 
@@ -115,22 +115,22 @@ it extracts.
 
 All extracted values are stored as strings, matching how dynamic variables work
 everywhere else in Tavly AI. A `Number` is stored as `"42"` and a `Boolean` as
-`"true"`. In a [Code Tool](/build/single-multi-prompt/code-tool), convert them
+`"true"`. In a [Code Tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript), convert them
 before use, for example `Number(dv.order_count)`.
 
 ## Use the extracted values
 
-Once extracted, a value behaves like any other [dynamic variable](/build/dynamic-variables):
+Once extracted, a value behaves like any other [dynamic variable](/build/context/dynamic-variables):
 
 * Reference it in prompts and tool fields with `{{variable_name}}` on later
   turns.
-* Read it in a [Code Tool](/build/single-multi-prompt/code-tool) as `dv.variable_name`.
-* Pass it to a [custom function](/build/single-multi-prompt/custom-function) or
-  an [agent transfer](/build/single-multi-prompt/transfer-agent).
+* Read it in a [Code Tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript) as `dv.variable_name`.
+* Pass it to a [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration) or
+  an [agent transfer](/build/setup/single-multi-prompt/agent-transfer-tool).
 
 If the caller never provides a value, the tool doesn't set that variable, and
 `{{variable_name}}` stays in its raw form. See
-[handling missing variables](/build/dynamic-variables#handling-missing-variables)
+[handling missing variables](/build/context/dynamic-variables#handling-missing-variables)
 for how to write prompts that tolerate an unset value.
 
 ## Play typing sound
@@ -162,7 +162,7 @@ agents leave this off.
 
   <Accordion title="Is this the same as Post Call Extraction variables?">
     No. This tool captures values *during* the call so the agent can use them in
-    later turns. [Post Call Extraction](/features/post-call-analysis-overview) extracts data
+    later turns. Post Call Extraction {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */} extracts data
     after the call ends for reporting and webhooks, and those values aren't
     available mid-call.
   </Accordion>

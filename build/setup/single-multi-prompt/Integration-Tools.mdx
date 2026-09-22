@@ -4,21 +4,21 @@ title: 'Integration Tools'
 
 > Add HubSpot, Salesforce, Zendesk, or Cal.com tools to a Tavly AI prompt agent: connect once, configure inputs and outputs, and test with live data.
 
-Integration tools let a single- or multi-prompt agent act on a connected provider, during the conversation or [before or after it](/agent/agent-workflow): look up the caller in a CRM, book an appointment, create a support ticket. Tavly AI handles the provider's API and auth, so unlike a [custom function](/build/single-multi-prompt/custom-function) there's no URL to host or request to verify.
+Integration tools let a single- or multi-prompt agent act on a connected provider, during the conversation or [before or after it](/build/agent-workflow): look up the caller in a CRM, book an appointment, create a support ticket. Tavly AI handles the provider's API and auth, so unlike a [custom function](/build/setup/single-multi-prompt/Custom-Function-Integration) there's no URL to host or request to verify.
 
-See the [integrations overview](/integrations/overview) for the providers Tavly AI connects to, what each one's tools do, and how to connect them.
+See the integrations overview {/* broken-link: /integrations/overview target page does not exist in this repo */} for the providers Tavly AI connects to, what each one's tools do, and how to connect them.
 
 ## When to use it
 
 * **Integration tool** — the action lives in a supported provider (CRM record, ticket, booking). No code, no server.
-* **[Custom function](/build/single-multi-prompt/custom-function)** — the action lives in your own systems, or a provider Tavly AI doesn't support; you host the endpoint.
-* **[Code tool](/build/single-multi-prompt/code-tool)** — self-contained logic or a simple API call that can run in Tavly AI's sandbox.
+* **[Custom function](/build/setup/single-multi-prompt/Custom-Function-Integration)** — the action lives in your own systems, or a provider Tavly AI doesn't support; you host the endpoint.
+* **[Code tool](/build/setup/single-multi-prompt/Code-Tool-Run-JavaScript)** — self-contained logic or a simple API call that can run in Tavly AI's sandbox.
 
 ## Add a tool
 
 <Steps>
   <Step title="Connect the provider">
-    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the [integrations overview](/integrations/overview#connect-a-provider). Every agent can then use the connection.
+    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the integrations overview {/* broken-link: /integrations/overview#connect-a-provider target page does not exist in this repo */}. Every agent can then use the connection.
   </Step>
 
   <Step title="Add the tool to the agent">
@@ -36,7 +36,7 @@ See the [integrations overview](/integrations/overview) for the providers Tavly 
 
     * **Connection**: which account the tool acts on, if you've connected several.
     * **Inputs**: each input is either a fixed value you set now (a Cal.com event type ID, a GoHighLevel pipeline) or a description the agent uses to fill the value from the conversation (the caller's preferred time).
-    * **Response variables**: map fields from the tool's result to [dynamic variables](/build/dynamic-variables), so the prompt and later tools can use them (for example, save the contact ID from **Search Contact** and pass it to **Create Task**).
+    * **Response variables**: map fields from the tool's result to [dynamic variables](/build/context/dynamic-variables), so the prompt and later tools can use them (for example, save the contact ID from **Search Contact** and pass it to **Create Task**).
     * **Presentation**: like other tools, you can have the agent speak while the tool executes, and override the description that tells the LLM when to call it.
 
     <Frame caption="Configuring Salesforce's Update Custom Object tool: the custom object is a fixed value picked at configuration time.">
@@ -68,4 +68,4 @@ See the [integrations overview](/integrations/overview) for the providers Tavly 
 ## Notes
 
 * Each tool call times out after 3 to 14 seconds, depending on the provider and tool (as of August 2026). On timeout or error, the agent continues the conversation — prompt it on what to say when a lookup or booking doesn't go through.
-* Conversation flow agents add these tools through a function node instead; see [integration tools in conversation flow](/build/conversation-flow/integration-tools).
+* Conversation flow agents add these tools through a function node instead; see [integration tools in conversation flow](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow).

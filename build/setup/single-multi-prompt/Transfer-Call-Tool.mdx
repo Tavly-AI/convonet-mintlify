@@ -12,9 +12,9 @@ For example, a support agent can stay on the line to answer routine questions an
   Transfer Call works on phone calls only, not web calls. It's available for Tavly AI numbers and imported numbers.
 </Warning>
 
-To hand the conversation to another *AI* agent instead of a phone number, use [Agent Transfer](/build/single-multi-prompt/transfer-agent). It's lower-latency and passes the full conversation history to the next agent.
+To hand the conversation to another *AI* agent instead of a phone number, use [Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool). It's lower-latency and passes the full conversation history to the next agent.
 
-Building a conversation flow agent instead? Use the [call transfer node](/build/conversation-flow/call-transfer-node), which supports the same transfer types.
+Building a conversation flow agent instead? Use the [call transfer node](/build/setup/conversation-flow/add-nodes/call-transfer-node), which supports the same transfer types.
 
 <Steps>
   <Step title="Add the Call Transfer function">
@@ -29,7 +29,7 @@ Building a conversation flow agent instead? Use the [call transfer node](/build/
     Set the transfer number to either:
 
     * a number in E.164 format, or a SIP URI in the form `sip:username@domain` (for example `sip:user@tavly.ai`), or
-    * a [dynamic variable](/build/dynamic-variables) that gets substituted at runtime.
+    * a [dynamic variable](/build/context/dynamic-variables) that gets substituted at runtime.
 
     (Optional) If your transfer destination isn't in E.164 format, change **Format to E.164** to **Keep raw input** to keep the input as is. This applies only when you use custom telephony, not Tavly AI Telephony.
 
@@ -182,7 +182,7 @@ Click the **Two-way Conversation Agent** selector to pick a transfer agent, or c
   Transfer agents are kept in their own list, separate from your normal agents, and can't be used for inbound, outbound, or batch calls. Whether an agent is a transfer agent is fixed when you create it, so you can't convert an existing agent into one.
 </Note>
 
-The transfer agent is given the original conversation automatically, so you don't pass it anything. It knows who called and what they wanted, so it can explain the situation to whoever picks up. Dynamic variables carry over too, including anything you [extracted earlier in the call](/build/single-multi-prompt/extract-dv), plus `original_call_id` if you need to tie the two calls together.
+The transfer agent is given the original conversation automatically, so you don't pass it anything. It knows who called and what they wanted, so it can explain the situation to whoever picks up. Dynamic variables carry over too, including anything you [extracted earlier in the call](/build/setup/single-multi-prompt/extract-dynamic-variables), plus `original_call_id` if you need to tie the two calls together.
 
 What it doesn't get is anything said after the transfer starts, and your main agent never sees the screening conversation. The two calls are recorded and transcribed separately.
 
@@ -190,13 +190,13 @@ What it doesn't get is anything said after the transfer starts, and your main ag
 
 <AccordionGroup>
   <Accordion title="What's the difference between Transfer Call and Agent Transfer?">
-    **Transfer Call** places a real phone call to another number (a human, a department, or an external line). **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** hands the conversation to another *AI* agent within the same call: no new phone call, lower latency, and the destination agent inherits the full conversation history. Use Transfer Call to reach a person or outside number; use Agent Transfer to switch between AI agents.
+    **Transfer Call** places a real phone call to another number (a human, a department, or an external line). **[Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool)** hands the conversation to another *AI* agent within the same call: no new phone call, lower latency, and the destination agent inherits the full conversation history. Use Transfer Call to reach a person or outside number; use Agent Transfer to switch between AI agents.
   </Accordion>
 
   <Accordion title="Agentic warm transfer involves a second AI agent. Isn't that the same as Agent Transfer?">
     No. They solve different problems, and the second AI agent talks to a different person in each case.
 
-    **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** swaps which AI is talking to *your caller*. There's no new phone call: it's the same call, the same call ID, and the conversation history carries over. Use it to move between AI agents, for example from a general receptionist to a billing specialist.
+    **[Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool)** swaps which AI is talking to *your caller*. There's no new phone call: it's the same call, the same call ID, and the conversation history carries over. Use it to move between AI agents, for example from a general receptionist to a billing specialist.
 
     **Agentic warm transfer** places a real outbound call to a phone number. The transfer agent talks to *the person who answers at the destination*, never to your caller, who is on hold the whole time. Use it to screen a human before handing off to them.
 
@@ -204,7 +204,7 @@ What it doesn't get is anything said after the transfer starts, and your main ag
   </Accordion>
 
   <Accordion title="How is a transferred call billed?">
-    While the agent is on the line, including the hold and briefing phases of a warm or agentic warm transfer, the call bills at the normal per-minute rate. Once the caller is connected to the destination and the agent drops off, the AI agent fee stops. Only the telephony fee continues for the remainder of the transferred call. See [Billing](/accounts/billing) for how costs are broken down.
+    While the agent is on the line, including the hold and briefing phases of a warm or agentic warm transfer, the call bills at the normal per-minute rate. Once the caller is connected to the destination and the agent drops off, the AI agent fee stops. Only the telephony fee continues for the remainder of the transferred call. See Billing {/* broken-link: /accounts/billing target page does not exist in this repo */} for how costs are broken down.
   </Accordion>
 
   <Accordion title="When should I use warm transfer instead of cold transfer?">

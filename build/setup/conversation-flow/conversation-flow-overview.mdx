@@ -28,14 +28,14 @@ Conversation flow agents allow you to create multiple nodes to handle different 
   * Default voice and language settings
   * Agent-wide parameters and behaviors
 
-* **[Node](/build/conversation-flow/node)**: The basic unit of conversation flow. Multiple node types are available:
+* **[Node](/build/setup/conversation-flow/add-nodes/nodes-and-edges)**: The basic unit of conversation flow. Multiple node types are available:
   * Conversation nodes for dialogue without tool calling
   * Subagent nodes for dialogue with tool calling
   * Function nodes for deterministic API and tool execution
   * Logic nodes for branching
   * End nodes for call termination
 
-* **[Edge](/build/conversation-flow/transition-condition)**: Connections between nodes that define transition logic:
+* **[Edge](/build/setup/conversation-flow/transition-conditions)**: Connections between nodes that define transition logic:
   * Condition-based transitions
   * Default fallback paths
   * Dynamic routing based on conversation context
@@ -53,8 +53,8 @@ Every node defines a small set of logic, and the transition condition is used to
 
 The builder has a **selector** at the top (it shows **Main flow** by default). Use it to move between everything you have open — each opens in its own tab:
 
-* **Agents**: your main agent (**Main flow**) and any **transfer agents** you open from an [agentic warm transfer](/build/conversation-flow/call-transfer-node).
-* **Subflows**: any [subflows](/build/conversation-flow/components) you open for editing.
+* **Agents**: your main agent (**Main flow**) and any **transfer agents** you open from an [agentic warm transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node).
+* **Subflows**: any [subflows](/build/setup/conversation-flow/components) you open for editing.
 
 You can return to **Main flow** at any time.
 
@@ -71,7 +71,7 @@ Head to the Dashboard, create a new conversation flow agent and select a pre-bui
 A conversation flow is a standalone resource — identified by a `conversation_flow_id` — that an agent references through its `response_engine`. The same flow can be linked to multiple agents, so you can share a single flow across, for example, a staging agent and a production agent, or across multiple language or channel variants.
 
 * In the dashboard, create the flow once, then create or edit each agent and select the existing flow as the agent's response engine.
-* Via API, set the same `response_engine.conversation_flow_id` on each agent when calling [Create Agent](/api-references/create-agent) or [Update Agent](/api-references/update-agent).
+* Via API, set the same `response_engine.conversation_flow_id` on each agent when calling Create Agent {/* broken-link: /api-references/create-agent target page does not exist in this repo --> or Update Agent <!-- broken-link: /api-references/update-agent target page does not exist in this repo */}.
 * Updates to the flow apply to every agent that references it, so publish changes carefully and test in a non-production agent first.
 
 Agent-level settings (voice, language, webhook URL, data storage, Post Call Extraction, etc.) stay on the agent, so two agents sharing a flow can still differ in those areas.

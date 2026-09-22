@@ -11,7 +11,7 @@ Transition conditions decide whether and where the agent moves next. Each edge o
 There are two types of transition conditions:
 
 * **Prompt**: A natural-language condition evaluated by the LLM against the conversation.
-* **Equation**: A deterministic comparison over [dynamic variables](/build/dynamic-variables) — no LLM involved.
+* **Equation**: A deterministic comparison over [dynamic variables](/build/context/dynamic-variables) — no LLM involved.
 
 Example prompt conditions:
 
@@ -33,7 +33,7 @@ Example equation conditions:
 ```
 
 <Note>
-  Equation conditions can only reference dynamic variables. For information the agent learns during the call, either use a prompt condition or first capture the value with an [extract DV node](/build/conversation-flow/extract-dv-node) and branch on it afterwards.
+  Equation conditions can only reference dynamic variables. For information the agent learns during the call, either use a prompt condition or first capture the value with an [extract DV node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node) and branch on it afterwards.
 </Note>
 
 ## Special edges
@@ -50,7 +50,7 @@ When a transition check runs, conditions are evaluated in this order:
 
 1. **Always edge** — if the node has one, the agent transitions through it right after the user responds. Nothing else is checked.
 2. **Equation conditions** — evaluated deterministically before any prompt condition. Among equation edges, evaluation runs top to bottom and the first condition that evaluates true wins.
-3. **Prompt conditions** — if no equation matched, the LLM evaluates all prompt conditions together, alongside any [global node](/build/conversation-flow/global-node) entry conditions, and picks the single best match — or none.
+3. **Prompt conditions** — if no equation matched, the LLM evaluates all prompt conditions together, alongside any [global node](/build/setup/conversation-flow/advanced/global-node) entry conditions, and picks the single best match — or none.
 4. **Else edge** — if nothing matched and the node has an else edge, the agent transitions through it.
 5. **Stay** — otherwise the agent stays in the current node and keeps the conversation going.
 
@@ -127,7 +127,7 @@ The LLM sees the current node's instruction while evaluating conditions, but eac
 * `User responds to question of their age`
 * For function nodes, you can reference the result: `CRM lookup returned successful result`
 
-To keep the agent from getting stuck, cover every case you expect at that point in the conversation. General cases (like objection handling) can live on [global nodes](/build/conversation-flow/global-node), so node-level conditions only need to cover what's specific to that step.
+To keep the agent from getting stuck, cover every case you expect at that point in the conversation. General cases (like objection handling) can live on [global nodes](/build/setup/conversation-flow/advanced/global-node), so node-level conditions only need to cover what's specific to that step.
 
 For equation conditions, cover every branch the dynamic variables can take. For example, to treat callers from New York and Los Angeles differently when `{{user_location}}` is known before the call:
 
@@ -141,7 +141,7 @@ For equation conditions, cover every branch the dynamic variables can take. For 
 If you observe an incorrect transition:
 
 * Rewrite the condition to be more specific about what the user said.
-* Add transition [finetune examples](/build/conversation-flow/finetune-examples) that show the model real transcripts with the correct decision.
+* Add transition [finetune examples](/build/setup/conversation-flow/advanced/finetune-examples) that show the model real transcripts with the correct decision.
 
 ## FAQ
 
@@ -159,6 +159,6 @@ If you observe an incorrect transition:
   </Accordion>
 
   <Accordion title="The agent transitioned to a node whose condition was never met — why?">
-    Check your [global prompt](/build/conversation-flow/global-setting) and node instructions for numbered labels like "PRIORITY 1", "Step 2", or "ATTEMPT 1". When the agent picks the next node, numbers in these lists can be confused with its transition options, so a transition can fire even though its condition was never met. Rename the items to letters ("PRIORITY A") or descriptive names ("New service intent") — the instructions themselves can stay the same.
+    Check your [global prompt](/build/setup/conversation-flow/configure-global-settings) and node instructions for numbered labels like "PRIORITY 1", "Step 2", or "ATTEMPT 1". When the agent picks the next node, numbers in these lists can be confused with its transition options, so a transition can fire even though its condition was never met. Rename the items to letters ("PRIORITY A") or descriptive names ("New service intent") — the instructions themselves can stay the same.
   </Accordion>
 </AccordionGroup>

@@ -30,7 +30,7 @@ Three settings decide how your agent sounds and behaves before you write a word 
       <img src="https://mintcdn.com/retellai/ccDgYqUTi0dx_57A/images/agent-voice-library.png?fit=max&auto=format&n=ccDgYqUTi0dx_57A&q=85&s=1bf186d01961c32fc4ed585ca01a9e9c" alt="The Select Voice dialog open over a dimmed agent page, on the 'Platform Voices' tab beside a 'Custom Providers' tab. An 'Add voice clone' button sits next to Gender, Accent, and Search filters. Below, a grid of voice cards for Cimo, Brynne, Kate, Grace, Marissa, and Lily each shows an avatar, name, traits such as 'American · Middle Aged · retell', and a voice ID such as 'ID: retell-Cimo'. Each card has a play button, except the currently selected voice, which shows a checkmark. A blue box highlights the first card." style={{ maxHeight: 560 }} width="1690" height="1024" data-path="images/agent-voice-library.png" />
     </Frame>
 
-    **Custom voices**: to clone a voice, use **Add voice clone** on the Platform Voices tab. To bring a voice from your own provider account, switch to the **Custom Providers** tab and use **Add custom voice**. See the [custom voice guide](/build/voice) for both.
+    **Custom voices**: to clone a voice, use **Add voice clone** on the Platform Voices tab. To bring a voice from your own provider account, switch to the **Custom Providers** tab and use **Add custom voice**. See the [custom voice guide](/build/speech/voice) for both.
 
     **Voice speed**: the voice settings popover has a Voice Speed slider from 0.5x to 2.0x, defaulting to 1.0x. Check **Dynamically adjust based on user input** and the agent adapts its speaking speed to the user's pace during the call: it tracks the user's words per minute and gradually shifts its own speed to match. With this on, the user can also ask the agent to speak faster or slower mid-call.
   </Step>
@@ -57,11 +57,11 @@ The panels on the right of the agent editor cover everything else. None are requ
 
 <Steps>
   <Step title="Write the prompt">
-    The large box in the middle is where you specify the agent's persona, identity, task, and guardrails. On a multi-prompt agent this text is the global prompt: it applies in every state and influences all response generation. See [write a single prompt](/build/single-multi-prompt/write-single-prompt) and [write a multi prompt](/build/single-multi-prompt/write-multi-prompt).
+    The large box in the middle is where you specify the agent's persona, identity, task, and guardrails. On a multi-prompt agent this text is the global prompt: it applies in every state and influences all response generation. See [write a single prompt](/build/setup/single-multi-prompt/Write-a-single-prompt) and [write a multi prompt](/build/setup/single-multi-prompt/Build-a-Multi-Prompt-Agent).
   </Step>
 
   <Step title="Configure Knowledge Base">
-    Supply context to the agent as documents, URLs, or plain text. Read more at the [knowledge base guide](/build/knowledge-base).
+    Supply context to the agent as documents, URLs, or plain text. Read more at the [knowledge base guide](/build/context/knowledge-base).
   </Step>
 
   <Step title="Configure Speech Settings">
@@ -75,13 +75,13 @@ The panels on the right of the agent editor cover everything else. None are requ
           </Frame>
     * Interruption Sensitivity: how fast the agent gets interrupted by user interruptions. Set it lower if you want the agent to be more resilient to background speech.
     * Reminder frequency: how often the agent will remind the user when the user is inactive.
-    * Pronunciation: [set a pronunciation guide](/build/add-pronunciation) for specific words.
+    * Pronunciation: [set a pronunciation guide](/build/speech/add-pronounciation) for specific words.
   </Step>
 
   <Step title="Configure Call Settings">
     Here are a couple of settings that are more call operation related.
 
-    * Voicemail related settings: voicemail detection and what to do when voicemail is detected. See more at [Handle Voicemail](/build/handle-voicemail).
+    * Voicemail related settings: voicemail detection and what to do when voicemail is detected. See more at [Handle Voicemail](/build/telephony/handle-voicemail).
     * End call on silence: how long to wait when the user is silent before the call gets ended automatically.
     * Call duration: maximum duration of the call.
   </Step>
@@ -95,7 +95,7 @@ The panels on the right of the agent editor cover everything else. None are requ
   </Step>
 
   <Step title="Configure Post-Call Data Extraction">
-    Pull structured results out of each finished call, such as whether the appointment was booked or what the caller asked for. Usually worth setting up later, once the agent handles calls well. Read more at the [Post Call Extraction guide](/features/post-call-analysis-overview).
+    Pull structured results out of each finished call, such as whether the appointment was booked or what the caller asked for. Usually worth setting up later, once the agent handles calls well. Read more at the Post Call Extraction guide {/* broken-link: /features/post-call-analysis-overview target page does not exist in this repo */}.
   </Step>
 
   <Step title="Configure Security & Fallback Settings">
@@ -107,7 +107,7 @@ The panels on the right of the agent editor cover everything else. None are requ
   </Step>
 
   <Step title="Configure Webhook Settings">
-    Point the agent at your endpoint to receive call events. See [register a webhook](/features/register-webhook).
+    Point the agent at your endpoint to receive call events. See register a webhook {/* broken-link: /features/register-webhook target page does not exist in this repo */}.
   </Step>
 </Steps>
 
@@ -123,4 +123,4 @@ See [community prompt templates](https://docs.google.com/document/d/1hx6hdTEjAR4
 
 ## Next steps
 
-Once you've configured these basic settings, your agent is ready for basic interactions. To enhance its capabilities, proceed to [adding capabilities by using function calling](/build/single-multi-prompt/function-calling).
+Once you've configured these basic settings, your agent is ready for basic interactions. To enhance its capabilities, proceed to [adding capabilities by using function calling](/build/setup/single-multi-prompt/Function-Calling-Overview).
