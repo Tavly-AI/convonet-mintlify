@@ -1,61 +1,88 @@
 ---
-title : Capture DTMF input from user
+title: 'DTMF Keypad Input: Collect Caller Digits'
+sidebarTitle: 'DTMF Keypad Input'
+description: 'Collect secure touch-tone DTMF keypad digits from callers during Tavly voice calls, featuring configurable digit limits, delimiter keys, and timeouts.'
+seo:
+  title: 'DTMF Keypad Input | Collect Caller Digits | Tavly AI'
+  description: 'Collect secure touch-tone DTMF keypad digits from callers during Tavly voice calls, featuring configurable digit limits, delimiter keys, and timeouts.'
+og:title: 'Capture DTMF Keypad Input in Tavly'
+og:description: 'Collect secure touch-tone DTMF keypad digits from callers during Tavly voice calls, featuring configurable digit limits, delimiter keys, and timeouts.'
+og:image: 'https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/user_dtmf_settings.png'
+twitter:card: 'summary_large_image'
+icon: 'dialpad'
+keywords: ['DTMF input', 'keypad collection', 'touch-tone AI', 'Tavly AI DTMF', 'secure digit collection', 'telephony IVR input']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is DTMF input?'
+    answer: 'DTMF (dual-tone multi-frequency) input allows callers to submit numeric data (like PINs or account numbers) securely using their phone keypad instead of speaking aloud.'
+  - question: 'How do I stop digit collection?'
+    answer: 'You can configure Tavly to stop collecting digits based on three conditions: when a maximum digit limit is reached, when a specific delimiter key (like #) is pressed, or after a set timeout of inactivity.'
+  - question: 'Which DTMF format does Tavly capture?'
+    answer: 'Tavly natively captures telephony tones conforming to RFC 2833 (DTMF digits transmitted as out-of-band RTP telephony events).'
 ---
-> Capture DTMF keypad input from callers in Tavly agents — accept PINs, menu choices, and numeric entries, and configure completion timing and digit counts.
 
-The user can provide information via DTMF (phone keypad presses) instead of voice. For example, entering a PIN is easier to press on the keypad than to say aloud in public.
+## What is DTMF Keypad Input?
 
-DTMF input is captured by default and factored into the agent's responses. To use it, prompt the agent to ask for the information via DTMF.
+DTMF (dual-tone multi-frequency) input allows callers to securely transmit numeric details using their physical phone keypad. When received, Tavly converts the keypad tones into text and feeds them directly into the conversation context for the language model to process.
 
-## When to use it
+Keypad entry offers a confidential and highly accurate method to collect sensitive data—such as security PINs, payment tokens, or verification codes—without requiring the caller to voice them aloud in public.
 
-Reach for DTMF capture whenever a caller needs to enter something more reliably or privately than by voice:
+**Common Use Cases:**
+* **Sensitive Credentials:** Submitting secure verification passcodes or account IDs.
+* **Menu Branching:** Offering structured numeric IVR selections (e.g., "Press 1 to confirm, press 2 to modify").
+* **Acoustically Challenging Environments:** Gathering clean numeric data when heavy background noise interferes with speech recognition.
 
-* Collecting a PIN, account number, or verification code.
-* Confirming a menu choice ("Press 1 to confirm, 2 to reschedule").
-* Capturing numeric input in a noisy environment where speech recognition is unreliable.
+<Note> **Outbound Detection:** If you are trying to detect outbound automated menus or answering machines, review the [Voicemail and IVR Handling](/build/handle-voicemail) guide instead.</Note>
 
-To capture voicemail or IVR responses on outbound calls instead, see [handle voicemail and IVR](/build/handle-voicemail).
+## How do you configure Completion Rules?
 
-## DTMF input completion options
+You can govern exactly when the agent stops listening for digits and formulates a response by configuring three independent parameters within your agent's **Call Settings**. 
 
-The agent supports three methods for determining when DTMF input is complete:
+You can use these parameters individually or concurrently (e.g., stopping when the caller hits 4 digits *or* presses the pound key).
 
-* **Digit limit (`user_dtmf_options.digit_limit`)**\
-  The maximum number of digits the user can enter per turn (1–50). Once this limit is reached, input is considered complete and the agent responds immediately.
+* **Digit Count Boundary (`user_dtmf_options.digit_limit`):**
+  Sets the absolute upper threshold of digits accepted during a single turn (selectable from 1 to 50). The instant the caller enters this quantity of keys, Tavly marks the input as finished and prompts the agent.
 
-* **Termination key (`user_dtmf_options.termination_key`)**\
-  A single key that signals the end of input. Acceptable values are any digit (`0`–`9`), the pound/hash symbol (`#`), or the asterisk (`*`).
+* **Delimiter Key (`user_dtmf_options.termination_key`):**
+  Designates a single key that instantly signals completion when pressed. Supported characters include numbers `0` through `9`, the hash/pound symbol (`#`), or an asterisk (`*`).
 
-* **Timeout (`user_dtmf_options.timeout_ms`)**\
-  The time in milliseconds to wait after the last digit before timing out (1000–15000). The timer resets with each new digit.
-
-You can find these options under **Call Settings**.
+* **Inactivity Timeout (`user_dtmf_options.timeout_ms`):**
+  Defines the idle window in milliseconds to wait following the most recent keypress before closing input (ranging from 1000ms to 15000ms). The timer resets with every newly received keypress.
 
 <img src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/user_dtmf_settings.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=55c2445b47c7b9983db00eff81e4054e" alt="Call Settings panel showing the DTMF digit limit, termination key, and timeout options." width="1329" height="915" data-path="images/user_dtmf_settings.png" />
 
-Here's an example prompt:
+## How do you prompt the Agent for DTMF?
 
-```
-Please enter your PIN number using the keypad. You can finish by pressing the pound key.
+To trigger keypad collection during a live call, you must explicitly instruct your agent within its system prompt to solicit touch-tone input from the user.
+
+Instruct the model to solicit keypad presses clearly in your prompt architecture:
+```markdown theme={"dark"}
+Please punch in your account PIN on your phone keypad, followed by the pound key to submit.
 ```
 
-And the transcript would look like this:
+When the user enters the digits, the captured DTMF tones appear directly in the conversation log as a recorded user turn:
 
 <img src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/user_dtmf.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=9fbafc57ee80673ede884dfbbe096301" alt="Call transcript showing the caller's DTMF keypad entry captured as digits." width="1182" height="574" data-path="images/user_dtmf.png" />
 
-## FAQ
+## Debugging DTMF Failures
+
+If digits the caller pressed are not showing up in the transcript:
+1. **Verify Prompting:** Confirm that the agent explicitly instructed the caller to press keys. If the agent does not ask, the user may not know to use the keypad.
+2. **Verify RFC 2833 Encoding:** Tavly strictly captures telephony tones conforming to RFC 2833 (out-of-band RTP telephony events). Inspect the SIP network capture to verify that the DTMF payload type negotiated in the SDP matches the RTP telephony event packets. For step-by-step instructions, see [Debug SIP calls using PCAP files](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events).
+
+## Frequently Asked Questions
 
 <AccordionGroup>
   <Accordion title="Which DTMF format does Tavly capture?">
-    Tavly captures RFC 2833 DTMF (keypad tones sent as RTP events) by default. If digits aren't being recognized, you can confirm how they were sent by [analyzing the call's PCAP file](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events) in Wireshark.
+    Tavly captures telephony tones conforming to RFC 2833 (DTMF digits transmitted as out-of-band RTP telephony events). If digits fail to register, verify transmission encoding by [analyzing the call's PCAP file](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events) within Wireshark.
   </Accordion>
 
   <Accordion title="What happens if I set more than one completion option?">
-    Whichever condition is met first completes the input. For example, the agent stops collecting as soon as the digit limit is reached, the termination key is pressed, or the timeout elapses after the last digit.
+    Tavly treats multiple completion parameters as concurrent conditions: the first condition met triggers completion. If you configure both a 4-digit limit and a 5-second timeout, receiving the 4th digit finishes collection immediately without waiting for the timeout.
   </Accordion>
 
   <Accordion title="Digits the caller pressed aren't showing up. What should I check?">
-    Confirm the agent prompted for keypad input, then inspect the PCAP for a DTMF payload-type mismatch between the SDP and the RTP packets. See [debug SIP calls using PCAP files](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events).
+    First confirm that the agent explicitly instructed the caller to press keys. If the prompt was correct, inspect the SIP network capture to verify that the DTMF payload type negotiated in the SDP matches the RTP telephony event packets. For details, see [debug SIP calls using PCAP files](/reliability/debug-calls-pcap#extract-and-inspect-dtmf-events).
   </Accordion>
 </AccordionGroup>

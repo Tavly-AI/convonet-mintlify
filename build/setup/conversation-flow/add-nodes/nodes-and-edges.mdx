@@ -1,139 +1,158 @@
 ---
-title: 'Nodes and Edges'
+title: 'Nodes & Edges: Flow Architecture'
+sidebarTitle: 'Nodes & Edges'
+description: 'Nodes are the fundamental building blocks of a Tavly AI conversation flow. Learn how node types dictate dialogue, take actions, and transition via edges.'
+seo:
+  title: 'Nodes & Edges | Conversation Flow Architecture | Tavly AI'
+  description: 'Nodes are the fundamental building blocks of a Tavly AI conversation flow. Learn how node types dictate dialogue, take actions, and transition via edges.'
+og:title: 'Nodes & Edges in Tavly Conversation Flows'
+og:description: 'Nodes are the fundamental building blocks of a Tavly AI conversation flow. Learn how node types dictate dialogue, take actions, and transition via edges.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/configure-node.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'circle-nodes'
+keywords: ['nodes and edges', 'Tavly AI conversation flow', 'call routing logic', 'AI node types', 'subagent nodes', 'dialogue branching']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Node?'
+    answer: 'A node represents a single step of the call in a conversation flow. It is responsible for talking with the caller, running a tool, branching based on data, or transferring the call.'
+  - question: 'What is an Edge?'
+    answer: 'An edge links nodes together and carries a transition condition that explicitly dictates when and how the agent should move on to the next node.'
+  - question: 'When should I split a node into smaller pieces?'
+    answer: 'Split a node when it handles too many logic paths, when the LLM begins hallucinating due to overloaded instructions, or when different parts of a step require distinct settings (like different models or temperatures).'
 ---
 
-> Nodes are the building blocks of Tavly conversation flows. Learn every node type, how edges connect them, and how transition conditions advance calls.
+## What are Nodes and Edges?
 
-A conversation flow is a graph of **nodes** connected by **edges**. Each node handles one step of the call — talking with the user, running a tool, branching on data, transferring, or ending the call. Each edge carries a [transition condition](/build/conversation-flow/transition-condition) that decides when the agent moves to the next node.
+A conversation flow is essentially a graph—**nodes** linked together by conditional **edges**. 
 
-Breaking the conversation into nodes lets you control, fine-tune, and debug each step independently — you can change one part of the flow without touching the rest.
+Each node is strictly responsible for one discrete step of the call, whether that is handling dialogue, executing a backend tool, or transferring the session. Every edge carries a [transition condition](/build/conversation-flow/transition-condition) that explicitly governs when the agent moves to the next node.
 
-## Pick a node type
+Splitting the conversation into discrete nodes means you can tune, evaluate, and debug each step on its own, radically improving LLM reliability.
 
-Each node type plays a specific role. Pick the type that matches what the step needs to do.
+## How do you choose the Right Node Type?
 
-### Dialogue nodes
+Each node type is engineered for a specific task. You must pick the exact node that matches what that step of the call needs to accomplish.
 
-* [**Conversation Node**](/build/conversation-flow/conversation-node): Pure dialogue with the user — no tool calling. The agent can hold a multi-turn conversation within a single node, so you don't need a new node for every line. Supports two instruction modes: **Prompt** (the LLM generates responses dynamically) and **Static Sentence** (the agent says a fixed line first, then continues dynamically if the conversation stays in the node). Transitions are evaluated after each user response.
-* [**Subagent Node**](/build/conversation-flow/subagent-node): Dialogue where the agent can also call tools/functions based on context. Unlike a function node (which executes deterministically on entry), the LLM decides **whether and when** to invoke each tool from what the user says. Supports multiple tools per node and stays active across multiple turns and tool calls before transitioning. Use a function node instead when a tool must always run at that step.
-* [**Extract DV Node**](/build/conversation-flow/extract-dv-node): Extracts information from the conversation so far and stores it as dynamic variables on entry — not for dialogue. The LLM analyzes the full conversation to capture each value you define by name, description, and type (Text, Number, Enum, or Boolean). Useful for structured data that downstream nodes or Post Call Extraction need.
+### Nodes for Dialogue
+* [**Conversation Node**](/build/conversation-flow/conversation-node): Handles pure back-and-forth dialogue with no tool calling involved. Transitions get evaluated dynamically after every user response.
+* [**Subagent Node**](/build/conversation-flow/subagent-node): Handles dialogue while allowing the LLM to autonomously decide **whether and when** to execute available tools. If a tool absolutely *must* run at a given step deterministically, use a Function Node instead.
+* [**Extract DV Node**](/build/conversation-flow/extract-dv-node): Silently pulls information out of the prior conversation and saves it as dynamic variables the moment the node is entered. It is not meant for direct dialogue.
 
-### Action nodes
+### Nodes That Take Action
+* [**Function Node**](/build/conversation-flow/function-node): Runs a single tool deterministically the exact moment the node is entered.
+* [**Code Node**](/build/conversation-flow/code-node): Executes custom JavaScript natively inside Tavly's sandbox on entry. Good for formatting output or doing simple read-only lookups through `fetch()`.
+* [**SMS Node**](/build/conversation-flow/sms-node): Sends a text message mid-call, either to the caller or a secondary number. *(Voice agents only.)*
+* [**MCP Node**](/build/conversation-flow/mcp-node): Calls a tool on an external MCP (Model Context Protocol) server immediately upon entry.
 
-* [**Function Node**](/build/conversation-flow/function-node): Executes a single tool/function deterministically on node entry — not for dialogue. Turn on **Wait for Result** when the next hop depends on the return value, then branch on the outcome directly from this node. The agent can optionally speak while it runs (e.g. "Let me check that for you").
-* [**Code Node**](/build/conversation-flow/code-node): Runs JavaScript in Tavly's sandbox on entry — no external server needed. Best for data transformation, calculations, formatting, and simple read-only lookups via `fetch()`. Has access to dynamic variables and call metadata, and can store return values into dynamic variables. For anything needing secrets, authentication, or writes, use a custom function instead.
-* [**SMS Node**](/build/conversation-flow/sms-node): Sends an SMS during an active phone call, to the caller or another number. Requires an SMS-enabled or SMS-approved Tavly number. Transitions once the SMS succeeds or fails. *(Voice agents only.)*
-* [**MCP Node**](/build/conversation-flow/mcp-node): Calls a tool on an external MCP (Model Context Protocol) server on entry. Connect your server, select a tool, and optionally extract response values into dynamic variables for later nodes. The agent can speak while it runs.
+### Nodes for Call Control
+* [**Call Transfer Node**](/build/conversation-flow/call-transfer-node): Transfers the active phone call to another PSTN number or SIP URI. *(Voice agents only.)*
+* [**Transfer Agent Node**](/build/conversation-flow/transfer-agent-node): Passes the conversation to an entirely different Tavly AI agent mid-call, inheriting full context without requiring a new phone number.
+* [**Press Digit Node**](/build/conversation-flow/press-digit-node): Navigates an external IVR menu by autonomously emitting DTMF tones. *(Voice agents only.)*
+* [**End Node**](/build/conversation-flow/end-node): Instantly terminates the call session. 
 
-### Call control nodes
+### Nodes for Logic and Structure
+* [**Logic Split Node**](/build/conversation-flow/logic-split-node): Silently evaluates equations and branches the flow immediately upon entry without speaking.
+* [**Subflow**](/build/conversation-flow/components): Bundles a reusable group of nodes into a single block on the canvas, allowing you to share complex logic chains across multiple agents.
 
-* [**Call Transfer Node**](/build/conversation-flow/call-transfer-node): Transfers the call to another phone number or SIP URI. The agent doesn't speak in this node — put a conversation node with **Skip Response** before it for a line like "Let me transfer you." Supports cold, warm (with human detection, whisper/three-way messages), and agentic warm transfer. Use this node — not a conversation node — whenever the agent should transfer to a human. *(Voice agents only.)*
-* [**Transfer Agent Node**](/build/conversation-flow/transfer-agent-node): Hands the conversation to a different Tavly agent mid-call. Near-instant (no new phone call), the destination agent inherits the full conversation history, and no separate phone number is needed. Preferred over call transfer when routing between AI agents (e.g. front-desk → booking, or language-based routing).
-* [**Press Digit Node**](/build/conversation-flow/press-digit-node): Navigates IVR menus by sending DTMF tones. The agent doesn't speak — it listens to IVR prompts and infers which digit to press from your instruction, evaluating on each IVR utterance. Give clear guidance on which options to choose and which to avoid. *(Voice agents only.)*
-* [**End Node**](/build/conversation-flow/end-node): Ends the call. Enable **Speak During Execution** with an instruction so the agent gives a closing message before hanging up; otherwise the call ends abruptly.
+## How do Nodes Link Together?
 
-### Logic and structure
+Every node (except the End Node) pushes the call forward through routing edges. 
 
-* [**Logic Split Node**](/build/conversation-flow/logic-split-node): Evaluates conditions and branches the flow immediately on entry — the agent doesn't speak. Useful for splitting on dynamic variables or conditions without stacking everything onto the previous node. Always has an else destination as a fallback so the flow never gets stuck.
-* [**Subflow**](/build/conversation-flow/components): Packages a reusable subflow (a group of nodes) that appears as a single node on the main canvas. Subflows can be local to one agent or shared across agents in a library; they run their internal nodes and return control to the main flow via an exit node. Tools defined inside a subflow stay scoped to it.
+* **Regular Edges:** Carry a specific transition condition—either a prompt the LLM evaluates or an equation built on dynamic variables.
+* **Else Edges:** Act as a rigid fallback, firing instantly when no other condition is met. This ensures the flow never gets stuck.
+* **Always Edges:** Transition unconditionally as soon as the user finishes their next turn.
+* **Skip Response Edges:** Transition the moment the agent finishes speaking, without waiting for the caller to reply at all.
 
-## How nodes connect
-
-Every node except the end node moves the call forward through edges. A node can have several kinds:
-
-* **Regular edges** each carry a transition condition — a prompt the LLM evaluates, or an equation over dynamic variables — plus a destination node.
-* **Else edge** is the fallback: it fires when no other condition matches, so the flow never gets stuck.
-* **Always edge** transitions unconditionally after the user responds.
-* **Skip Response edge** appears when the node's Skip Response setting is on: the node transitions as soon as the agent finishes speaking, without waiting for a reply.
-
-How conditions are written, and the exact order they're evaluated in, is covered in [transition conditions](/build/conversation-flow/transition-condition).
-
-## Add a node
+## How do you manage the Canvas?
 
 <Steps>
-  <Step title="Select node type">
-    Click a node type in the left sidebar to add it to the canvas.
-
+  <Step title="Add a Node">
+    Click any node type in the left sidebar to drop it onto the canvas.
     <Frame caption="The node type list in the flow editor's left sidebar.">
       <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/add-node.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=9f943a03432352f72166c04f780e19ba" alt="Left sidebar of the conversation flow editor showing the list of node types available to add to the canvas" width="298" height="722" data-path="images/cf/add-node.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure the node">
-    Click the node to open its settings on the right, and fill in the node instruction inside the node. See the guide for each node type for details.
+  <Step title="Fill in its settings">
+    Click the node to bring up its settings panel on the right, then enter the node's instruction. Refer to the individual guide for each node type for the specifics.
 
     <Frame caption="Node settings open on the right after selecting a node.">
       <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/configure-node.jpeg?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=217edcea975d2e0578e385ba4fb5df50" alt="Conversation flow editor with a node selected, showing its instruction field and the settings panel on the right" width="736" height="567" data-path="images/cf/configure-node.jpeg" />
     </Frame>
   </Step>
 
-  <Step title="Add transition conditions">
-    Click the bottom part of the node to add edges, then write a [transition condition](/build/conversation-flow/transition-condition) for each.
+  <Step title="Set up transitions">
+    Click the bottom portion of the node to add edges, then write out a [transition condition](/build/conversation-flow/transition-condition) for each one.
   </Step>
 
-  <Step title="Connect node">
-    Click and hold the circle to start a line that connects the node to another node, and another node to this node.
-
+  <Step title="Link it to other nodes">
+    Click and hold the connector circle to draw a line linking this node to another, or another node to this one.
     <Frame caption="Drag from the connector circle to link two nodes.">
       <img src="https://mintcdn.com/retellai/YiYvhov2NLXI5cg3/images/cf/connect-node.png?fit=max&auto=format&n=YiYvhov2NLXI5cg3&q=85&s=fdd6ce5feda5eeba19878c61fe496bb0" alt="Dragging from a node's connector circle to another node to create an edge in the conversation flow editor" width="914" height="874" data-path="images/cf/connect-node.png" />
     </Frame>
   </Step>
 </Steps>
 
-## Organize nodes
+## Keeping the Canvas Organized
 
-After adding many nodes, the canvas can get cluttered. Use the **Organize** button to arrange them automatically.
+As you add more nodes, the canvas can start to feel cluttered. The **Organize** button rearranges everything automatically.
 
 <Frame caption="The Organize button rearranges nodes automatically.">
   <img src="https://mintcdn.com/retellai/AJT6JQMM1II9WOl-/images/cf/organize-node.png?fit=max&auto=format&n=AJT6JQMM1II9WOl-&q=85&s=d55c57293e75058c2336a9eea99c43d7" alt="Organize button in the conversation flow editor that automatically arranges nodes on the canvas" width="2354" height="1674" data-path="images/cf/organize-node.png" />
 </Frame>
 
 <Tip>
-  Name your nodes. Call transcripts in the history tab show transitions by node name, so descriptive names make past calls much easier to debug.
+  Give your nodes descriptive names. Call transcripts in the history tab display transitions by node name, so clear naming makes debugging past calls much easier.
 </Tip>
 
-## Copy and paste nodes
+## Copying and Pasting Nodes
 
-You can copy nodes and paste them elsewhere on the canvas, into another flow, or even into a different browser tab. Tavly uses your system clipboard, so a copy stays available across tabs and windows.
+Nodes can be copied and pasted elsewhere on the canvas, into a different flow entirely, or even across browser tabs. Since Tavly uses your system clipboard, a copied node stays available across tabs and windows.
 
 <Steps>
-  <Step title="Select what to copy">
-    Click a node, or click and drag to select multiple nodes and sticky notes.
+  <Step title="Select what you want to copy">
+    Click a single node, or click and drag to select several nodes and sticky notes at once.
   </Step>
 
-  <Step title="Copy">
-    Press `Cmd/Ctrl + C`. A **Copied** confirmation shows how many items were copied. Any selected sticky notes, and the tools attached to the selected nodes, are copied along with them.
+  <Step title="Copy it">
+    Press `Cmd/Ctrl + C`. A **Copied** confirmation appears showing how many items were copied. Any sticky notes you selected, along with the tools attached to the selected nodes, get copied right along with them.
   </Step>
 
-  <Step title="Paste">
-    Move your cursor to where you want the items to appear and press `Cmd/Ctrl + V`. A **Pasted** confirmation appears, and the nodes, notes, and tools are added at your cursor, automatically positioned to avoid overlapping existing nodes.
+  <Step title="Paste it">
+    Move your cursor to where you want everything to land and press `Cmd/Ctrl + V`. A **Pasted** confirmation shows up, and the nodes, notes, and tools appear at your cursor position, automatically nudged to avoid overlapping anything already on the canvas.
   </Step>
 </Steps>
 
-A few things to keep in mind:
+A couple of things worth knowing:
 
-* If a copied tool already exists in the destination, it isn't added again — the pasted node reuses the existing tool.
-* Component nodes can't be pasted inside a component editor. If you try, Tavly shows a **Cannot Paste** message.
+* If a copied tool already exists at the destination, it won't be duplicated — the pasted node just reuses the existing one.
+* Component nodes can't be pasted inside a component editor. Trying to do so brings up a **Cannot Paste** message.
+
+**Best Practices for the Canvas:**
+* **Organize Automatically:** Click the **Organize** button to instantly clean up a cluttered, overlapping canvas.
+* **Copy and Paste:** You can copy nodes (`Cmd/Ctrl + C`) and paste them (`Cmd/Ctrl + V`) elsewhere on the canvas, into a completely different flow, or even across distinct browser tabs.
+* **Name Explicitly:** Always give your nodes descriptive names. Call transcripts display transition records based entirely on node names, making debugging past calls vastly easier when names are explicit.
 
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="When should I break down a node?">
-    Consider breaking down a node when:
+  <Accordion title="When should I split a node into smaller pieces?">
+    A few signs it's worth breaking a node down:
 
-    * The node handles multiple complex logic paths
-    * The LLM struggles with consistency (hallucinations or incorrect responses)
-    * You need different settings (model, temperature) for different parts
-    * The conversation flow becomes hard to follow or debug
+    * It's handling several complicated logic paths at once
+    * The LLM starts struggling with consistency — hallucinating or giving off-base responses
+    * Different parts of the step need different settings, like model or temperature
+    * The flow as a whole becomes hard to follow or debug
 
-    Breaking complex nodes into smaller, focused nodes often improves reliability.
+    Splitting an overloaded node into smaller, more focused ones usually makes the whole flow more reliable.
   </Accordion>
 
-  <Accordion title="How do I zoom the canvas in and out?">
-    Use the scroll wheel on a mouse, or pinch on a touchpad.
+  <Accordion title="How do I zoom in and out on the canvas?">
+    Use your mouse's scroll wheel, or pinch on a touchpad.
   </Accordion>
 
-  <Accordion title="Is there a limit on the number of nodes?">
-    No, you can add as many nodes as you want.
+  <Accordion title="Is there a cap on how many nodes I can add?">
+    No — you can add as many nodes as your flow needs.
   </Accordion>
 </AccordionGroup>

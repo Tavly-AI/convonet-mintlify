@@ -1,0 +1,133 @@
+---
+title: 'Function Calling for AI Agents'
+sidebarTitle: 'Function Calling'
+description: 'Give Tavly AI single or multi-prompt agents the ability to take real actions like transferring calls, booking appointments, and calling external APIs.'
+seo:
+  title: 'Function Calling for AI Agents | Tavly AI Guide'
+  description: 'Give Tavly AI single or multi-prompt agents the ability to take real actions like transferring calls, booking appointments, and calling external APIs.'
+og:title: 'Function Calling for AI Agents'
+og:description: 'Give Tavly AI single or multi-prompt agents the ability to take real actions like transferring calls, booking appointments, and calling external APIs.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi-prompt/functions.png'
+twitter:card: 'summary_large_image'
+icon: 'bolt'
+keywords: ['function calling', 'AI agent tools', 'Tavly AI functions', 'external APIs', 'call management tools']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is function calling in Tavly AI?'
+    answer: 'Function calling allows your AI agent to execute real-world actions, such as interacting with external systems, pulling database records, or modifying call states dynamically.'
+  - question: 'How do I add tools to my AI agent?'
+    answer: 'You can configure tools natively in the Tavly dashboard under the "Functions" section of your agent detail page.'
+  - question: 'What types of functions are available in Tavly?'
+    answer: 'Tavly supports ready-made functions (like transfer/end call), integration tools (like HubSpot/Cal.com), custom external API calls, and built-in JavaScript execution.'
+---
+
+## What is function calling?
+
+**Function calling** transforms your Tavly AI agent from a basic conversational interface into a powerful action engine. By wiring your agent up to distinct functions, it can seamlessly and securely reach into external systems, manage active call routing, and execute complex business logic in real time.
+
+## What are the common use cases?
+
+Leveraging functions opens up a vast array of automated capabilities spanning **call management**, **business operations**, and **data integration**. You can fully automate routine administrative tasks while empowering the agent to handle sophisticated caller interactions.
+
+### Call Management
+* **Transferring calls:** Intelligently hand off live callers to human agents or specific departments.
+* **Ending calls:** Programmatically close out a completed conversation cleanly.
+* **Sending DTMF tones:** Automatically navigate complex external automated phone menus.
+
+### Business Operations
+* **Booking appointments:** Directly interface with robust external scheduling systems.
+* **Checking availability:** Query live calendars or active inventory databases in real time.
+* **Processing orders:** Programmatically create, edit, or cancel customer orders on the fly.
+
+### Data Integration
+* **Pulling information:** Securely read required data from a CRM, SQL database, or REST API.
+* **Updating records:** Actively modify customer profiles or support case details during the call.
+* **Sending notifications:** Trigger outbound emails, text messages, or push notifications automatically.
+
+## How does function calling work?
+
+The execution flow relies on seamless interaction between the underlying language model and your external systems via structured JSON parameters. The model autonomously identifies when a tool is required, extracts the data, and securely triggers the specific function within the Tavly platform.
+
+1. **The agent decides:** The core LLM intelligently recognizes from the natural conversation context exactly when a specific function is required.
+2. **Parameters get pulled out:** The model extracts the specific required data points straight from the caller's natural language input.
+3. **Tavly executes it:** The platform reliably executes your configured function utilizing those exact extracted parameters.
+4. **The result feeds back in:** Whatever data the function returns is immediately folded back into the agent's active conversational context.
+
+### Under the Hood
+The LLM and your external systems communicate securely utilizing strict structured JSON payloads:
+
+```json theme={"dark"}
+{
+  "function": "book_appointment",
+  "arguments": {
+    "date": "2024-03-15",
+    "time": "14:00",
+    "customer_name": "John Smith"
+  }
+}
+```
+
+## How do you set up tools?
+
+You can configure and assign functions natively directly from the Tavly dashboard. Navigate to the **Functions** section located on your agent's specific detail page to explicitly assign tools and define custom logic.
+
+<Frame>
+  <img height="700" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi-prompt/functions.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=0c6fcd4ff45d3ebc43bef2fb728caed9" alt="Functions section in dashboard" data-path="images/multi-prompt/functions.png" />
+</Frame>
+
+## What are the four types of functions?
+
+Tavly provides four distinct categories of functions to handle any level of business complexity: **ready-made functions**, **native integration tools**, entirely **custom API functions**, and a sandboxed **Code Tool** for lightweight script execution.
+
+### 1. Ready-Made Functions
+Tavly ships a comprehensive set of natively built functions designed for common telephony needs:
+
+| Function | What It Does | Typical Uses |
+| :--- | :--- | :--- |
+| [**End Call**](/build/single-multi-prompt/end-call) | Wraps up the conversation cleanly. | Once the task is completed, or the caller explicitly asks to hang up. |
+| [**Transfer Call**](/build/single-multi-prompt/transfer-call) | Sends the live call to a human. | Complex escalations, routing to the correct department. |
+| [**Press Digits**](/build/single-multi-prompt/press-digit) | Sends DTMF tones. | Getting through external IVR menus, entering a secure code. |
+| [**Send SMS**](/build/single-multi-prompt/send-sms) | Sends a text message. | Outbound confirmations, follow-up messages. |
+
+<Note>
+  If you require robust appointment scheduling, you must use the native [Cal.com integration](/integrations/cal-com) or [Calendly integration](/integrations/calendly). The legacy built-in **Check Availability** and **Book Calendar** tools are officially deprecated. Please review the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for migration details.
+</Note>
+
+### 2. Integration Tools
+You can reach out directly to natively connected providers—such as HubSpot, Salesforce, Zendesk, or Cal.com—mid-conversation. Tavly fully manages the provider's API routing and authentication. Complete setup details are located in the [integration tools](/build/single-multi-prompt/integration-tools) guide.
+
+### 3. Custom Functions
+You can build a highly customized remote function to:
+* **Talk to your own APIs:** Connect securely to a proprietary CRM, ERP, or internal system.
+* **Run business logic:** Validate secure input, dynamically calculate a price, or check live stock.
+* **Kick off workflows:** Initiate an asynchronous background process somewhere else in your stack.
+
+Custom functions provide:
+* **Parameters you define:** The strict input shape is completely dictated by you.
+* **Non-blocking execution:** Functions safely execute in the background without holding up the active call.
+* **Failure handling:** Robust built-in fallbacks trigger dynamically when external systems fail.
+* **Control over agent speech:** Explicitly dictate exactly what the agent says while the function runs.
+
+[Learn more about custom functions →](/build/single-multi-prompt/custom-function)
+
+### 4. Code Tool
+Execute raw JavaScript securely inside Tavly's internal sandbox—no external server needed. This is exceptionally handy for:
+* **Reshaping data:** Formatting, combining, or mathematically computing values directly from dynamic variables.
+* **Lightweight API calls:** Securely querying via the native built-in `fetch()` method.
+* **Logic and math:** Executing complex conditionals, rapid calculations, and string manipulation.
+
+[Learn more about the Code Tool →](/build/single-multi-prompt/code-tool)
+
+## Where can you learn more?
+
+Review our detailed video tutorial and comprehensive documentation links below to dive deeper into deploying, testing, and debugging advanced function calls for production-grade voice AI agents.
+
+<iframe width="360" height="200" src="https://www.youtube.com/embed/0iGAFUYhuoE?si=_IYtfQNmb1haneif" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+### External Resources & Guides
+* [OpenAI's Function Calling Guide](https://platform.openai.com/docs/guides/function-calling) — An authoritative technical deep dive into LLM tooling.
+* [Function Calling Tutorial](https://semaphoreci.com/blog/function-calling) — A step-by-step external implementation walkthrough.
+* [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope) — Explore real function implementation examples sourced from the community.
+* [API Reference](/api-references/create-agent) — Access our full technical platform documentation.
+* [Best Practices](/build/prompt-engineering-guide) — Discover how to write robust prompts that trigger functions flawlessly.

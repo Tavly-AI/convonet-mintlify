@@ -1,69 +1,94 @@
 ---
-title : MCP node in conversation flow
+title: 'MCP Node in Conversation Flow'
+sidebarTitle: 'MCP Node'
+description: 'Use the Tavly MCP Node to seamlessly execute external tools hosted on a remote Model Context Protocol (MCP) server during a live AI phone call.'
+seo:
+  title: 'MCP Node | External API Calls | Tavly AI'
+  description: 'Use the Tavly MCP Node to seamlessly execute external tools hosted on a remote Model Context Protocol (MCP) server during a live AI phone call.'
+og:title: 'MCP Node in Conversation Flow'
+og:description: 'Use the Tavly MCP Node to seamlessly execute external tools hosted on a remote Model Context Protocol (MCP) server during a live AI phone call.'
+og:image: 'https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/mcp/node.png'
+twitter:card: 'summary_large_image'
+icon: 'server'
+keywords: ['MCP node', 'Model Context Protocol', 'Tavly AI integrations', 'external API tools', 'conversation flow MCP']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is an MCP Node?'
+    answer: 'An MCP Node triggers and executes custom external tools hosted on a remote Model Context Protocol (MCP) server during a live conversational flow.'
+  - question: 'Does the agent speak while inside the MCP node?'
+    answer: 'While the node is not strictly meant for holding a conversation, the agent can optionally speak filler phrases (like "Let me check on that") while the external tool executes.'
+  - question: 'How does Tavly authenticate with my MCP server?'
+    answer: 'Tavly authenticates strictly through custom HTTP headers (e.g., Authorization: Bearer <token>) and query parameters. You can pass dynamic variables as header values to authorize individual calls.'
 ---
 
-> Add an MCP node to a Tavly conversation flow to call remote MCP server tools during a live call, with custom headers and authentication.
+## What is an MCP Node?
 
-The MCP node is used to call tools on your MCP server. It's not intended for having a conversation with the user, but the agent can still talk while in this node if needed. For single- and multi-prompt agents, connect an MCP server through the response engine instead — see [MCP tools for single and multi-prompt agents](/build/single-multi-prompt/mcp).
+An **MCP Node** securely triggers and executes tools hosted on an external **Model Context Protocol (MCP)** server during a live AI phone call. 
 
-<Frame>
+While this structural node is not strictly intended for holding a fluid conversation with the caller, the agent can optionally speak while the tool executes to prevent awkward dead air.
+
+<Note> **Different architectures:** For single-prompt and multi-prompt agents, MCP servers are connected entirely differently (via the response engine). Read the [MCP Tools for Single/Multi-Prompt Agents](/build/single-multi-prompt/mcp) guide.</Note>
+
+<Frame caption="MCP node on the conversation flow canvas">
   <img width="250px" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/mcp/node.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=e0bfeacf317232bd2956dcd06f8190a7" data-path="images/cf/mcp/node.png" />
 </Frame>
 
-## Add MCP server
+## How do you add an MCP server?
+
+You must globally register your external MCP server with Tavly before you can deploy it as a node inside a specific conversation flow.
 
 <Steps>
-  <Step title="Add MCP server">
-    To create an MCP node, we first need to add an MCP server.
-
+  <Step title="Add the server">
+    First, register the base MCP server in your Tavly environment.
     <Frame>
       <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/mcp/add_mcp.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=6dee07c5d03c2be78acfce15d7d8e724" width="734" height="589" data-path="images/cf/mcp/add_mcp.png" />
     </Frame>
   </Step>
 
-  <Step title="Set request headers (optional)">
-    You can define custom headers to include with the request Tavly sends to your MCP Server.
+  <Step title="Add request headers (Optional)">
+    You can specify rigid custom HTTP headers to authenticate the outbound requests Tavly makes to your MCP server.
 
-    Headers and query parameters are the only way Tavly authenticates to your MCP server — most often an auth header such as `Authorization: Bearer <token>`. Tavly doesn't run an interactive OAuth flow; if your server requires OAuth, obtain the access token outside of Tavly and pass it in a header. Values can include [dynamic variables](/build/dynamic-variables), so you can pass a per-call token as `{{access_token}}`.
+    Headers and query parameters are the **exclusive** mechanism Tavly uses for authentication. The most common implementation is an authorization header like `Authorization: Bearer <token>`. Tavly fundamentally does not handle interactive OAuth flows on your behalf; you must programmatically fetch your own OAuth access tokens and inject them via headers.
 
-    <Note>To restrict your MCP server to requests from Tavly, allowlist Tavly's outbound IP address: `100.20.5.228`.</Note>
+    <Tip> **Dynamic Authentication:** Header values securely support [Dynamic Variables](/build/dynamic-variables). This allows you to pass a unique, session-specific token per individual call, such as `{{access_token}}`.</Tip>
+
+    <Warning> **Security Best Practice:** To strictly restrict your MCP server so it only accepts traffic from Tavly, explicitly whitelist Tavly's static outbound IP address: `100.20.5.228`.</Warning>
 
     <Frame>
       <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" data-path="images/custom-function/headers.png" />
     </Frame>
   </Step>
 
-  <Step title="Set query parameters (optional)">
-    You can define query parameters to include in the request URL that Tavly appends to your MCP Server Endpoint.
-
+  <Step title="Add query parameters (Optional)">
+    You can seamlessly define rigid query parameters that Tavly will dynamically append to your MCP server's endpoint URL during execution.
     <Frame>
       <img height="200" src="https://mintcdn.com/retellai/YMPW7mFNipo6shGp/images/custom-function/query-params.png?fit=max&auto=format&n=YMPW7mFNipo6shGp&q=85&s=0a0ccd469644d04aa87c086a8dc68bfb" data-path="images/custom-function/query-params.png" />
     </Frame>
   </Step>
 
-  <Step title="Add MCP Tool">
-    Select MCP Tool
-
+  <Step title="Add the MCP tool">
+    Once the server is authenticated, select the explicit **MCP Tool** you wish the node to execute.
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/mcp/add_tool.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=ad49026f6f2a42a5e14a5abcd82e0cfa" width="725" height="365" data-path="images/cf/mcp/add_tool.png" />
     </Frame>
   </Step>
 
-  <Step title="Set response variables (optional)">
-    Extract values from the MCP tool response and save them as <strong>dynamic variables</strong> for use later in the conversation.
+  <Step title="Map response values to variables (Optional)">
+    You can aggressively parse specific JSON values out of the returned MCP tool's response body and instantly save them as **Dynamic Variables** for subsequent flow logic.
 
-    For example, you can extract a user’s name from the response and reference it later using <code>\{\{user\_name}}</code>.
+    For instance, if the external server returns user data, you can extract the user's name and reference it globally afterward as `{{user_name}}`.
 
-    Example response body
+    **Example JSON response body:**
 
     ```javascript theme={"dark"}
     {
-    "properties": {
+      "properties": {
         "user": {
-        "name": "John Doe",
-        "age": 26
+          "name": "John Doe",
+          "age": 26
         }
-    }
+      }
     }
     ```
 
@@ -73,7 +98,9 @@ The MCP node is used to call tools on your MCP server. It's not intended for hav
   </Step>
 </Steps>
 
-## Node Settings
+## What node configurations are available?
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/conversation-flow/finetune-examples)
+The MCP Node provides targeted settings to dictate exactly how globally accessible it is and how transitions are logically calculated.
+
+* **Global Node:** Transforms the MCP Node into a universally reachable execution point from anywhere in the flow. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **Fine-Tuning Examples:** Inject custom examples explicitly into this node to teach the LLM how to parse complex or unexpected JSON responses. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).

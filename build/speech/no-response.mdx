@@ -1,13 +1,42 @@
 ---
-title : Make agent pause and respond with nothing
+title: 'Silent Responses: Handling Conversational Pauses'
+sidebarTitle: 'Silent Responses'
+description: 'Instruct a Tavly voice agent to remain completely silent during conversational hold states using the built-in NO_RESPONSE_NEEDED stop token.'
+seo:
+  title: 'Silent Responses | Conversational Pauses | Tavly AI'
+  description: 'Instruct a Tavly voice agent to remain completely silent during conversational hold states using the built-in NO_RESPONSE_NEEDED stop token.'
+og:title: 'Silent Responses in Tavly AI Voice Agents'
+og:description: 'Instruct a Tavly voice agent to remain completely silent during conversational hold states using the built-in NO_RESPONSE_NEEDED stop token.'
+twitter:card: 'summary'
+icon: 'microphone-slash'
+keywords: ['silent responses', 'conversational pauses', 'NO_RESPONSE_NEEDED', 'Tavly AI hold requests', 'LLM stop token']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do I force the agent to stay silent when a caller asks to hold?'
+    answer: 'You must configure the LLM to output the exact string "NO_RESPONSE_NEEDED". When the Tavly runtime detects this token, it immediately terminates generation and prevents audio output.'
+  - question: 'Does this token put the caller on a telephony hold with music?'
+    answer: 'No. This token initiates a conversational pause where the line stays open and silent. It does not trigger a PBX-level telephony hold or inject hold music.'
 ---
-> Keep a Tavly agent silent on demand with the NO_RESPONSE_NEEDED stop sequence, so it pauses for the caller without speaking or interrupting.
 
-Sometimes you might want the agent to pause and not respond to the user, like when the user says "hold on" or "give me a minute". This is a conversational pause where the agent stays silent, not a telephony hold.
+## What are Silent Responses?
 
-We hard-coded a stop sequence in the LLM: `NO_RESPONSE_NEEDED`. Whenever this sequence is met, the response generation stops.
-You can then prompt the LLM to output nothing by writing something like:
+Silent responses handle moments in a call where a user requests a temporary conversational pause (e.g., "hold on," "give me a second"). Instead of talking over the user, the agent remains completely quiet while keeping the line open.
 
+This is strictly a conversational pause; it does not place the caller on a traditional PBX-level hold or trigger hold music.
+
+To facilitate this, Tavly natively registers a built-in stop token inside the language model runtime: `NO_RESPONSE_NEEDED`. 
+
+When the model emits this exact string, text generation halts immediately and the synthesis engine produces absolutely zero audio output.
+
+## How do you implement Silent Responses?
+
+You implement conversational silence by adding a hardcoded directive directly into your primary system prompt, instructing the LLM exactly when to trigger the stop token.
+
+Add the following explicit instruction into your agent's prompt architecture:
+
+```markdown theme={"dark"}
+- If the user asks you to wait or says "hold on", reply strictly with: "NO_RESPONSE_NEEDED"
 ```
-- if user says "hold on", reply exactly the following: "NO_RESPONSE_NEEDED".
-```
+
+<Note> **Reasoning Model Exception:** Heavy reasoning architectures (such as `gpt-5`) often refuse to output raw system tokens like `NO_RESPONSE_NEEDED`. For those models, use plain-language directives instead (e.g., "When the user says hold on, simply do not respond"). Review the [Prompt Situation Guide](/build/prompt-situation-guide#managing-pauses-and-hold-requests) for detailed reasoning model handling.</Note>

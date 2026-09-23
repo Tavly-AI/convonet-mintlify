@@ -1,66 +1,84 @@
 ---
-title : Configure a multilingual agent
+title: 'Configure a Multilingual Agent'
+sidebarTitle: 'Multilingual Agent'
+description: 'Configure a Tavly agent to handle multiple languages. Understand the accuracy trade-offs between ASR and TTS, and when to use single-language setups.'
+seo:
+  title: 'Multilingual AI Agents | Configure ASR & TTS | Tavly AI'
+  description: 'Configure a Tavly agent to handle multiple languages. Understand the accuracy trade-offs between ASR and TTS, and when to use single-language setups.'
+og:title: 'Configure a Multilingual Agent: Accuracy & Trade-offs'
+og:description: 'Configure a Tavly agent to handle multiple languages. Understand the accuracy trade-offs between ASR and TTS, and when to use single-language setups.'
+og:image: 'https://mintcdn.com/retellai/SGc6xrwrS64ZRERp/images/language-multiselect.png'
+twitter:card: 'summary_large_image'
+icon: 'world'
+keywords: ['multilingual AI agent', 'multi-language speech recognition', 'Tavly AI dialects', 'ASR accuracy', 'TTS pronunciation']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'When should I use a Multilingual Agent?'
+    answer: 'Use a multilingual agent only when callers might speak different languages and there is absolutely no way to know which one ahead of time. If you can determine the language pre-call, use single-language agents instead.'
+  - question: 'Does selecting multiple variants of one language reduce accuracy?'
+    answer: 'No. Selecting variants of the same base language (e.g., en-US and en-GB) does not trigger the multilingual pipeline, so there is no drop in accuracy.'
+  - question: 'Why does my agent struggle with Cantonese and Mandarin?'
+    answer: 'Speech recognition models inherently struggle to distinguish closely related languages. You should explicitly route callers speaking related dialects to dedicated single-language agents.'
 ---
-> Configure a Tavly multilingual agent: pick which languages it supports, understand ASR and TTS accuracy trade-offs, and when single-language is a better fit.
 
-Use a multilingual agent when callers may speak in different languages and you can't determine which language ahead of time. If you can determine the language at the start of a call (for example, from CRM context or the dialed number), you'll get better accuracy by keeping the agent single-language and overriding the language per call via the [inbound call webhook](/features/inbound-call-webhook).
+## When should you use a Multilingual Agent?
 
-## Granular language selection
+Deploy a multilingual agent strictly when your callers might speak diverse languages and you cannot detect their language before the call connects. 
 
-In the dashboard, switch the language selector to **Multiselect** and pick the exact set of languages the agent should support — for example, English (US) + Spanish (Spain).
+If you *can* determine a caller's language via CRM context or the dialed phone number, you will achieve significantly higher accuracy by deploying single-language agents and dynamically routing calls via the [inbound call webhook](/features/inbound-call-webhook).
+
+## How do you configure multiple languages?
+
+You explicitly select the exact dialects your agent must support by switching the dashboard's language selector to **Multiselect**.
+
+In the dashboard, toggle to **Multiselect** and cherry-pick the necessary languages (e.g., English (US) and Spanish (Spain)).
 
 <Frame caption="The language selector in Multiselect mode.">
   <img src="https://mintcdn.com/retellai/SGc6xrwrS64ZRERp/images/language-multiselect.png?fit=max&auto=format&n=SGc6xrwrS64ZRERp&q=85&s=bd2a0b1be0cb4156cab849d90c62c3fb" alt="Speech Languages picker set to Single-select, with a search box and a checkbox list of languages — English (US) checked, then Spanish (Spain), Spanish (Latin America), English (India), English (UK), English (Australia), English (New Zealand), French (France), French (Canada), and Chinese (China)." style={{ maxHeight: 560 }} width="600" height="1100" data-path="images/language-multiselect.png" />
 </Frame>
 
-What happens at call time:
+**During a live call, the agent dynamically manages:**
+* **Speech recognition:** The agent automatically calculates which of your selected languages the caller is speaking and transcribes it.
+* **Voice pronunciation:** The agent analyzes the language of its own generated response and applies matching pronunciation rules. If detection fails, it falls back to your primary selected language.
+* **Response Generation:** The agent seamlessly responds in any selected language based on the caller's input and your global prompt instructions.
 
-* **Speech recognition** — the agent figures out which of the selected languages the caller is speaking and transcribes accordingly.
-* **Voice pronunciation** — the agent detects the language of each response and uses the matching pronunciation. If detection fails, it falls back to the first language you selected. Not all voice providers handle accents.
-* **Agent text** — the agent is allowed to respond in any of the selected languages and chooses based on what the caller speaks (and any instructions you give in the prompt).
+## What are the accuracy trade-offs?
 
-## Accuracy trade-offs
+Using multiple language families routes the call through a heavier multilingual recognition pipeline, which inherently reduces accuracy compared to dedicated single-language models.
 
-<Note>
-  Selecting multiple **variants of the same base language** (for example, `en-US` and `en-GB`) does **not** trigger the multilingual speech-recognition pipeline. The agent stays on the single-language path for that base, with no accuracy penalty.
+<Note> **Base Language Variants:** Selecting multiple variants of the same base language (e.g., `en-US` and `en-GB`) does **not** trigger the heavy multilingual pipeline. The agent stays on the highly accurate single-language path.</Note>
 
-  Crossing language families (for example, `en-US` and `es-ES`) routes speech recognition to the multilingual pipeline, which is less accurate per language than single-language models. Pick the smallest set of languages you actually need.
-</Note>
+**Accuracy Ranking (Highest to Lowest):**
+1. **Single Language:** The most accurate configuration. Use this whenever possible.
+2. **Multiple Variants (Same Base):** No accuracy loss compared to single-language.
+3. **Multiple Languages (Different Families):** Routes through the complex multilingual pipeline, incurring accuracy loss per language.
+4. **Legacy Multilingual Setting:** A deprecated setting that blindly enables 10 specific languages.
 
-From most to least accurate:
+## How do you handle closely related languages?
 
-1. **Single language** — best accuracy. Use this whenever you can.
-2. **Multiple variants of the same base language** (e.g., `en-US` + `en-GB`) — same accuracy as single language for that base.
-3. **Multiple languages across families** (e.g., `en-US` + `es-ES`) — multilingual pipeline; some accuracy loss per language.
-4. **Legacy Multilingual setting** — static list of supported languages, see below.
+Speech recognition explicitly struggles to differentiate languages that share vocabulary, phonemes, or writing systems—such as Cantonese versus Mandarin Chinese.
 
-### Closely related languages are hard to distinguish
+Relying on auto-detection for these combinations frequently results in improper transcriptions and the agent responding in the wrong language entirely.
 
-Speech recognition struggles most on languages that share vocabulary, phonemes, or a writing system — for example **Cantonese and Mandarin Chinese**, or Cantonese in a mix with English. In practice, callers routinely get transcribed as the wrong Chinese variant, which then makes the agent respond in the wrong language.
+**Best Practices for Related Dialects:**
+* **Force Single-Language Agents:** Route callers to dedicated agents or override the language per call via the [inbound call webhook](/features/inbound-call-webhook).
+* **Never Rely on Auto-Detect:** Multilingual agents covering both Cantonese and Mandarin will confuse the two regardless of the underlying ASR provider.
+* **Verify Provider Support:** Check the dashboard picker to ensure your ASR provider natively supports complex mixes (e.g., Cantonese + English). Review [Language support by provider](/build/language-support).
 
-For these combinations:
+## What is the Legacy Multilingual Setting?
 
-* **Prefer single-language agents.** If you know the caller's language ahead of time — from CRM data, the dialed number, or a language-selection IVR step — spin up one agent per language and route callers to the right one, or override the language per call via the [inbound call webhook](/features/inbound-call-webhook).
-* **Don't rely on auto-detect to separate close variants.** A multilingual agent that includes both Cantonese and Mandarin will mix them up frequently no matter which voice or ASR provider you pick.
-* **English mixed with a Chinese variant is a separate constraint.** Not every ASR provider covers Cantonese, and even fewer cover Cantonese together with Mandarin or English in the multilingual pipeline — check the picker in the dashboard for currently supported combinations, and see [Language support by provider](/build/language-support) for a per-language breakdown.
-
-## Legacy Multilingual setting
-
-Older agents may still have the generic **Multilingual** setting selected. It is preserved so existing agents keep working, but the dashboard now flags it as a legacy setting:
-
-> "Multilingual" is a legacy setting. Pick specific languages to update.
+The legacy "Multilingual" toggle is a deprecated setting that globally enables exactly 10 hardcoded languages. It remains active only so older agents do not break.
 
 <Frame caption="The legacy Multilingual option, flagged in the picker.">
   <img src="https://mintcdn.com/retellai/SGc6xrwrS64ZRERp/images/language-legacy-multi.png?fit=max&auto=format&n=SGc6xrwrS64ZRERp&q=85&s=57ed472c91c2e50b0304ce7b0bc1a357" alt="Speech Language picker in Multiselect mode showing the warning 'Multilingual' is a legacy setting. Pick specific languages to update. above the language list, where Multilingual is checked and carries a warning icon." style={{ maxHeight: 560 }} width="600" height="1068" data-path="images/language-legacy-multi.png" />
 </Frame>
 
-The legacy Multilingual setting covers these ten languages only: English (US), Spanish (ES), French (FR), German (DE), Hindi (IN), Russian (RU), Portuguese (PT), Japanese (JP), Italian (IT), Dutch (NL).
+For maximum accuracy, modern agents must use **Multiselect** to explicitly pick the narrowest set of languages actually required.
 
-For new agents, pick the specific languages you need instead — narrower sets are more accurate.
+## Why are some language combinations blocked?
 
-## Picks the dashboard won't allow
+The Tavly dashboard actively blocks you from selecting impossible language combinations based on dynamic provider capabilities.
 
-Some combinations are blocked at selection time:
-
-* **Voice doesn't support a language.** Each voice (and pinned voice model) only supports a subset of languages. Unsupported combinations are greyed out in the language picker, with a tooltip explaining which voice or voice model is blocking it. Pick a different voice to enable that language.
-* **No speech-recognition provider covers the combination.** Some combinations of languages have no single speech-recognition provider that covers all of them together. The dashboard greys those languages out with the reason — either drop a language or split the use case across multiple agents.
+* **Voice Limitations:** The specific TTS voice model you chose simply does not support the selected language. Switching to a different voice can unlock it.
+* **ASR Limitations:** No single speech-recognition provider covers your exact combination of languages simultaneously. You must drop a language or split the logic across multiple agents.

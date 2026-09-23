@@ -1,25 +1,50 @@
 ---
-title : Setup TTS fallback
+title: 'Configure TTS Fallback & Audio Redundancy'
+sidebarTitle: 'TTS Fallback'
+description: 'Define backup text-to-speech providers and voice profiles to ensure continuous call synthesis if your primary voice engine encounters an outage.'
+seo:
+  title: 'Configure TTS Fallback & Voice Redundancy | Tavly AI'
+  description: 'Define backup text-to-speech providers and voice profiles to ensure continuous call synthesis if your primary voice engine encounters an outage.'
+og:title: 'Configure TTS Fallback & Voice Redundancy in Tavly'
+og:description: 'Define backup text-to-speech providers and voice profiles to ensure continuous call synthesis if your primary voice engine encounters an outage.'
+og:image: 'https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/tts-fallback.png'
+twitter:card: 'summary_large_image'
+icon: 'shield-check'
+keywords: ['TTS fallback', 'Tavly AI voice failover', 'text-to-speech redundancy', 'audio delivery outage', 'backup voice provider', 'telephony high availability']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is TTS Fallback?'
+    answer: 'TTS Fallback is a failover mechanism that immediately switches your agent to a backup voice provider if the primary synthesis engine experiences an outage, ensuring the caller never experiences dropped audio.'
+  - question: 'Do I need to configure fallback for Platform Voices?'
+    answer: 'No. If you use a Tavly Platform Voice, failover is managed automatically by internal routing. You only need to configure custom fallback policies for external third-party engines or custom clones.'
+  - question: 'Does the voice switch back when the primary provider recovers?'
+    answer: 'No. To maintain session stickiness and avoid jarring voice changes, the agent remains on the backup model for the rest of that specific call.'
 ---
-> Configure TTS fallback voices so Tavly agents keep speaking during a TTS provider outage — required when using custom or third-party provider voices.
 
-<Note>
-  If you are using a [platform voice](/build/platform-voices) or a standard Tavly voice from the voice library, fallback is handled automatically — no additional setup is required. The steps below apply only if you are using a custom or third-party provider voice.
-</Note>
+## What is TTS Fallback?
 
-There might be cases where the TTS provider is having outages or temporary issues, but the agents need to keep talking to the user on call. Thus fallback and retries here are necessary. Fallback will use a different voice provider.
+TTS Fallback is a critical redundancy mechanism for live telephony. If your primary third-party speech synthesis engine experiences service disruptions or latency spikes, this system immediately routes traffic to a backup voice so the caller never experiences dropped audio.
 
-Currently if no specific TTS fallback is set up, the agent will use the default fallback plan that's being set up:
+<Note> **Automated Routing:** If your agent uses a [Platform Voice](/build/platform-voices) or a native Tavly library model, failover is managed completely automatically by internal routing infrastructure. You only need to manually configure fallback policies when deploying custom voice clones or external third-party engines.</Note>
 
-* it will use the same gender voice as the original voice (if the original voice has a gender field)
-* it will follow a default plan, to fallback to the next voice in the list, and if that voice is also not available, it will fallback to the next voice in the list.
-* even if the original voice is back online, the agent will still continue to use the fallback to minimize the change of voice during the call.
+## How does Default Failover operate?
 
-## Set up your own TTS fallback
+When an agent running a third-party voice lacks a user-defined fallback sequence, Tavly automatically executes a standardized recovery plan to keep the call alive.
 
-You can set up your own fallback plan, so that it sounds similar, and the user would not notice the change.
+* **Gender Continuity:** Tavly attempts to select an alternate voice that matches the original voice model's gender metadata.
+* **Cascading Priority:** The system iterates sequentially through an internal roster of backup voices, advancing down the list if subsequent providers also report errors.
+* **Session Stickiness:** After switching to a fallback voice mid-call, the agent remains on that backup model for the duration of the conversation. It does not revert to the primary voice mid-session, avoiding jarring vocal shifts for the caller.
 
-Here you can add multiple fallback voices, each needs to be using a different TTS provider, and it cannot be using the same provider as the original voice.
+## How do you configure a Custom Fallback Plan?
+
+Defining a custom fallback plan allows you to explicitly pre-select replacement voices that share comparable tone, pacing, and timbre to your primary voice, making synthesis transitions virtually imperceptible to the caller.
+
+When building your fallback roster, you must adhere to the following configuration constraints:
+
+* **Provider Isolation:** Every entry in your fallback list must utilize an independent text-to-speech provider.
+* **Primary Exclusion:** Fallback voices cannot share the exact same underlying provider as your primary voice.
+* **Multi-Tier Redundancy:** You can chain multiple secondary voices together to establish robust multi-tier failover protection.
 
 <Frame>
   <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/tts-fallback.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=2a627d0c85b4b278e42153cdc4b8f54c" alt="TTS fallback voice configuration with multiple fallback providers" data-path="images/tts-fallback.png" />

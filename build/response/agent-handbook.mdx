@@ -1,170 +1,168 @@
 ---
-title : Agent Handbook
+title: 'Tavly Agent Handbook: Prompt Presets'
+sidebarTitle: 'Agent Handbook'
+description: 'Enable ready-made prompt presets in the Agent Handbook to instantly optimize your agent’s personality, accuracy, and safety without writing manual prompts.'
+seo:
+  title: 'Agent Handbook | Prompt Presets & Tone | Tavly AI'
+  description: 'Enable ready-made prompt presets in the Agent Handbook to instantly optimize your agent’s personality, accuracy, and safety without writing manual prompts.'
+og:title: 'Tavly Agent Handbook: Optimize Agent Personality & Tone'
+og:description: 'Enable ready-made prompt presets in the Agent Handbook to instantly optimize your agent’s personality, accuracy, and safety without writing manual prompts.'
+og:image: 'https://mintcdn.com/retellai/opHugfP_U_5RGnfH/images/agent-handbook/handbook-panel.png'
+twitter:card: 'summary_large_image'
+icon: 'book-open'
+keywords: ['agent handbook', 'prompt presets', 'Tavly AI personality', 'AI disclosure', 'speech normalization', 'NATO phonetic alphabet']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the Agent Handbook?'
+    answer: 'The Agent Handbook is a collection of pre-configured prompt presets that instantly apply best practices for agent personality, data accuracy, and safety without requiring manual prompt engineering.'
+  - question: 'Do handbook presets cost extra tokens?'
+    answer: 'Yes. Each preset you enable adds a fixed number of tokens to every single interaction. You can view the estimated token cost for each preset within the dashboard panel.'
+  - question: 'Can I edit the text of a preset?'
+    answer: 'No, presets are fixed best-practice instructions. If you need highly specific, customized behavior, you should write those instructions directly into your agent’s main prompt.'
 ---
-> Turn on Tavly Agent Handbook presets to add best-practice prompts for personality, accuracy, and safety with one toggle — no manual prompt writing required.
 
-The Agent Handbook is a collection of ready-to-use prompt presets that improve how your agent communicates. Each preset encodes a specific best practice — toggle it on and the behavior is added automatically, no prompt writing needed.
+## What is the Agent Handbook?
 
-<Note>New agents are created with the **Default Tone (Professional)** and **AI Disclosure When Asked** presets enabled by default.</Note>
+The Agent Handbook is a curated library of ready-made prompt presets that instantly optimize your agent's communication style. Toggling a preset automatically injects best-practice instructions into the LLM context, eliminating the need to write complex manual prompts.
 
-## How It Works
+<Note> **Default Presets:** Every newly created agent automatically has the **Default Tone (Professional)** and **AI Disclosure When Asked** presets enabled to ensure a strong baseline experience.</Note>
 
-The Agent Handbook organizes presets into three categories:
+The Handbook organizes presets into three primary operational categories:
+* **Personality & Tone:** Dictates how the agent sounds, from professional constraints to high-empathy customer service.
+* **Accuracy & Format:** Optimizes data extraction and formatting for voice agents (e.g., verifying names and numbers).
+* **Trust & Safety:** Enforces strict compliance boundaries, ensuring the agent discloses it is an AI and refuses out-of-scope questions.
 
-* **Personality & Tone** — Shape how the agent sounds and feels in conversation
-* **Accuracy & Format** — Improve how the agent handles names, numbers, and data (voice agents only)
-* **Trust & Safety** — Control transparency and scope of responses
+## How do you manage Presets?
 
-Toggle any preset on or off from the Agent Handbook panel. Each preset adds a small number of tokens to every interaction — estimated token counts are shown on hover.
+You activate presets directly from the **Agent Handbook** panel located inside your agent's prompt settings. Simply toggle the desired behaviors on or off.
 
 <Frame>
   <img src="https://mintcdn.com/retellai/g8lJ9lRJyMqfuCCn/images/agent-handbook/handbook-button.png?fit=max&auto=format&n=g8lJ9lRJyMqfuCCn&q=85&s=8836c2deb797ee4b2ac5f6a960c4e1df" alt="Agent Handbook button in agent settings" width="361" height="841" data-path="images/agent-handbook/handbook-button.png" />
 </Frame>
 
-To open the Agent Handbook, click the **Agent Handbook** button in the prompt section of your agent settings.
+Because presets are injected into the prompt, every active preset adds a static token cost to every conversational turn. Hovering over a preset in the dashboard reveals its exact token estimate.
 
 <Frame>
   <img src="https://mintcdn.com/retellai/opHugfP_U_5RGnfH/images/agent-handbook/handbook-panel.png?fit=max&auto=format&n=opHugfP_U_5RGnfH&q=85&s=a627b39a983d432d6693b013a2b57df3" alt="Agent Handbook panel — Personality & Tone tab with Default Tone (Professional / Professional + Conversational), Natural Filler Words, and High Empathy" width="928" height="1296" data-path="images/agent-handbook/handbook-panel.png" />
 </Frame>
 
-## Presets
-
-### Personality & Tone
+## Personality & Tone Presets
 
 <AccordionGroup>
   <Accordion title="Default Tone">
-    Sets your agent's baseline speaking style. Choose one of two tones:
+    Sets the absolute baseline speaking style for the agent.
 
-    * **Professional** *(\~480 tokens · Voice and Chat · default)* — clear and polite, like a courteous representative. Follows an **Acknowledge → Statement → Next Step** structure, limits filler acknowledgments, and avoids robotic phrases like "Certainly!" or "Absolutely!".
-    * **Professional + Conversational** *(\~910 tokens · Voice only)* — casual and natural, with no robotic assistant vibes: short turns, one question at a time, real recommendations instead of "it depends", and numbers and times spoken the way people say them. Best for sales, front desk, scheduling, and customer success. See [Conversational Mode](/build/conversational-mode) for side-by-side examples.
+    * **Professional (~480 tokens | Voice & Chat | Default):** Clear, polite, and strictly business. Enforces a structural "Acknowledge → Statement → Next Step" flow while minimizing robotic filler phrases (e.g., "Certainly!").
+    * **Professional + Conversational (~910 tokens | Voice Only):** Natural, casual, and highly fluid. Forces short conversational turns, one question at a time, and parses numbers exactly how humans speak them. Ideal for sales and scheduling. Read the [Conversational Mode](/build/conversational-mode) guide for details.
 
-    **Professional sounds like:** *"I understand this is frustrating — let me look into that for you."*
-
-    **Professional + Conversational sounds like:** *"Morning's pretty open — nine or ten thirty. Afternoon works too if that's easier."*
+    **Professional Example:** *"I understand this is frustrating — let me look into that for you."*
+    **Conversational Example:** *"Morning's pretty open — nine or ten thirty. Afternoon works too if that's easier."*
   </Accordion>
 
   <Accordion title="Natural Filler Words (~100 tokens)">
-    **Available for:** Voice agents only | **Default:** Disabled
+    **Available for:** Voice Only | **Default:** Disabled
 
-    Adds occasional filler words like "um", "uh", and "you know" to make the agent sound more human and conversational. Fillers are used sparingly — roughly once every 2–3 sentences.
-
-    **When to use:** Great for sales, customer success, or casual conversations. Avoid for formal or regulated contexts (medical, legal).
-
-    **Example:** *"So yeah, let me just pull that up for you real quick."*
+    Injects localized filler words ("um," "uh," "you know") to make the agent sound less scripted. Fillers trigger roughly once every 2–3 sentences.
+    
+    * **Best for:** Sales, customer success, or casual outreach.
+    * **Avoid for:** Formal, medical, or highly regulated environments.
   </Accordion>
 
   <Accordion title="High Empathy (~70 tokens)">
-    **Available for:** Voice and Chat agents | **Default:** Disabled
+    **Available for:** Voice & Chat | **Default:** Disabled
 
-    Guides the agent to use empathetic language when the situation calls for it — acknowledging concerns, making callers feel heard, and reassuring them before moving to a solution.
-
-    **When to use:** Useful for support agents, complaint handling, or any scenario where callers may be frustrated or emotional.
-
-    **Example:** *"I'm sorry you're dealing with this. Let's get it sorted."*
+    Forces the agent to utilize highly empathetic language when appropriate, aggressively acknowledging concerns before transitioning to solutions.
+    
+    * **Best for:** Support routing, complaint handling, and de-escalation workflows.
   </Accordion>
 </AccordionGroup>
 
-### Accuracy & Format
+## Accuracy & Format Presets
 
-<Note>All presets in this category are available for voice agents only. They are automatically disabled for chat agents.</Note>
+<Note> **Platform Limitation:** Every preset in the Accuracy & Format category is strictly Voice-only. They will automatically disable if applied to a Chat agent.</Note>
 
 <AccordionGroup>
   <Accordion title="Echo Verification (~190 tokens)">
     **Default:** Disabled
 
-    The agent repeats back names, phone numbers, and other critical details for confirmation. For uncommon names, it spells them out letter by letter.
-
-    **When to use:** Enable for appointment booking, data collection, or any workflow where accurate information capture is critical.
-
-    **Example:** *"Just to confirm, your first name is Ryan, last name is James — is that correct?"*
+    Forces the agent to explicitly repeat critical details (names, phone numbers) back to the user to confirm accuracy. Uncommon names are spelled out letter by letter.
+    
+    * **Best for:** Appointment booking and strict data collection.
   </Accordion>
 
   <Accordion title="NATO Phonetic Alphabet (~190 tokens)">
     **Default:** Disabled
 
-    When spelling is needed, the agent uses the NATO phonetic alphabet (A as in Alfa, B as in Bravo, etc.) with natural pauses for clarity.
-
-    **When to use:** Useful for confirming email addresses, reference numbers, account IDs, or names over the phone.
-
-    **Example:** *"That's B as in Bravo, 7, K as in Kilo, 2 — correct?"*
+    Mandates the agent use the NATO phonetic alphabet (A as in Alfa, B as in Bravo) with distinct pauses when spelling alphanumeric strings.
+    
+    * **Best for:** Confirming complex email addresses or reference IDs.
   </Accordion>
 
   <Accordion title="Speech Normalization (~910 tokens)">
     **Default:** Disabled
 
-    Formats numbers, dates, money, phone numbers, addresses, and emails into natural spoken form. For example, "\$758.08" becomes "seven fifty-eight dollars and eight cents" and phone numbers are read digit by digit with pauses.
+    Forces the LLM to rewrite structured data (dates, currency, phone numbers) into highly natural spoken formats before generating audio. For example, "$758.08" is output as "seven fifty-eight dollars and eight cents."
 
-    **When to use:** Enable when your agent frequently reads back structured data like prices, dates, or contact information. Note the higher token cost (\~910 tokens).
-
-    <Tip>This preset tells the LLM how to format its text output for natural speech. For converting text to spoken form at the audio level, enable the `speech_normalization` option in `handbook_config`. Both can be used together.</Tip>
-
-    **Example:** *"Your total is seventy dollars and eighty-four cents."*
+    <Tip>To convert text at the raw audio synthesis layer instead of the LLM layer, enable the `speech_normalization` toggle inside your `handbook_config`.</Tip>
   </Accordion>
 
   <Accordion title="Smart Matching (~110 tokens)">
     **Default:** Disabled
 
-    Handles common speech recognition variations of names gracefully. If a caller confirms their name but the transcription is slightly different (e.g., "Brandon" vs. "Brendon"), the agent treats it as a match and continues naturally.
-
-    **When to use:** Enable when your agent looks up names in a database or CRM and needs tolerance for transcription variations.
-
-    **Example:** Agent asks "Are you Brandon?" and the caller says "Yes, this is Brendon" — the agent continues without flagging the difference.
+    Instructs the agent to gracefully accept minor ASR transcription errors when verifying names against a CRM (e.g., accepting "Brendon" when verifying "Brandon").
   </Accordion>
 </AccordionGroup>
 
-### Trust & Safety
+## Trust & Safety Presets
 
 <AccordionGroup>
   <Accordion title="AI Disclosure When Asked (~30 tokens)">
-    **Available for:** Voice and Chat agents | **Default:** Enabled
+    **Available for:** Voice & Chat | **Default:** Enabled
 
-    When someone asks if they're speaking to a human or an AI, the agent clearly acknowledges that it's a virtual assistant.
-
-    **When to use:** Recommended for transparency and compliance. Only disable if your use case has specific reasons not to disclose.
-
-    **Example:** *"Yes — I'm an AI assistant here to help."*
+    Enforces strict transparency. If a user asks if they are speaking to a human, the agent will explicitly confirm it is an AI assistant.
   </Accordion>
 
   <Accordion title="Scope Boundaries (~60 tokens)">
-    **Available for:** Voice and Chat agents | **Default:** Disabled
+    **Available for:** Voice & Chat | **Default:** Disabled
 
-    Restricts the agent to only answer questions based on information available in its prompt and knowledge base. If it doesn't know, it says so instead of guessing.
-
-    **When to use:** Enable for any agent where factual accuracy is critical, such as healthcare, finance, or legal use cases.
-
-    **Example:** *"I don't have that information, but I can connect you to someone who can help."*
+    Aggressively limits the agent to answering only queries explicitly covered by its prompt and Knowledge Base. It will actively refuse to guess outside of its scope.
+    
+    * **Best for:** Medical, financial, and legal deployments where hallucination is unacceptable.
   </Accordion>
 </AccordionGroup>
 
 ## Token Cost Summary
 
-| Preset                                       | Est. Tokens | Voice | Chat | Default |
-| -------------------------------------------- | ----------- | ----- | ---- | ------- |
-| Default Tone — Professional                  | \~480       | ✓     | ✓    | On      |
-| Default Tone — Professional + Conversational | \~910       | ✓     | —    | Off     |
-| Natural Filler Words                         | \~100       | ✓     | —    | Off     |
-| High Empathy                                 | \~70        | ✓     | ✓    | Off     |
-| Echo Verification                            | \~190       | ✓     | —    | Off     |
-| NATO Phonetic Alphabet                       | \~190       | ✓     | —    | Off     |
-| Speech Normalization                         | \~910       | ✓     | —    | Off     |
-| Smart Matching                               | \~110       | ✓     | —    | Off     |
-| AI Disclosure When Asked                     | \~30        | ✓     | ✓    | On      |
-| Scope Boundaries                             | \~60        | ✓     | ✓    | Off     |
+The table below outlines the estimated token cost for every interaction when a preset is enabled.
 
-<Note>Token counts are approximate. The token cost of all enabled presets is added to every interaction.</Note>
+| Preset                                       | Est. Tokens | Voice | Chat | Default |
+| ----------------------------------------------- | ------------- | ------- | ------ | --------- |
+| Default Tone — Professional                     | ~480          | ✓       | ✓      | On        |
+| Default Tone — Professional + Conversational    | ~910          | ✓       | —      | Off       |
+| Natural Filler Words                            | ~100          | ✓       | —      | Off       |
+| High Empathy                                    | ~70           | ✓       | ✓      | Off       |
+| Echo Verification                               | ~190          | ✓       | —      | Off       |
+| NATO Phonetic Alphabet                          | ~190          | ✓       | —      | Off       |
+| Speech Normalization                            | ~910          | ✓       | —      | Off       |
+| Smart Matching                                  | ~110          | ✓       | —      | Off       |
+| AI Disclosure When Asked                        | ~30           | ✓       | ✓      | On        |
+| Scope Boundaries                                | ~60           | ✓       | ✓      | Off       |
+
+<Note> **Token Accumulation:** These token figures are approximate. Every single preset you enable stacks its token cost onto every conversational turn.</Note>
 
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="Can I customize the content of a preset?">
-    No — presets are fixed best-practice prompts. For custom instructions, write them directly in your agent's prompt. See the [Prompt Engineering Guide](/build/prompt-engineering-guide) for tips.
+  <Accordion title="Can I customize what a preset actually says?">
+    No — each preset is a fixed, best-practice prompt that can't be edited directly. For custom instructions, write them into your agent's own prompt instead. See the [Prompt Engineering Guide](/build/prompt-engineering-guide) for tips on doing that well.
   </Accordion>
 
-  <Accordion title="Do handbook presets conflict with my custom prompt?">
-    Handbook presets work alongside your custom prompt. If your prompt gives instructions that overlap with a preset (e.g., you wrote your own empathy guidelines), you may want to disable the overlapping preset to avoid inconsistent behavior.
+  <Accordion title="Will handbook presets conflict with my own custom prompt?">
+    No, they're designed to work alongside your custom prompt. That said, if your prompt already covers similar ground to a preset — say, you've written your own empathy guidelines — it's worth disabling that overlapping preset to avoid inconsistent or contradictory behavior.
   </Accordion>
 
-  <Accordion title="Why are some presets grayed out for my chat agent?">
-    Five presets — Natural Filler Words, Echo Verification, NATO Phonetic Alphabet, Speech Normalization, and Smart Matching — are designed specifically for voice interactions and are not applicable to chat agents.
+  <Accordion title="Why are some presets greyed out on my chat agent?">
+    Five presets — Natural Filler Words, Echo Verification, NATO Phonetic Alphabet, Speech Normalization, and Smart Matching — are built specifically for spoken interactions and simply don't apply to chat agents.
   </Accordion>
 </AccordionGroup>

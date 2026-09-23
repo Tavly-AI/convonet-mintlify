@@ -1,34 +1,56 @@
 ---
-title: 'End Call'
+title: 'End Call Tool Configuration'
+sidebarTitle: 'End Call'
+description: 'Learn how to add and configure the End Call tool in Tavly AI so your agent knows exactly when to hang up autonomously based on conversation conditions.'
+seo:
+  title: 'End Call Tool for AI Agents | Tavly AI Guide'
+  description: 'Learn how to add and configure the End Call tool in Tavly AI so your agent knows exactly when to hang up autonomously based on conversation conditions.'
+og:title: 'End Call Tool Configuration'
+og:description: 'Learn how to add and configure the End Call tool in Tavly AI so your agent knows exactly when to hang up autonomously based on conversation conditions.'
+og:image: 'https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-off'
+keywords: ['end call tool', 'hang up AI agent', 'Tavly AI tools', 'terminate call API', 'call management']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Will a Tavly AI agent hang up automatically by default?'
+    answer: 'No, out of the box, an agent will not hang up on its own. You must explicitly add the End Call tool and define termination conditions in the prompt.'
+  - question: 'How do you configure an agent to end a call?'
+    answer: 'Add the End Call tool in the dashboard, then explicitly write instructions in the prompt (e.g., "If the user says goodbye, use the end_call tool").'
+  - question: 'Can you end an active call via the API?'
+    answer: 'Yes, you can send a POST request to the Stop Call endpoint to immediately terminate a live call from your server.'
 ---
 
-> Add the End Call tool to a Tavly AI single or multi-prompt agent and define when the agent should automatically hang up based on conversation conditions.
+## How do you enable automatic call termination?
 
-By default, the agent won't end the call automatically. You'll need to configure when and how the call should be terminated using the end call tool.
+Out of the box, a Tavly AI agent will not hang up on its own. To enable autonomous call termination, you must add the **End Call** tool to your agent and define precise conversational conditions in the core prompt to trigger it.
 
 <Steps>
-  <Step title="Add End Call Tool">
-    Click "+ Add" in the tools section and select "End Call" from the dropdown menu.
+  <Step title="Add the End Call Tool">
+    Navigate to the tools section of your agent dashboard, click **+ Add**, and explicitly choose **End Call** from the available list of functions.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=53ae902cbe4dbfa4edff788fff3ca94e" alt="Adding end call tool" data-path="images/end_call.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure Termination Conditions">
-    Define specific conditions under which the call should be terminated. For example:
+  <Step title="Decide When the Call Should End">
+    Work out the precise conversational conditions that should accurately trigger termination. For instance, define exactly what the caller might say to indicate the interaction is definitively over.
 
-    * "If the user says 'thank you', 'goodbye', or 'bye', use the end\_call tool to terminate the conversation."
+    * "If the user says 'thank you', 'goodbye', or 'bye', use the `end_call` tool to terminate the conversation."
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call_2.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=6fb7c7e1b1183a8b25eee5cfab6fb885" alt="Configuring end call conditions" data-path="images/end_call_2.png" />
     </Frame>
   </Step>
 
-  <Step title="Update the Prompt">
-    Enhance the agent's understanding by incorporating the end call conditions into the prompt. Include specific instructions such as:
+  <Step title="Reflect the Conditions in Your Prompt">
+    You must strictly write those end-call conditions directly into the agent's main prompt so the language model reliably recognizes exactly when it is time to act.
 
-    "If the user says 'thank you', 'goodbye', or 'bye', use the end\_call tool to terminate the conversation."
+    ```text
+    If the user says 'thank you', 'goodbye', or 'bye', use the end_call tool to terminate the conversation.
+    ```
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call_3.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=c9f4683f55f36dae81c83b91bd607ad0" alt="Adding end call instructions to prompt" data-path="images/end_call_3.png" />
@@ -36,10 +58,10 @@ By default, the agent won't end the call automatically. You'll need to configure
   </Step>
 </Steps>
 
-## End a call using the API
+## How do you end a call through the API?
 
-The steps above configure the agent to hang up on its own. You can also work with call termination through the API:
+Beyond allowing the agent to hang up autonomously, you maintain absolute control over call termination programmatically via the API. You can manually stop live calls, provision tools dynamically, or manage custom websocket terminations.
 
-* **Stop an ongoing call**: Call [Stop Call](/api-references/stop-call) (`POST /v2/stop-call/{call_id}`) to immediately end a live call from your server.
-* **Add the End Call tool programmatically**: Include a tool with `type: end_call` in `general_tools` when you [create](/api-references/create-retell-llm) or [update](/api-references/update-retell-llm) a Tavly AI LLM. This is equivalent to adding the tool in the dashboard.
-* **Custom LLM integrations**: If you bring your own LLM over WebSocket, set `end_call: true` in your response and Tavly AI ends the call after the content is fully spoken. See the [LLM WebSocket reference](/api-references/llm-websocket).
+* **Ending a call already in progress:** Send a secure request to [Stop Call](/api-references/stop-call) (`POST /v2/stop-call/{call_id}`) directly from your server to immediately sever an active live call.
+* **Adding the tool programmatically:** When you [create](/api-references/create-retell-llm) or [update](/api-references/update-retell-llm) a Tavly LLM via the API, include a tool object configured with `type: end_call` inside the `general_tools` array. This programmatically mirrors the dashboard setup.
+* **Bringing your own LLM:** If you are connecting a custom LLM over a WebSocket connection, simply inject `end_call: true` directly into your JSON response payload. Tavly will gracefully end the call only after the currently queued audio has finished being spoken. Full technical details are available in the [LLM WebSocket reference](/api-references/llm-websocket).

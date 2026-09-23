@@ -1,136 +1,144 @@
 ---
-title : Reusable subflows for conversation flow agents
+title: 'Subflows: Build Reusable AI Agent Logic'
+sidebarTitle: 'Subflows'
+description: 'Learn how to modularize Tavly AI agents using Subflows to create reusable, consistent, and easily maintainable conversational logic across multiple agents.'
+seo:
+  title: 'Subflows | Reusable Agent Logic | Tavly AI'
+  description: 'Learn how to modularize Tavly AI agents using Subflows to create reusable, consistent, and easily maintainable conversational logic across multiple agents.'
+og:title: 'Subflows: Build Reusable AI Agent Logic'
+og:description: 'Learn how to modularize Tavly AI agents using Subflows to create reusable, consistent, and easily maintainable conversational logic across multiple agents.'
+og:image: 'https://mintcdn.com/retellai/PP8J4G_S-0bVCFYm/images/cf/component-sidebar.png'
+twitter:card: 'summary_large_image'
+icon: 'puzzle-piece'
+keywords: ['subflows', 'reusable agent logic', 'Tavly components', 'AI conversational design', 'modular conversation flows']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Subflow?'
+    answer: 'A Subflow is a packaged, reusable mini conversation flow (a group of nodes) that can be dropped into multiple agents to ensure consistent behavior.'
+  - question: 'What is the difference between Library Subflows and Agent Subflows?'
+    answer: 'Library Subflows are shared across your entire account and can be used by any agent. Agent Subflows are strictly local and scoped exclusively to a single agent.'
+  - question: 'Can Subflows include function tools?'
+    answer: 'Yes. Subflows can natively contain function nodes and utilize tools. However, those tools must be defined directly within the Subflow and will not be visible externally on the main agent canvas.'
 ---
 
-> Package parts of a conversation flow into reusable Tavly subflows, so you can build complex agents once and share consistent logic across many flows.
+## What are Subflows?
 
-## Conversation flow subflows
+**Subflows** (previously known as Components) aggressively modularize conversational AI design. They allow you to package a specific subset of conversational nodes into a standalone, reusable mini-flow that can be seamlessly dropped into multiple different agents.
 
-Make complex agents easier to build, reuse, and maintain by packaging parts of your conversation into subflows. A subflow is a mini flow (a group of nodes) that you can reuse across agents and flows.
+<Note> **Terminology Update:** Subflows were previously called **Components**. The underlying architecture and feature set remain entirely identical; only the nomenclature has changed.</Note>
 
-<Note>
-  Subflows were previously called **Components**. The feature is the same; only the name changed.
-</Note>
+**Why use a Subflow?**
+* **Aggressive Reuse:** Build complex logic once and deploy it instantly across an infinite number of agents.
+* **Guaranteed Consistency:** Ensure critical behaviors (e.g., identity verification or compliance scripts) execute identically across all use cases.
+* **Canvas Cleanliness:** Hide dense routing logic inside a focused node rather than cluttering the primary agent canvas.
+* **Centralized Iteration:** Update a shared Library Subflow once, and every single agent inheriting it is instantly upgraded.
 
-### Why use subflows?
+## How do you manage and find Subflows?
 
-* Reuse: Build once, drop into many agents and flows.
-* Consistency: Keep behavior uniform across use cases (e.g., identity check).
-* Clean canvas: Hide detailed logic inside a focused subflow.
-* Faster iteration: Update a shared subflow to improve every agent that uses it.
+Subflows are centrally managed directly within the agent builder dashboard, explicitly divided into global and local scopes.
 
-### Where to find it
+From your agent's dashboard:
+* Open the **Subflows** tab securely located in the left sidebar.
+* You will immediately see two distinct architectural tiers:
+  * **Library Subflows:** Shared globally at the account level. Usable by any agent.
+  * **Agent Subflows:** Scoped strictly locally to the current active agent.
 
-<Frame>
+<Frame caption="Conversation flow builder showing Library and Agent Subflows.">
   <img height="700" src="https://mintcdn.com/retellai/PP8J4G_S-0bVCFYm/images/cf/component-sidebar.png?fit=max&auto=format&n=PP8J4G_S-0bVCFYm&q=85&s=38d4dec599f6cb9bbc59808a4a779812" alt="Conversation flow builder left sidebar with the Subflows tab open, showing the Library Subflows and Agent Subflows sections." data-path="images/cf/component-sidebar.png" />
 </Frame>
 
-In the dashboard, open your agent's builder:
+From your agent's builder in the dashboard:
 
-* Left sidebar → **Subflows** tab
-* Two sections:
-  * **Library Subflows**: Account-level, shared across agents.
-  * **Agent Subflows**: Local to the current agent.
+* Open the **Subflows** tab in the left sidebar
+* You'll see two sections:
+  * **Library Subflows** — shared at the account level, usable across any agent.
+  * **Agent Subflows** — scoped locally to just the current agent.
 
 <Note>
-  **Switching between flows:** Use the flow selector at the top of the builder (it shows **Main flow** by default) to move between your main agent, any open subflows, and transfer agents. Each one opens in its own editor tab, and you can return to **Main flow** at any time.
+  **Switching between flows:** the flow selector at the top of the builder (defaulting to **Main flow**) lets you move between your main agent, any subflows you have open, and transfer agents. Each opens in its own editor tab, and you can jump back to **Main flow** anytime.
 </Note>
 
-## Create a subflow
+## How do you create and integrate a Subflow?
 
-You can create either a library (shared) subflow or an agent-level (local) one. Both open in a dedicated editor tab.
+You create a Subflow in an isolated editor tab, defining strict entry and exit points, before dropping it onto your main canvas as a single unified routing node.
 
-1. In the **Subflows** tab, click the **+** button next to **Library Subflows** or **Agent Subflows**.
-2. You'll start with a "Begin" node, a basic conversation node, and an "Exit Subflow" end node.
-3. Add nodes and connect edges to form your subflow.
-4. Set a start node by connecting the Begin tag to the first node.
-5. Link the "Exit Subflow" node correctly so you won't get stuck inside the subflow.
-6. Switch back to the main agent using the flow selector (labeled **Main flow**) at the top of the builder.
-7. Rename the subflow by clicking the "..." to the right of its name.
+<Steps>
+  <Step title="Create the Subflow">
+    Click the **+** button next to either **Library Subflows** or **Agent Subflows** to spawn a fresh editor tab.
+    * The canvas initializes with a `Begin` node, a standard Conversation Node, and an `Exit Subflow` node.
+    * You cannot nest a Subflow inside another Subflow.
+  </Step>
 
-Notes:
+  <Step title="Design the internal routing">
+    Connect your structural logic securely between the entry and exit points.
+    * **Crucial:** You must explicitly connect the `Begin` tag to the very first functional node.
+    * **Crucial:** You must strictly wire up the `Exit Subflow` node; otherwise, the conversation will fatally stall inside the subflow with no escape route.
+    <Frame caption="Subflow editor tab with properly connected Begin and Exit nodes.">
+      <img height="700" src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/component-detail.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=23463311fdf2ec896c9cff37222c20f6" alt="Subflow editor tab with a Begin node, a conversation node, and an Exit Subflow end node connected on the canvas." data-path="images/cf/component-detail.png" />
+    </Frame>
+  </Step>
 
-* Subflows cannot contain other subflows; you add regular nodes inside a subflow.
-* Available node types match your agent's channel (voice vs chat).
+  <Step title="Add to the main flow">
+    Return to the main agent canvas and click your new subflow in the sidebar to drop it onto the board. Connect an incoming edge to enter it, and route the outgoing edge from the subflow node to dictate where the conversation resumes upon exit.
+    <Frame caption="Main canvas routing into and out of a Subflow node.">
+      <img height="700" src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/component-node.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=feee9405abd9874531c4a1fa8d7606bc" alt="Main conversation flow canvas with a single subflow node whose outgoing edge connects to the next node." data-path="images/cf/component-node.png" />
+    </Frame>
+  </Step>
+</Steps>
 
-<Frame>
-  <img height="700" src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/component-detail.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=23463311fdf2ec896c9cff37222c20f6" alt="Subflow editor tab with a Begin node, a conversation node, and an Exit Subflow end node connected on the canvas." data-path="images/cf/component-detail.png" />
-</Frame>
+## What is the difference between Shared and Local Subflows?
 
-## Add a subflow to your flow
+The structural scope of a subflow strictly dictates which agents can access it and exactly who is affected when you deploy an update.
 
-* From the **Subflows** tab, click a subflow. A single subflow node appears on your canvas.
-* Connect into the subflow: link any node to the subflow node.
-* Connect out of the subflow: select the subflow node and connect its outgoing edge to where the conversation should continue.
-* To edit what happens inside, open the subflow's editor tab and modify its internal nodes.
-* You can rename the subflow node, which is also reflected in the subflow.
+| Scope | Storage Location | Accessibility | Update Propagation | Best Used For |
+| --- | --- | --- | --- | --- |
+| **Library (Shared)** | Account-level record | Any agent globally | Instantly affects all agents using it | Universal compliance scripts, identity verification |
+| **Agent (Local)** | Inside the agent | Only the parent agent | Only affects the parent agent | Highly specific, localized agent logic |
 
-Tip: End nodes inside the subflow hand control back to the main flow. Back on the main canvas, make sure the subflow node's outgoing edge points to the next step.
+<Warning> **Publishing Risks:** Published agents can aggressively reference shared subflows. If you update a Library Subflow, it inherently alters the behavior of a locked, published agent. To protect a published agent, explicitly convert its subflows to Local before publishing.</Warning>
 
-<Frame>
-  <img height="700" src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/component-node.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=feee9405abd9874531c4a1fa8d7606bc" alt="Main conversation flow canvas with a single subflow node whose outgoing edge connects to the next node." data-path="images/cf/component-node.png" />
-</Frame>
-
-## Shared vs local subflows
-
-Every subflow is either shared across your account or local to a single agent. That choice decides who your next edit reaches.
-
-|                         | Library Subflow (shared)                                                                   | Agent Subflow (local)                     |
-| ----------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| Where it's stored       | Its own account-level record                                                               | Inside the agent's flow                   |
-| Which agents can use it | Any agent in the account                                                                   | Only the agent it was created in          |
-| Who an edit reaches     | Every agent that uses it, published versions included                                      | That agent only                           |
-| Best for                | Steps that should stay identical everywhere, like an identity check or a compliance script | Logic that only makes sense for one agent |
-
-### Convert between shared and local
-
-Select the subflow node, open its **Subflow Settings** panel, then set **Subflow Access** to **Agent Only Subflow** or **Shared Library Subflow**.
-
-<Frame>
+<Frame caption="Converting a Subflow between Local and Shared access.">
   <img height="700" src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/component-convert.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=543c56f4af5c345362820ea001b9f485" alt="Subflow Settings panel with the Subflow Access radio group showing Agent Only Subflow and Shared Library Subflow options." data-path="images/cf/component-convert.png" />
 </Frame>
 
-Going from shared to local, which is the same action as turning off **Sync Updates**, copies the subflow into this agent and stops it from receiving library updates.
+<Note> **Deleting Shared Subflows:** If you intentionally delete a Library Subflow, the system automatically converts it into a Local copy for every agent actively using it, preventing catastrophic logic failures.</Note>
 
-### What to watch for
+## What are the best practices for Subflows?
 
-* **Deleting a library subflow** turns every linked instance into a local copy and stops sync updates, so agents that used it keep working.
-* **Published agents can reference shared subflows.** The behavior of a [published agent](/agent/version) can still change if it uses a subflow that gets updated. To prevent this, convert to a local subflow before publishing.
+Designing reliable subflows requires strict adherence to modularity and clean data management.
 
-## Testing
+* **Single Responsibility:** Give a subflow exactly one clear job (e.g., `Collect Shipping Address`).
+* **Explicit Naming:** Name subflows aggressively using verb-noun pairs (e.g., `Verify Identity`).
+* **Dynamic Variable Handoffs:** Safely pass data captured inside the subflow back to the main flow by writing to standard dynamic variables.
+* **Test in Context:** A subflow implicitly inherits the global prompt of the main flow it is dropped into. Always execute your testing from the main canvas to simulate accurate end-to-end inheritance behavior.
 
-* To test a subflow under the Test Subflow panel, add the subflow to the main conversation flow first so it initializes properly.
-* The global prompt of the main conversation flow applies to all subflow nodes implicitly.
-* To test a subflow alone, make it a shared subflow and create a new empty agent with only one subflow node.
+## Best Practices
 
-## Best practices
-
-* Keep subflows focused: One clear job (e.g., "Collect Shipping Address").
-* Name clearly: Use action + outcome (e.g., "Verify Identity").
-* Design clean entry/exit: Always set a start node; include an end node to exit cleanly.
-* Reuse variables: Use dynamic variables to pass captured data back to the main flow.
-* Test in context: Open the Test panel to simulate end-to-end behavior after inserting the subflow.
+* **Keep each subflow focused** — give it one clear job, like "Collect Shipping Address."
+* **Name it clearly** — combine an action with an outcome, such as "Verify Identity."
+* **Design clean entry and exit points** — always set a start node, and include an end node so the flow can exit properly.
+* **Reuse variables** — pass data captured inside the subflow back to the main flow using dynamic variables.
+* **Test in context** — after inserting the subflow, open the Test panel to simulate the full end-to-end behavior.
 
 ## FAQ
 
-* How do I update a shared subflow used by many agents?
-  * Under any agent, navigate to the subflow's edit page. When you edit it, changes apply everywhere it's used.
+* **How do I update a shared subflow used across multiple agents?**
+  From within any agent, navigate to that subflow's edit page. Any change you make there applies everywhere the subflow is used.
 
-* Can I stop changes from affecting an agent?
-  * Yes. In that agent, turn off **Sync Updates** to convert its reference to a local copy.
+* **Can I stop a change from affecting a specific agent?**
+  Yes — turn off **Sync Updates** on that agent to convert its reference into a local copy instead.
 
-* What happens if I delete a library subflow?
-  * Agents keep a local copy; they stop syncing with the deleted library item.
+* **What happens if I delete a library subflow?**
+  Agents that were using it keep a local copy of their own, and simply stop syncing with the now-deleted library item.
 
-* Can I move a local subflow into the library?
-  * Yes. In **Subflow Access**, switch it to **Shared Library Subflow** to create a shared version and update references.
+* **Can I move a local subflow into the shared library?**
+  Yes — switch **Subflow Access** to **Shared Library Subflow** to create a shared version and update the references accordingly.
 
-* Can subflows include tools/functions?
-  * Yes. Subflows can include function nodes and use your configured tools. Tools behave the same as in the main flow.
-  * The tools need to be defined within the subflow and won't be visible outside at the agent level.
+* **Can subflows include tools or functions?**
+  Yes. Subflows can contain function nodes and make use of your configured tools, behaving exactly as they would in the main flow. However, any tools used need to be defined within the subflow itself — they won't be visible at the agent level outside of it.
 
-* What if I did not link the Begin node in a subflow?
-  * It transitions to the next node based on the subflow node edges.
+* **What happens if I forget to link the Begin node in a subflow?**
+  It transitions to the next node based on whatever edges exist on the subflow node itself.
 
-* What if I did not link the Exit Subflow node properly?
-  * It stays stuck inside the subflow and cannot transition out.
+* **What happens if I don't link the Exit Subflow node properly?**

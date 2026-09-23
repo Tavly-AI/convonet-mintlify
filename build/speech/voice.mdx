@@ -1,33 +1,60 @@
 ---
-title : Choose a custom voice
+title: 'Custom Voices & Voice Cloning'
+sidebarTitle: 'Custom Voices'
+description: 'Configure custom voices for your Tavly voice agents by exploring community libraries, importing external profiles, or training your own voice clones.'
+seo:
+  title: 'Custom Voices & Voice Cloning | Tavly AI'
+  description: 'Configure custom voices for your Tavly voice agents by exploring community libraries, importing external profiles, or training your own voice clones.'
+og:title: 'Custom Voices & Voice Cloning in Tavly'
+og:description: 'Configure custom voices for your Tavly voice agents by exploring community libraries, importing external profiles, or training your own voice clones.'
+og:image: 'https://mintcdn.com/retellai/eEshNpZ1hNd3jdfT/images/custom-voice-search.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'microphone'
+keywords: ['custom voice AI', 'voice cloning', 'ElevenLabs community voices', 'Tavly AI voice clones', 'Inworld AI voice', 'acoustic models']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How many custom voices can I create?'
+    answer: 'Each Tavly account supports up to 100 custom voices by default. To request a quota increase, contact support.'
+  - question: 'What makes a good audio sample for voice cloning?'
+    answer: 'Provide clean, uncompressed audio without background noise. Most importantly, speak with the exact cadence, tone, and emotional projection you want the agent to use on live calls, as the clone directly mirrors the source delivery.'
+  - question: 'How many audio files can I upload to clone a voice?'
+    answer: 'It depends on the synthesis provider. Inworld accepts up to 3 files (max 16 MB). Cartesia, MiniMax, and Platform require exactly 1 file. ElevenLabs allows up to 25 files via API.'
 ---
-> Add custom voices to your Tavly agent — search ElevenLabs community voices, import a voice clone, or train a clone for a unique brand-specific sound.
 
-If you find the existing voice doesn't meet your needs, you can add a custom voice. There's a limit of 100 custom voices per account. If you need more, please contact us via the <a href="https://support.tavlyai.com/">Customer Support Portal</a> or [support@tavlyai.com](mailto:support@tavlyai.com).
+## What are Custom Voices?
 
-## Add Custom Voice
+Custom voices allow you to deploy specific acoustic models when standard library voices do not match your brand identity. You can browse shared community libraries or train bespoke voice clones using your own audio.
 
-In the voice selector, you can click "Add custom voice" to search and add publicly available community voices.
+Each account natively supports up to **100 custom voices**. To request a quota increase beyond this limit, submit a ticket through the <a href="https://support.tavlyai.com/">Customer Support Portal</a> or email [support@tavlyai.com](mailto:support@tavlyai.com).
+
+## How do you browse Community Voices?
+
+You can directly search, preview, and integrate public community voices (such as those from ElevenLabs) directly from the Tavly dashboard.
+
+1. Navigate to your specific agent configuration panel.
+2. Open the primary voice selection dropdown menu.
+3. Click **Add custom voice** to browse the shared community library.
 
 <Frame>
   <img height="700" src="https://mintcdn.com/retellai/eEshNpZ1hNd3jdfT/images/custom-voice-search.jpeg?fit=max&auto=format&n=eEshNpZ1hNd3jdfT&q=85&s=bac49cd031e0aee05e28219a7305c66f" data-path="images/custom-voice-search.jpeg" />
 </Frame>
 
-## Add Voice Clone
+## How do you create a Voice Clone?
 
-You can also add a voice clone by clicking "Add custom voice" in the voice selector.
+To deploy a custom vocal profile based on your own speaker recordings, initiate the cloning workflow from the voice selector interface and upload your source audio.
 
 <Steps>
-  <Step title="Access Voice Clone Feature">
-    Open the voice selector and click "Add custom voice".
+  <Step title="Select Voice Cloning">
+    Click **Add custom voice** within the agent voice menu to reveal the cloning options.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/voice_clone1.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=b325670f13104ea65c8c20cac630015e" data-path="images/voice_clone1.png" />
     </Frame>
   </Step>
 
-  <Step title="Train Your Voice Clone">
-    Upload your voice recordings to train the voice clone.
+  <Step title="Provide Sample Audio">
+    Submit your audio sample files to train the vocal model. See the requirements below.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/voice_clone_detail.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=fbe6e0245fbc1206f31dce339ef328de" data-path="images/voice_clone_detail.png" />
@@ -35,15 +62,19 @@ You can also add a voice clone by clicking "Add custom voice" in the voice selec
   </Step>
 </Steps>
 
-### What to say in the recordings
+## What are the Audio Recording Standards?
 
-Cloning captures how the voice sounds, not what it says, so you don't need to read a specific script. Any natural speech works. For the best result:
+Cloning algorithms train on acoustic timbre, cadence, and inflection—not semantic text. To maximize clone fidelity, you must record high-quality, uncompressed audio that perfectly matches your intended deployment tone.
 
-* Speak in the tone, pace, and energy you want the agent to use on calls. The clone reproduces the delivery it hears.
-* Use continuous, conversational speech rather than isolated words or long pauses.
-* Record a single speaker with no background noise, music, or echo.
-* Avoid heavily edited or compressed audio. A clean microphone recording works better than audio captured from a phone or video call.
+* **Match Production Cadence:** Deliver speech with the specific tone, tempo, and emotional projection intended for live phone calls. The trained clone directly mirrors the source delivery.
+* **Maintain Conversational Flow:** Speak in coherent, flowing sentences rather than fragmented word lists or punctuated pauses.
+* **Eliminate Acoustic Interference:** Capture audio from an isolated speaker without ambient background sounds, room reverberation, or music.
+* **Use Clean Raw Audio:** Prioritize uncompressed microphone recordings over compressed teleconference streams or cellular call audio.
 
-### File limits
+## What are the Provider File Requirements?
 
-File limits depend on the voice provider you clone with. Inworld voice cloning accepts up to 3 files and 16 MB of audio in total, while Cartesia, MiniMax, and platform clones take a single file. ElevenLabs clones accept up to 25 files via the [Clone Voice API](/api-references/clone-voice).
+Audio upload constraints vary strictly based on the underlying synthesis provider chosen to train the clone.
+
+* **Inworld:** Up to 3 audio files with a maximum cumulative payload of 16 MB.
+* **Cartesia, MiniMax, and Platform:** Exactly 1 audio file.
+* **ElevenLabs:** Up to 25 individual files when provisioned programmatically using the [Clone Voice API](/api-references/clone-voice).

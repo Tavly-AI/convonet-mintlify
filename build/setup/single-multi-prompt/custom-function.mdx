@@ -1,0 +1,235 @@
+---
+title: 'Connect Any External System With a Custom Function'
+sidebarTitle: 'Custom Function'
+description: 'Add a custom function to a Tavly AI agent to call your own API mid-call. Configure URLs, methods, headers, parameters, and response variable mapping.'
+seo:
+  title: 'Custom Functions for AI Agents | Tavly AI Guide'
+  description: 'Add a custom function to a Tavly AI agent to call your own API mid-call. Configure URLs, methods, headers, parameters, and response variable mapping.'
+og:title: 'Connect Any External System With a Custom Function'
+og:description: 'Add a custom function to a Tavly AI agent to call your own API mid-call. Configure URLs, methods, headers, parameters, and response variable mapping.'
+og:image: 'https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call.png'
+twitter:card: 'summary_large_image'
+icon: 'webhook'
+keywords: ['custom function', 'AI agent API call', 'Tavly AI webhook', 'external system integration', 'dynamic variables API']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a custom function in Tavly AI?'
+    answer: 'A custom function allows your AI agent to reach out to your proprietary external API while a call is actively happening and fold the result back into the conversation.'
+  - question: 'Does Tavly retry a custom function if it fails?'
+    answer: 'Only if explicitly configured. Setting the max_retry parameter up to 5 turns on automatic retries with exponential backoff, but only do this if your endpoint safely handles duplicate requests.'
+  - question: 'How do I secure my custom function endpoint?'
+    answer: 'You must verify the X-Retell-Signature header against the raw request body using your Tavly API key, and you can lock your server to accept traffic only from Tavly’s outbound IP (100.20.5.228).'
+---
+
+## What is a custom function?
+
+A **custom function** gives your Tavly AI agent the programmatic ability to reach out to your own private API while a live call is happening, securely retrieving data and folding the result directly back into the conversational context.
+
+Reach for a custom function whenever the agent needs to read live data from your systems or execute backend actions mid-call.
+* **Pulling live data:** Checking order statuses, locating open appointment slots, reading account details, or shipment tracking.
+* **Triggering actions:** Automatically opening support tickets, securely updating a database record, or sending out a confirmation email.
+* **Logic branching:** Hitting an endpoint that determines the agent's exact next conversational move based on backend business rules.
+
+If the logic does not require your server (e.g., standard calculations, reading a [dynamic variable](/build/dynamic-variables), or hitting a simple public API), utilize a [code tool](/build/single-multi-prompt/code-tool) instead. For common integrations like CRM and calendars, utilize our native [integration tools](/build/single-multi-prompt/integration-tools).
+
+### Example: Checking an Order's Status
+
+Picture a retail support agent that needs to tell callers exactly where their package is. You would add a `get_order_status` custom function pointed at `https://api.yourstore.com/orders`. Once the caller speaks their order number, the agent intelligently calls the function with that exact variable, your API returns the status and expected delivery date, and the agent relays it back—saying "Your order shipped yesterday and arrives Thursday."
+
+## How do you set up a custom function?
+
+Setting up a custom function involves explicitly defining the endpoint URL, selecting the HTTP method, passing any necessary headers, mapping dynamic variables to the request body, and instructing the agent precisely when to trigger it via the prompt.
+
+<Steps>
+  <Step title="Add a custom function">
+    Inside your agent dashboard, open the **Functions** section, hit **+ Add**, and explicitly select **Custom Function**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/end_call.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=53ae902cbe4dbfa4edff788fff3ca94e" alt="Functions section" width="3440" height="1434" data-path="images/end_call.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Give it a name and description">
+    Assign a unique **name** using letters and underscores (e.g., `get_user_details`), plus a highly detailed **description**. The LLM agent strictly relies on that description to determine when to invoke the function.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/custom-function.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=4fea08589e8c8a30fb2cb20f813b02b6" alt="Custom function modal" width="883" height="679" data-path="images/custom-function/custom-function.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Pick an HTTP method">
+    Choose exactly how Tavly hits your endpoint: **GET**, **POST**, **PUT**, **PATCH**, or **DELETE**. **POST** is the default. Note that JSON payloads are only dispatched with POST, PUT, and PATCH.
+  </Step>
+
+  <Step title="Enter your endpoint URL">
+    In the **API Endpoint** field, enter the fully qualified URL. Tavly actively blocks calls to `localhost`, private IP ranges, and cloud metadata endpoints for absolute security. Use a tunneling tool like ngrok for local development.
+  </Step>
+
+  <Step title="Set a timeout and headers (optional)">
+    * **Timeout:** Valid values range from `1000` (1 second) to `600000` (10 minutes), defaulting to 120 seconds. If the call times out, the agent is handed an error state to respond to.
+    * **Headers:** Add custom authentication headers. Values can be hardcoded or injected securely via [dynamic variables](/build/dynamic-variables) (e.g., `{{token}}`).
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" alt="Request headers configuration" width="830" height="132" data-path="images/custom-function/headers.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Define the request body">
+    For POST, PATCH, and PUT calls, specify what the agent should send in the body — either through a JSON schema or the form-based editor. Just like with query parameters, any property carrying a `description` gets filled in by the LLM, while one with a `const` value is passed through unchanged.
+
+    **Payload: args only**
+
+    Turning on **Payload: args only** strips the request body down to just the function's raw arguments, with no wrapper around them. Leave it off, and the body instead follows the [request and response spec](#request-and-response-spec) below, wrapped in `name`, `call`, and `args`.
+
+    <Tip>
+      Turn this on when your endpoint is expecting a flat JSON body that matches your parameter object one-to-one, without any outer wrapper.
+    </Tip>
+
+    Example parameter schema:
+
+    ```json theme={"dark"}
+    {
+      "type": "object",
+      "required": ["order_id"],
+      "properties": {
+        "name": {
+          "type": "object",
+          "properties": {
+            "first_name": {
+              "type": "string",
+              "description": "User first name"
+            },
+            "last_name": {
+              "type": "string",
+              "const": "{{last_name}}"
+            }
+          }
+        },
+        "order_id": {
+          "type": "number",
+          "const": 1234
+        }
+      }
+    }
+    ```
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/json-form.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=6762a2122b6476f28a4f5ed79ffc9423" alt="Form editor" width="830" height="297" data-path="images/custom-function/json-form.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Map response values to variables (optional)">
+    Under **Store Fields as Variables**, pull specific values out of your JSON response and save them as [dynamic variables](/build/dynamic-variables) for later use in the conversation.
+
+    Reference each field with dot notation, adding array indices as needed — `user.name` or `data.items[0].id`, for example. This only works when your endpoint's response is a JSON object.
+
+    Given this response, for instance, you could pull out the user's name and reference it later as `{{user_name}}`:
+
+```json theme={"dark"}
+    {
+      "user": {
+        "name": "John Doe",
+        "age": 26
+      }
+    }
+```
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/response-variables.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=389a898c0ab3705d3a83acb61a3a4634" alt="Response variable mapping" width="822" height="134" data-path="images/custom-function/response-variables.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set how the agent speaks around the call">
+    * **Talk While Waiting:** Instruct the agent to speak natural filler text ("Let me look that up for you") while the API executes.
+    * **Talk After Action Completed:** Allow the agent to continue speaking seamlessly once the function returns its backend payload.
+  </Step>
+</Steps>
+
+## What is the request and response format?
+
+When the agent triggers the function, Tavly securely dispatches a standard JSON payload containing the function's context, the active transcript, and extracted arguments. The response must return a standard 200–299 status code.
+
+Unless **Payload: args only** is enabled, the inbound request includes a `name` string, an `args` object, and a comprehensive `call` object containing active metadata, dynamic variables, and the real-time transcript.
+
+```json theme={"dark"}
+  {
+    "name": "analyze_transcript",
+    "args": {
+      "analysis_type": "sentiment"
+    },
+    "call": {
+      "call_type": "web_call",
+      "call_id": "Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6",
+      "agent_id": "oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+      "call_status": "ongoing",
+      "retell_llm_dynamic_variables": {
+        "customer_name": "John Doe"
+      },
+      "transcript": "Agent: Hi John, thanks for calling! How can I help you today?"
+    }
+  }
+```
+
+<Note> By default, the custom function's return result is strictly truncated at 15,000 characters to prevent overwhelming the LLM's active context window. </Note>
+
+## How do you verify the request is from Tavly?
+
+You must cryptographically verify that the incoming webhook request originated from Tavly by securely checking the `X-Retell-Signature` header against the raw request body utilizing your private API key. 
+
+<Warning> Make absolutely sure you are verifying against the raw, untouched request body. Running `JSON.stringify(req.body)` will inherently alter whitespace and completely break the signature validation.</Warning>
+
+<CodeGroup>
+```javascript Node.js theme={"dark"}
+  import { Retell } from "retell-sdk";
+  import express from "express";
+
+  const app = express();
+  app.use(express.raw({ type: "application/json" }));
+
+  app.post("/check-weather", async (req, res) => {
+    const rawBody = req.body.toString("utf-8");
+    const signature = req.headers["x-retell-signature"];
+    if (
+      typeof signature !== "string" ||
+      !(await Retell.verify(rawBody, process.env.RETELL_API_KEY, signature))
+    ) {
+      console.error("Invalid signature");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const content = JSON.parse(rawBody);
+    if (content.args.city === "New York") {
+      return res.json("25f and sunny");
+    }
+    return res.json("20f and cloudy");
+  });
+```
+
+```python Python theme={"dark"}
+  import os
+  import json
+  from fastapi import FastAPI, Request
+  from fastapi.responses import JSONResponse
+  from retell import Retell
+
+  app = FastAPI()
+  retell = Retell(api_key=os.environ["RETELL_API_KEY"])
+
+  @app.post("/check-weather")
+  async def check_weather(request: Request):
+      raw_body = (await request.body()).decode("utf-8")
+      valid_signature = retell.verify(
+          raw_body,
+          api_key=os.environ["RETELL_API_KEY"],
+          signature=request.headers.get("X-Retell-Signature"),
+      )
+      if not valid_signature:
+          return JSONResponse(status_code=401, content={"message": "Unauthorized"})
+      content = json.loads(raw_body)
+      if content["args"]["city"] == "New York":
+          return JSONResponse(status_code=200, content={"result": "25f and sunny"})
+      return JSONResponse(status_code=200, content={"result": "20f and cloudy"})
+```
+</CodeGroup>
+
+<Note>You can actively lock your server down at the firewall level to only accept traffic from Tavly's exact outbound IP address: `100.20.5.228`.</Note>

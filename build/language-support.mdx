@@ -1,20 +1,40 @@
 ---
-title : Supported languages by provider
+title: 'Supported Languages by Provider'
+sidebarTitle: 'Language Support'
+description: 'A comprehensive breakdown of which Tavly text-to-speech and speech recognition providers support each language, including API codes and model restrictions.'
+seo:
+  title: 'Supported Languages by Provider | TTS & ASR | Tavly AI'
+  description: 'A comprehensive breakdown of which Tavly text-to-speech and speech recognition providers support each language, including API codes and model restrictions.'
+og:title: 'Supported Languages by Provider: TTS & ASR Coverage'
+og:description: 'A comprehensive breakdown of which Tavly text-to-speech and speech recognition providers support each language, including API codes and model restrictions.'
+twitter:card: 'summary'
+icon: 'language'
+mode: 'wide'
+keywords: ['language support', 'TTS providers', 'ASR providers', 'supported dialects', 'Tavly API codes', 'ElevenLabs languages']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What dictates language availability for an agent?'
+    answer: 'Any language your agent uses must be simultaneously supported by your chosen Voice (TTS) provider and at least one Speech Recognition (ASR) provider.'
+  - question: 'What happens if a provider does not support my language?'
+    answer: 'The Tavly dashboard will automatically grey out incompatible combinations in the language picker, providing a tooltip explaining exactly which voice or model is causing the restriction.'
+  - question: 'How do locale variants work in the API?'
+    answer: 'Locale variants (e.g., en-US vs. en-GB) share the same overarching provider support. The codes listed in the tables are exactly what the API’s `language` field accepts.'
 ---
 
-> Which Tavly AI text-to-speech and speech recognition providers support each language, with the codes accepted by the API and model-level restrictions.
+## How does Language Support work?
 
-Every language your agent uses must be supported by **both** a voice (text-to-speech) provider and a speech recognition (ASR) provider. This page lists, for each language, which providers cover it.
+Any language your agent uses must be covered by **both** a voice (text-to-speech) provider and a speech recognition (ASR) provider simultaneously. 
 
-<Note>
-  The dashboard's language picker is the live source of truth — it greys out combinations that aren't supported and updates as providers add coverage. Use these tables for planning; confirm the exact combination in the dashboard. See [Set language for your agent](/agent/language) and [Configure a multilingual agent](/agent/multilingual) for how selection works.
-</Note>
+This page provides a hard reference for which providers support which languages. The codes shown in the tables are exactly what the API's `language` field explicitly accepts. Where a language has several locale variants (e.g., US versus British English), they share the exact same provider support.
 
-Codes are the values accepted by the API `language` field. Where a language has multiple locale variants (for example, US vs. British English), they share the same provider support.
+<Note> **The Source of Truth:** Provider coverage shifts dynamically. The dashboard's language picker is always the live source of truth—it automatically greys out unsupported combinations. Treat the tables below as a planning reference, and confirm exact combinations in the dashboard.</Note>
 
-## Text-to-speech (voice) support
+## Which providers support Text-to-Speech (Voice)?
 
-A ✓ means the language is supported by **at least one** of that provider's voice models. Some providers gate certain languages to specific models — see [Model-level restrictions](#model-level-restrictions) below. For quality and feature trade-offs between these providers, see the [TTS provider comparison](/build/tts-provider-comparison).
+A checkmark (✓) means at least **one** of the provider's voice models supports the language natively. However, some providers restrict specific languages strictly to certain models (detailed below). 
+
+For a broader evaluation of quality and features across these providers, review the [TTS provider comparison](/build/tts-provider-comparison).
 
 | Language    | Code(s)                                     | Platform | MiniMax | Cartesia | Inworld | Fish Audio | ElevenLabs | OpenAI |
 | ----------- | ------------------------------------------- | :------: | :-----: | :------: | :-----: | :--------: | :--------: | :----: |
@@ -74,9 +94,9 @@ A ✓ means the language is supported by **at least one** of that provider's voi
 | Vietnamese  | `vi-VN`                                     |     ✓    |    ✓    |     ✓    |         |      ✓     |      ✓     |    ✓   |
 | Welsh       | `cy-GB`                                     |          |         |          |         |      ✓     |      ✓     |    ✓   |
 
-### Model-level restrictions
+## What are the Model-Level Restrictions?
 
-Most providers support the same languages across all of their models. The exceptions:
+While most providers support their full language roster regardless of the model chosen, several providers restrict language availability exclusively to specific models.
 
 **ElevenLabs**
 
@@ -94,11 +114,14 @@ Most providers support the same languages across all of their models. The except
 | `s2-pro`, `s2.1-pro` | All languages in the Fish Audio column above                                                                     |
 | `s1`                 | English, Chinese, Japanese, German, French, Spanish, Korean, Arabic, Russian, Dutch, Italian, Polish, Portuguese |
 
-**OpenAI** (`tts-1`, `gpt-4o-mini-tts`), **Cartesia** (`sonic-3`, `sonic-3-latest`, `sonic-3.5`), **MiniMax** (`speech-02-turbo`, `speech-2.8-turbo`), and **Inworld** (`inworld-tts-2`, `inworld-tts-2-flash`) support their full language set on every model.
+**Unrestricted Providers:**
+**OpenAI** (`tts-1`, `gpt-4o-mini-tts`), **Cartesia** (`sonic-3`, `sonic-3-latest`, `sonic-3.5`), **MiniMax** (`speech-02-turbo`, `speech-2.8-turbo`), and **Inworld** (`inworld-tts-2`, `inworld-tts-2-flash`) support their entire language lists on every single model they offer.
 
-## Speech recognition (ASR) support
+## Which providers support Speech Recognition (ASR)?
 
-A ✓ means the provider can transcribe that language. By default Tavly auto-routes across providers based on your agent's languages and whether it's optimized for latency or accuracy. You can also pin a specific provider manually with a custom speech-to-text config, as long as it supports every language your agent uses. See [Speech recognition providers](/build/asr-providers).
+A checkmark (✓) means the ASR provider can accurately transcribe that language. By default, Tavly automatically routes across ASR providers dynamically to optimize for latency or accuracy.
+
+You can explicitly pin a specific provider via a custom speech-to-text config, provided it covers your agent's required languages. See [Speech recognition providers](/build/asr-providers).
 
 | Language    | Code(s)                                     | Deepgram | Azure | Soniox | AssemblyAI |
 | ----------- | ------------------------------------------- | :------: | :---: | :----: | :--------: |
@@ -159,11 +182,13 @@ A ✓ means the provider can transcribe that language. By default Tavly auto-rou
 | Welsh       | `cy-GB`                                     |          |   ✓   |    ✓   |            |
 
 <Note>
-  * **Azure** covers every supported language and acts as the broad-coverage fallback.
-  * **AssemblyAI** supports code-switching across its listed languages.
-  * **Deepgram** and **Soniox** support any-to-any code-switching for multilingual agents across their supported languages; Azure is single-language only.
+  * **Azure** covers every single language listed here and acts as the broad baseline fallback option.
+  * **AssemblyAI** uniquely handles code-switching across all of its supported languages natively.
+  * **Deepgram** and **Soniox** both support aggressive any-to-any code-switching for multilingual agents across whatever languages they cover; Azure only explicitly supports single-language use.
 </Note>
 
-## Multilingual agents
+## Multilingual Agents
 
-For a multilingual agent, every selected language must be covered by a single voice and a single ASR provider that can handle the whole set together. If no single provider covers the combination, the dashboard blocks it. See [Configure a multilingual agent](/agent/multilingual) for accuracy trade-offs.
+For a [Multilingual Agent](/agent/multilingual), every single language you select must be explicitly covered by *both* one voice provider and one ASR provider capable of handling the entire set together. 
+
+If no single provider covers the entire combination, the dashboard aggressively blocks the selection to prevent runtime errors.

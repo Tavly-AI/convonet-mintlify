@@ -1,38 +1,66 @@
 ---
-title: 'Conversation Node'
+title: 'Conversation Node: Multi-Turn Dialogue'
+sidebarTitle: 'Conversation Node'
+description: 'Use the Tavly conversation node for multi-turn AI dialogue that does not call any tools. This is the default building block for gathering information.'
+seo:
+  title: 'Conversation Node | AI Agent Dialogue Flow | Tavly AI'
+  description: 'Use the Tavly conversation node for multi-turn AI dialogue that does not call any tools. This is the default building block for gathering information.'
+og:title: 'Conversation Node: Multi-Turn Dialogue'
+og:description: 'Use the Tavly conversation node for multi-turn AI dialogue that does not call any tools. This is the default building block for gathering information.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/conversation-node.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'message-circle-more'
+keywords: ['conversation node', 'AI multi-turn dialogue', 'Tavly AI conversation flow', 'AI speech node', 'LLM prompt dialogue']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Conversation Node?'
+    answer: 'A conversation node is the foundational building block of an AI conversation flow. It handles spoken, multi-turn exchanges with the caller without executing any external tools.'
+  - question: 'When should I create a new Conversation Node?'
+    answer: 'A single node can handle multiple conversational turns. You should only split into a new node when there is a logical branch point or when the prompt instruction becomes too complex to manage.'
+  - question: 'What does Skip Response do?'
+    answer: 'The Skip Response setting restricts the node to a single edge that automatically transitions the moment the agent finishes speaking, without waiting for the human caller to reply.'
 ---
 
-> Use Tavly conversation nodes for multi-turn dialogue without tool calls — the default building block for capturing info and guiding callers through a flow.
+## What is a Conversation Node?
 
-The conversation node is the most common node type in a conversation flow. It holds a spoken conversation with the user — no tool calling.
+The **Conversation Node** is the most frequently utilized building block in a conversation flow. It executes pure, multi-turn spoken dialogue with the caller **without calling any tools**. 
 
-If the agent should also call tools during the same dialogue, use a [subagent node](/build/conversation-flow/subagent-node). If a tool must always run at a fixed point in the flow, use a [function node](/build/conversation-flow/function-node).
+If the agent strictly needs to execute tools during the dialogue, utilize a [Subagent Node](/build/conversation-flow/subagent-node) instead. If a tool must fire deterministically at a fixed sequence point, use a [Function Node](/build/conversation-flow/function-node).
 
-Please note that the agent can have a multi-turn conversation inside a single node, so you don't necessarily need to create a new conversation node for every sentence the agent needs to say. It's recommended to split the node when there's a logic split, or the instruction gets too long.
+<Note> A single node securely handles a conversation across multiple continuous turns. You do not need to create a new node for every single line the agent speaks. As a strict rule of thumb, split the flow into a new node only when a logical branch point occurs, or when the agent prompt becomes too complex.</Note>
 
 <Frame caption="A conversation node with its instruction and outgoing transition conditions.">
   <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/conversation-node.jpeg?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=2a67c7583585883d1bec9fdcef6b3243" alt="Conversation node on the flow canvas showing an instruction prompt and edges with transition conditions below it" width="800" height="504" data-path="images/cf/conversation-node.jpeg" />
 </Frame>
 
-For example, an appointment-booking agent can use one conversation node to collect the caller's preferred date and time — asking follow-up questions across several turns — with transition conditions for "user provided a date and time" and "user asked to speak to a human."
+For example, an appointment-booking agent might utilize a single conversation node to securely gather the caller's preferred date and time, asking intelligent clarifying questions across multiple turns. The transition conditions would exclusively cover scenarios like "user provided a date and time" or "user asked to speak to a human."
 
-## Write the instruction
+## How do you choose how the agent speaks?
 
-Pick how the agent generates what to say in this node:
+You control exactly how the agent generates outbound speech within the node by choosing between a dynamically generated LLM prompt or a rigidly defined static sentence.
 
-* **Prompt**: Write instructions and the LLM generates responses dynamically. Use this for anything that depends on what the user says.
-* **Static Sentence**: The agent says your exact sentence first. If the conversation stays in the node after that, it continues dynamically based on the static sentence. Use this when the wording must be exact, like disclaimers or greetings.
+* **Prompt:** You write foundational instructions, and the LLM dynamically generates exactly what to say. This is the optimal configuration for any dialogue that inherently depends on the caller's context.
+* **Static Sentence:** The agent strictly opens the node by speaking your exact, hardcoded wording. If the conversation continues within the same node, it automatically shifts back to dynamic generation. Utilize this when phrasing must be legally precise (e.g., compliance disclaimers or standardized greetings).
 
-## When transitions happen
+## When does the flow move on?
 
-* After the user finishes speaking, following the [evaluation order](/build/conversation-flow/transition-condition#evaluation-order).
-* When **Skip Response** is enabled: as soon as the agent finishes speaking.
+The conversation flow natively transitions away from the active node based on caller input or strictly defined settings.
 
-## Node settings
+* **Dynamic evaluation:** Once the caller stops speaking, the agent evaluates the input against the [evaluation order](/build/conversation-flow/transition-condition#evaluation-order) for active transition conditions.
+* **Immediate transition:** If **Skip Response** is toggled on, the node transitions instantaneously the exact moment the agent finishes speaking.
 
-* **Skip Response**: The node gets a single edge and transitions through it when the agent finishes speaking, without waiting for a reply. Useful for lines that need no response, like a disclaimer before a transfer.
-* **Knowledge Base**: Attach node-level knowledge bases to combine topic-specific knowledge with the agent-level knowledge base. Read more at [knowledge base](/build/knowledge-base).
-* **Global Node**: Make this node reachable from anywhere in the flow when its condition is met. Read more at [global node](/build/conversation-flow/global-node).
-* **LLM**: Choose a different model for this node only. It's used for response generation — for example, a cheaper model for simple routing and a stronger one for complex steps.
-* **Speech overrides**: Override the agent-level speech settings for this node only — interruption sensitivity (0–1), response wait time (0–5.5s), voice speed (0.5–2), and whether keypad presses can interrupt the agent (DTMF interruption).
-* **Fine-tuning examples**: Add example transcripts to improve this node's responses and transition decisions. Read more at [finetune examples](/build/conversation-flow/finetune-examples).
+## What settings are available on this node?
+
+Conversation nodes provide robust, node-specific configuration settings that override global defaults, empowering you to fine-tune speech parameters, LLM models, and knowledge access.
+
+* **Skip Response:** Restricts the node to a singular edge that fires immediately after the agent finishes speaking, completely bypassing any expectation of a human reply. Highly useful for disclaimers right before a call transfer.
+* **Knowledge Base:** Actively attach a node-specific knowledge base that seamlessly layers on top of the agent's global configuration. Read the [Knowledge Base Guide](/build/knowledge-base).
+* **Global Node:** Transforms this node into a globally reachable destination from anywhere else in the overarching flow once its condition is met. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **LLM Override:** Explicitly pick a different underlying LLM exclusively for this node's generation—deploy a cheaper model for simple routing, or a highly advanced model for demanding logic.
+* **Speech Overrides:** Explicitly override the agent-wide global speech settings strictly for this node:
+  * **Interruption sensitivity:** (0–1)
+  * **Response wait time:** (0–5.5s)
+  * **Voice speed:** (0.5–2)
+  * **DTMF Interruption:** Controls whether the agent can be actively interrupted by physical keypad presses.
+* **Fine-Tuning Examples:** Inject precise sample transcripts to drastically sharpen how this exact node generates responses and calculates transitions. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).

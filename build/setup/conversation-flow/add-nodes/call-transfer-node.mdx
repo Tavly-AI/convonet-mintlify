@@ -1,117 +1,129 @@
 ---
-title: Call transfer node in conversation flow
+title: 'Call Transfer Node: Route AI Phone Calls'
+sidebarTitle: 'Call Transfer Node'
+description: 'Use the Tavly Call Transfer Node to route phone calls to external numbers, including cold, warm, and advanced agentic warm transfers.'
+seo:
+  title: 'Call Transfer Node | AI Call Routing | Tavly AI'
+  description: 'Use the Tavly Call Transfer Node to route phone calls to external numbers, including cold, warm, and advanced agentic warm transfers.'
+og:title: 'Call Transfer Node: Route AI Phone Calls'
+og:description: 'Use the Tavly Call Transfer Node to route phone calls to external numbers, including cold, warm, and advanced agentic warm transfers.'
+og:image: 'https://mintcdn.com/retellai/CusS6gidcUzaxvEx/images/cf/transfer-call-node.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-arrow-right'
+keywords: ['call transfer node', 'AI call routing', 'warm transfer AI', 'cold transfer SIP', 'Tavly AI agent transfer']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Call Transfer Node?'
+    answer: 'A Call Transfer Node seamlessly routes an active phone call to a different external phone number or SIP URI. It supports cold transfers, warm transfers, and advanced agentic warm transfers.'
+  - question: 'Can I use the Call Transfer Node on web calls?'
+    answer: 'No. The Call Transfer Node only functions on active phone calls using Tavly numbers or imported telephony numbers. It does not work on web-based calls.'
+  - question: 'Does billing continue after a transfer?'
+    answer: 'AI agent per-minute billing continues only while the agent remains on the line during hold or briefing times. Once the caller connects to the destination and the agent exits, AI billing stops, and only standard telephony fees continue.'
 ---
 
-> Use a call transfer node to hand a Tavly phone call off to a different number. Supports Tavly and imported numbers, with optional pre-transfer messages.
+## What is a Call Transfer Node?
 
-<Warning>
-  This node only works during phone calls instead of web calls. It's available for Tavly numbers and imported numbers.
-</Warning>
+A **Call Transfer Node** strictly routes an active phone call to a different external phone number or SIP URI. The agent remains entirely silent while inside this specific node. 
 
-Call transfer node is used to transfer the call to another number. The agent will not speak when it's in this node. If you want the agent to say things like `Let me transfer you right away` before performing the actual transfer, you can do so by putting a conversation node (with `skip response` turned on) before this node.
+If you want the agent to speak a transition phrase (e.g., `Let me transfer you right away`) before the handoff, you must securely place a standard Conversation Node directly before it with `Skip Response` enabled.
+
+<Warning> **Telephony Only:** This node functions exclusively on physical phone calls using Tavly numbers or imported numbers. It inherently does not work on web-based calls.</Warning>
 
 <Frame>
   <img src="https://mintcdn.com/retellai/CusS6gidcUzaxvEx/images/cf/transfer-call-node.png?fit=max&auto=format&n=CusS6gidcUzaxvEx&q=85&s=d00f0caa67dcf341e314c56091eba8d7" width="1156" height="1082" data-path="images/cf/transfer-call-node.png" />
 </Frame>
 
-## When Can Transition Happen
+## How do you set up the destination?
 
-Transition happens when transfer fails. There's already a pre-populated edge for this. Feel free to connect that to a node to handle transfer failure.
-
-## Configure Transfer
+You must explicitly define the target destination for the transfer, which can be a standard phone number, a SIP URI, or a dynamic variable resolved at runtime.
 
 <Steps>
-  <Step title="Set Up Transfer To Target">
-    Set transfer number to be either:
-
-    * a number in e.164 format, or a SIP URI in the format of `sip:username@domain` (e.g. `sip:user@tavlyai.com`).
-    * [dynamic variable](/build/dynamic-variables) that gets substituted at runtime.
-    * (Optional) if your transfer destination is not in e.164 format then you can choose to keep the input as is by choosing raw format. This only applies when you are using custom telephony and does not apply when you are using Tavly Telephony. This can be useful when you want to transfer to internal pseudo numbers.
-
+  <Step title="Set the destination address">
+    Point the transfer strictly at one of the following formats:
+    * **e.164 format** (e.g., `+1234567890`)
+    * **SIP URI** shaped exactly like `sip:username@domain` (e.g., `sip:user@tavlyai.com`)
+    * A **[Dynamic Variable](/build/dynamic-variables)** resolved natively during the call.
+    
     <Frame>
       <img src="https://mintcdn.com/retellai/CusS6gidcUzaxvEx/images/cf/transfer-call-e164.png?fit=max&auto=format&n=CusS6gidcUzaxvEx&q=85&s=ba54ab3635ca7cd934d213eb68414143" width="1182" height="1098" data-path="images/cf/transfer-call-e164.png" />
     </Frame>
 
-    Set the transfer number extension if needed. Extension must be 0-9, '\*', '#' (e.g. 123#).
-
-    The SIP URI target does not carry inline auth credentials. `sip:user:password@domain` is not supported, and the node has no separate username or password field for the transfer destination. If the destination requires authentication, use custom SIP headers (for example, an `X-` header your SIP endpoint parses), or terminate the transfer at an endpoint you control that then authenticates onward.
+    <Note> SIP URIs fundamentally cannot carry authentication inline (e.g., `sip:user:password@domain`). If your destination requires authentication, use custom SIP headers or route to an authenticated proxy endpoint.</Note>
+  </Step>
+  
+  <Step title="Add custom SIP headers (Optional)">
+    Add custom outbound SIP headers (typically prefixed with `X-`) to actively pass session-specific data like user IDs or campaign codes to your VoIP endpoint.
+    
+    <Warning> Custom SIP headers are strictly preserved only when transferring directly to a SIP endpoint. They are aggressively stripped if the transfer targets a standard PSTN number.</Warning>
   </Step>
 
-  <Step title="Configure Transfer Type">
-    Choose between cold transfer, warm transfer, or agentic warm transfer:
+  <Step title="Set the ring duration (applies to all modes)">
+    Use this slider to decide how long the destination should ring for this particular transfer.
 
-    * **Cold transfer**: The call is transferred to a destination number and that's it.
-    * **Warm transfer**: After the call is transferred to the destination number, the AI agent can attempt to detect if the other side is human, leave private messages that are not heard by the user, do a three-way introduction, etc. This is a direct warm transfer flow (not agentic warm transfer). More details below.
-    * **Agentic warm transfer**: A transfer agent has a two-way conversation with the transfer target and then decides to either bridge the original caller or cancel the transfer.
-  </Step>
-
-  <Step title="Configure Transfer Ring Duration (All Modes)">
-    Use this slider to set how long the destination should ring for this transfer.
-
-    * The value you set here applies only to this transfer.
-    * If you do not set it, we use your agent-level ring duration setting.
-    * This works for cold transfer, warm transfer, and agentic warm transfer.
+    * Whatever you set here only applies to this one transfer.
+    * Leave it unset, and it falls back to your agent-level ring duration setting.
+    * This works the same way across cold, warm, and agentic warm transfers.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/XoiOOpBkax1duk4y/images/cf/transfer-dial-timeout.png?fit=max&auto=format&n=XoiOOpBkax1duk4y&q=85&s=91457ca85cf9ece8067d8ef983eb1214" width="816" height="118" data-path="images/cf/transfer-dial-timeout.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure Caller ID (Optional)">
-    You can configure which caller ID shows up to the transfer destination:
+  <Step title="Set caller ID (optional)">
+    Decide which caller ID the transfer destination will see:
 
-    1. **Tavly Agent's number**: The transfer destination will see the Tavly agent's number.
-
-    2. **User's Number**: The transfer destination will see the number of the user. Please note that the telephony provider must support caller ID override for this feature to work.
-       * For warm transfer, it's using SIP DIAL, and we are setting `from` and `P-Asserted-Identity` headers to the user's number.
-       * For cold transfer, it's using SIP REFER, and it's up to the telephony provider to support caller ID override for SIP REFER.
-       * Tavly Twilio numbers support showing user's number on both warm and cold transfer, Tavly Telnyx numbers only support this when using SIP REFER via cold transfer.
-       * If caller ID override is not supported, the transfer would fail.
+    1. **Tavly Agent's number** — the destination sees the Tavly agent's number.
+    2. **User's Number** — the destination sees the caller's own number. Your telephony provider needs to support caller ID override for this to actually work.
+       * Warm transfer uses SIP DIAL, setting the `from` and `P-Asserted-Identity` headers to the caller's number.
+       * Cold transfer uses SIP REFER, and whether caller ID override works depends entirely on the telephony provider.
+       * Tavly Twilio numbers support showing the caller's number on both warm and cold transfer; Tavly Telnyx numbers only support this via SIP REFER on cold transfer.
+       * If override isn't supported, the transfer will fail.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/_QrxQEoxP5f0zRlL/images/telephony/caller-id-setting.png?fit=max&auto=format&n=_QrxQEoxP5f0zRlL&q=85&s=6f73a184623714e31913189556b39f59" data-path="images/telephony/caller-id-setting.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure Cold Transfer Specific Settings">
-    For cold transfer, you can configure the following settings:
+  <Step title="Configure cold transfer settings">
+    For cold transfer specifically, you can set:
 
-    * **Cold transfer modes**: You can choose `SIP INVITE` or `SIP REFER`.
-    * **What SIP is**: SIP (Session Initiation Protocol) is the signaling protocol used to set up and route VoIP calls.
-    * **SIP INVITE**: This is the default transfer method. It establishes or updates the active call path, then bridges the transfer. You can choose which caller ID to use.
-    * **SIP REFER**: This asks an endpoint to start a separate call to a third party for transfer handoff. Use this only if your telephony provider supports SIP REFER. Caller ID behavior depends on provider support and configuration.
-    * **Caller ID behavior**: `show transferee as caller` only applies when cold transfer mode is `SIP INVITE`.
+    * **Cold transfer mode** — either `SIP INVITE` or `SIP REFER`.
+    * SIP (Session Initiation Protocol) is the underlying signaling protocol used to set up and route VoIP calls.
+    * **SIP INVITE** — the default method. It establishes or updates the active call path and then bridges the transfer, and lets you choose which caller ID to display.
+    * **SIP REFER** — asks an endpoint to start a separate call to a third party to complete the handoff. Only use this if your telephony provider actually supports it; caller ID behavior depends on the provider's support and configuration.
+    * **Caller ID behavior** — the "show transferee as caller" option only applies when the cold transfer mode is `SIP INVITE`.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/CusS6gidcUzaxvEx/images/cf/cold-transfer-settings.png?fit=max&auto=format&n=CusS6gidcUzaxvEx&q=85&s=c94a233055d022b53239d625249633d8" width="794" height="1092" data-path="images/cf/cold-transfer-settings.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure Warm Transfer Specific Settings (Non-Agentic)">
-    For warm transfer (non-agentic), you can configure the following settings:
+  <Step title="Configure warm transfer settings (non-agentic)">
+    For a standard (non-agentic) warm transfer, you can configure:
 
-    * **On-hold music**: The audio played to the caller while they are on hold. The default is a standard ringtone.
-    * **Navigate IVR**: Provide a prompt to help you navigate if the transfer target is an IVR system.
-    * **Enable human detection**: When enabled, the agent will check if a human is present after the transfer target answers. The original caller will only be connected once a human is detected.
-    * **Auto-greet**: If enabled, the agent will immediately say “Hello” when the transfer target picks up. This encourages a response, increasing the likelihood of detecting a human.
-    * **Agent detection timeout**: The maximum amount of time the AI agent will wait to determine whether the transfer target is a human. The caller is connected only if human detection succeeds within this timeframe. Otherwise, the transfer is marked as failed. The default timeout is 30 seconds.
-    * **Whisper message (optional)**: A message spoken privately to the transfer target before connecting them to the original caller.
-    * **Three-way message (optional)**: A message spoken to both the transfer target and the original caller once the connection is established.
+    * **On-hold music** — what the caller hears while on hold. Defaults to a standard ringtone.
+    * **Navigate IVR** — provide a prompt to help the agent work through the destination's IVR system, if there is one.
+    * **Enable human detection** — when turned on, the agent checks for a human presence once the destination answers, and only connects the original caller once a human is confirmed.
+    * **Auto-greet** — if enabled, the agent immediately says "Hello" as soon as the destination picks up, encouraging a response that makes human detection more reliable.
+    * **Agent detection timeout** — the maximum time the agent will spend trying to confirm a human answered. The caller only gets connected if detection succeeds within this window; otherwise the transfer is marked as failed. Defaults to 30 seconds.
+    * **Whisper message (optional)** — a message spoken privately to the destination before they're connected to the original caller.
+    * **Three-way message (optional)** — a message spoken to both the destination and the original caller once they're connected.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/_QrxQEoxP5f0zRlL/images/telephony/warm-transfer-settings.png?fit=max&auto=format&n=_QrxQEoxP5f0zRlL&q=85&s=d813bc6a8f2fdb7c3dbb1ae8b8078c4b" data-path="images/telephony/warm-transfer-settings.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure Agentic Warm Transfer Specific Settings">
-    In an agentic warm transfer, a second AI agent — called a **transfer agent** — answers the handoff, talks with the transfer target, and then decides whether to connect (bridge) your caller or cancel. For this transfer type you can configure:
+  <Step title="Configure agentic warm transfer settings">
+    In an agentic warm transfer, a second AI agent — the **transfer agent** — takes the handoff, talks with whoever answers at the destination, and decides whether to bridge your caller through or cancel. For this mode, you can configure:
 
-    * **On-hold music**: What the original caller hears while the transfer agent is working.
-    * **Two-way conversation agent**: The transfer agent (and version) that talks to the transfer target and decides whether to bridge or cancel. See **Choose or create a transfer agent** in the next step.
-    * **Wait time for agent answer**: How long to give the transfer agent to make a decision.
-    * **Action on timeout**: What happens if that wait time runs out — **Cancel transfer** (treat it as a failed transfer) or **Bridge the transfer** (connect the caller anyway).
-    * **Three-way ring tone**: While the transfer agent is handling the handoff, the original caller hears the selected ring tone/on-hold audio until the call is bridged or canceled.
-    * **Three-way message (optional)**: A message shared with both parties when the call is bridged. You can write it as a **Prompt** (instructions the agent turns into a sentence) or a **Static Sentence** (the exact words to say).
+    * **On-hold music** — what the original caller hears while the transfer agent works.
+    * **Two-way conversation agent** — the specific transfer agent (and version) that talks to the destination and decides whether to bridge or cancel. See **Choosing or creating a transfer agent** below.
+    * **Wait time for agent answer** — how long the transfer agent has to reach a decision.
+    * **Action on timeout** — what happens if that time runs out: **Cancel transfer** (treated as a failed transfer) or **Bridge the transfer** (connect the caller regardless).
+    * **Three-way ring tone** — while the transfer agent works the handoff, the original caller hears the selected ring tone or on-hold audio until the call is either bridged or canceled.
+    * **Three-way message (optional)** — a message shared with both parties once the call bridges. Write it as a **Prompt** (instructions the agent turns into a sentence) or a **Static Sentence** (exact wording).
 
     <Frame>
       <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/cf-agentic-warm-transfer-settings.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=f85540d891b3f229365b7bf0ea2fbf82" width="786" height="1294" data-path="images/transfer-agents/cf-agentic-warm-transfer-settings.png" />
@@ -119,38 +131,37 @@ Transition happens when transfer fails. There's already a pre-populated edge for
   </Step>
 
   <Step title="Choose or create a transfer agent">
-    A **transfer agent** is a separate AI agent whose only job is to receive agentic warm transfers — think of it as an AI teammate who answers the handoff, speaks with the transfer target, and decides whether to connect your caller. Transfer agents are kept separate from your normal agents, so they won't clutter your main agent list.
+    A **transfer agent** is a dedicated AI agent whose only job is to handle agentic warm transfers — think of it as a teammate that picks up the handoff, talks with whoever's at the destination, and decides whether to connect your caller. Transfer agents live separately from your regular agents, so they won't clutter up your main agent list.
 
-    **1. Open the picker.** Click the **Two-way conversation agent** selector (it reads "Transfer screening agent" until one is chosen) to open the **Select transfer agent** window.
+    **1. Open the picker.** Click the **Two-way conversation agent** selector — it reads "Transfer screening agent" until you've picked one — to bring up the **Select transfer agent** window.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/cf-agentic-warm-transfer-settings.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=f85540d891b3f229365b7bf0ea2fbf82" width="786" height="1294" data-path="images/transfer-agents/cf-agentic-warm-transfer-settings.png" />
     </Frame>
 
-    **2. Pick an existing one.** Use the search box to find a transfer agent, click it to see a quick preview on the right, then click **Confirm selection**.
+    **2. Pick an existing agent.** Use the search box to find one, click it to preview it on the right, then click **Confirm selection**.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/select-transfer-agent-preview.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=d24e40314911030208991cc266a45842" width="2146" height="1418" data-path="images/transfer-agents/select-transfer-agent-preview.png" />
     </Frame>
 
-    **3. Or create a new one.** Click **Create new**, choose the type — **Single Prompt** (simplest: one set of instructions) or **Conversation Flow** (a step-by-step visual flow) — then click **Create**. The new transfer agent opens so you can set it up right away, either in a tab inside the builder or in a new browser tab depending on your agent type.
+    **3. Or build a new one.** Click **Create new**, pick a type — **Single Prompt** (simplest, a single set of instructions) or **Conversation Flow** (a visual, step-by-step flow) — then click **Create**. The new transfer agent opens right away for setup, either in a tab inside the builder or a new browser tab, depending on the agent type.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/create-transfer-agent-type.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=018c18f9959e60f471e4ced16858e827" width="2150" height="1406" data-path="images/transfer-agents/create-transfer-agent-type.png" />
     </Frame>
 
-    **4. Manage a transfer agent.** Hover a selected agent and open its **⋯** menu to **Rename** it, choose a specific **Version** to lock to (otherwise it always uses the latest), or **Delete** it. Deleting removes all versions and also removes it from any transfer that was using it.
+    **4. Manage an existing transfer agent.** Hover over a selected agent and open its **⋯** menu to **Rename** it, lock it to a specific **Version** (otherwise it always tracks the latest), or **Delete** it. Deleting removes every version of the agent, and also removes it from any transfer that was using it.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/transfer-agent-card-menu.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=315c32ce62eb96309d40312c2b163967" width="2150" height="1412" data-path="images/transfer-agents/transfer-agent-card-menu.png" />
     </Frame>
   </Step>
 
-  <Step title="Add Custom SIP Headers (Optional)">
-    Add custom SIP headers for outbound calls. Custom SIP headers (usually prefixed with `X-`) let you pass session-specific data, such as user IDs or campaign codes, between VoIP endpoints.
-    These headers are forwarded to your SIP provider on SIP INVITE and are useful for custom routing and tagging.
+  <Step title="Add custom SIP headers (optional)">
+    Add custom SIP headers for outbound calls. These headers — typically prefixed with `X-` — let you pass session-specific data, like user IDs or campaign codes, between VoIP endpoints. They're forwarded to your SIP provider as part of the SIP INVITE, making them useful for custom routing and tagging.
 
-    <Warning>Custom SIP headers are preserved only when transferring the call directly to a SIP endpoint. They may be stripped if you are transferring the call to a PSTN number.</Warning>
+    <Warning>Custom SIP headers are only preserved when the call transfers directly to a SIP endpoint — they may get stripped if the transfer goes to a PSTN number instead.</Warning>
 
     <code>All header names must start with `X-` or must be `User-To-User` (case insensitive)</code>
 
@@ -160,16 +171,10 @@ Transition happens when transfer fails. There's already a pre-populated edge for
   </Step>
 </Steps>
 
-<Note>
-  **Custom on-hold music (API only):** The dashboard picker offers preset tracks — Ringtone, Relaxing sound, Uplifting beats, or None. To play your own audio during a warm or agentic warm transfer, upload it with the `create-asset` endpoint, then set `on_hold_music` to `custom` and `custom_on_hold_music_asset_id` to the returned asset ID. Accepted formats are MP3, WAV, WebM, OGG, M4A, AAC, and FLAC, up to 10 MB and 210 seconds; Tavly normalizes the file on upload. The endpoint accepts an API key, so you can upload from your backend.
-</Note>
+## When does the node transition?
 
-<Note>
-  **Billing after a transfer:** while the agent is on the line, including the hold and briefing phases of a warm or agentic warm transfer, the call bills at the normal per-minute rate. Once the caller is connected to the destination and the agent drops off, the AI agent fee stops. Only the telephony fee continues for the remainder of the transferred call.
-</Note>
+The Call Transfer node transitions strictly when a transfer actively fails (e.g., timeout, rejection, or unsupported caller ID). A pre-built edge exists exclusively to handle this failure routing. 
 
-## Rest of Node Settings
+If the transfer succeeds, the active call permanently leaves the current agent's control, meaning the node inherently never transitions forward to a success state.
 
-* **Talk While Waiting**: when enabled, a text input box will show up where you can write instructions for the agent to follow to generate an utterance like `Let me check that for you.` to say while the function is being executed. You can choose between `Prompt` and `Static Sentence`.
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **LLM**: choose a different model for this particular node. Will be used for function argument generation, and potentially talk while waiting message generation.
+<Note> **Custom on-hold music:** While the dashboard UI only offers basic preset ringtones, you can upload proprietary audio files via the backend `create-asset` API endpoint. Set `on_hold_music` to `custom` and explicitly pass the returned `custom_on_hold_music_asset_id` to dynamically play your own MP3 or WAV files during warm transfers.</Note>

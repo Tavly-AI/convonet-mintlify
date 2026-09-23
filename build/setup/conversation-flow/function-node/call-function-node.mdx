@@ -1,0 +1,136 @@
+---
+title: 'Call a Function from a Conversation Flow Node'
+sidebarTitle: 'Function Node'
+description: 'Execute custom functions, integration tools, and pre-built APIs within a Tavly AI conversation flow function node. Configure transitions, delays, and responses.'
+seo:
+  title: 'Function Node: Call Functions in Conversation Flow | Tavly AI'
+  description: 'Learn how to configure function nodes in Tavly AI conversation flows to execute APIs, manage Talk While Waiting phrases, and branch based on execution results.'
+og:title: 'Function Node: Call Functions in Conversation Flow | Tavly AI'
+og:description: 'Execute custom functions, integration tools, and pre-built APIs within a Tavly AI conversation flow function node. Configure transitions, delays, and responses.'
+og:image: 'https://mintcdn.com/retellai/XoiOOpBkax1duk4y/images/cf/function-node.png?fit=max&auto=format&n=XoiOOpBkax1duk4y&q=85&s=de416b3c88ad9bd960a58d5199848877'
+twitter:card: 'summary_large_image'
+icon: 'bolt'
+keywords:
+  - 'function node'
+  - 'conversation flow'
+  - 'call function node'
+  - 'Tavly AI tool calling'
+  - 'Talk While Waiting'
+  - 'Wait for Result'
+  - 'transition conditions'
+  - 'custom function execution'
+date: '2026-09-23'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the primary purpose of a Function Node in a conversation flow?'
+    answer: 'A Function Node deterministically executes a custom function, integration tool, or pre-built API the instant the agent enters the node, passing the output forward to steer subsequent conversational routing.'
+  - question: 'Can an agent speak while a Function Node executes?'
+    answer: 'Yes. Enabling "Talk While Waiting" allows the agent to deliver a static phrase or LLM-prompted filler sentence (e.g., "Let me check that for you") while waiting for API completion.'
+  - question: 'How does "Wait for Result" affect node transitions?'
+    answer: 'When "Wait for Result" is enabled, the agent halts edge transitions until the function finishes execution, guaranteeing that returned data is available for conditional routing to subsequent nodes.'
+  - question: 'Why should a Function Node be followed by a Conversation Node?'
+    answer: 'Function Nodes execute operations rather than conducting dialogue. Following a Function Node with a Conversation Node allows the agent to vocalize the returned result and continue the conversation.'
+---
+
+## What is a function node in conversation flow?
+
+A **function node** deterministically triggers a pre-built function, third-party integration tool, or custom API webhook the exact moment an agent enters the node. While not intended for extended conversational dialogue, it can speak filler phrases while executing, subsequently evaluating edge transitions based on the retrieved backend result.
+
+> Use a function node in a Tavly conversation flow to run a pre-built function, an integration tool, or a custom function — it fires as soon as the node is entered, and transitions based on the result.
+
+A function node exists strictly to execute tools—including pre-built system tools, third-party integration connectors, or custom-built REST endpoints. It is not designed to sustain ongoing back-and-forth conversation with callers, although the agent can emit transitional speech while execution progresses.
+
+Whatever function is bound to the node runs automatically the instant the agent enters the node.
+
+<Frame caption="A Function Node configured within the Tavly AI conversation flow editor.">
+  <img src="https://mintcdn.com/retellai/XoiOOpBkax1duk4y/images/cf/function-node.png?fit=max&auto=format&n=XoiOOpBkax1duk4y&q=85&s=de416b3c88ad9bd960a58d5199848877" alt="A Function Node in Tavly AI conversation flow editor displaying function name, settings toggles, and transition edges" width="1540" height="946" data-path="images/cf/function-node.png" />
+</Frame>
+
+---
+
+## How do you attach a function to the node?
+
+To attach a function, first create or connect the tool in your workspace, then select it from the function node dropdown menu. Decoupling function creation from the node ensures that modifying or deleting the node canvas element does not inadvertently erase the underlying tool logic or API credentials.
+
+<Frame caption="Selecting and attaching a pre-configured function inside the function node dialog.">
+  <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/add-function.jpeg?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=df6c4968c14799e166c19b3cb0c679fb" alt="Function attachment selector modal listing available custom functions and integrations" width="587" height="254" data-path="images/cf/add-function.jpeg" />
+</Frame>
+
+Functions must be configured beforehand and subsequently selected inside the node interface. This modular separation ensures that deleting or rearranging nodes on your visual canvas will never force you to rebuild your function schemas or authentication headers from scratch.
+
+For setup guides on specific function types, consult:
+* [**Custom Function**](/build/conversation-flow/custom-function): Configure mid-call HTTP requests to your external API endpoints.
+* [**Integration Tools**](/build/conversation-flow/integration-tools): Connect native CRM, helpdesk, and calendar tools like HubSpot, Salesforce, Zendesk, and Cal.com.
+
+<Note>
+  For checking calendar availability or scheduling appointments, use the [Cal.com](/integrations/cal-com-functions) or [Calendly](/integrations/calendly-functions) integration tools instead. The legacy built-in Cal.com functions are no longer supported in this node — see the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for details on migrating legacy flows.
+</Note>
+
+---
+
+## When does a function node transition to the next step?
+
+A function node transitions based on whether **Wait for Result** and **Talk While Waiting** are enabled. When waiting for results, transitions occur only after the function completes and the agent or interrupting caller finishes speaking; without waiting, transitions occur immediately upon function invocation or speech conclusion.
+
+The exact timing of transitions depends on your combination of node flags and caller interactions:
+
+| Wait for Result | Talk While Waiting | Caller Interrupts? | Transition Timing Behavior |
+| :--- | :--- | :--- | :--- |
+| **OFF** | **OFF** | No | Transitions **immediately** upon invoking the function (right as the node is entered). |
+| **OFF** | **ON** | No | Transitions once the agent **finishes speaking** the transitional phrase. |
+| **OFF** | **ON** | Yes | Transitions once the **caller finishes speaking** their interruption. |
+| **ON** | **OFF** | No | Transitions as soon as the **function's result returns**. |
+| **ON** | **ON** | No | Transitions once the **result is ready AND the agent has finished speaking**. |
+| **ON** | **ON / OFF** | Yes | Transitions once the **result is ready AND the caller has finished speaking**. |
+
+Because the function node incorporates the execution response into its transition evaluation, you can construct [transition conditions](/build/conversation-flow/transition-condition) that branch directly off the returned data payload.
+
+---
+
+## What configuration settings are available on a function node?
+
+Function nodes provide granular settings including **Talk While Waiting** for latency-masking speech, **Wait for Result** to guarantee payload delivery prior to edge evaluation, **Global Node** activation, independent **LLM selection** for parameter generation, and **Fine-tuning Examples** to steer autonomous transition conditions.
+
+The node exposes the following core configuration options:
+
+* **Talk While Waiting**: When enabled, a configuration field allows you to specify filler dialogue the agent speaks while the API call executes in the background (such as *"Let me check that for you."*). Choose between:
+  * **Static Sentence**: Directly articulates a fixed, unchanging phrase.
+  * **Prompt**: Instructs the LLM to generate dynamic transitional dialogue based on conversational context.
+* **Wait for Result**: When enabled, the agent halts edge transitions until the function finishes execution. This guarantees that return values, error flags, and response variables are fully populated before the next node is reached.
+* **Global Node**: Allows this node to be triggered globally from any state across the conversation flow. Refer to the [Global Node guide](/build/conversation-flow/global-node) for architecture patterns.
+* **LLM Selection**: Assign an isolated language model specifically for this node to generate function parameters and drive transitional speech generation.
+* **Fine-tuning Examples**: Allows you to supply few-shot examples to optimize how node transitions are evaluated. Learn more in the [Finetune Examples guide](/build/conversation-flow/finetune-examples).
+
+---
+
+## How do you communicate function results back to the caller?
+
+To relay results to the caller, connect the function node's outbound edges to downstream **conversation nodes**. By defining distinct **transition conditions** on separate edges (such as success versus failure), you route the flow to dedicated conversation nodes where the agent vocalizes customized, data-informed responses.
+
+Because a function node is designed for backend tool execution rather than interactive conversation, follow it with one or more conversation nodes to present the retrieved information:
+
+1. **Establish conditional branching**: Create separate edges emerging from the function node keyed to expected outcomes (e.g., `success`, `not_found`, or `error`).
+2. **Bind result data**: Pass the function's returned payload into the subsequent conversation node using response variables or dynamic variables.
+3. **Generate natural responses**: The subsequent conversation node uses prompt instructions to synthesize the data into a conversational response and resume dialogue with the caller.
+
+---
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can an agent hold a conversation inside a function node?">
+    No. Function nodes are specialized execution blocks intended to run backend tools, integration actions, or API calls. To converse with the caller and vocalize the result, route the output of the function node into a downstream conversation node.
+  </Accordion>
+
+  <Accordion title="Why is function creation separated from the function node?">
+    Decoupling functions from nodes ensures modularity. By defining functions at the flow or workspace level, you can reuse the same tool across multiple nodes, and deleting a node on the canvas will never delete the underlying API definition.
+  </Accordion>
+
+  <Accordion title="What happens if a caller interrupts while Talk While Waiting is active?">
+    If the caller interrupts the agent while it is speaking the waiting phrase, the agent stops speaking immediately. If "Wait for Result" is on, the flow transitions as soon as the function returns and the caller finishes speaking.
+  </Accordion>
+
+  <Accordion title="Where should appointment booking tools be configured?">
+    Appointment scheduling and availability checks should be built using native [Cal.com](/integrations/cal-com-functions) or [Calendly](/integrations/calendly-functions) integration tools. The legacy built-in Cal.com options within the function node are deprecated.
+  </Accordion>
+</AccordionGroup>

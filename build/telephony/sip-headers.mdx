@@ -1,21 +1,45 @@
 ---
-title :  Set & parse custom SIP headers
+title: 'Custom SIP Headers'
+sidebarTitle: 'Custom SIP Headers'
+description: 'Parse incoming SIP headers and set outgoing headers in Tavly to exchange contextual metadata across inbound calls, outbound campaigns, and call transfers.'
+seo:
+  title: 'Custom SIP Headers | Metadata Exchange | Tavly AI'
+  description: 'Parse incoming SIP headers and set outgoing headers in Tavly to exchange contextual metadata across inbound calls, outbound campaigns, and call transfers.'
+og:title: 'Custom SIP Headers in Tavly Telephony'
+og:description: 'Parse incoming SIP headers and set outgoing headers in Tavly to exchange contextual metadata across inbound calls, outbound campaigns, and call transfers.'
+twitter:card: 'summary'
+icon: 'server'
+keywords: ['custom SIP headers', 'telephony metadata', 'Tavly AI SIP', 'inbound call routing', 'SIP REFER headers', 'PBX integration']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What are custom SIP headers used for?'
+    answer: 'Custom SIP headers allow external telephony carriers and PBX trunks to exchange application metadata (like account tokens or support ticket IDs) directly with Tavly voice sessions.'
+  - question: 'How are incoming headers mapped?'
+    answer: 'Tavly automatically extracts any incoming SIP header prefixed with `X-` or `x-`, strips the prefix, and maps the key directly into the session’s dynamic variables for the agent to access.'
+  - question: 'Why are my SIP headers not passing through cold transfers?'
+    answer: 'Cold transfers use `SIP REFER`. Many carriers, including Twilio, aggressively strip custom SIP headers from incoming `REFER` packets, preventing the metadata from reaching external phone numbers.'
 ---
 
-> Parse inbound and set outbound custom SIP headers in Tavly to pass metadata between systems — supported for inbound, outbound, and transfer scenarios.
+## What are Custom SIP Headers?
 
-Use custom SIP headers to pass metadata between your systems and Tavly on a call — for example, forwarding an account ID or a caller reference from your [custom telephony](/deploy/custom-telephony) platform so the agent can use it during the conversation.
+Custom SIP headers allow external telephony carriers and [custom telephony](/deploy/custom-telephony) trunks to exchange application metadata directly with live Tavly sessions.
 
-<Note>SIP headers are available for phone calls only. Tavly receives SIP headers on inbound calls, and sets them on outbound calls and transfers.</Note>
+For example, your PBX can pass a caller account token or support ticket ID directly to the voice agent when initiating a session.
 
-Many SIP parsers and middleboxes assume 1024 bytes is a reasonable maximum for a header line, and may reject or truncate longer headers unless configured to allow more.
+<Note> **Telephony Exclusivity:** SIP header exchange applies strictly to voice telephony connections. Tavly parses incoming headers on inbound calls, and applies configured headers during outbound dialing and call transfers.</Note>
 
-## Parse custom SIP headers for inbound calls
+<Warning> **Buffer Constraints:** Telephony middleboxes, session border controllers (SBCs), and SIP proxies typically enforce a **1024-byte buffer limit per header line**. Headers exceeding this length risk truncation or outright packet rejection.</Warning>
 
-For inbound calls, custom SIP headers (those starting with `X-` or `x-`) are received and extracted automatically into `call.custom_sip_headers`. They are also added to your [dynamic variables](/build/dynamic-variables), where you access them by stripping the `X-` or `x-` prefix. No configuration is needed.
+## How does Inbound Header Processing work?
 
-For example, if this is the SIP header received for an inbound call:
+On incoming telephony calls, Tavly automatically extracts any custom headers featuring an `X-` or `x-` prefix and injects them directly into the `call.custom_sip_headers` payload. 
 
+Tavly strips the leading `X-` prefix and seamlessly maps each key directly into the session's [dynamic variables](/build/dynamic-variables) without requiring you to configure manual mapping rules.
+
+### Header Extraction Example
+
+Incoming SIP invitation headers:
 ```json theme={"dark"}
 {
   "X-test-header": "something",
@@ -25,8 +49,7 @@ For example, if this is the SIP header received for an inbound call:
 }
 ```
 
-Then here's your `call.custom_sip_headers` field, and they will be added to your dynamic variables.
-
+Extracted `call.custom_sip_headers` and corresponding dynamic variables:
 ```json theme={"dark"}
 {
   "test-header": "something",
@@ -34,21 +57,20 @@ Then here's your `call.custom_sip_headers` field, and they will be added to your
 }
 ```
 
-If you have already specified dynamic variables with the same name for this inbound call, it will override the value received from the SIP header.
+If an inbound call payload explicitly defines a dynamic variable matching an incoming header key, the explicitly supplied API value takes precedence over the parsed SIP header value.
 
-## Set custom SIP headers for outbound calls
+## How do you set Headers on Outbound Calls?
+
+When initiating outbound calls through the Tavly dashboard or API, you can easily attach arbitrary metadata headers. Every custom header key you define must begin with the `X-` prefix.
 
 <img src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/phone-call/outbound-call.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=a19d395e5d5d2005d6f3937c6aa35055" alt="Outbound call dialog with a custom SIP header key and value being added." width="1032" height="1378" data-path="images/deploy/phone-call/outbound-call.png" />
 
-For outbound calls, you can add custom SIP headers as needed. Each must start with `X-`.
+## How do you attach Headers to Call Transfers?
 
-## Set custom SIP headers for call transfers
+You can attach custom `X-` headers during mid-call transfers. Header values can incorporate dynamic variables, allowing your agent to dynamically forward information extracted during the call to the receiving party or downstream contact center.
 
-For call transfers, you can also add custom SIP headers as needed. Each must start with `X-`. You can use a dynamic variable for the header value to pass information extracted from the call to the receiving party.
+To configure transfer actions based on your agent architecture:
+* **Conversation Flow Agents:** Review the [Call Transfer Node](/build/conversation-flow/call-transfer-node#configure-transfer).
+* **Single / Multi Prompt Agents:** Review the [Call Transfer Function](/build/single-multi-prompt/transfer-call).
 
-<Warning>For cold transfer with transferee number, it will use SIP REFER to transfer the call. Different telephony providers may or may NOT honor the custom SIP headers in the REFER request. Twilio, for example, does not honor the custom SIP headers in the REFER request, so the SIP headers you set in the transfer call tool will not work for cold transfer with transferee number when using Twilio.</Warning>
-
-If you are using:
-
-* Conversation flow agents, check out [call transfer node](/build/conversation-flow/call-transfer-node#configure-transfer) for more details.
-* Single / multi agent, check out [call transfer function](/build/single-multi-prompt/transfer-call) for more details.
+<Warning> **Twilio Transfer Limitation:** Cold transfers routed to a target phone number execute via `SIP REFER`. Telephony carriers handle `REFER` metadata inconsistently. Notably, Twilio aggressively strips custom SIP headers from incoming `REFER` packets. If you use Twilio for telephony routing, custom SIP headers will not pass through cold transfers to external phone numbers.</Warning>

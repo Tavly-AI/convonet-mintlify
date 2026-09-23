@@ -1,0 +1,62 @@
+---
+title: "Web Call Testing"
+description: "Test a Tavly voice agent with a browser web call from the dashboard: use the Test Audio panel to hear real audio, latency, and interruptions."
+---
+
+Web call testing allows you to conduct real-time voice conversations with your agent directly through your browser. Unlike text-based [simulation testing](/test/llm-simulation-testing), web calls stream live synthesized audio, allowing you to audit round-trip latency, turn-taking dynamics, conversational pacing, and speech barge-in responsiveness before connecting to public telephony. You can test draft configurations immediately without publishing or provisioning phone numbers.
+
+## Initiating a Web Call Test
+
+<Steps>
+  <Step title="Open Test Audio">
+    In the agent configuration editor, open the <code className="ui-btn">Test</code> drawer on the right and select the <code className="ui-btn">Test Audio</code> tab.
+  </Step>
+
+  <Step title="Configure test inputs (optional)">
+    If your agent relies on [dynamic variables](/build/dynamic-variables) or external API integrations you wish to mock, expand the <code className="ui-btn">Test Inputs</code> dropdown adjacent to the tabs. Supply test values under <code className="ui-btn">Dynamic Variables</code> and configure stubs under <code className="ui-btn">Custom Function Mocks</code>, then click <code className="ui-btn">Save</code>. These settings apply synchronously to [Test LLM](/test/llm-playground) sessions.
+  </Step>
+
+  <Step title="Select an entry node (optional)">
+    For agents built with multi-prompt or Conversation Flow architectures, designate a specific starting state or node to begin mid-conversation. This lets you inspect downstream dialog paths without having to speak through preliminary branches.
+  </Step>
+
+  <Step title="Execute the call">
+    Click <code className="ui-btn">Run Test</code>, grant browser microphone permissions when prompted, and speak with the agent. When finished, select <code className="ui-btn">End the Call</code> to disconnect.
+  </Step>
+</Steps>
+
+<Frame caption="Run a test web call from the agent detail page.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/web-call-test.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=d5e65e3b7aef8ae5ef11cc2c76c5e2c7" data-path="images/test-llm/web-call-test.mp4" />
+</Frame>
+
+## Primary Validation Objectives
+
+Browser-based calls evaluate acoustic and timing characteristics that text evaluations cannot simulate:
+
+* **Latency and conversational turn-taking**: Measure response turnarounds and verify whether the agent pauses appropriately until you conclude speaking.
+* **Barge-in and interruption handling**: Confirm that the agent immediately yields playback and resumes listening when spoken over mid-sentence.
+* **Acoustic voice quality**: Assess synthesis naturalness, prosody, intonation, pronunciation accuracy, and filler sound cadence.
+
+For example, after revising an opening greeting, initiate a web call to evaluate turn timing and interrupt the agent mid-sentence to ensure it yields cleanly before deploying the flow to customers.
+
+## Platform Limitations
+
+Certain telecom-specific features are unavailable within browser-based WebRTC sessions:
+
+* **Telephony number transfers fail**: All external PSTN transfers (cold, warm, or agentic warm) fail over browser audio. The console warns you if an agent contains transfer actions, and attempting one returns a transfer error. However, [transfer to another agent](/build/single-multi-prompt/transfer-agent) functions normally, and the test console updates context to the destination agent automatically.
+* **SMS dispatch fails**: Outbound SMS actions fail because browser calls lack an associated caller phone number.
+* **Voicemail (AMD) and IVR navigation are inactive**: Automated machine detection and DTMF phone-tree processing do not execute in browser environments.
+
+To evaluate carrier audio, DTMF signaling, or live telephony transfers, use [phone call testing](/test/test-phone). To evaluate multi-scenario regression coverage with automated pass/fail grading, use [simulation testing](/test/llm-simulation-testing) and [batch testing](/test/batch-test-simulation).
+
+Web call tests consume standard runtime allocations: they are billed at per-minute voice rates, reserve an active [concurrent call](/deploy/concurrency) channel, and require an account in good financial standing.
+
+<Tip>
+  After concluding a test call, utilize [Conductor](/conductor/test-and-improve) to inspect conversational traces and generate performance improvements.
+</Tip>
+
+## Next Steps
+
+* [Make a web call](/deploy/web-call): Integrate in-browser conversational calling into your client applications.
+* [Phone call testing](/test/test-phone): Validate carrier audio quality, DTMF keypad entry, and live call transfers.
+* [Testing overview](/test/test-overview): Compare browser audio testing with automated simulation suites and LLM Playground sessions.

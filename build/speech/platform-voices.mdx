@@ -1,20 +1,46 @@
 ---
-title :Platform voices
+title: 'Platform Voices: Native Speech Synthesis'
+sidebarTitle: 'Platform Voices'
+description: 'Tavly Platform Voices offer an optimized speech library calibrated for telephony bitrates, delivering built-in TTS fallback without manual setup.'
+seo:
+  title: 'Platform Voices | Native TTS & Automatic Fallback | Tavly AI'
+  description: 'Tavly Platform Voices offer an optimized speech library calibrated for telephony bitrates, delivering built-in TTS fallback without manual setup.'
+og:title: 'Platform Voices: Native Speech Synthesis in Tavly'
+og:description: 'Tavly Platform Voices offer an optimized speech library calibrated for telephony bitrates, delivering built-in TTS fallback without manual setup.'
+twitter:card: 'summary'
+icon: 'tower-cell'
+keywords: ['Tavly platform voices', 'native TTS models', 'automatic TTS fallback', 'telecom audio codecs', 'voice clone platform provider']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What are Platform Voices?'
+    answer: 'Platform Voices are Tavly’s native acoustic models engineered specifically for real-time phone calls. They account for natural conversational cadence while remaining highly legible across standard telecom audio codecs.'
+  - question: 'Do Platform Voices include automatic fallback?'
+    answer: 'Yes. Unlike third-party voice engines, Platform Voices include integrated failover redundancy. If the primary synthesis fails, Tavly automatically routes to a native fallback model without requiring manual configuration.'
+  - question: 'Can I clone a voice into the Platform Voice engine?'
+    answer: 'Yes. When submitting a custom voice via the Clone Voice API, assign `platform` to the `voice_provider` parameter. Your clone will automatically inherit native fallback resilience.'
 ---
-> Tavly platform voices are a curated library tuned for phone conversations — clear at telecom bitrates, with automatic TTS fallback and no extra setup.
 
-Platform voices are Tavly's curated voice library, fine-tuned specifically for conversational AI over the phone. They handle fillers, pacing, and conversational rhythm well, and are calibrated for clarity at telecom bitrates. For how they compare with third-party providers like MiniMax, Cartesia, and Inworld, see the [TTS provider comparison](/build/tts-provider-comparison).
+## What are Platform Voices?
 
-When using a platform voice, fallback is handled automatically to maintain the same voice experience — you do not need to configure a TTS fallback plan in Security & Fallback Settings.
+Platform Voices represent Tavly's native acoustic models engineered specifically for real-time phone calls. Each voice model accounts for natural conversational cadence, filler words, and prosody, while remaining highly legible across standard telecom audio codecs.
 
-<Note>
-  If you are using a non-platform voice, you will need to [configure TTS fallback](/build/tts-fallback) manually.
-</Note>
+Unlike third-party voice engines, **Platform Voices include integrated failover redundancy**. If a primary synthesis route encounters an interruption, Tavly automatically routes traffic through a fallback model designed to perfectly mirror the original vocal identity. This entirely eliminates the need to set up rules inside your Security & Fallback Settings.
 
-## Select a platform voice
+<Note> **Third-Party Limitation:** Third-party voices do not inherit automated failover. If you use external engines (like Cartesia or ElevenLabs), you must [configure TTS fallback](/build/tts-fallback) explicitly.</Note>
 
-Platform voices are available in the voice selector in your agent settings. You can preview each voice directly in the dashboard before selecting.
+To evaluate how these native models perform alongside external alternatives, review the [TTS provider comparison](/build/tts-provider-comparison).
 
-## Custom voice cloning
+## How do you choose a Platform Voice?
 
-You can clone your own voice as a platform voice by setting `voice_provider` to `platform` when calling the [Clone Voice](/api-references/clone-voice) API. The cloned voice will behave the same as a built-in platform voice — fallback is handled automatically and you do not need to configure TTS fallback separately.
+You can assign Platform Voices directly from your core agent configuration interface.
+
+1. Open your agent settings in the Tavly Dashboard.
+2. Locate the primary voice selection control.
+3. Test available models using the inline audio sample preview before saving your choice.
+
+## How do you clone a Platform Model?
+
+You can register custom speaker profiles that operate with native platform capabilities and inherit automated fallback resilience.
+
+When submitting training requests to the [Clone Voice](/api-references/clone-voice) API, explicitly assign `platform` to the `voice_provider` parameter within your API payload. Cloned models created this way receive the exact same automated resilience as native voices, routing through internal fallback paths without manual configuration.

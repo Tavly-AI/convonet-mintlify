@@ -1,82 +1,110 @@
 ---
-title : Prompt guide & examples for specific situations
+title: 'Prompt Guide for Specific Voice Scenarios'
+sidebarTitle: 'Situation Guide'
+description: 'Learn how to explicitly prompt Tavly voice agents to handle complex data formats like phone numbers, URLs, emails, and caller hold requests without mispronunciation.'
+seo:
+  title: 'Prompting for Specific Scenarios | Formatting Data for TTS | Tavly'
+  description: 'Learn how to explicitly prompt Tavly voice agents to handle complex data formats like phone numbers, URLs, emails, and caller hold requests without mispronunciation.'
+og:title: 'Prompt Guide for Specific Voice Scenarios'
+og:description: 'Learn how to explicitly prompt Tavly voice agents to handle complex data formats like phone numbers, URLs, emails, and caller hold requests without mispronunciation.'
+twitter:card: 'summary_large_image'
+icon: 'phone-volume'
+keywords: ['voice agent prompting', 'TTS data formatting', 'pronouncing phone numbers AI', 'spelling emails TTS', 'Tavly AI hold requests', 'NO_RESPONSE_NEEDED']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do I make the agent pause when reading a phone number?'
+    answer: 'Force the LLM to output phone numbers as spelled-out words with hyphens and spaces separating the digit blocks (e.g., "four one five - eight nine two - three two four five").'
+  - question: 'How do I stop the agent from speaking when a caller says "hold on"?'
+    answer: 'For standard models, instruct the LLM to output the exact string "NO_RESPONSE_NEEDED". For reasoning models (like gpt-5), explicitly instruct the model: "When user says hold on, simply do not respond".'
+  - question: 'Can I automate this formatting without manual prompting?'
+    answer: 'Yes. You can bypass manual prompting by enabling the pre-configured "Speech Normalization" preset directly within the Agent Handbook.'
 ---
-> Prompt examples for common voice agent situations — phone numbers, emails, dates, spellings, confirmations — many also available as Agent Handbook presets.
 
-Here are some specific prompt guides and examples for common situations you might encounter in building a voice agent.
+## Why do you need Scenario-Specific Prompts?
 
-<Tip>Many of these patterns — including phone number pronunciation, email spelling, and speech normalization — are now available as one-click presets in the [Agent Handbook](/build/agent-handbook).</Tip>
+Standard text-to-speech engines frequently mispronounce dense data formats like URLs, acronyms, and phone numbers by attempting to read them as standard English words.
 
-## Pronounce the phone numbers
+Structuring your prompts with explicit phonetic and formatting instructions forces the LLM to rewrite this data into a highly readable format before sending it to the TTS engine, ensuring your agent delivers clear, predictable spoken responses.
 
-We'll utilize the Read Slowly feature to add pauses between words. For more information, see the [Speech Controllability documentation](https://docs.retellai.com/agent/speech-controllability#add-pauses-how-to-read-slowly).
+<Tip> **Automated Alternative:** You can entirely bypass manual prompting for these scenarios by enabling pre-configured templates (like Speech Normalization) directly in the [Agent Handbook](/build/agent-handbook).</Tip>
 
-It's recommended to include a prompt as a guideline for the LLM to follow. This ensures that the agent can consistently reply with the correct format, even if customers double-check the phone number.
+## How do you format Phone Numbers?
 
+Text-to-speech engines often rush strings of digits. To insert deliberate pauses between number groupings, you must force the LLM to output hyphenated word representations using Tavly's *Read Slowly* capability.
+
+Consult the [Speech Controllability documentation](https://docs.retellai.com/agent/speech-controllability#add-pauses-how-to-read-slowly) for underlying playback mechanics. Define clear formatting rules in your prompt so the model outputs digit strings with an identical cadence every time.
+
+```markdown
+If a caller inquires about contact numbers, provide: 4158923245
+
+### Spoken Output Rules
+Convert any incoming telephone format—including 4158923245, (415) 892-3245, or 415-892-3245—into word representations:
+- Say: "four one five - eight nine two - three two four five"
+- Keep a space on both sides of every hyphen to enforce natural pauses.
 ```
-When people ask about your phone number, your phone number is 4158923245
 
-## Guideline
-When speaking the phone number, transform the format as follows:
-- Input formats like 4158923245, (415) 892-3245, or 415-892-3245
-- Should be pronounced as: "four one five - eight nine two - three two four five"
-- Important: Don't omit the space around the dash when speaking
-```
-
-Listen to this audio clip for a demonstration of proper phone number pronunciation:
-
+Reference recording demonstrating this pronunciation pattern:
 [Speak Phone Number Example](https://retell-utils-public.s3.us-west-2.amazonaws.com/speak_phone_number.wav)
 
-## Pronounce the email
+## How do you format Emails and Domains?
 
-```
-## How to spell out
-The possible email format is name@company.com 
-to spell out an email address is n-a-m-e-@-c-o-m-p-a-n-y-dot-com,
-@ is pronounced by "at". 
-```
+Spoken email addresses and URLs must be aggressively broken down into individual characters and explicit symbol terms to avoid voice synthesis failures.
 
-## Pronounce the website
+Web domains often combine standalone acronyms with standard words. Instruct the model to parse each segment individually prior to synthesis.
 
-```
-Whenever you encounter a website URL, please:
-Identify each segment of the domain name.
-If a segment consists of individual letters (e.g., "NK"), pronounce each letter using its spoken form in English (e.g., "N" → "en," "K" → "kay").
-If a segment is a recognizable word (e.g., "laundry"), pronounce it normally as that word.
-Pronounce "dot" before stating the top-level domain (e.g., "dot com," "dot net," "dot org," etc.).
-Example:
-"nklaundry.com" → "en-kay-laundry dot com"
-"abctest.net" → "A B C test dot net"
-"xyzco.org" → "ex-why-zee-co dot org"
-Adhere to this phonetic breakdown carefully to ensure clarity and proper pronunciation for customers.
+### Email Parsing Instructions
+```markdown
+### Email Articulation Instructions
+Standard input structure: name@company.com
+Spell out the complete address character-by-character: n-a-m-e-@-c-o-m-p-a-n-y-dot-com
+Voice the "@" symbol as "at".
 ```
 
-## Pronounce the time
+### Domain Parsing Instructions
+1. Separate the address into component chunks.
+2. Read acronyms as individual letter names (translate "N" into "en" and "K" into "kay").
+3. Read standard words using normal English pronunciation.
+4. Explicitly voice the word "dot" ahead of any top-level domain suffix.
 
-```
-For State Numbers, Times & Dates
-For 1:00 PM, say "One PM."
-For 3:30 PM, say "Three thirty PM."
-For 8:45 AM, say "Eight forty-five AM."
-Never say O'clock. Instead, just say O-Clock.
-Always say "AM" or "PM".
-```
+```markdown
+### Domain Pronunciation Directive
+Parse web URLs into phonetically clear spoken strings:
+- "nklaundry.com" becomes "en-kay-laundry dot com"
+- "abctest.net" becomes "A B C test dot net"
+- "xyzco.org" becomes "ex-why-zee-co dot org"
 
-## Handle being put on hold / no response needed
-
-### For non-reasoning models
-
-We hard-coded a stop sequence in the LLM: `NO_RESPONSE_NEEDED`. Whenever this sequence is met, the response generation stops.
-You can then prompt the LLM to output nothing by writing something like:
-
-```
-- when user says hold on, reply exactly the following: "NO_RESPONSE_NEEDED".
+Follow these segment splits strictly to prevent caller confusion.
 ```
 
-### For reasoning models
+## How do you handle Timestamps?
 
-<Warning>
-  Reasoning models like `gpt 5`, `gpt-5.1` do not support this feature. You need to prompt engineer it differently to achieve this.
-</Warning>
+Enforce strict structural rules for time expressions in your prompt so the TTS synthesizer completely avoids ambiguous numeric output.
 
-You can try the following prompt: `When user says hold on, simply do not respond`.
+```markdown
+### Date and Time Guidelines
+- Render 1:00 PM as "One PM."
+- Render 3:30 PM as "Three thirty PM."
+- Do not output "O'clock"; format as "O-Clock".
+- Every time expression must explicitly conclude with "AM" or "PM".
+```
+
+## How do you manage Hold Requests?
+
+When a caller explicitly requests a pause (e.g., "hang on a second"), you must configure the agent to completely withhold spoken generation to prevent it from talking over the user.
+
+### Standard (Non-Reasoning) Models
+Tavly registers a pre-configured stop token: `NO_RESPONSE_NEEDED`. Emitting this string causes the system to terminate generation immediately without producing speech.
+
+Add this direct instruction to your prompt:
+```markdown
+- If the caller asks you to hold or wait, respond only with: "NO_RESPONSE_NEEDED".
+```
+
+### Reasoning Models
+<Warning> **Architectural Exception:** Heavy reasoning architectures like `gpt-5` do not reliably honor the `NO_RESPONSE_NEEDED` stop token. You must explicitly override this behavior using plain-language directives.</Warning>
+
+For reasoning models, instruct the model directly within the system prompt:
+```markdown
+- When user says hold on, simply do not respond.
+```

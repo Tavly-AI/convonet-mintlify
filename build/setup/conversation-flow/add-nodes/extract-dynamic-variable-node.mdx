@@ -1,41 +1,66 @@
 ---
-title : Extract Dynamic Variable Node
+title: 'Extract Dynamic Variable Node'
+sidebarTitle: 'Extract Dynamic Variable'
+description: 'Use the Tavly Extract Dynamic Variable node to securely pull parsed data directly from active conversation dialogue and store it for subsequent routing logic.'
+seo:
+  title: 'Extract Dynamic Variable Node | AI Data Extraction | Tavly AI'
+  description: 'Use the Tavly Extract Dynamic Variable node to securely pull parsed data directly from active conversation dialogue and store it for subsequent routing logic.'
+og:title: 'Extract Dynamic Variable Node'
+og:description: 'Use the Tavly Extract Dynamic Variable node to securely pull parsed data directly from active conversation dialogue and store it for subsequent routing logic.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/extract-dv-node.png'
+twitter:card: 'summary_large_image'
+icon: 'brackets-curly'
+keywords: ['extract dynamic variable node', 'AI data extraction', 'Tavly AI variables', 'conversation data parsing']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is an Extract Dynamic Variable Node?'
+    answer: 'An Extract Dynamic Variable Node aggressively pulls specified information directly out of the conversational context and securely stores it as a reusable data variable.'
+  - question: 'Does the agent speak inside an Extract Dynamic Variable Node?'
+    answer: 'No. This node is strictly utilized for background data extraction and structural storage. It is inherently not meant for holding a spoken conversation with the caller.'
+  - question: 'What variable types are supported?'
+    answer: 'You can extract data into four distinct structural types: Text (strings), Number, Enum (a predefined list of valid options), or Boolean (true/false).'
 ---
 
-> Add an extract dynamic variable node to a Tavly conversation flow to pull values from the dialogue and store them as text, number, boolean, or enum variables.
+## What is an Extract Dynamic Variable Node?
 
-Extract dynamic variable node is used to extract information from the conversation and store it as a dynamic variable. It's not intended for having a conversation with the user.
+An **Extract Dynamic Variable Node** strictly pulls contextual information directly out of the ongoing conversational dialogue and permanently stores it in memory as a reusable **[Dynamic Variable](/build/dynamic-variables)**.
+
+Because this node serves exclusively as a silent data-processing junction, it is fundamentally **not** meant for holding spoken dialogue with the caller.
 
 <Frame>
   <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/extract-dv-node.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=51acd676170c4bfe361f6740ef0b80e0" width="334" height="284" data-path="images/cf/extract-dv-node.png" />
 </Frame>
 
-## Add a variable
+## How do you add a variable?
 
-To create a variable, fill in the following details:
+To securely extract a new variable from the dialogue, you must explicitly define its structural properties within the node settings to ensure the LLM parses the data correctly.
 
-* **Variable Name** – A short name to reference this variable.
-* **Description** – A brief explanation of what this value should be.
-* **Variable Type** – Choose from `Text`, `Number`, `Enum`, or `Boolean`.
-* **Enum Options** - Options to choose from. Only when type is enum.
+Configure the following fields:
+* **Variable Name:** A strict, short programmatic label (e.g., `user_intent`) you will use to reference this value in future logic routing.
+* **Description:** A highly explicit explanation instructing the LLM precisely what conversational context this value represents.
+* **Variable Type:** The strict structural data type required for the variable.
+* **Enum Options:** If the type is set to `Enum`, you must explicitly define the exact array of valid choices the LLM is permitted to extract.
 
-***
+## What variable types are supported?
 
-## Variable Types
+Extracted variables must be mapped directly to one of four strict structural types to ensure backend data integrity for future API calls or logic routing.
 
-You can create variables of the following types:
-
-* **Text** - Any word or sentence. Examples: `"headache"`, `"John Smith"`
-* **Number** - A numeric value. Examples: `42`, `98.6`
-* **Enum** - A value from a predefined list. Examples: `"Yes"`, `"No"`, `"Maybe"`
-* **Boolean** - True or false.
+| Data Type | Description | Valid Examples |
+| --- | --- | --- |
+| **Text** | Any unstructured string, word, or full sentence | `"headache"`, `"John Smith"` |
+| **Number** | A strict numeric value (integer or float) | `42`, `98.6` |
+| **Enum** | A strict value chosen exclusively from a predefined list | `"Yes"`, `"No"`, `"Maybe"` |
+| **Boolean** | A rigid binary `true` or `false` | `true`, `false` |
 
 <Frame>
   <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/edv-add-variable.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=24b2f2cd65821dac10daa27b542844a6" width="800" height="804" data-path="images/cf/edv-add-variable.png" />
 </Frame>
 
-## Node Settings
+## What node configurations are available?
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **LLM**: choose a different model for this particular node. Will be used for function argument generation, and potentially speak during execution message generation.
-* **Fine-tuning Examples**: Can finetune transition. Read more at [Finetune Examples](/build/conversation-flow/finetune-examples)
+This node offers targeted overrides to control exactly how the variable is extracted and how globally accessible the node becomes.
+
+* **Global Node:** Transforms the extraction node into a universally reachable structural destination from anywhere within the overarching flow. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **LLM Override:** Explicitly assign a distinctly different LLM specifically for this node to aggressively improve data-extraction accuracy and function-argument generation.
+* **Fine-Tuning Examples:** Inject precise sample extraction transcripts strictly isolated to this node to forcefully teach the LLM exactly how to interpret edge cases. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).

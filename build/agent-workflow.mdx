@@ -1,12 +1,32 @@
 ---
-title : Agent workflow
+title: 'Agent Workflows: Pre-Call & Post-Call Automation'
+sidebarTitle: 'Agent Workflows'
+description: 'Configure Tavly agent workflows to automate pre-call CRM lookups, trigger post-call webhooks, and log conversational data dynamically.'
+seo:
+  title: 'Agent Workflows | Pre-Call & Post-Call Functions | Tavly AI'
+  description: 'Configure Tavly agent workflows to automate pre-call CRM lookups, trigger post-call webhooks, and log conversational data dynamically.'
+og:title: 'Agent Workflows: Pre-Call & Post-Call Automation'
+og:description: 'Configure Tavly agent workflows to automate pre-call CRM lookups, trigger post-call webhooks, and log conversational data dynamically.'
+og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/workflow-pre-call-functions.png'
+twitter:card: 'summary_large_image'
+icon: 'max'
+keywords: ['agent workflows', 'pre-call automation', 'post-call functions', 'CRM integration', 'Tavly webhook', 'data extraction']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Pre-Call Function?'
+    answer: 'A pre-call function executes tools (like a CRM lookup) before the agent says its first word, allowing it to gather critical context like user names or account statuses instantly.'
+  - question: 'Do pre-call functions delay the conversation?'
+    answer: 'Yes. Inbound and web calls will wait up to 1 minute for pre-call graphs to finish, while outbound calls wait up to 5 minutes before dialing. Keep dependency chains shallow to minimize latency.'
+  - question: 'What happens if a workflow function fails?'
+    answer: 'A failure isolates entirely to that function and any downstream dependencies. The conversation session itself continues normally, but the agent will lack the variables the failed function was supposed to provide.'
 ---
 
-> Run pre-call and post-call functions on a Tavly AI agent: look up the caller before the agent speaks, then log the outcome and create follow-ups.
+## What are Agent Workflows?
 
-An agent's **Workflow** page is where you run functions outside the conversation: before the agent speaks, so it starts already knowing who it's talking to, and after the session ends, so your systems are updated without anyone touching them. Voice agents call these **pre-call** and **post-call functions**; chat agents get the same two slots, named **pre-chat** and **post-chat functions**. A function can be a tool from a [connected provider](/integrations/overview), an HTTP request to your own endpoint, a code snippet, or an SMS.
+**Agent Workflows** allow you to aggressively automate actions *outside* of the active conversation. You configure logic graphs that execute before the AI agent speaks its first word (Pre-Call/Pre-Chat) or immediately after the session safely concludes (Post-Call/Post-Chat).
 
-Each slot is a dependency graph rather than a flat list. Functions with no dependency all start at once, and a function that depends on another waits for its output.
+Functions execute as strict dependency graphs, meaning independent tools fire simultaneously in parallel, while dependent functions natively wait for upstream data.
 
 <Frame caption="The agent's Workflow page: adding a Salesforce tool as a pre-call function, with post-call functions at the end of the flow.">
   <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
@@ -14,65 +34,50 @@ Each slot is a dependency graph rather than a flat list. Functions with no depen
   </div>
 </Frame>
 
-Everything below works the same on both channels except where noted.
-
-A video walkthrough of the Workflow page, covering pre-call and post-call functions:
-
 <div style={{ marginBottom: '24px' }}>
   <iframe width="100%" style={{ aspectRatio: '16 / 9', borderRadius: '8px' }} src="https://www.youtube.com/embed/qe9nx250-bs" title="How to use Tavly Workflows" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
 </div>
 
-## When to use it
+## When do you use Pre-Call vs. Post-Call?
 
-Reach for a pre-call or pre-chat function when the agent needs a fact it can't ask for, or shouldn't have to:
+You strictly use Pre-Call functions to arm the agent with required context before the interaction begins, and Post-Call functions to log data to external systems after the interaction ends.
 
-* **Greet an identified person by name.** Look the caller's number, or the chat's contact details, up in your CRM before the first word, instead of asking "can I take your name?"
-* **Load account state.** Pull their open tickets, last order, or policy status so the agent answers the first question without a lookup mid-conversation.
-* **Decide how to open.** Fetch a flag (overdue balance, VIP tier, do-not-call) and branch the greeting on it.
+**Use Pre-Call (or Pre-Chat) to:**
+* **Greet callers by name:** Instantly lookup the caller's phone number in a CRM.
+* **Load account context:** Pull active support tickets or billing statuses so the agent knows precisely why they are calling.
 
-Reach for a post-call or post-chat function when the work happens after the conversation, not in it:
+**Use Post-Call (or Post-Chat) to:**
+* **Log outcomes:** Write the AI summary and sentiment directly into a CRM timeline.
+* **Create follow-ups:** Automatically generate callback tickets or SMS notifications.
 
-* **Log the outcome.** Write the summary and disposition back to the CRM timeline.
-* **Create the follow-up.** Open a task, a ticket, or a callback when the conversation agreed to one.
-* **Notify.** Text the caller a confirmation, or push the result to your own endpoint.
+<Note> **Mid-Call Tools:** If the agent needs to fetch data *during* the active conversation (e.g., checking calendar slots mentioned by the caller), you must use [Integration Tools](/build/single-multi-prompt/integration-tools) instead of Workflow functions.</Note>
 
-Keep a tool in the conversation itself when the agent needs the result *while* it's talking, like checking calendar availability for a time the caller just named. See [integration tools for prompt agents](/build/single-multi-prompt/integration-tools) and [integration tools in conversation flow](/build/conversation-flow/integration-tools) for that surface.
+## What types of functions are available?
 
-<Note>
-  Workflow functions are configured on the dashboard only (as of August 2026). They are not part of the public API, so you can't set them through `create-agent` or `update-agent`.
-</Note>
+Both workflow slots natively accept four powerful function architectures. 
 
-## What you can run
+| Function Type | Description | Availability |
+| --- | --- | --- |
+| **Integration Tool** | A pre-built tool from a provider (Salesforce, HubSpot, Zendesk, Cal.com). | Pre & Post (All channels) |
+| **Custom Function** | A direct HTTP webhook request to your own proprietary endpoint. | Pre & Post (All channels) |
+| **Code Execution** | Isolated Javascript executed in Tavly's secure sandbox. | Pre & Post (All channels) |
+| **SMS Notification** | Dynamically generated text message based on the call transcript. | Post (Voice only) |
 
-Both slots take the same four kinds of function, from the same **+** menu:
+## How do you build a Workflow graph?
 
-| Function             | What it does                                                                                                                                      | Available in                      |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| **Integration tool** | A tool from a [connected provider](/integrations/overview) — HubSpot, Salesforce, Dynamics 365, GoHighLevel, Zoho CRM, Zendesk, Calendly, Cal.com | Both slots, both channels         |
-| **Custom function**  | An HTTP request to your own endpoint. The request body carries the session object — under `call` on a voice agent, `chat` on a chat agent         | Both slots, both channels         |
-| **Code**             | JavaScript run in Tavly's sandbox — reshape a value, compute a date, call a small API                                                            | Both slots, both channels         |
-| **SMS**              | Send a text message, with the body written by the LLM from the transcript                                                                         | Post-call only, voice agents only |
-
-Saving an SMS function in the pre-call slot, or on a chat agent, is rejected: the session is over before an SMS can make sense, and a chat agent has no number to send from.
-
-## Add functions on the Workflow page
+You assemble functions sequentially or in parallel directly from the agent's **Workflow** tab, explicitly mapping output data downstream via dynamic variables.
 
 <Steps>
-  <Step title="Open the Workflow page">
-    In the agent editor, select **Workflow** in the left rail. The canvas lays the whole session out end to end: **Dial in/out**, **Pre-call functions**, **Call started**, the agent, **Call ended**, **Post-call data extraction**, and **Post-call functions**. A chat agent shows the same flow with **Any trigger**, **Pre-chat functions**, **Chat started**, **Chat ended**, **Post-chat data extraction**, and **Post-chat functions**.
+  <Step title="Open the Workflow tab">
+    Navigate to **Workflow** in the left rail. You will see structural anchors for **Pre-call functions** and **Post-call functions**.
   </Step>
 
-  <Step title="Add the first function">
-    Click **+ Add** on the opening or closing functions node and pick **SMS**, **Code**, **Custom function**, or a tool from one of your connected providers. **Add integration** connects a new provider without leaving the page.
+  <Step title="Add a base function">
+    Click **+ Add** on an anchor to select a function type. Configure the raw inputs using static literals or `{{variable}}` references.
   </Step>
 
-  <Step title="Configure it">
-    Give it a **Name**. This is how other functions refer to it, so it must be unique within that slot. Then set its inputs and outputs in the **Function fields** card. Every input is either a literal you set now, which may be a `{{variable}}` reference, or a description the LLM fills in; every output you keep is what the agent sees and, optionally, a dynamic variable. On a pre-call function the inputs start on a literal rather than a description, since there's no conversation to infer from yet, but you can switch any of them. [Configure a tool's inputs and outputs](/integrations/overview#configure-a-tools-inputs-and-outputs) covers the modes and the test run in full.
-  </Step>
-
-  <Step title="Chain the next one">
-    Hover a function's row and click its **+**, then choose **Add sequential function** to run the new one *after* it, or **Add parallel function** to run it *alongside* it. Use the node's own **+ Add** instead to add a function that starts immediately, independent of the rest.
-
+  <Step title="Chain dependencies">
+    Hover over your base function and click **+ Add sequential function** to force a tool to wait for the first to finish, or **+ Add parallel function** to execute simultaneously. *(Max depth: 4 functions. Max volume: 15 per slot).*
     <Frame caption="A function's row menu, offering a sequential or a parallel function.">
       <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
         <img src="https://mintcdn.com/retellai/wpYimq3MbpJ26a1D/images/integration/workflow-function-add-menu.png?fit=max&auto=format&n=wpYimq3MbpJ26a1D&q=85&s=926fa0bc998082d5e9c01fc9923822ae" alt="The Pre-call functions node on the agent's Workflow page, reached from Dial in/out. It holds a function named search_salesforce_c... with edit, delete, and + buttons, and below it an indented child row named get_salesforce_u... that runs after it, plus an + Add button. The first row's + button is ringed in blue and its dropdown is open, showing two items: Add sequential function, with a corner-down-right icon, and Add parallel function, with a stacked-lines icon." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1215" height="359" data-path="images/integration/workflow-function-add-menu.png" />
@@ -81,18 +86,11 @@ Saving an SMS function in the pre-call slot, or on a chat agent, is rejected: th
   </Step>
 </Steps>
 
-## Run functions in parallel or in sequence
+## How do you pass data between functions?
 
-Tavly runs the graph in batches: every function whose dependencies have finished runs concurrently, then the next batch, until the graph is done. Total time is the longest chain, not the sum of every function.
+You strictly pass data down the dependency chain by converting a function's raw JSON output into a **Dynamic Variable**.
 
-* **Parallel.** A function with no dependency starts as soon as the phase begins, so two independent lookups cost as long as the slower one. **Add parallel function** starts the new function at the same point as the row you clicked, and anything that was waiting on that row now waits for both.
-* **Sequential.** **Add sequential function** makes the new function depend on every function in the row's card, so it starts only once they've all succeeded. That's what lets it use their output.
-
-A chain can be at most 4 functions deep, and each slot holds at most 15 functions (as of August 2026). Saving is rejected if a function depends on itself, on a name that doesn't exist, or on a cycle.
-
-## Pass a response from one function to the next
-
-Chaining works through [dynamic variables](/build/dynamic-variables). On the function's **Output** tab, give a response field a name in the **Dynamic variable** column; downstream functions then reference it as `{{that_name}}` in any input, and the agent's prompt can use it too.
+On a function's **Output** tab, explicitly assign a response field to a dynamic variable name. Any sequentially downstream function can now aggressively reference that precise output as `{{your_variable_name}}`.
 
 <Frame caption="Pinning a function input to a dynamic variable: typing `{{` in a value field opens the picker.">
   <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
@@ -100,143 +98,150 @@ Chaining works through [dynamic variables](/build/dynamic-variables). On the fun
   </div>
 </Frame>
 
-Variables become available as the graph runs, so a function only ever sees output from functions that finished before it. The dashboard enforces the same rule as you type: when you pick a variable, it offers only the outputs of the functions this one waits on, not the ones running beside it or after it.
+Variables become usable as soon as the graph produces them, so a function can only ever see output from something that finished before it. The dashboard enforces this same rule as you're editing — when you pick a variable, it only offers outputs from functions this one actually depends on, not siblings running alongside it or functions that come later.
 
-Two more things to know about how the data reaches the agent:
+Two more details worth knowing about how this data reaches the agent:
 
-* **The result itself lands in the agent's context**, not just the variables you named. Every tool call is woven into the transcript the LLM reads, with its arguments and its response; what a workflow function changes is only *where* — a pre-conversation call is prepended, so the agent has it from its first turn. Responses are capped at 30,000 characters for an integration tool and 15,000 for a custom function or code tool (as of August 2026). Use **Select fields** on the **Output** tab to send only the fields that matter, rather than letting a large provider payload crowd the prompt.
-* **Dynamic variables are extracted from the raw response**, before that field selection. Narrowing what the agent sees never breaks a variable you mapped.
+* **The full result lands in the agent's context**, not just whatever variables you happened to name. Every tool call gets woven directly into the transcript the LLM reads, arguments and response both — what a workflow function actually changes is *where* it lands. A pre-conversation call gets prepended, so the agent has it from its very first turn. Responses are capped at 30,000 characters for an integration tool, and 15,000 for a custom function or code tool (as of August 2026). Use **Select fields** on the **Output** tab to only pass through what matters, rather than letting a huge provider payload crowd out the rest of the prompt.
+* **Dynamic variables are pulled from the raw response**, before any of that field selection happens. Narrowing what the agent actually sees never breaks a variable you've already mapped.
 
-If a `{{variable}}` in an input has no value — the function it came from didn't run, or returned nothing for that field — the input is left out. If that input was required, the function is skipped rather than sent with a gap in it.
+If a `{{variable}}` referenced in an input has no value — either because the function it came from never ran, or it returned nothing for that field — the input simply gets left out. If that input happened to be required, the whole function gets skipped rather than sent with a gap in it.
 
-### Variables a post-conversation function can use
+### Variables Available to Post-Conversation Functions
 
-Post-call and post-chat functions run after [Post Call Extraction](/features/post-call-analysis-overview), so they can read its results on top of everything available during the session:
+Post-call and post-chat functions run after [Post Call Extraction](/features/post-call-analysis-overview) completes, so on top of everything else, they can also read its results:
 
-| Voice                         | Chat                          | What it holds                                                                                        |
-| ----------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `{{call_summary}}`            | `{{chat_summary}}`            | The analysis summary                                                                                 |
-| `{{call_successful}}`         | `{{chat_successful}}`         | Whether the analysis judged the session successful                                                   |
-| `{{user_sentiment}}`          | `{{user_sentiment}}`          | The user's sentiment                                                                                 |
-| One per custom analysis field | One per custom analysis field | Named after the field, from your [Post Call Extraction](/features/post-call-analysis-overview) setup |
-| `{{disconnection_reason}}`    | `{{disconnection_reason}}`    | Why the session ended — see [call disconnect reasons](/reliability/debug-call-disconnect)            |
-| `{{call_status}}`             | `{{chat_status}}`             | The session's final status                                                                           |
+| Voice                            | Chat                             | What it holds                                                                                            |
+| ----------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `{{call_summary}}`                  | `{{chat_summary}}`                    | The analysis summary                                                                                             |
+| `{{call_successful}}`               | `{{chat_successful}}`                 | Whether the analysis judged the session successful                                                               |
+| `{{user_sentiment}}`                | `{{user_sentiment}}`                  | The user's sentiment                                                                                              |
+| One per custom analysis field       | One per custom analysis field         | Named after the field, coming from your [Post Call Extraction](/features/post-call-analysis-overview) setup      |
+| `{{disconnection_reason}}`          | `{{disconnection_reason}}`            | Why the session ended — see [call disconnect reasons](/reliability/debug-call-disconnect)                        |
+| `{{call_status}}`                   | `{{chat_status}}`                     | The session's final status                                                                                        |
 
-These are available to post-conversation functions only; nothing earlier can read them, because the analysis hasn't run yet.
+These only exist for post-conversation functions — nothing earlier in the flow can read them, since the analysis simply hasn't run yet at that point.
 
-## Gate a post-conversation function on a condition
+## How do you restrict Post-Call Functions?
 
-Every post-call and post-chat function can carry an **only when** gate, so you don't write a task on a call that never connected. In the function's config, set the match to **All** or **Any**, then add rows:
+You can aggressively gate post-call functions from firing by setting strict conditional logic rules based on dynamic variables or call statuses.
 
-* **Variables condition** — compare a `{{variable}}` against a value with `=`, `≠`, `>`, `<`, `≥`, `≤`, contains, not contains, exists, or not exists. Picking exists or not exists drops the value field, since there's nothing to compare against.
-* **Disconnection reason** — pick one or more reasons the session must have ended with.
-* **Call status** — require a specific final status.
+In the function's configuration, you can deploy **Variables condition** rules (e.g., Only execute if `{{call_status}}` = `ended`). If a post-call function is gated off, any sequential functions that depend on it are instantly skipped as well.
+
+* **Variables condition** — compare a `{{variable}}` against a value using `=`, `≠`, `>`, `<`, `≥`, `≤`, contains, not contains, exists, or not exists. Choosing exists or not exists removes the value field entirely, since there's nothing left to compare.
+* **Disconnection reason** — specify one or more reasons the session must have ended with.
+* **Call status** — require a particular final status.
 
 <Frame caption="A post-call function gated on a condition: log the call only when the analysis produced a summary.">
   <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
-    <img src="https://mintcdn.com/retellai/wpYimq3MbpJ26a1D/images/integration/workflow-post-call-condition.png?fit=max&auto=format&n=wpYimq3MbpJ26a1D&q=85&s=aa72203e2a0296509ab2f32b61d03322" alt="The configuration dialog for a HubSpot Log Call Activity post-call function named log_hubspot_call. Its conditions card sits below the Description: an All selector heads the line All of the following conditions match, above one row testing the variable call_summary with the operator Exists, whose value field is greyed out because the operator takes no comparison. Below that row, an Add button ringed in blue has its menu open, offering the three kinds of row: Variables condition, Disconnection reason, and Call status. The Function fields card below shows a required contact_id input, with Run a test and Add input buttons, and Cancel and a disabled Save close the dialog." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="862" height="1120" data-path="images/integration/workflow-post-call-condition.png" />
+    <img src="https://mintcdn.com/retellai/wpYimq3MbpJ26a1D/images/integration/workflow-post-call-condition.png?fit=max&auto=format&n=wpYimq3MbpJ26a1D&q=85&s=aa72203e2a0296509ab2f32b61d03322" alt="The configuration dialog for a HubSpot Log Call Activity post-call function named log_hubspot_call. Its conditions card sits below the Description: an All selector heads the line All of the following conditions match, above one row testing the variable call_summary with the operator Exists, whose value field is greyed out because the operator takes no comparison. Below that row, an Add button ringed in blue has its menu open, offering the three kinds of row: Variables condition, Disconnection reason, and Call status. The Function fields card below shows a required contact_id input, with Run a test and Add input buttons, and Cancel and a disabled Save close the dialog." style={{ maxWidth: '100%', maxHeight: '100%', object, width: '862', height: '1120', dataPath: 'images/integration/workflow-post-call-condition.png' }} />
   </div>
 </Frame>
 
-A function with no rows always runs. A gated-off function counts as not having run, so anything depending on it is skipped too. That's usually what you want: gate the lookup, and the write that follows it drops with it.
+A function with no rules set always runs. A function that gets gated off is treated as though it never ran, so anything depending on it gets skipped as well — usually exactly what you'd want: gate off the lookup, and the write that depends on it disappears right along with it.
 
 ## Examples
 
-### Greet an identified caller and load their tickets
+### Greeting an Identified Caller and Loading Their Tickets
 
-A support line answers with the caller's name and their open ticket already in context.
+A support line greets the caller by name and already has their open ticket in context.
 
 **Pre-call functions:**
 
-1. `find_user` — Zendesk **Search User**, with `phone_number` pinned to `{{user_number}}`. On the **Output** tab, map the user's `id` to `zendesk_user_id` and `name` to `caller_name`.
+1. `find_user` — Zendesk **Search User**, with `phone_number` pinned to `{{user_number}}`. On the **Output** tab, the `id` field maps to `zendesk_user_id`, and `name` maps to `caller_name`.
 2. `list_tickets` — Zendesk **List User Requested Tickets**, added as a *sequential* function under `find_user`, with `user_id` set to `{{zendesk_user_id}}`.
 
-The prompt then opens with `Greet {{caller_name}} by name.` and the agent already has the ticket list in context, so "what's the status of my ticket?" is answered on the first turn instead of the third.
+The prompt then opens with something like `Greet {{caller_name}} by name.`, and since the ticket list is already in context, "what's the status of my ticket?" gets answered on the very first turn instead of the third.
 
-The same pair works on a [chat agent](/build/create-chat-agent) as pre-chat functions. Swap `{{user_number}}` for whichever [dynamic variable](/build/dynamic-variables) your chat is started with, such as an email address passed in when the widget opens.
+The exact same pair works just as well on a [chat agent](/build/create-chat-agent) as pre-chat functions — just swap `{{user_number}}` for whatever [dynamic variable](/build/dynamic-variables) your chat session starts with, such as an email address passed in when the widget first opens.
 
-### Log the session and open a follow-up task
+### Logging the Session and Opening a Follow-Up Task
 
-A sales agent writes every conversation back to HubSpot, and creates a task only when there's something to follow up on.
+A sales agent writes every conversation back into HubSpot, and only creates a task when there's actually something to follow up on.
 
 **Pre-call function:**
 
-* `search_contact` — HubSpot **Search Contact** on `{{user_number}}`, mapping the record ID to `hubspot_contact_id`.
+* `search_contact` — HubSpot **Search Contact** using `{{user_number}}`, mapping the record ID to `hubspot_contact_id`.
 
 **Post-call functions:**
 
-1. `log_hubspot_call` — HubSpot **Log Call Activity** on `{{hubspot_contact_id}}`, with the body set to `{{call_summary}}`. Gated on **All**: `{{call_summary}}` exists, so a call that never got far enough to analyze writes nothing.
-2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function beside `log_hubspot_call` so both writes go out at once. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom [Post Call Extraction](/features/post-call-analysis-overview) field. Its subject is a description the LLM fills in from the transcript.
+1. `log_hubspot_call` — HubSpot **Log Call Activity** against `{{hubspot_contact_id}}`, with the body set to `{{call_summary}}`. Gated on **All**: `{{call_summary}}` exists — so a call that never got far enough to be analyzed writes nothing at all.
+2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function alongside `log_hubspot_call` so both writes fire off together. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom [Post Call Extraction](/features/post-call-analysis-overview) field. Its subject line is a description the LLM fills in based on the transcript.
 
-The session is logged every time it completes; the task appears only on the conversations that earned one.
+The session gets logged every single time it finishes; the task only shows up on the conversations that actually earned one.
 
-### Confirm a booking by text
+### Confirming a Booking by Text
 
-A clinic texts the caller after the call, but only when a booking actually happened.
+A clinic texts the caller after the call, but only when a booking genuinely happened.
 
 **Post-call functions:**
 
-1. `get_booking` — Cal.com **Get Booking**, with the UID set to `{{booking_uid}}`, a variable an in-conversation **Book Appointment** tool mapped earlier in the call. Gated on **All**: `{{booking_uid}}` exists.
-2. `send_confirmation` — an **SMS** function, sequential under `get_booking`, whose content the LLM writes from the transcript and the booking response.
+1. `get_booking` — Cal.com **Get Booking**, with the UID set to `{{booking_uid}}`, a variable an in-conversation **Book Appointment** tool set earlier in the call. Gated on **All**: `{{booking_uid}}` exists.
+2. `send_confirmation` — an **SMS** function, run sequentially under `get_booking`, whose content the LLM writes based on the transcript and the booking response.
 
-No booking means `{{booking_uid}}` never gets set, the gate fails, and both functions drop, so no text goes out. On a chat agent, replace the SMS with a **Custom function** that posts to your own notification endpoint.
+If no booking happened, `{{booking_uid}}` was never set, the gate fails, and both functions get dropped, so no text goes out at all. On a chat agent, swap the SMS step for a **Custom function** that posts to your own notification endpoint instead.
 
-## Timing and limits
+## What are the timing limits and budgets?
 
-A call waits for its pre-call graph before the conversation begins, up to a budget that depends on the call:
+Tavly imposes rigid timing budgets on workflow graphs to prevent infinite stalls. If a pre-call function massively breaches its time budget, the call still connects, but the agent's prompt simply lacks the delayed variable data.
 
-* **Inbound and web calls wait 1 minute.**
-* **Outbound calls wait 5 minutes, before Tavly dials.** The extra room is there because nothing is ringing yet, so nobody is sitting on the line while a CRM lookup runs.
+| Phase | Execution Timing | Time Budget | Failure State |
+| --- | --- | --- | --- |
+| **Pre-Call (Inbound)** | Before agent speaks | 1 Minute | Call connects; data arrives too late for initial prompt. |
+| **Pre-Call (Outbound)** | Before dial occurs | 5 Minutes | Dial initiates; data arrives too late for initial prompt. |
+| **Pre-Chat** | Before chat opens | Infinite | N/A |
+| **Post-Call/Chat** | After extraction ends | 5 Minutes | Remaining post-call functions instantly cancel. |
 
-Exceeding the budget doesn't cancel anything. The remaining functions **keep running in the background**, and what they return still reaches the agent: each call and its response are added to the transcript the LLM reads, and the variables they map stay available to everything downstream, post-call functions included. What a late arrival misses is the initial prompt and the agent's opening message, which are already built by the time it lands. So the budget is the deadline for anything the agent's first words depend on, not for the data itself.
 
-Post-call functions are capped at **5 minutes** total. That one is a hard stop: whatever hasn't finished is cancelled so teardown can complete.
+Going over that budget doesn't cancel anything — the remaining functions **keep running in the background**, and whatever they return still reaches the agent: every call and its response still get added to the transcript the LLM reads, and any variables they map remain available downstream, post-call functions included. What a late-arriving function misses is only the initial prompt and the agent's opening message, since those are already built by the time it finishes. So the time budget is really the deadline for anything the agent's opening words depend on — not a deadline for the data itself.
 
-|                     | Pre-conversation                                                                                                                                         | Post-conversation                    |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| When it runs        | Before the agent's first message; for outbound calls, before Tavly dials                                                                                | After Post Call Extraction completes |
-| Time budget (voice) | 1 minute inbound and web, 5 minutes outbound                                                                                                             | 5 minutes                            |
-| Time budget (chat)  | None; the chat waits for the graph                                                                                                                       | None                                 |
-| Past the budget     | The session starts; remaining functions finish in the background and still reach the transcript, but too late for the initial prompt and opening message | Remaining functions are cancelled    |
-| Max functions       | 15                                                                                                                                                       | 15                                   |
-| Max chain depth     | 4                                                                                                                                                        | 4                                    |
+Post-call functions are capped at **5 minutes** total, and that limit is a hard stop — whatever hasn't finished by then simply gets cancelled so teardown can complete.
 
-Figures are as of August 2026.
+|                        | Pre-conversation                                                                                                                                             | Post-conversation                       |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| When it runs             | Before the agent's first message; for outbound calls, before Tavly even dials                                                                                       | After Post Call Extraction finishes       |
+| Time budget (voice)      | 1 minute for inbound and web, 5 minutes for outbound                                                                                                                 | 5 minutes                                 |
+| Time budget (chat)       | None — the chat simply waits for the graph to complete                                                                                                               | None                                      |
+| Past the budget          | The session begins anyway; remaining functions finish quietly in the background and still reach the transcript, just too late for the opening prompt or greeting     | Remaining functions get cancelled          |
+| Max functions            | 15                                                                                                                                                                     | 15                                         |
+| Max chain depth          | 4                                                                                                                                                                      | 4                                          |
 
-## When a function fails
+Figures reflect August 2026.
 
-A failure stays inside the function it happened in. A function that errors, times out, is missing a required input, or is gated off is marked unsuccessful, and:
+## When a Function Fails
 
-* **Everything waiting on it is skipped**, and everything waiting on those. A lookup that fails takes down the write that needed its ID, rather than sending a request with a blank field.
-* **Independent branches carry on.** A failed CRM lookup doesn't stop the calendar check running beside it.
-* **The session continues.** A pre-conversation failure still connects the call or opens the chat, just without those variables, so write the prompt to read correctly when a lookup came back empty. A post-conversation failure still completes teardown.
+A failure stays contained to the function where it happened. Whether a function errors out, times out, is missing a required input, or gets gated off, it's marked unsuccessful, and:
 
-## See what ran
+* **Everything that depends on it gets skipped**, along with everything that depends on those, in turn. A failed lookup takes down whatever write needed its ID, rather than firing off a request with a blank field.
+* **Independent branches keep going regardless.** A failed CRM lookup doesn't stop a calendar check running alongside it.
+* **The session still continues.** A pre-conversation failure doesn't stop the call from connecting or the chat from opening — it just proceeds without those particular variables, so it's worth writing your prompt to read sensibly when a lookup came back empty. A post-conversation failure still lets teardown finish normally.
 
-Open the call in [call and chat history](/features/session-history) and read the transcript. Pre-call function calls sit under a **Before call** divider at the top, the conversation follows **Call started**, and post-call ones sit under **Call ended** at the bottom. Each entry shows the arguments sent and the response returned, so you can tell a bad input apart from a provider error. During a live call, the same entries collapse under **Before conversation** in the live transcript.
+## Reviewing What Ran
 
-Chat sessions run their pre-chat and post-chat functions the same way.
+Open the call in [call and chat history](/features/session-history) and check the transcript. Pre-call function calls appear under a **Before call** divider at the very top, the conversation itself follows **Call started**, and post-call functions sit under **Call ended** at the bottom. Each entry shows both the arguments sent and the response received, making it easy to tell a bad input apart from a genuine provider error. During a live call, these same entries collapse under **Before conversation** in the live transcript view.
+
+Chat sessions handle their pre-chat and post-chat functions exactly the same way.
 
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="Can the agent decide not to run a pre-call function?">
-    No. Every function in the slot runs whenever its dependencies are met. Unlike a tool in the conversation, there is no LLM decision about *whether* to call it. The LLM is only involved in filling inputs you described rather than pinned, and post-conversation functions add an **only when** gate you control.
+  <Accordion title="Can the agent decide on its own not to run a pre-call function?">
+    No. Every function in the slot runs automatically whenever its dependencies are satisfied. Unlike a tool used mid-conversation, there's no LLM decision involved about *whether* to call it — the LLM only gets involved in filling in inputs you've described rather than pinned outright, and post-conversation functions come with an **only when** gate that you control yourself.
   </Accordion>
 
-  <Accordion title="Where does the LLM get values for described inputs, before the conversation has started?">
-    From the agent's prompt and the dynamic variables available at that point, including outputs from earlier functions in the graph. There's no conversation yet, so an input that can only come from the user belongs on an in-conversation tool instead. Post-conversation functions also see the full transcript.
+  <Accordion title="Where does the LLM pull values from for described inputs, before the conversation has even started?">
+    From the agent's prompt and whatever dynamic variables are available at that point, including outputs from earlier functions in the graph. Since there's no conversation yet, an input that can only ever come from something the user says belongs on an in-conversation tool instead. Post-conversation functions, by contrast, do have access to the full transcript.
   </Accordion>
 
-  <Accordion title="Do pre-call functions delay the call?">
-    Yes, by as long as the graph takes, up to 1 minute on an inbound or web call, and a chat waits for its pre-chat graph with no budget at all. Outbound calls absorb their 5-minute budget before dialing, so nobody hears the delay. Keep the chain shallow: two functions running in parallel cost one function's latency, while two chained cost both. If a lookup is slow and not needed for the opening line, run it as an in-conversation tool instead.
+  <Accordion title="Do pre-call functions delay the actual call?">
+    Yes, for however long the graph takes — up to 1 minute on an inbound or web call, and a chat waits indefinitely for its pre-chat graph with no set budget at all. Outbound calls absorb their 5-minute budget before dialing even begins, so nobody ever hears the delay. It's worth keeping chains shallow: two functions running in parallel only cost as much as one function's latency, while two chained together cost the sum of both. If a slow lookup isn't actually needed for the opening line, it's better run as an in-conversation tool instead.
   </Accordion>
 
-  <Accordion title="Can a post-call function read what a pre-call function returned?">
-    Yes. Pre-conversation outputs stay in the session's dynamic variables for the whole session, so a post-conversation function can reference them directly. That's how the HubSpot example above reuses `{{hubspot_contact_id}}` without looking the contact up twice.
+  <Accordion title="Can a post-call function read what a pre-call function returned earlier?">
+    Yes. Pre-conversation outputs stay available as dynamic variables for the entire session, so a post-conversation function can reference them directly. That's exactly how the HubSpot example above reuses `{{hubspot_contact_id}}` instead of looking the contact up a second time.
   </Accordion>
 
-  <Accordion title="What happens if two functions have the same name?">
-    Saving is rejected. Names are the handle other functions depend on, so they have to be unique within a slot. The same name may appear once in the pre-conversation slot and once in the post-conversation slot.
+  <Accordion title="What happens if two functions end up with the same name?">
+    Saving gets rejected outright. Names are what other functions use to reference each other, so they need to be unique within a given slot. That said, the same name can appear once in the pre-conversation slot and once in the post-conversation slot without conflict.
   </Accordion>
 </AccordionGroup>

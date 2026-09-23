@@ -1,80 +1,105 @@
 ---
-title : Handle voicemail and IVR
+title: 'Voicemail & IVR Handling'
+sidebarTitle: 'Voicemail & IVR Handling'
+description: 'Configure Tavly AI voice agents to detect answering machines and IVR phone trees during outbound calls, with automated rules to disconnect or leave messages.'
+seo:
+  title: 'Voicemail Detection & IVR Handling | Tavly AI Outbound Agents'
+  description: 'Configure Tavly AI voice agents to detect answering machines and IVR phone trees during outbound calls, with automated rules to disconnect or leave messages.'
+og:title: 'Voicemail Detection & IVR Handling in Tavly'
+og:description: 'Configure Tavly AI voice agents to detect answering machines and IVR phone trees during outbound calls, with automated rules to disconnect or leave messages.'
+og:image: 'https://mintcdn.com/retellai/_fOA1onl6tLJVhDl/images/voicemail_ivr.png'
+twitter:card: 'summary_large_image'
+icon: 'voicemail'
+keywords: ['voicemail detection', 'IVR detection', 'answering machine detection', 'Tavly AI outbound calls', 'automated phone trees', 'leave a voicemail AI']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Does voicemail detection work on inbound calls?'
+    answer: 'No. Machine and menu classification operates strictly during outbound calls, where the platform dials external numbers. On inbound calls, an outside party dials into your agent directly, so voicemail detection is inactive.'
+  - question: 'If the voicemail greeting keeps playing, will the agent leave a message?'
+    answer: 'No. When configured to leave a message, the agent holds silence until the remote greeting stops and the recording beep triggers before speaking.'
+  - question: 'Why is the agent not hanging up on voicemails even though it is enabled?'
+    answer: 'The destination system is likely classified as an IVR phone tree instead of a personal voicemail inbox. Activate IVR Hangup within your agents Call Settings to handle and disconnect phone menus.'
 ---
-> Configure Tavly agents to detect voicemails and IVR systems on outbound calls and choose what to do next — hang up, leave a message, or navigate the menu.
 
-When making [outbound calls](/deploy/outbound-call), your agent may reach a voicemail or an IVR (Interactive Voice Response) menu instead of a person. You can configure the agent to detect these automatically and choose what happens next.
+## What is Voicemail & IVR Detection?
 
-For example, an outbound reminder campaign can leave a callback message whenever it reaches a voicemail, instead of hanging up silently.
+Voicemail and IVR detection are automated telephony features that classify when an outbound call connects to a machine endpoint—like an answering machine or a phone tree switchboard—rather than a live human. 
 
-To capture keypad input from the person on the other end, see [capture DTMF input](/build/user-dtmf).
+When executing [outbound calls](/deploy/outbound-call), Tavly monitors the early audio streams (within the first 3 minutes of a call). If it identifies a machine, it executes your configured routing policy, such as automatically dropping the call or transmitting an informative follow-up message.
+
+<Note> **Touch-Tone Processing:** If you want your agent to process incoming DTMF keypresses from human callers, refer to the [Capture DTMF Input](/build/user-dtmf) documentation instead.</Note>
 
 <Frame caption="Voicemail and IVR options in the agent's Call Settings.">
   <img height="300" src="https://mintcdn.com/retellai/_fOA1onl6tLJVhDl/images/voicemail_ivr.png?fit=max&auto=format&n=_fOA1onl6tLJVhDl&q=85&s=00ca575ac97c4bcfa9e14f3ef0d4472c" alt="Call Settings panel with Voicemail Detection toggled on, Voicemail Response set to 'Leave a message' with a static callback sentence, and IVR Hangup toggled on." data-path="images/voicemail_ivr.png" />
 </Frame>
 
-## Voicemail detection
+## How do you handle Voicemail endpoints?
 
-The system runs voicemail detection continuously within a timeout window. You can choose what happens when a voicemail is detected:
-
-* **Hang up** — disconnect immediately, even if the voicemail greeting is still playing.
-* **Leave a message** — wait for the agent's turn to speak, then deliver a message. Supports [dynamic variables](/build/dynamic-variables).
-
-If the timeout is reached without detecting a voicemail, detection stops and the call continues normally.
+You can configure the agent to either instantly terminate the line or hold in silence until the beep to read a pre-recorded message when a personal answering machine is detected.
 
 <Steps>
-  <Step title="Enable voicemail detection">
-    Navigate to your agent settings, then open **Call Settings** and enable **Voicemail Detection**.
+  <Step title="Enable Voicemail Detection">
+    Open your agent configuration, navigate to **Call Settings**, and turn on **Voicemail Detection**.
   </Step>
 
-  <Step title="Choose voicemail behavior">
-    Select one of the following options:
+  <Step title="Select the Voicemail Action">
+    Define exactly how the agent reacts upon identifying an answering service:
 
-    * **Hang up if reaching voicemail**: The agent disconnects when it detects a voicemail.
-    * **Leave a message if reaching voicemail**: The agent waits for its turn to speak, then leaves a message. Choose between:
-      * **Prompt**: A dynamically generated message based on instructions you provide, such as `Summarize the call and ask the user to call back.`
-      * **Static Sentence**: A fixed message, such as `Hey {{user_name}}, sorry we could not reach you directly. Please give us a callback if you can.`
+    * **Hang up if reaching voicemail:** Drops the call immediately upon detection, terminating even if the mailbox greeting is still actively playing.
+    * **Leave a message if reaching voicemail:** Pauses until the recorded greeting completes and the beep/speaking turn is reached. It then recites one of two payload formats:
+      * **Prompt:** Generates a dynamic message using LLM instructions (e.g., `Summarize the call and ask the user to call back.`).
+      * **Static Sentence:** Reads an exact, hardcoded text string (e.g., `Hey {{user_name}}, sorry we missed you. Please call back.`). Fully compatible with [dynamic variables](/build/dynamic-variables).
   </Step>
 </Steps>
 
-## IVR hangup
+## How do you handle IVR Disconnection?
 
-When enabled, the system detects if your outbound call reaches an IVR (automated phone menu) system and automatically hangs up the call.
+IVR disconnection instructs the telephony engine to classify automated menus (such as corporate switchboards) and hang up the session automatically, ensuring your agent doesn't waste time talking to another machine.
 
-<Note>
-  IVR hangup is separate from [IVR navigation](/build/single-multi-prompt/press-digit), which lets your agent interact with and navigate through IVR menus using DTMF tones.
-</Note>
+<Note> **Navigating Phone Trees:** Automated IVR disconnection is completely separate from active [IVR Navigation](/build/single-multi-prompt/press-digit), which allows your agents to emit dual-tone multi-frequency (DTMF) digits to traverse complex phone systems.</Note>
 
-To enable, navigate to your agent settings, then open **Call Settings** and toggle on **IVR Hangup**.
+To turn on automated menu termination:
+1. Open your agent configuration.
+2. Go to **Call Settings**.
+3. Activate the **IVR Hangup** toggle.
 
-## FAQ
+## Operations & Latency Metrics
+
+* **Detection Window:** The classification engine operates strictly during the initial 3 minutes of the connection.
+* **Latency Impact:** Voicemail detection is architected for low-overhead telephony pipelines and typically contributes less than 30ms of operational latency.
+* **Logging Verification:** Inspecting call session logs will explicitly display the [disconnection reason](/reliability/debug-call-disconnect). Answering machine terminations report `voicemail_reached`, while menu terminations record `ivr_reached`.
+
+To turn on automated menu termination, open your agent configuration, go to **Call Settings**, and activate **IVR Hangup**.
+
+## Frequently Asked Questions
 
 <AccordionGroup>
   <Accordion title="Does voicemail detection work on inbound calls?">
-    No. Voicemail and IVR detection only run on [outbound calls](/deploy/outbound-call), where your agent dials out and may reach a voicemail or automated menu. On inbound calls a person is calling your agent, so there is no voicemail to detect and these settings have no effect.
+    No. Machine and menu classification operates strictly during [outbound calls](/deploy/outbound-call), where the platform dials external numbers that may route to machines. On inbound calls, an outside party dials into your agent directly, so voicemail detection is inactive and has no operational effect.
   </Accordion>
 
   <Accordion title="The voicemail isn't being hung up even though hang up is enabled. What's wrong?">
-    This most likely means the call is being classified as an IVR rather than a voicemail. Because the two detection types are handled separately, voicemail hang up will not trigger in this case. Enable **IVR Hangup** in your agent's **Call Settings** to handle this scenario and automatically disconnect when an IVR system is detected.
+    The destination system is likely classified as an IVR phone tree instead of a personal voicemail inbox. Because Tavly isolates voicemail and menu detection, voicemail hangup rules will not drop an IVR call. Activate **IVR Hangup** within your agent's **Call Settings** to handle and disconnect phone menus automatically.
   </Accordion>
 
   <Accordion title="Will voicemail or IVR detection run for the entire call?">
-    No, voicemail and IVR detection will only run for the first 3 minutes of the call. Please contact [support@tavly.com](mailto:support@tavlyai.com) if you need to extend this.
+    No. The classification engine operates strictly during the initial 3 minutes of the connection. If your workflows require extended monitoring windows, contact [support@tavly.com](mailto:support@tavlyai.com).
   </Accordion>
 
   <Accordion title="Is there a latency impact when using voicemail detection?">
-    Voicemail detection is optimized for real-time use cases and generally adds under 30ms of latency.
+    Voicemail detection is architected for low-overhead telephony pipelines and typically contributes less than 30ms of operational latency.
   </Accordion>
 
   <Accordion title="How can I tell if a call reached a voicemail or IVR?">
-    If voicemail is detected, the call will have a [disconnection reason](/reliability/debug-call-disconnect) of `voicemail_reached`. If IVR is detected, the disconnection reason will be `ivr_reached`.
+    Inspecting call session logs will display the recorded [disconnection reason](/reliability/debug-call-disconnect). Answering machine terminations report `voicemail_reached`, while menu terminations record `ivr_reached`.
   </Accordion>
 
   <Accordion title="If the voicemail greeting keeps playing, will the agent hang up?">
-    Yes. When set to hang up, the agent disconnects immediately upon detection, regardless of whether the voicemail greeting is still playing.
+    Yes. If configured to disconnect, Tavly drops the call instantly upon classification without waiting for the remote greeting audio to finish.
   </Accordion>
 
   <Accordion title="If the voicemail greeting keeps playing, will the agent leave a message?">
-    No. When set to leave a message, the agent waits for its turn to speak before delivering the message.
+    No. When configured to leave a message, the agent holds silence until the remote greeting stops and the recording turn begins before voicing content.
   </Accordion>
 </AccordionGroup>

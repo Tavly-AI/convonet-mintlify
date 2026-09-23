@@ -1,0 +1,136 @@
+---
+title: 'Run JavaScript With Code Tool in AI Agents'
+sidebarTitle: 'Code Tool'
+description: 'Add a Code Tool to a single- or multi-prompt Tavly AI agent to securely run JavaScript, read dynamic variables, call HTTP APIs, and store results.'
+seo:
+  title: 'Code Tool for AI Agents: Run JavaScript | Tavly AI'
+  description: 'Add a Code Tool to a single- or multi-prompt Tavly AI agent to securely run JavaScript, read dynamic variables, call HTTP APIs, and store results.'
+og:title: 'Run JavaScript With Code Tool in AI Agents'
+og:description: 'Add a Code Tool to a single- or multi-prompt Tavly AI agent to securely run JavaScript, read dynamic variables, call HTTP APIs, and store results.'
+og:image: 'https://mintcdn.com/retellai/9xto-Or-KLZnnbLr/images/cf/add-code-tool.png'
+twitter:card: 'summary_large_image'
+icon: 'code'
+keywords: ['AI agent JavaScript', 'Code Tool', 'Tavly AI sandbox', 'dynamic variables code', 'AI HTTP requests']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can the LLM pass arguments directly to Code Tool?'
+    answer: 'No. Code Tool does not expose a parameter schema and receives only dynamic variables and metadata. Use a custom function when the LLM must fill arguments dynamically at call time.'
+  - question: 'Can I use npm packages or browser APIs in Code Tool?'
+    answer: 'No. The sandbox environment provides common JavaScript built-ins (Math, Date, JSON) and fetch(), but it does not support Node.js modules, npm packages, or browser DOM APIs.'
+  - question: 'What is the timeout limit for Code Tool?'
+    answer: 'The default timeout is 30 seconds, but you can manually configure it to run anywhere between 5 and 60 seconds.'
+---
+
+## What is the Code Tool?
+
+**Code Tool** enables a single- or multi-prompt agent to securely execute standard JavaScript inside Tavly AI's isolated sandbox. The LLM autonomously determines when to trigger the tool based strictly on its configured name, description, and the active conversational context.
+
+For example, a lending agent can execute a Code Tool to calculate a loan repayment amount utilizing values already stored securely as dynamic variables, subsequently quoting the exact calculated amount in its next spoken response.
+
+If you are building a rigid conversation flow agent, see the [Code Node](/build/conversation-flow/code-node) documentation instead.
+
+## When should you use Code Tool?
+
+You should use Code Tool strictly for self-contained formatting, numeric calculations, and low-risk HTTP lookups. Use a [custom function](/build/single-multi-prompt/custom-function) for authenticated system integrations, complex argument passing, or production database writes.
+
+| Capability | Code Tool | Custom Function |
+| --- | --- | --- |
+| **Execution** | Runs JavaScript inside Tavly AI's sandbox | An HTTP request to your external server |
+| **Trigger Logic** | The LLM decides when to call it | The LLM decides when to call it |
+| **Inputs** | Dynamic variables and call/chat metadata | LLM-supplied parameters and request data |
+| **Best For** | Formatting, calculations, low-risk public HTTP lookups | Authenticated integrations, writing production data |
+| **Max Payload Size** | 20,000 characters | N/A |
+
+<Note> Code Tool inherently does not accept LLM-supplied parameters. The sandbox exclusively receives the active `dv` (dynamic variables) and `metadata` objects. If the LLM must intelligently compose arguments when calling a tool, utilize a [custom function](/build/single-multi-prompt/custom-function). </Note>
+
+<Warning> Use Code Tool strictly for logic that executes without requiring secret keys. Dynamic variables and metadata are permanently stored in plaintext alongside the call log. For authentication, secret management, or internal API systems, host a custom function on your own protected backend.</Warning>
+
+## How do you create a Code Tool?
+
+Creating a Code Tool involves explicitly defining a unique name, writing the JavaScript logic to process variables, mapping the resulting outputs, and instructing the agent precisely when to run it within the main prompt.
+
+<Steps>
+  <Step title="Add a Code Tool">
+    In the agent's core **Functions** section, select **+ Add**, then explicitly select **Code**.
+
+    <Frame caption="Code in the function-type menu.">
+      <img src="https://mintcdn.com/retellai/9xto-Or-KLZnnbLr/images/cf/add-code-tool.png?fit=max&auto=format&n=9xto-Or-KLZnnbLr&q=85&s=392f0cafd7a3e574d6058240c6dfc3b3" alt="Function-type menu" width="307" height="379" data-path="images/cf/add-code-tool.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set the name and description">
+    Assign a unique **Function Name** utilizing strictly letters, numbers, underscores, or dashes (no spaces allowed). Write a comprehensive **Description** (up to 1,024 characters) that tells the LLM exactly when to trigger the tool.
+
+    * **Name:** `calculate_daily_repayment`
+    * **Description:** `Calculate the daily repayment amount once fin_amount, tenure_days, and interest_rate are captured as dynamic variables.`
+  </Step>
+
+  <Step title="Write JavaScript">
+    Read necessary input values from the `dv` or `metadata` objects and strictly return a JSON-serializable value. Tavly AI automatically serializes the returned payload, routes it to the LLM as the tool result, and extracts configured response variables.
+
+    ```javascript theme={"dark"}
+    const principal = Number(dv.fin_amount);
+    const days = Number(dv.tenure_days);
+    const annualRate = Number(dv.interest_rate) / 100;
+
+    if (![principal, days, annualRate].every(Number.isFinite) || days <= 0) {
+      return { ok: false, error: "Missing or invalid repayment inputs" };
+    }
+
+    const interest = principal * annualRate * (days / 365);
+    const dailyRepayment = (principal + interest) / days;
+
+    return {
+      ok: true,
+      daily_repayment: dailyRepayment.toFixed(2)
+    };
+    ```
+  </Step>
+
+  <Step title="Store fields as variables">
+    Under **Store Fields as Variables**, manually map a target dynamic variable name to an explicit path inside the returned JSON payload. For example, map the output variable `daily_repayment` to `daily_repayment`.
+  </Step>
+
+  <Step title="Configure execution feedback">
+    Under **During Execution Feedback**, turn on **Talk while waiting** to dictate a static filler sentence while the calculation runs. **Talk After Action Completed** is enabled by default so the LLM responds verbally immediately after receiving the result.
+  </Step>
+
+  <Step title="Update the agent prompt">
+    Explicitly define rules in the main system prompt dictating exactly when the required variables are ready and when to call the tool.
+
+    ```text theme={"dark"}
+    After fin_amount, tenure_days, and interest_rate are available as dynamic variables, strictly call calculate_daily_repayment before quoting a repayment amount.
+    ```
+  </Step>
+</Steps>
+
+## What is the JavaScript environment?
+
+Code Tool logic executes securely inside a locked-down QuickJS sandbox. It fully supports top-level `await`, dynamic variable extraction via the `dv` object, and limited HTTP requests using the standard `fetch()` API.
+
+### `dv`: dynamic variables
+Access your [dynamic variables](/build/dynamic-variables) as properties attached to the `dv` object. All stored values are returned strictly as string literals, including values set by prior tools. **Use `dv.user_number`, not `{{user_number}}`**, inside the JavaScript execution block. 
+
+<Note> Code Tool inherently has no parameter schema. If the logic requires variables spoken by the caller, you must extract them into dynamic variables utilizing an [Extract Dynamic Variable tool](/build/single-multi-prompt/extract-dv) beforehand.</Note>
+
+### `metadata`: call or chat metadata
+Read explicit metadata injected natively when initiating a [phone call](/api-references/create-phone-call) or [chat session](/api-references/create-chat) by referencing the `metadata` object.
+
+```javascript theme={"dark"}
+const customerId = metadata.customer_id;
+```
+
+### `fetch(url, options)`: HTTP requests
+The environment supports `fetch()` for executing standard HTTP and HTTPS requests, allowing custom methods and string-valued headers. The resulting payload supports `status`, `ok`, `text()`, and `json()`. 
+
+The secure sandbox strictly blocks non-HTTP protocols alongside specific local, private, and platform-specific internal network addresses. Code Tool API requests permanently originate from IP address `35.166.138.221`. If your backend restricts inbound traffic, you must actively allowlist `35.166.138.221/32`.
+
+### Runtime Limits
+
+| Constraint | Value |
+| --- | --- |
+| **Max code size** | 20,000 characters |
+| **Execution timeout** | 5–60 seconds (Defaults strictly to 30s) |
+| **Agent result payload** | 15,000 characters by default |
+| **Automatic retries** | None (Fails instantly on timeout) |

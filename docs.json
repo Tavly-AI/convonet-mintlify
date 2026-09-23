@@ -1,13 +1,25 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "almond",
+  "theme":"sequoia",
   "name": "Tavly AI",
+  "search": {
+    "prompt": "Search or ask AI..."
+  },
   "colors": {
     "primary": "#196659",
     "light": "#196659",
     "dark": "#196659"
   },
   "favicon": "/logo/tavly-dark.svg",
+  "icons": {
+    "library": "lucide"
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/get-started/introduction"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -15,38 +27,41 @@
         "groups": [
           {
             "group": "Getting Started",
+            "boost": 3,
+            "icon":"briefcase",
             "pages": [
               "get-started/introduction",
-              "get-started/build-your-first-agent-in-10-minutes"
+              "get-started/build-agent-in-10"
             ]
           },
           {
             "group": "Build Agents",
+            "icon": "wrench",
             "pages": [
-              "build/Build-a-Tavly-AI-Agent-Overview",
+              "build/overview",
               {
                 "group": "Setup single / multi prompt agent",
                 "pages": [
                   {
                     "group": "Step 1: Write the prompt",
                     "pages": [
-                      "build/setup/single-multi-prompt/Single-or-Multi-Prompt-Agent-Overview",
-                      "build/setup/single-multi-prompt/Write-a-Single-Prompt",
-                      "build/setup/single-multi-prompt/Build-a-Multi-Prompt-Agent"
+                      "build/setup/single-multi-prompt/prompt-overview",
+                      "build/setup/single-multi-prompt/write-single-prompt",
+                      "build/setup/single-multi-prompt/write-multi-prompt"
                     ]
                   },
                   "build/setup/single-multi-prompt/configure-basic-settings",
                   {
                     "group": "Step 3: Add function calling",
                     "pages": [
-                      "build/setup/single-multi-prompt/Function-Calling-Overview",
-                      "build/setup/single-multi-prompt/End-Call",
-                      "build/setup/single-multi-prompt/Transfer-Call-Tool",
-                      "build/setup/single-multi-prompt/Send-SMS",
-                      "build/setup/single-multi-prompt/Press-Digit-IVR",
-                      "build/setup/single-multi-prompt/Custom-Function-Integration",
-                      "build/setup/single-multi-prompt/Integration-Tools",
-                      "build/setup/single-multi-prompt/Code-Tool-Run-JavaScript",
+                      "build/setup/single-multi-prompt/function-calling",
+                      "build/setup/single-multi-prompt/end-call",
+                      "build/setup/single-multi-prompt/transfer-call",
+                      "build/setup/single-multi-prompt/send-sms",
+                      "build/setup/single-multi-prompt/press-digit",
+                      "build/setup/single-multi-prompt/custom-function",
+                      "build/setup/single-multi-prompt/integration-tools",
+                      "build/setup/single-multi-prompt/code-tool",
                       "build/setup/single-multi-prompt/extract-dynamic-variables",
                       "build/setup/single-multi-prompt/agent-transfer-tool",
                       "build/setup/single-multi-prompt/mcp-tools"
@@ -68,7 +83,7 @@
                       {
                         "group": "Function Node",
                         "pages": [
-                          "build/setup/conversation-flow/function-node/call-a-function-from-a-conversation-flow-node",
+                          "build/setup/conversation-flow/function-node/call-function-node",
                           "build/setup/conversation-flow/function-node/custom-function-in-conversation-flow",
                           "build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow"
                         ]
@@ -152,6 +167,198 @@
             ]
           },
           {
+            "group": "Test",
+            "icon": "shield-check",
+            "pages": [
+              "test/test-overview",
+              {
+                "group": "LLM Playground",
+                "pages": [
+                  "test/llm-playground",
+                  "test/llm-playground-debug"
+                ]
+              },
+              {
+                "group": "LLM Simulation Testing",
+                "pages": [
+                  "test/llm-simulation-testing",
+                  "test/batch-test-simulation"
+                ]
+              },
+              {
+                "group": "Audio Testing",
+                "pages": [
+                  "test/test-web",
+                  "test/test-phone"
+                ]
+              },
+              "test/test-pricing"
+            ]
+          },
+          {
+            "group": "Deploy",
+            "icon": "phone",
+            "pages": [
+              "deploy/purchase-number",
+              "deploy/ab-testing",
+              {
+                "group": "Connect to custom telephony providers via SIP",
+                "pages": [
+                  "deploy/connect-tavly-voice-agents-to-custom-telephony",
+                  {
+                    "group": "Connect via SIP trunking",
+                    "pages": [
+                      "deploy/twilio",
+                      "deploy/telnyx",
+                      "deploy/vonage"
+                    ]
+                  },
+                  {
+                    "group": "Connect to CCaaS",
+                    "pages": [
+                      "deploy/avaya",
+                      "deploy/connect-genesys-cloud-to-tavly",
+                      "deploy/connect-five9-to-tavly",
+                      "deploy/amazon-connect"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Make & receive phone calls",
+                "pages": [
+                  "deploy/make-outbound-calls",
+                  {
+                    "group": "Inbound calls",
+                    "pages": [
+                      "deploy/receive-calls",
+                      "deploy/inbound-call-and-sms-webhook"
+                    ]
+                  },
+                  "deploy/international-calling"
+                ]
+              },
+              "deploy/implement-chat-with-create-chat-completion",
+              "deploy/tavly-website-widget",
+              {
+                "group": "Send & receive SMS",
+                "pages": [
+                  "deploy/enable-sms",
+                  "deploy/sms-campaign-application"
+                ]
+              },
+              "deploy/set-up-versioning-and-tags-for-agents",
+              "deploy/compare-agent-versions",
+              "deploy/create-and-schedule-batch-calls",
+              {
+                "group": "Increase call pickup rate",
+                "pages": [
+                  "deploy/spam-likely-overview",
+                  "deploy/add-a-business-profile",
+                  "deploy/apply-for-verified-phone-number",
+                  "deploy/apply-for-branded-call",
+                  "deploy/handle-application-rejection",
+                  "deploy/stop-caller-id-service"
+                ]
+              },
+              "deploy/web-call",
+              "deploy/concurrency"
+            ]
+          },
+          {
+            "group": "Data",
+            "icon": "database",
+            "pages": [
+              "features/session-history",
+              "features/contacts"
+            ]
+          },
+          {
+            "group": "Monitor",
+            "icon": "square-activity",
+            "pages": [
+              "monitor/monitor-live-calls",
+              "monitor/analytics-dashboard",
+              "monitor/alert-rules-for-call-and-chat-metrics",
+              {
+                "group": "Register & handle webhooks",
+                "pages": [
+                  {
+                    "group": "Call Event Webhook",
+                    "pages": [
+                      "monitor/tavly-webhooks-overview",
+                      "monitor/register-and-set-up-a-tavly-webhook"
+                    ]
+                  },
+                  "monitor/secure-the-webhook"
+                ]
+              },
+              {
+                "group": "Post Call Extraction",
+                "pages": [
+                  "monitor/post-call-extraction-overview-and-categories",
+                  "monitor/define-the-information-you-want-to-extract",
+                  "monitor/consume-the-analysis-data",
+                  "monitor/rerun-post-call-chat-extraction"
+                ]
+              },
+              {
+                "group": "AI Quality Assurance",
+                "pages": [
+                  "monitor/ai-quality-assurance",
+                  {
+                    "group": "Create QA",
+                    "pages": [
+                      "monitor/access-ai-qa",
+                      "monitor/define-a-qa-cohort",
+                      "monitor/define-resolution-criteria"
+                    ]
+                  },
+                  "monitor/view-qa-results",
+                  "monitor/ai-qa-metrics",
+                  "monitor/address-metric-issues"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Reliability & Debugging",
+            "icon": "bug",
+            "pages": [
+              "reliability/reliability-overview",
+              {
+                "group": "Latency",
+                "pages": [
+                  "reliability/latency/replace-me"
+                ]
+              },
+              {
+                "group": "Fix agent behaviors",
+                "pages": [
+                  "reliability/fix-agent-behaviors/replace-me"
+                ]
+              },
+              {
+                "group": "Debug phone call issues",
+                "pages": [
+                  "reliability/debug-phone-call-issues/replace-me"
+                ]
+              },
+              "reliability/prevent-abuse",
+              "reliability/fraud-protection"
+            ]
+          },
+          {
+            "group": "Accounts and Workspace",
+            "icon": "circle-user",
+            "pages": [
+              "accounts/create-and-manage-tavly-workspaces",
+              "accounts/manage-your-tavly-ai-account",
+              "accounts/access-control",
+              "accounts/kyc-verification"
+            ]
+          },
+          {
             "group": "Agent ready",
             "pages": [
               "agent-ready/prompt",
@@ -185,21 +392,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/tavly-dark.svg",

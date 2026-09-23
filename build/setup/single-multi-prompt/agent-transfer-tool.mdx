@@ -2,93 +2,94 @@
 title: 'Agent Transfer Tool : hand a call to another AI agent'
 ---
 
-> Add the Agent Transfer (agent swap) tool to a Tavly AI single or multi-prompt agent so it can hand the live call to another AI agent mid-conversation.
+> Add the Agent Transfer (agent swap) tool to a Tavly single or multi-prompt agent so it can pass an in-progress call to a different AI agent without ending the conversation.
 
-**Agent Transfer** (also called **agent swap**) hands a live conversation from one AI agent to another mid-call. The destination agent picks up with the full transcript and context, so you can split a call across specialized agents without a phone-based transfer.
+**Agent Transfer**, sometimes called **agent swap**, moves a live conversation from one AI agent to another while the call is still going. The agent taking over picks up with the full transcript and context already in hand, letting you divide a single call across several specialized agents without ever placing a phone-based transfer.
 
-Common uses:
+Typical uses include:
 
-* Route a caller from a front-desk agent to an appointment-booking agent once you know the task.
-* Switch from an agent speaking one language to an agent handling another, based on the caller's preference.
-* Keep each agent's prompt focused on one job, then chain them (A → B → C) instead of maintaining one large prompt.
+* Passing a caller from a front-desk agent to a booking-specific agent once their intent is clear.
+* Switching to an agent built for a different language, based on what the caller prefers.
+* Keeping each agent's prompt narrow and focused on one job, then linking them together (A → B → C) rather than maintaining one sprawling prompt.
 
-## When to use it
+## When This Tool Makes Sense
 
-Reach for Agent Transfer when you want to move the caller between **AI agents on the same call**. Use it to modularize a long or branching flow, reuse a specialized agent across projects, or switch language.
+Reach for Agent Transfer when the goal is moving a caller **between AI agents on the same call**. It's useful for breaking a long or branching flow into pieces, reusing a specialized agent across different projects, or handling a language switch.
 
-Use [call transfer](/build/single-multi-prompt/transfer-call) instead when the destination is a **human or an external phone number**. Agent Transfer only swaps between Tavly AI agents.
+If the destination is a **person or an outside phone number**, use [call transfer](/build/single-multi-prompt/transfer-call) instead — Agent Transfer only moves between agents within Tavly.
 
-Two targets can't be swapped to: agents backed by a [custom LLM](/integrate-llm/overview) and chat-channel agents. Attempting either fails the transfer.
+Two kinds of agents can't be transfer destinations: agents running on a [custom LLM](/integrate-llm/overview), and chat-only agents. Attempting either causes the transfer to fail.
 
-## Agent Transfer vs. call transfer
+## Agent Transfer Compared to Call Transfer
 
-Compared with routing to another agent through [call transfer](/build/single-multi-prompt/transfer-call), Agent Transfer offers:
+Against routing to another agent through [call transfer](/build/single-multi-prompt/transfer-call), Agent Transfer has a few advantages:
 
-* **Lower latency.** The swap is near-instant, with no new phone call to place.
-* **Better reliability.** No new call means no telephony failure to recover from.
-* **No handoff message needed.** The destination agent already has the full conversation history, so the caller never repeats themselves.
-* **One number for every agent.** Agents that receive transfers don't need their own phone numbers. A single number covers any number of agents.
+* **Faster.** The swap happens almost instantly, with no new phone call to set up.
+* **More reliable.** Since no new call is placed, there's no telephony failure to recover from.
+* **No handoff script required.** The destination agent already has the entire conversation history, so the caller never has to repeat anything.
+* **A single number works for every agent.** Agents on the receiving end of a transfer don't need their own dedicated phone numbers — one number can serve any number of agents.
 
-Agent Transfer also works on **web calls**, not just phone calls.
+Agent Transfer also works on **web calls**, not only phone calls.
 
-## What the destination agent inherits
+## What Carries Over to the New Agent
 
-The swap keeps everything on the same call, with the same `call_id` and one entry in [call history](/features/session-history). The destination agent automatically receives:
+The swap keeps everything under the same call — same `call_id`, and a single entry in [call history](/features/session-history). The receiving agent automatically gets:
 
-* **Full conversation history.** The transcript up to the transfer point, so the new agent has the same context the caller does.
-* **Call-level `metadata`.** Set on the original call (for example, via [Create Phone Call](/api-references/create-phone-call) or the [Inbound Call Webhook](/features/inbound-call-webhook)) and shared across every agent on the call.
-* **Dynamic variables.** Both the `retell_llm_dynamic_variables` passed when the call started and any variables [extracted earlier in the call](/build/single-multi-prompt/extract-dv) stay available to the destination agent's prompt.
+* **The full conversation so far.** Everything said up to the point of transfer, so the new agent has exactly the context the caller does.
+* **Call-level `metadata`.** Whatever was set on the original call — through [Create Phone Call](/api-references/create-phone-call) or the [Inbound Call Webhook](/features/inbound-call-webhook), for instance — is shared across every agent involved in the call.
+* **Dynamic variables.** Both the `retell_llm_dynamic_variables` set when the call began, and anything [extracted mid-call](/build/single-multi-prompt/extract-dv), remain available to the new agent's prompt.
 
-There is no "pass variables" parameter on the tool. The shared call context above is the mechanism. To have the destination agent act on a specific value, [extract it into a dynamic variable](/build/single-multi-prompt/extract-dv) on the source agent and reference that variable (`{{variable_name}}`) in the destination agent's prompt.
+There's no dedicated "pass variables" setting on this tool — the shared call context described above handles that automatically. If you want the destination agent to act on a specific piece of information, [extract it into a dynamic variable](/build/single-multi-prompt/extract-dv) on the original agent, then reference it as `{{variable_name}}` in the destination agent's prompt.
 
-## What stays fixed and what switches
+## What Stays the Same and What Changes
 
-Some call-level settings are pinned to the **first** agent for the whole call, no matter how many swaps happen:
+A handful of call-level settings stay locked to whichever agent handled the call **first**, regardless of how many transfers happen afterward:
 
-* **Recording access** (`opt_in_signed_url`): whether recordings use signed or private URLs.
-* **Data storage setting** (`data_storage_setting`): what call data Tavly AI stores.
-* **PII redaction** (`pii_config`): the post-call PII scrubbing rules.
-* **Denoising mode**: the audio denoising applied to the call.
+* **Recording access** (`opt_in_signed_url`) — whether recordings use signed or private URLs.
+* **Data storage setting** (`data_storage_setting`) — what call data Tavly retains.
+* **PII redaction** (`pii_config`) — the rules used for scrubbing PII after the call.
+* **Denoising mode** — the audio denoising applied throughout the call.
 
-Everything tied to the active agent switches to the destination agent on each swap: **language, voice, ambient sound, LLM/model, prompt, tools, knowledge bases, boosted keywords, interruption sensitivity, and voice speed.** Two exceptions are opt-in: turn on **keep the same voice** or **keep the current language** to carry the current voice or language into the destination agent instead of using its own. Keeping the same voice also keeps the current ambient sound; otherwise the destination agent's ambient sound applies with its voice.
+Everything else tied to the active agent switches over with each transfer: **language, voice, ambient sound, LLM/model, prompt, tools, knowledge bases, boosted keywords, interruption sensitivity, and voice speed.** Two settings are opt-in exceptions — turning on **keep the same voice** or **keep the current language** carries that setting forward into the new agent instead of switching to its own. Keeping the same voice also preserves the current ambient sound.
 
-Webhook delivery is configurable per transfer (see [Webhook setting](#configure-the-tool) below); by default only the source agent's webhook fires.
+Which agent's webhook fires is configurable per transfer (details in [Configuring the Tool](#configuring-the-tool) below) — by default, only the original agent's webhook is triggered.
 
-## Configure the tool
+## Configuring the Tool
 
 <Steps>
-  <Step title="Add the Agent Transfer tool">
-    In the **Functions** section, click **+ Add** and select **Agent Transfer** from the dropdown.
+  <Step title="Add the tool">
+    In the **Functions** section, click **+ Add** and choose **Agent Transfer** from the list.
 
     <Frame caption="Add Agent Transfer from the Functions dropdown.">
       <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/agent-transfer/agent-transfer-add-function.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=c1873e87950f407acd10c9e84224e0b3" alt="Functions section of a single-prompt agent with the + Add dropdown open, listing End Call, Call Transfer, Agent Transfer, calendar and IVR functions, In-Call SMS, Extract Dynamic Variable, Code, and Custom Function, with Agent Transfer outlined in blue." style={{ maxHeight: '560px' }} width="1385" height="1120" data-path="images/agent-transfer/agent-transfer-add-function.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure the transfer">
-    Set the following:
+  <Step title="Set the transfer options">
+    Configure the following:
 
-    * **Select agent:** the agent to transfer to. Pick a specific version or **Latest** so the transfer always uses the newest published version. The destination agent's own voice is used unless you keep the current one.
-    * **Talk While Waiting** (optional): when on, the agent speaks a short filler line if the transfer takes more than \~2 seconds (for example, "Let me get you to the right person"). Provide the message as a prompt for the agent to phrase, or as static text to speak verbatim.
-    * **Post Call Extraction setting:** which agent's [Post Call Extraction](/features/post-call-analysis) runs after the transfer. **Only transferred agent** uses the destination agent's full analysis configuration (its fields, model, and prompts). **Both this agent and transferred agent** keeps the analysis fields from both; where field names collide, the destination agent's win. Including both increases usage cost.
-    * **Webhook setting:** which agent's [webhook](/features/webhook-overview) receives call events after the transfer: only this (source) agent, only the transferred agent, or both. Defaults to only the source agent.
-    * **Keep the same voice / keep the current language** (optional): carry the current voice or language into the destination agent instead of switching to its own. Keeping the same voice also keeps the current ambient sound settings.
+    * **Select agent** — which agent to hand the call to. Choose a specific version, or **Latest** so the transfer always targets whatever's currently published. Unless you opt to keep the current voice, the destination agent uses its own.
+    * **Talk While Waiting** (optional) — when enabled, the agent fills any gap longer than roughly 2 seconds with a short line, something like "Let me get you to the right person." Write it as a prompt for the agent to phrase in its own words, or as fixed text to be read exactly.
+    * **Post Call Extraction setting** — decides which agent's [Post Call Extraction](/features/post-call-analysis) configuration runs once the transfer completes. **Only transferred agent** applies the destination agent's entire analysis setup — its fields, model, and prompts. **Both this agent and transferred agent** merges the fields from both, with the destination agent's fields winning on any naming conflicts; running both adds to usage cost.
+    * **Webhook setting** — controls which agent's [webhook](/features/webhook-overview) receives call events post-transfer: just the source agent, just the destination agent, or both. Defaults to the source agent only.
+    * **Keep the same voice / keep the current language** (optional) — carries the current voice or language forward into the destination agent instead of switching to its defaults. Keeping the voice also keeps the current ambient sound settings.
 
     <Frame caption="The Agent Transfer configuration window.">
       <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/agent-transfer/agent-transfer-config.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=0f855d1b9f954501509e9f56cb137d8f" alt="Agent Transfer window with Function Name set to agent_transfer, an empty Description, a Select Agent picker with Keep the same voice and Keep the current language checkboxes, Post Call Extraction Setting with Only transferred agent selected, Webhook Setting with Only this agent selected, and a Talk While Waiting checkbox." style={{ maxHeight: '560px' }} width="994" height="1120" data-path="images/agent-transfer/agent-transfer-config.png" />
     </Frame>
   </Step>
 
-  <Step title="Prompt the agent to trigger the transfer">
-    The agent decides when to call the tool, so tell it why in the global prompt. For example:
+  <Step title="Add a prompt instruction">
+    Since the agent decides on its own when to trigger the transfer, spell out the trigger condition in its global prompt. For example:
 
-    ```
+  ```text theme={"dark"}
     If the user asks to book an appointment, use the agent_transfer tool to transfer to the Appointment Agent.
-    ```
-  </Step>
+  ```
 
-  <Step title="Test and debug">
-    Test the transfer in a web call or in the playground before going live.
+    </Step>
+
+  <Step title="Test it before going live">
+    Run through the transfer using a web call or the playground first.
 
     <Frame caption="Test the transfer in the playground before going live.">
       <img src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi-prompt/playground_test.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=c349f16a44ce7c1f69b0d58a711c7e3e" alt="The Tavly AI playground running a test call, used to verify the agent transfer fires and the destination agent picks up the conversation." style={{ maxHeight: '560px' }} width="838" height="918" data-path="images/multi-prompt/playground_test.png" />
@@ -99,37 +100,37 @@ Webhook delivery is configurable per transfer (see [Webhook setting](#configure-
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="Can an agent transfer more than once, or transfer back?">
-    Yes. Each destination agent gets its own tools, including its own Agent Transfer tool, so you can chain swaps (A → B → C) and transfer back to a previous agent. There's no fixed cap on the number of transfers per call. The only limit is that a new transfer can't start while another is still in progress.
+  <Accordion title="Can a call be transferred more than once, or sent back to a previous agent?">
+    Yes. Every destination agent has its own set of tools, including its own Agent Transfer tool, so you can chain multiple swaps together (A → B → C) or hand the call back to an earlier agent. There's no hard limit on how many transfers a single call can go through — the only restriction is that a new transfer can't start while one is already underway.
   </Accordion>
 
-  <Accordion title="Does the caller notice the transfer?">
-    Not unless you want them to. The swap is near-instant and stays on the same call. Turn on **Speak during execution** if you want the agent to say a short line while it happens.
+  <Accordion title="Will the caller notice the transfer happening?">
+    Only if you want them to. The swap is nearly instant and stays within the same call. If you'd like the agent to say something during the handoff, turn on **Speak during execution**.
   </Accordion>
 
-  <Accordion title="Does a transfer create a new call or call ID?">
-    No. It's the same call with the same `call_id`, and it appears as a single entry in call history. Transcript, metadata, and dynamic variables carry across the swap.
+  <Accordion title="Does a transfer generate a new call or call ID?">
+    No — it's still the same call, with the same `call_id`, showing up as a single entry in call history. The transcript, metadata, and dynamic variables all carry through the swap.
   </Accordion>
 
-  <Accordion title="How is this different from agentic warm transfer, which also uses a second AI agent?">
-    They solve different problems, and the second AI agent talks to a different person in each case.
+  <Accordion title="How is this different from agentic warm transfer, which also involves a second AI agent?">
+    They address different situations, and the second AI agent is talking to a different party in each case.
 
-    **Agent Transfer** swaps which AI is talking to *your caller*. There's no new phone call: it's the same call, the same `call_id`, and the conversation history carries over. Use it to move between AI agents.
+    **Agent Transfer** swaps out which AI is speaking with *your caller*. No new phone call is placed — it's the same call, same `call_id`, with the conversation history flowing through. Use it to move between AI agents.
 
-    **[Agentic warm transfer](/build/single-multi-prompt/transfer-call)** is a mode of call transfer that places a real outbound call to a phone number. Its transfer agent talks to *the person who answers at the destination*, never to your caller — your caller is on hold the whole time. Use it to screen a human before handing off to them.
+    **[Agentic warm transfer](/build/single-multi-prompt/transfer-call)**, on the other hand, is a mode of call transfer that places an actual outbound call to a phone number. Its transfer agent speaks with *whoever answers at that destination*, never with your original caller — who stays on hold the entire time. Use it to vet a human before connecting them.
 
-    Once that transfer agent bridges the call, your caller and the destination are connected directly and every AI drops off. With Agent Transfer, an AI is always still on the line.
+    Once that transfer agent decides to bridge the call, the caller and destination connect directly and every AI exits. With Agent Transfer, by contrast, an AI remains on the call at all times.
   </Accordion>
 
-  <Accordion title="Which agents can't I transfer to?">
-    Agents backed by a [custom LLM](/integrate-llm/overview) and chat-channel agents. Transferring to either fails, and the agent continues on the current call.
+  <Accordion title="What kinds of agents can't be transfer destinations?">
+    Agents built on a [custom LLM](/integrate-llm/overview), and chat-channel agents. Attempting to transfer to either one fails, and the call simply continues with the current agent.
   </Accordion>
 
-  <Accordion title="What does the transfer tool look like in the API?">
-    Its `type` is `agent_swap`, with an `agent_id` and optional `agent_version` (defaults to the latest). The LLM sees the tool under the **name** you give it, so name it clearly (for example, `transfer_to_appointment_agent`).
+  <Accordion title="How does this tool show up in the API?">
+    Its `type` is `agent_swap`, taking an `agent_id` and an optional `agent_version` (defaulting to the latest published version). Since the LLM sees the tool by whatever **name** you assign it, give it something descriptive — `transfer_to_appointment_agent`, for example.
   </Accordion>
 </AccordionGroup>
 
 <Note>
-  Building in [Conversation Flow](/build/conversation-flow/overview) instead of a single or multi-prompt agent? Use the [Agent Transfer node](/build/conversation-flow/transfer-agent-node). It has the same behavior, configured as a node.
+  Working in [Conversation Flow](/build/conversation-flow/overview) rather than a single or multi-prompt agent? Use the [Agent Transfer node](/build/conversation-flow/transfer-agent-node) — it behaves the same way, just configured as a node instead.
 </Note>

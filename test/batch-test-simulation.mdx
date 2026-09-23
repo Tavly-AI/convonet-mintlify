@@ -1,0 +1,70 @@
+---
+title: "Batch test your agent"
+description: "Run Tavly batch tests across multiple simulation cases concurrently, evaluate aggregate pass rates, and review turn-level logs in Batch Testing History."
+---
+
+Batch testing executes a collection of [test cases](/test/llm-simulation-testing) simultaneously within automated text simulation, enabling multi-scenario validation in a single sweep instead of evaluating cases individually. Batch execution serves as your core regression test suite: run batches after every prompt edit or graph revision to verify that overall pass rates and critical functional requirements hold before promoting changes to production.
+
+For example, a customer service team maintaining two dozen test cases covering refund processing, agent transfers, and caller authentication can trigger the entire suite as a batch before a deployment, verifying that the overall pass rate matches or exceeds previous release baselines.
+
+## Launching a Batch Test
+
+In the <code className="ui-btn">Test Cases</code> catalog, check the boxes next to the scenarios you want to evaluate (individual items, custom subsets, or all test cases) and click <code className="ui-btn">Run Test</code>. Tavly provisions an asynchronous batch execution run—even when testing an isolated scenario—and routes outputs directly to <code className="ui-btn">Batch Testing History</code>.
+
+<Frame caption="Selecting test cases and running them as a batch.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/simulation-tab-batch-run.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=1c51cd01a196b835abf8f3e5dbe88626" data-path="images/test-llm/simulation-tab-batch-run.mp4" />
+</Frame>
+
+## Monitoring In-Flight Batches
+
+Track active and historical batch executions within the <code className="ui-btn">Batch Testing History</code> view. When a batch is executing, the left sidebar marks the entry as **Ongoing**, and a **Running tests** indicator remains visible below the main results table until the final scenario completes.
+
+Test outcomes populate progressively using a 10-second polling cadence rather than buffering until entire job completion: individual scenarios append to the results table as they finish, updating aggregate pass/fail counters in real time. Unfinished cases remain hidden, ensuring the display strictly presents finalized, graded interactions.
+
+## Inspecting Test Results
+
+The historical ledger in <code className="ui-btn">Batch Testing History</code> catalogs all past runs. Each entry displays:
+
+* The total quantity of test cases included in the run
+* The completion timestamp
+* The aggregate pass rate (the percentage of test cases satisfying all assigned success criteria)
+
+History views are partitioned by [agent version](/agent/version), indicated by the version badge above the list. The panel defaults to your latest version; earlier batches become visible when selecting that specific version in the agent version drawer. To clear an active version filter and return to the latest build, click the <code className="ui-btn">X</code> icon on the version pill.
+
+Select any batch in the ledger to view its granular breakdown, with quick filters for <code className="ui-btn">All</code>, <code className="ui-btn">Passed</code>, and <code className="ui-btn">Failed</code>. An **Error** tally isolates executions that failed to finish evaluation (such as runs hitting timeout thresholds or conversational turn limits).
+
+The results table provides the following metadata columns:
+
+| Column | Description |
+| :--- | :--- |
+| Test Case | The name of the executed test scenario. |
+| Test Call ID | The unique identifier assigned to the simulation session, used for reference and API queries. |
+| Time | The start timestamp of the simulation. |
+| Test Result | The evaluation model's diagnostic rationale or the underlying technical error. |
+| Test Success | Whether the interaction successfully satisfied all evaluation assertions. |
+
+Click any table row to expand the slide-over inspector on the right:
+
+* Test case identification and conclusive evaluation status
+* A holistic explanation detailing why the session passed or failed against the combined rubric
+* Complete turn-by-turn conversational traces, including state transitions, tool invocations with argument payloads, and agent/user dialogues
+
+Click <code className="ui-btn">View In Test Playground</code> to import that specific session into an editable [Playground](/test/llm-playground#test-playground) tab, where you can modify turns, test alternative inputs, and inspect agent responses by hand.
+
+## Programmatic Management via REST API
+
+Automate regression gates within CI/CD build workflows using the Tavly REST API:
+
+* [Run a batch test](/api-references/create-batch-test): Start an asynchronous batch evaluation and obtain a batch identifier.
+* [Get batch test](/api-references/get-batch-test): Poll execution status until it reports `complete`, then inspect `pass_count`, `fail_count`, and `error_count`.
+* [List test runs](/api-references/list-test-runs): Enumerate each scenario execution belonging to the batch.
+* [Get a test run](/api-references/get-test-run): Retrieve turn transcripts, tool parameters, and grading explanations for an individual run.
+* [List batch tests](/api-references/list-batch-tests): Query batch execution records across specific agent versions.
+
+Consult the [simulation testing](/test/llm-simulation-testing#manage-test-cases-with-the-api) guide for an end-to-end CI pipeline implementation pattern.
+
+## Next Steps
+
+* [Simulation testing](/test/llm-simulation-testing): Configure automated test cases and evaluation assertions.
+* [Testing with Conductor](/test/testing-with-conductor): Generate test cases automatically from call records and conversational goals.
+* [Testing overview](/test/test-overview): Compare batch simulations with interactive playground sessions and live telephony validation.

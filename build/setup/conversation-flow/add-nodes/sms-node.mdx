@@ -1,42 +1,59 @@
 ---
-title :SMS Node
+title: 'SMS Node: Send Texts Mid-Call'
+sidebarTitle: 'SMS Node'
+description: 'Use the Tavly SMS Node to aggressively dispatch text messages mid-call to the caller or another number using an SMS-approved telephony profile.'
+seo:
+  title: 'SMS Node | Send Texts During Calls | Tavly AI'
+  description: 'Use the Tavly SMS Node to aggressively dispatch text messages mid-call to the caller or another number using an SMS-approved telephony profile.'
+og:title: 'SMS Node: Send Texts Mid-Call'
+og:description: 'Use the Tavly SMS Node to aggressively dispatch text messages mid-call to the caller or another number using an SMS-approved telephony profile.'
+og:image: 'https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/sms-node-retell-number.png'
+twitter:card: 'summary_large_image'
+icon: 'message-sms'
+keywords: ['sms node', 'send text AI', 'Tavly AI SMS', 'A2P approval', 'in-call text messaging']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is an SMS Node?'
+    answer: 'An SMS Node dispatches a text message during an active phone call. The message goes out automatically the exact moment the conversation flow enters this node.'
+  - question: 'Can I send a custom SMS message?'
+    answer: 'Yes, if you send from the agent’s own A2P-approved number, you can write a dynamic prompt or static sentence. If using an SMS-approved Tavly number, the message is locked to a fixed template.'
+  - question: 'Can the agent receive an SMS during a call?'
+    answer: 'Yes. Agents can receive and interpret text, images, and video mid-call if the underlying number has cleared A2P approval and supports inbound messaging.'
 ---
 
-> Use an SMS node to have a Tavly voice agent send a text mid-call — to the caller or a different number — using an SMS-approved Tavly or imported number.
+## What is an SMS Node?
 
-SMS node is used to send an SMS during a phone call. You can send to the caller's number or a different number.
+An **SMS Node** actively sends a text message during an active, ongoing phone call. The message dispatches instantaneously the exact moment the flow enters this node. You can securely route this text to the caller's own number or explicitly direct it to a completely separate destination.
 
-<Note> This node only works for phone numbers that have SMS enabled, or when using an SMS-approved Tavly number. Read more about [enabling SMS](/deploy/enable-sms). </Note>
-
-The SMS will be sent when entering this node.
-
-## Choose where to send from
-
-You can choose one of two options for the sending number:
-
-* **SMS-approved Tavly number**: Send from Tavly's pool of numbers that are already approved for SMS. This bypasses the A2P application process entirely. The message content is a **preset template provided by Tavly** — you cannot customize the text or use a prompt.
-* **Agent's associated number**: Send from the phone number bound to the agent. This requires your number to have SMS enabled through the [A2P application](/deploy/enable-sms#enable-sms-capabilities), and the agent should [collect SMS consent](/deploy/sms-campaign-application#make-your-agent-collect-consent-the-same-way) before this node runs.
+<Note> **Telephony Requirement:** This node strictly functions only on telephony profiles with SMS explicitly enabled, or on a pre-cleared SMS-approved Tavly number. Read the [Enabling SMS Guide](/deploy/enable-sms) for provisioning details.</Note>
 
 <Frame caption="In-Call SMS node on the conversation flow canvas">
   <img src="https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/sms-node-retell-number.png?fit=max&auto=format&n=aS6kWND7Eh5Z5FzB&q=85&s=e2535ce73c4fc48ef0b8ccb1817b71a7" alt="In-Call SMS node showing fixed text content and transition edges" width="50%" data-path="images/sms/sms-node-retell-number.png" />
 </Frame>
 
-<Tip>Agents can also **receive SMS during an active call** and understand the content, including text, images, audio, and video. This works out of the box for Tavly Twilio numbers, and for custom telephony numbers that passed A2P applications. Read more at [Receive SMS during call](/deploy/enable-sms#receive-sms-during-call).</Tip>
+<Tip> **Inbound SMS capabilities:** AI agents aren't limited strictly to sending texts. They can also **receive an SMS mid-call** and natively interpret its content—including text, images, audio, and video. This functions automatically on Tavly Twilio numbers and custom A2P-cleared telephony profiles. Read [Receive SMS During Call](/deploy/enable-sms#receive-sms-during-call).</Tip>
 
-## Configure SMS content
+## How do you configure the sender and content?
 
-* **When sending from the agent's associated number**: You can write a prompt to let the agent infer the SMS content, or use static SMS content. Dynamic variables are supported for static SMS content.
-* **When sending from an SMS-approved Tavly number**: The message is a preset template provided by Tavly. You cannot edit the content.
+You dictate exactly which number the text originates from and what the message contains. Your choices dictate whether the message can be dynamically generated or if it remains locked to a compliance template.
 
-## Configure SMS destination
+* **Agent's associated number:** Sends the message directly from whatever specific number is bound to the agent. This requires the number to have successfully passed [A2P approval](/deploy/enable-sms#enable-sms-capabilities) for strict SMS compliance. The agent must successfully [collect human consent](/deploy/sms-campaign-application#make-your-agent-collect-consent-the-same-way) before this node ever executes.
+  * **Content:** You can explicitly write a dynamic LLM **Prompt** to decide what to say, or utilize a **Static Sentence**. Dynamic variables actively work inside static content.
+* **SMS-approved Tavly number:** Securely draws from Tavly's internal pool of numbers already cleared for SMS, instantly bypassing the lengthy A2P application process.
+  * **Content:** The message body is strictly locked to a **fixed template** provided by Tavly to maintain legal compliance. It cannot be customized or driven dynamically by an LLM prompt.
 
-By default, the SMS is sent to the caller's number. You can also choose to send to a different number — either a static number or a dynamic variable (e.g. `{{customer_phone}}`).
+## How do you set the destination?
 
-## When Can Transition Happen
+By default, the SMS aggressively routes to the caller's own associated phone number. However, you can seamlessly redirect it elsewhere by defining either a hardcoded fixed number or a parsed dynamic variable such as `{{customer_phone}}`.
 
-The node would transition to the next node once the SMS is successfully sent or fails to send. It should take less than 2 seconds to get that result. It will transition out of the node purely based on the SMS result.
+## When does the node transition?
 
-## Node Settings
+The node transitions to the next sequential step the exact moment the SMS either successfully sends or fatally fails. This API response typically resolves in under 2 seconds. Which physical edge the flow traverses depends entirely on that exact success or failure outcome.
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **LLM**: choose a different model for this particular node. Will be used for function argument generation, and potentially speak during execution message generation.
+## What node settings are available?
+
+The SMS Node provides targeted configuration options for global routing and model precision.
+
+* **Global Node:** Transforms this node into a universally reachable destination from anywhere within the overarching flow. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **LLM Override:** Explicitly assign a different underlying model strictly for this specific node, utilized for generating function arguments and potentially dictating the speak-during-execution filler message.

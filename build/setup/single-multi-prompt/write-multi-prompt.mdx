@@ -1,0 +1,64 @@
+---
+title: 'Build a Multi-Prompt Agent'
+sidebarTitle: 'Build Multi-Prompt'
+description: 'Learn how to assemble a Tavly multi-prompt agent by splitting a call into individual prompted states and wiring explicit logic transitions between them.'
+seo:
+  title: 'Build a Multi-Prompt Agent | Tavly AI Architecture'
+  description: 'Learn how to assemble a Tavly multi-prompt agent by splitting a call into individual prompted states and wiring explicit logic transitions between them.'
+og:title: 'Build a Multi-Prompt Agent'
+og:description: 'Learn how to assemble a Tavly multi-prompt agent by splitting a call into individual prompted states and wiring explicit logic transitions between them.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi.png'
+twitter:card: 'summary_large_image'
+icon: 'notebook-text'
+keywords: ['multi-prompt agent', 'build AI agent', 'agent states', 'prompt transition logic', 'function calling', 'Tavly AI architecture']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you build a multi-prompt agent?'
+    answer: 'You build a multi-prompt agent by splitting the conversation into distinct states, writing a scoped prompt for each state, and defining strict transition logic between them.'
+  - question: 'How does transition logic work in a multi-prompt agent?'
+    answer: 'Transition logic is explicitly written in the state prompt, dictating exactly when to move to another state based on caller responses or specific conversational triggers.'
+  - question: 'When should a function fire in a multi-prompt agent?'
+    answer: 'A function should fire exactly when specified in the prompt logic, such as invoking a booking function immediately after the caller confirms their desired appointment time.'
+---
+
+## How do you build a multi-prompt agent?
+
+You assemble a **Tavly multi-prompt agent** by strategically splitting the call into individual prompted states and explicitly wiring transitions between them. This approach, often used in lead-qualification flows, ensures highly predictable behavior by isolating logic to specific conversational phases.
+
+<Frame>
+  <img height="300" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=6e40e61c6d297d119c4983acc9071f9e" alt="Multi Prompt Agent" data-path="images/multi.png" />
+</Frame>
+
+<Steps>
+  <Step title="Split the conversation into states">
+    To begin, divide the call into logical phases. **Each distinct state gets its own dedicated prompt**, strictly scoped to handle just that specific part of the conversation without interfering with others.
+  </Step>
+
+  <Step title="Wire up transition logic">
+    As seen in standard templates like "Lead qualification," a state's prompt explicitly specifies exactly when the agent should advance. For instance, you can instruct the agent to transition to `your_next_state` immediately once the caller responds "yes" to a targeted question.
+
+    ```text
+    7. Ask if user is interested in an in person tour.
+     - if yes, transition to schedule_tour.
+     - if no or hesitant, call function end_call to hang up politely and say will reach out if any other interesting properties pop up.
+    ```
+  </Step>
+
+  <Step title="Decide when a function should fire">
+    Just like transition logic, your prompt must specify the **exact moment to invoke a function**. By keeping tools scoped to specific states, you eliminate hallucination risks. For example, explicitly trigger `your_function_name` only when it is time to formally book an appointment.
+
+    ```text
+    3. Confirm the date, time, and timezone selected by user: "Just to confirm, you want to book the appointment at ...". Make sure this is a time from the available slots.
+    4. Once confirmed, call function book_appointment to book the appointment.
+    ```
+  </Step>
+</Steps>
+
+## How can you learn more about multi-prompt building?
+
+You can watch our **comprehensive video tutorial** to see the agent builder in action, or review **community-driven prompt examples** to learn advanced techniques for structuring states and executing precise function calls.
+
+<iframe width="360" height="200" src="https://www.youtube.com/embed/fowitg78XGQ?si=brUOa58Icxeelp88" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+For more prompt examples sourced directly from the community, check out this [shared community document](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope).

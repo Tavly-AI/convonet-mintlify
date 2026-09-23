@@ -1,0 +1,119 @@
+---
+title: 'Single vs. Multi-Prompt Agent Overview'
+sidebarTitle: 'Prompt Overview'
+description: 'Learn the differences between single-prompt and multi-prompt Tavly AI agents, and discover which conversational structure is best for your specific use case.'
+seo:
+  title: 'Single vs. Multi-Prompt Agents | Tavly AI Architecture'
+  description: 'Learn the differences between single-prompt and multi-prompt Tavly AI agents, and discover which conversational structure is best for your specific use case.'
+og:title: 'Single vs. Multi-Prompt Agent Overview'
+og:description: 'Learn the differences between single-prompt and multi-prompt Tavly AI agents, and discover which conversational structure is best for your specific use case.'
+og:image: 'https://mintcdn.com/retellai/__ejvYecdVsguhU2/images/create_agent.png'
+twitter:card: 'summary_large_image'
+icon: 'square-terminal'
+keywords: ['single prompt agent', 'multi-prompt agent', 'conversational agent architecture', 'Tavly AI prompts', 'agent structure', 'prompt design']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a single-prompt agent?'
+    answer: 'A single-prompt agent defines all instructions and behaviors in one unified prompt, making it ideal for short, simple, or highly linear conversations.'
+  - question: 'When should I use a multi-prompt agent?'
+    answer: 'You should use a multi-prompt agent when your conversation flow exceeds 1,000 words, requires more than 5 functions, or has distinct conversational states like lead qualification.'
+  - question: 'How do I switch between my main agent and transfer agents?'
+    answer: 'A selector at the top of the builder allows you to jump between your primary agent and any transfer agents seamlessly in separate tabs.'
+---
+
+## What is a prompt-driven agent in Tavly?
+
+Tavly supports two distinct prompt-driven ways to build conversational agents: **single-prompt agents** and **multi-prompt trees**. Selecting the appropriate architecture from the start is critical for ensuring that your AI phone agent performs reliably and scales smoothly as your conversational complexity increases.
+
+<Frame>
+  <img height="300" src="https://mintcdn.com/retellai/__ejvYecdVsguhU2/images/create_agent.png?fit=max&auto=format&n=__ejvYecdVsguhU2&q=85&s=2106bd94b9fb2692c4a8e530c82dc417" alt="Create Agent Interface" data-path="images/create_agent.png" />
+</Frame>
+
+* **Single Prompt:** The entire agent's behavior is defined within one comprehensive prompt.
+* **Multi-Prompt Tree:** The agent's logic is broken down into multiple organized prompts, one per conversational state.
+
+## When should you use a single-prompt agent?
+
+A **single-prompt agent** defines every behavior in one unified text block, making it the fastest and simplest way to deploy an AI agent. It is best suited for simple, linear interactions that do not require complex decision-making or extensive tool calling capabilities.
+
+<Frame>
+  <img height="300" src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/single_prompt.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=d6e9732f018667bdd2357552afaad217" alt="Single prompt configuration interface showing a unified prompt field" data-path="images/single_prompt.png" />
+</Frame>
+
+You should leverage a single-prompt structure when your agent primarily handles:
+
+* Conversations that are short, straightforward, and highly predictable.
+* Early prototypes you are rapidly testing and iterating.
+* Agents that require only **1 to 3 function calls**.
+* Linear conversation flows with minimal branching logic.
+
+### Why do single prompts break down?
+
+Pushing a single prompt too far generally leads to instability. You will typically encounter:
+
+1. **Drifting behavior:** The agent ignores instructions when handling edge cases.
+2. **Shaky function calls:** Tool usage becomes erratic with several functions exposed simultaneously.
+3. **Harder upkeep:** A massive prompt becomes difficult to debug, update, or read.
+4. **Lost context:** The agent loses track of its current stage in a long conversation.
+
+<Note>
+  Once your single prompt passes roughly **1000 words**, or your agent relies on **more than 5 functions**, you should immediately switch to a conversation flow agent or a multi-prompt agent architecture.
+</Note>
+
+## How does a multi-prompt agent work?
+
+A **multi-prompt agent** splits complex interactions into a structured tree of distinct states. Each node in the tree represents a specific phase of the call, carrying its own dedicated prompt, focused behaviors, scoped tools, and strict transition rules.
+
+<Frame>
+  <img height="300" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/d_2.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=9005f7c8238d0c3e361717831b377319" alt="Multi-prompt tree structure showing connected conversation states" data-path="images/d_2.png" />
+</Frame>
+
+Every state in a multi-prompt tree provides:
+
+* **A focused prompt:** Specific instructions scoped entirely to that exact phase of the call.
+* **State-specific functions:** Only the required tools for that state are exposed, minimizing hallucination.
+* **Transition rules:** Strictly defined conditions that dictate when the conversation must advance to another state.
+* **Carried-over context:** Crucial variables and information automatically pass forward as the caller navigates between states.
+
+### Example: Qualifying a Lead
+
+<Frame>
+  <img height="300" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multi.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=6e40e61c6d297d119c4983acc9071f9e" alt="Lead qualification template showing two-state structure" data-path="images/multi.png" />
+</Frame>
+
+This standard template utilizes two cleanly separated states:
+
+1. **State 1: Qualifying the Lead**
+   * Collects background information about the customer.
+   * Confirms the customer meets specific business requirements.
+   * *Appointment-booking functions are intentionally hidden during this phase.*
+
+2. **State 2: Scheduling the Appointment**
+   * Only reachable once lead qualification is strictly finished.
+   * **Booking functions** become exposed and available.
+   * Retains the vital context gathered during the qualification state.
+
+## Why should you choose a multi-prompt structure?
+
+Using a **multi-prompt structure** creates a robust, scalable agent. It ensures more predictable responses because each state has one narrow responsibility. Furthermore, it tightly controls tool access, simplifies debugging by containing errors, grows cleanly, and supports collaborative development.
+
+* **More predictable:** Each state has one narrow, focused job to accomplish.
+* **Simpler to debug:** Unexpected behaviors stay contained within a single isolated state.
+* **Tighter control over tools:** Functions only appear when they are actively needed.
+* **Grows cleanly:** You can attach new states without disturbing or rewriting existing ones.
+* **Easier team splits:** Different team members can safely own and optimize different states.
+
+<Tip>
+  Browse our pre-built templates first to observe multi-prompt patterns in practice, then seamlessly adapt one to your own specific use case.
+</Tip>
+
+## How do you move between agents?
+
+Opening a **transfer agent** from within any prompt-based agent opens it in a separate tab within your workspace. A dedicated **selector** at the top of the builder allows you to effortlessly jump between your primary **Main flow** and any connected transfer agents.
+
+This selector explicitly switches between entirely separate agents. This differs from **Components**, which are exclusively used by conversation flow agents and are not available for single- or multi-prompt configurations.
+
+<Frame>
+  <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/flow-selector-single-prompt.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=33a19e4bd9bc37393e05dd65272ef2ca" width="3830" height="1804" data-path="images/flow-selector-single-prompt.png" />
+</Frame>

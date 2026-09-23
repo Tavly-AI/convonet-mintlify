@@ -1,25 +1,53 @@
 ---
-title: Logic split node
+title: 'Logic Split Node: Branch AI Conversations'
+sidebarTitle: 'Logic Split Node'
+description: 'Use the Tavly Logic Split Node to instantly branch a conversation flow based on complex rules and dynamic variables without requiring the agent to speak.'
+seo:
+  title: 'Logic Split Node | Branch AI Conversations | Tavly AI'
+  description: 'Use the Tavly Logic Split Node to instantly branch a conversation flow based on complex rules and dynamic variables without requiring the agent to speak.'
+og:title: 'Logic Split Node: Branch AI Conversations'
+og:description: 'Use the Tavly Logic Split Node to instantly branch a conversation flow based on complex rules and dynamic variables without requiring the agent to speak.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/logic-split-node.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'code-branch'
+keywords: ['logic split node', 'branch AI conversation', 'Tavly AI logic routing', 'AI dynamic variables', 'AI conversation flow rules']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Logic Split Node?'
+    answer: 'A Logic Split Node routes a conversation flow across multiple branches based on predefined rules or dynamic variables. The agent evaluates these conditions silently and instantaneously upon entering the node.'
+  - question: 'Does the AI agent speak during a Logic Split Node?'
+    answer: 'No. The AI agent does not speak while inside a Logic Split Node. The node acts purely as a silent, instantaneous routing junction.'
+  - question: 'What happens if no conditions are met?'
+    answer: 'Every Logic Split Node requires a mandatory "else" fallback destination. If no explicitly defined conditions are met, the flow safely transitions to this fallback to prevent the call from getting stuck.'
 ---
 
-> Use a logic split node to branch a Tavly conversation flow on rules — the agent evaluates conditions on entry and routes silently to the next node.
+## What is a Logic Split Node?
 
-Logic split node is used to branch out the conversation flow based on the conditions. When entering this node, the agent will immediately evaluate the conditions and branch out to the corresponding destination nodes. The agent would not speak in this node, and the time spent in this node is minimal.
+A **Logic Split Node** aggressively branches the conversation flow based on explicitly defined rules and dynamic variables. The AI agent evaluates these conditions silently and instantaneously the exact moment it enters the node, seamlessly routing the call to the appropriate destination.
 
-It can come in handy when you want to further split the conversation flow based on the conditions, and do not want to stack all your conditions in previous nodes. It can also be hard for agent to handle a bunch of conditions all at once, so this node can help break it down. It can also be useful when you want to branch out based on dynamic variables.
+Because the AI agent **does not speak** while inside this node, the operational time spent here is essentially negligible.
 
-<img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/logic-split-node.jpeg?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=bc5bf2d029c71ffe1c3931d58d694fe9" width="1003" height="444" data-path="images/cf/logic-split-node.jpeg" />
+This node is exceptionally useful when you need to parse complex routing logic without overloading previous nodes. Handing an AI agent a massive stack of structural conditions all at once heavily degrades its decision-making accuracy. Breaking those choices apart using a dedicated logic split strictly keeps each conversational decision clean, focused, and reliable. 
 
-## When can transition happen
+<Frame caption="Logic Split Node branching on conditions.">
+  <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/logic-split-node.jpeg?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=bc5bf2d029c71ffe1c3931d58d694fe9" width="1003" height="444" data-path="images/cf/logic-split-node.jpeg" />
+</Frame>
 
-Transition happens immediately when agent enters this node.
+## When does the node transition?
 
-## Configure branching logic
+The node transitions **immediately**. The precise moment the agent enters the Logic Split Node, it evaluates all attached logic conditions and natively routes the call forward without pausing.
 
-* Add conditions just like you would in other nodes.
-* Set up the else destination: there will always be an else condition, which will be the default destination if none of the conditions are met, because this node is designed to be a split point and you want to make sure the conversation flow is not stuck here.
+## How do you configure branching logic?
 
-## Rest of node settings
+Setting up branching logic requires adding standard transition conditions and explicitly defining a mandatory fallback route.
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **Fine-tuning examples**: Can finetune transition. Read more at [Finetune Examples](/build/conversation-flow/finetune-examples)
+* **Add conditions:** Attach standard edge conditions exactly the same way you would on any other functional node. You can explicitly branch based on conversational context or parsed **[Dynamic Variables](/build/dynamic-variables)**.
+* **Configure the Else Destination:** This node **always** requires a mandatory fallback destination. Because the Logic Split Node exists purely as a silent branching junction, this explicit fallback ensures the flow never fatally stalls if none of the defined conditions match the active context.
+
+## What configurations are available?
+
+The Logic Split Node offers advanced settings to make the node globally accessible and to rigidly fine-tune its routing intelligence.
+
+* **Global Node:** Transforms the Logic Split Node into a universally reachable destination from anywhere within the overarching flow, acting as a centralized routing hub. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **Fine-Tuning Examples:** Aggressively inject custom transition examples strictly isolated to this node to teach the LLM exactly how to interpret edge cases and trigger the correct routing destination. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).

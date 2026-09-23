@@ -1,31 +1,62 @@
 ---
-title: Global node
+title: 'Global Nodes: Universal Intent Handling'
+sidebarTitle: 'Global Node'
+description: 'Learn how to use Tavly Global Nodes to handle universal conversational intents—like callback requests or speaking with a human—from anywhere in your AI flow.'
+seo:
+  title: 'Global Node | Universal Intent Handling | Tavly AI'
+  description: 'Learn how to use Tavly Global Nodes to handle universal conversational intents—like callback requests or speaking with a human—from anywhere in your AI flow.'
+og:title: 'Global Nodes: Universal Intent Handling'
+og:description: 'Learn how to use Tavly Global Nodes to handle universal conversational intents—like callback requests or speaking with a human—from anywhere in your AI flow.'
+og:image: 'https://mintcdn.com/retellai/vQCQvVJr44vBuU_v/images/cf/global-node.png'
+twitter:card: 'summary_large_image'
+icon: 'globe'
+keywords: ['global node', 'universal intents', 'AI call routing', 'Tavly conversation flow', 'fallback intents']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Global Node?'
+    answer: 'A Global Node is a universally accessible conversational state that can be triggered from anywhere in the agent flow, ideal for handling global intents like "talk to a human."'
+  - question: 'Can an agent return to the previous node after a Global Node fires?'
+    answer: 'Yes. By enabling "Go back to previous node," you can set a condition (e.g., "User wants to continue") that seamlessly returns the caller to their exact previous spot in the flow.'
+  - question: 'How do I stop a Global Node from looping endlessly?'
+    answer: 'Enable "Prevent Immediate Re-Trigger" to explicitly pause the global node for a set number of conversational turns, preventing aggressive infinite loops.'
 ---
 
-> Global nodes in a Tavly conversation flow can be reached from anywhere in the agent — ideal for handling universal intents like callbacks and human handoff.
+## What is a Global Node?
 
-Global nodes can be transitioned to from anywhere in the conversation flow, making them ideal for handling universal scenarios like user objections (e.g. `I want to talk to a human / I need to call back later`). Toggle on `Global Node` in the node settings to enable this.
+A **Global Node** is a universally accessible conversational state that can be seamlessly reached from any point in the active conversation flow, without requiring strict edge connections.
+
+It is specifically designed for handling highly unpredictable, universal intents that could happen at any moment during a call—such as a caller randomly stating `I want to talk to a human`, `I need to call back later`, or `What is your refund policy?`. By simply toggling **Global Node** in the node's settings, it becomes omnipresent.
 
 <img src="https://mintcdn.com/retellai/vQCQvVJr44vBuU_v/images/cf/global-node.png?fit=max&auto=format&n=vQCQvVJr44vBuU_v&q=85&s=bf50a33bb1176d166d3da91c48dbcb38" width="1712" height="1340" data-path="images/cf/global-node.png" />
 
-## Configure Global Node
+## How do you set up a Global Node?
 
-Set a condition for when the global node should be transitioned to. In the example above, the condition is `When user indicates this is not a good time to continue` — so whenever the user says something like `I need to call back later`, the agent transitions to this node.
+You define a strict transition condition directly on the node itself. Because the node floats globally over the graph, it inherently does not require regular wired edges.
 
-Since a global node can be transitioned to from anywhere, it does not need to be connected to the rest of the graph.
+For example, you could define the entry condition as: `When user indicates this is not a good time to continue`. Now, no matter where the caller currently is in the flow, if they say `I need to call back later`, the agent instantly routes to this global node.
 
-## Global Node Examples
+## How do you train Global Node behavior?
 
-Add example conversations to help the AI better understand when to jump to this global node. Click `+ Add` to create examples, then set the type to `Jump to global node` or `Not jump to global node` to demonstrate scenarios where the global node should or should not be activated.
+You explicitly train the underlying model to accurately recognize the global intent by uploading concrete conversational examples directly into the node.
 
-Global nodes are only evaluated after a user turn, so each example should end with a user utterance. New examples default to an agent turn followed by a user turn for this reason. See [Finetune Examples](/build/conversation-flow/finetune-examples) for how transcript examples work.
+* Click **+ Add** in the node settings to create an example transcript.
+* Mark the exact transcript as either **Jump to global node** or **Not jump to global node** to definitively teach the model boundary cases.
 
-## Go Back to Previous Node
+<Note> **Evaluation Timing:** Global nodes strictly evaluate *after* the caller speaks. Therefore, every single fine-tuning example must end on a user utterance. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples) for more details.</Note>
 
-Enable **Go back to previous node** to let the conversation return to where it left off after the global node is handled. Once enabled, a **Go Back Condition** section appears on the node where you define when the agent should navigate back. In the example above, the condition is `User changed their mind and wants to continue the call`.
+## How do you return to the previous node?
 
-Go back conditions support both prompt-based and equation-based conditions. You can add multiple conditions and reorder them by dragging.
+You can configure the global node to temporarily interrupt the flow, handle the request, and instantly return the caller to their exact prior position.
 
-## Prevent Immediate Re-Trigger
+1. Toggle on **Go back to previous node**.
+2. A new **Go Back Condition** menu appears.
+3. Define the explicit trigger for returning (e.g., `User changed their mind and wants to continue the call`).
 
-Enable **Prevent Immediate Re-Trigger** to pause the global node for a specified number of node steps after it has been triggered. Set the number of **Node steps** (defaults to 3) during which the global node will not be activated again. This prevents the conversation from looping when the user's phrasing keeps matching the global node condition.
+Go-back conditions support both prompt-based and deterministic equation-based logic. You can stack multiple go-back conditions and dictate execution priority by dragging them into order.
+
+## How do you prevent endless loops?
+
+If a caller continuously repeats phrasing that matches the global trigger, you can forcefully pause the node to prevent infinite conversational loops.
+
+Turn on the **Prevent Immediate Re-Trigger** setting. This aggressively locks the global node for a designated number of **Node steps** (defaulting to 3 turns) immediately after it fires, forcing the conversation to progress rather than stalling out in a loop.

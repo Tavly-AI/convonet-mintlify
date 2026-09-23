@@ -1,55 +1,72 @@
 ---
-title : Handle background speech & noise
+title: 'Handle Background Speech & Noise'
+sidebarTitle: 'Handle Noise'
+description: 'Tune Tavly’s denoising modes, background voice cancellation (BVC), and interruption sensitivity to maintain high transcription accuracy in loud environments.'
+seo:
+  title: 'Handle Background Noise & Speech | Denoising | Tavly AI'
+  description: 'Tune Tavly’s denoising modes, background voice cancellation (BVC), and interruption sensitivity to maintain high transcription accuracy in loud environments.'
+og:title: 'Handle Background Speech & Noise in Voice Agents'
+og:description: 'Tune Tavly’s denoising modes, background voice cancellation (BVC), and interruption sensitivity to maintain high transcription accuracy in loud environments.'
+og:image: 'https://mintcdn.com/retellai/p4lyBmljCv__zWJl/images/denoising-mode.png'
+twitter:card: 'summary_large_image'
+icon: 'volume-slash'
+keywords: ['background noise reduction', 'voice agent denoising', 'background voice cancellation', 'interruption sensitivity', 'Tavly AI audio quality']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the recommended denoising mode?'
+    answer: 'The recommended default is "Remove noise", which strips ambient sound without distorting the audio waveform. Only use "Remove noise + background speech" if the caller is in a highly disruptive environment with loud competing voices.'
+  - question: 'Why does "Remove noise + background speech" cause errors?'
+    answer: 'This aggressive mode isolates the single loudest voice and suppresses all others. If there is no clear dominant speaker, or if call screening is active, it will aggressively distort or drop the caller’s actual speech.'
+  - question: 'How do I prevent false interruptions from background noise?'
+    answer: 'Lower the Interruption Sensitivity setting (e.g., down to 0.8) to make the agent more resistant to background speech. Note that this also makes it slightly harder for the actual caller to interrupt the agent.'
 ---
-> Tune Tavly denoising modes, interruption sensitivity, and background noise handling so your voice agent stays accurate in loud or noisy environments.
 
-In real-world scenarios, phone calls often face audio quality challenges such as background noise, echo, or other unwanted sounds.
-We have a couple of different features that are designed to help you handle these challenges.
+## What are Denoising Modes?
 
-## Set denoising mode
+Denoising modes govern how aggressively Tavly preprocesses raw audio before sending it to the speech recognition (ASR) engine. This helps maintain transcription accuracy in challenging acoustic environments.
 
 <img src="https://mintcdn.com/retellai/p4lyBmljCv__zWJl/images/denoising-mode.png?fit=max&auto=format&n=p4lyBmljCv__zWJl&q=85&s=7703a3d0b0f42e5825618f4db5e4c430" width="630" height="272" data-path="images/denoising-mode.png" />
 
-* **No denoising**: disables all audio preprocessing and passes the raw audio signal directly to the ASR model. The ASR model itself can handle a minimal level of ambient noise without preprocessing. Choose this mode if you experience issues with missing short responses (e.g. "sure", "yes") or degraded accuracy with non-English transcription, particularly when background noise is not significant.
-* **Remove noise** (default): removes background noise with nearly no distortion to the waveform, so it has no meaningful impact on speech-to-text accuracy. It will not remove loud background speech.
-* **Remove noise + background speech**: a more aggressive mode that removes both background noise and background speech. This may distort the waveform and can reduce speech-to-text accuracy in some cases. This option incurs a \$0.005/min surcharge due to the additional processing required.
+* **No denoising:** Disables all audio preprocessing. Use this if you notice the agent dropping short affirmative responses (e.g., "yes", "sure") or suffering degraded accuracy on non-English transcriptions in otherwise quiet environments.
+* **Remove noise (Default):** Strips ambient background noise with virtually zero distortion to the core audio waveform. This has no negative impact on ASR accuracy, but it will not filter out loud background speech.
+* **Remove noise + background speech:** An aggressive filter utilizing Background Voice Cancellation (BVC) to isolate a single speaker. This costs an additional **$0.005/min**, distorts the waveform, and carries significant accuracy risks if misapplied.
 
-<Warning>
-  If call screening is enabled, do not select Remove noise + background speech. It locks onto the first voice it hears. On screened calls, the first voice is the pre-recorded screening voice, therefore Remove noise + background speech treats the caller's voice as background speech and filters it out. Use Remove noise or No denoising instead with call screening.
-</Warning>
+<Warning> **Call Screening Conflict:** Never use "Remove noise + background speech" if you have call screening enabled. The system locks onto the first voice it hears—the automated screening prompt—and will permanently treat the actual live caller as background noise, suppressing their voice entirely.</Warning>
 
-This mode applies background voice cancellation (BVC) to reduce background speech and noise in the caller's audio. It may also suppress or distort the caller's speech, so test it with audio representative of your use case before enabling it broadly. Call recordings preserve the raw caller audio from before BVC, so background noise and speech may still be audible in recordings even when filtered out of the audio processed by the agent.
+## When should you use aggressive Background Voice Cancellation (BVC)?
 
-<Note>
-  Because this model keeps only the dominant near-mic voice, the speaker you care about must be the clearly dominant voice on the line. If your user is far from the mic, soft-spoken, or no louder than the people around them, the model can mistake them for background speech and filter them out.
-</Note>
+You should only enable **Remove noise + background speech** if your primary use case involves extremely loud, ongoing background speech (e.g., a bustling construction site or loud television) where the main caller remains clearly dominant.
 
-**When the results can get weird.** Because the model aggressively isolates one voice and reshapes the waveform, these situations can produce dropped, clipped, or distorted transcription — test before relying on this mode:
+<Note> **The Dominant Speaker Rule:** The BVC model strictly preserves only the loudest voice near the microphone. If the target user speaks quietly, or is far from the microphone relative to ambient voices, the model will classify the user as noise and delete their audio.</Note>
 
-* **No single dominant speaker** — speakerphone in a room, two people equally close to the mic, or a handoff between people. The model may pick the wrong voice, switch between voices, or drop one of them.
-* **The intended speaker is quiet or distant** while background voices are loud (e.g. a far-field mic). Your user can be treated as background and suppressed.
-* **Already-clean, single-speaker audio.** The extra processing distorts the waveform and can *lower* accuracy or drop short utterances (e.g. "yes", "sure") that `Remove noise` would keep — with no benefit and an added surcharge.
-* **Non-speech or machine audio that you still need transcribed** — IVR prompts, voicemail greetings, hold music, or announcements. Aggressive voice isolation can mangle or drop these, since the model is tuned to keep a live human primary speaker.
+Because this model aggressively reshapes the raw audio waveform, applying it incorrectly will cripple transcription accuracy.
 
-If your use case typically involves loud background speech — such as a TV or a construction site, with a single caller speaking close to the mic — try the `Remove noise + background speech` mode, and verify accuracy on real calls before rolling it out. For most use cases, `Remove noise` is the recommended default.
+**Avoid BVC in these scenarios:**
+* **No clearly dominant speaker:** (e.g., speakerphone in a shared room, handoffs between speakers). The model will randomly jump between voices or drop both.
+* **Far-field microphones:** If the user is physically distant from the microphone while background voices are closer, the user is suppressed.
+* **Clean audio environments:** Processing already-clean audio artificially distorts the waveform, actively lowering ASR accuracy and dropping short utterances for zero benefit.
+* **Machine-generated audio:** The model is strictly tuned for human voices. It will mangle IVR prompts, hold music, and automated voicemail greetings.
 
-## Tuning interruption sensitivity
+## How do you tune Interruption Sensitivity?
 
-The denoising mode setting is to combat background speech and noise before the transcription is generated. And even with those in place, there can still be cases of unwanted interruptions. You can configure the interruption sensitivity to reduce these cases. Set it lower if you want the agent to be more resilient to background speech or user interruptions.
+Interruption Sensitivity controls how easily the agent stops speaking when it hears inbound audio. Lowering this value hardens the agent against false interruptions caused by ambient noise.
 
-1. In the same settings panel
-2. Set the "Interruption Sensitivity" to 0.8
-3. This setting helps the agent reduce false interruptions from background speech and noise
+While denoising handles raw audio, loud background sounds can still trigger the agent to falsely interpret an interruption.
+
+1. Navigate to the agent settings panel.
+2. Set **Interruption Sensitivity** to a lower baseline, such as **0.8**.
+3. Test the agent. This forces the system to require a stronger, clearer vocal signal before halting the agent's response.
 
 <Frame>
   <img height="300" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/interruption-sensitivity.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=31952d1214034ea07eda77c0a47d4c76" data-path="images/interruption-sensitivity.jpeg" />
 </Frame>
 
-For extremely noisy environments, you may need to experiment with even higher settings. Note that this setting will hinder the ability of your agent getting interrupted, so it's a trade-off you need to make.
+**The Trade-off:** Lowering this value makes the agent highly resistant to background noise, but simultaneously requires the actual caller to speak louder and more forcefully to genuinely interrupt the agent.
 
-## Remove noise from the user's side
+## How can you reduce noise on the caller's side?
 
-As the audio quality is determined by the user's side, you can also try the following:
+Because processing can only do so much, the most effective noise reduction strategy is improving the physical acoustic environment at the caller's origin.
 
-* User side noise reduction: use better microphone & client side noise reduction libraries if using web calls
-* Prompt the agent to ask your users to speak louder so it can be distinguished from background speech easier
+* **Client-Side Noise Reduction:** If you are building a web-call interface, implement client-side noise reduction libraries before the audio stream ever hits Tavly's servers.
+* **Agent Prompting:** Instruct the LLM within your global prompt to explicitly ask the caller to speak up or move to a quieter area if the agent detects it is repeatedly failing to transcribe input.

@@ -1,59 +1,123 @@
 ---
-title : " Custom function in conversation flow"
-description: "Add a custom function to a Tavly AI's conversation flow to call your external API mid-call. Configure method, URL, headers, parameters, and responses."
+title: 'Custom Functions in Conversation Flow'
+sidebarTitle: 'Custom Functions'
+description: 'Trigger external API requests mid-call within Tavly AI conversation flows. Configure HTTP methods, headers, payload schemas, and response variables.'
+seo:
+  title: 'Custom Functions in Conversation Flow | Tavly AI Documentation'
+  description: 'Learn how to configure custom functions in Tavly AI conversation flows to trigger external APIs mid-call, parse payloads, and extract response variables.'
+og:title: 'Custom Functions in Conversation Flow | Tavly AI'
+og:description: 'Trigger external API requests mid-call within Tavly AI conversation flows. Configure HTTP methods, headers, payload schemas, and response variables.'
+og:image: 'https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/custom-function.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=4fea08589e8c8a30fb2cb20f813b02b6'
+twitter:card: 'summary_large_image'
+icon: 'code'
+keywords:
+  - 'custom functions'
+  - 'conversation flow'
+  - 'API integration'
+  - 'webhook mid-call'
+  - 'response variables'
+  - 'Tavly AI API verification'
+  - 'payload args only'
+  - 'function node'
+date: '2026-09-23'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is my agent not calling the custom function?'
+    answer: 'The agent decides when to invoke a custom function based on its name, description, and flow position. Providing an ambiguous description or misconfigured flow condition prevents the LLM from triggering the function.'
+  - question: 'How do custom functions return data back into the conversation flow?'
+    answer: 'Endpoints return data within the response body. Tavly AI converts this stringified payload for the LLM to speak or evaluate, or maps JSON object properties to dynamic variables using dot notation.'
+  - question: 'Does Tavly AI automatically retry failed custom function calls?'
+    answer: 'Retries occur only if max_retry is explicitly set between 1 and 5. Tavly AI executes exponential backoff with jitter on network errors, timeouts, and 4xx/5xx responses for idempotent endpoints.'
+  - question: 'How do you verify incoming requests from Tavly AI?'
+    answer: 'Verify the X-TavlyAI-Signature header against the raw request body using HMAC-SHA256 and your Tavly AI API key. Alternatively, whitelist outbound IP address 100.20.5.228.'
 ---
 
+## What is a custom function in conversation flow?
 
-A custom function lets your conversation flow agent call your own API during a live call, then use the response to keep the conversation going. Use it to look up an order, check an account, create a ticket, or trigger any action in your backend that the agent can't do on its own.
+A **custom function** allows your conversation flow agent to trigger an external HTTP API during an active call and ingest the response to steer dialogue. Configured inside a function node, it bridges the LLM with your backend systems to look up real-time data, update databases, or trigger business operations mid-call.
 
-## When to use a custom function
+> Add a custom function to a Tavly AI's conversation flow to call your external API mid-call. Configure method, URL, headers, parameters, and responses.
 
-Reach for a custom function whenever the agent needs live data from your systems, or has to take an action there, in the middle of a call:
+When executed, the agent pauses or transitions according to your node configuration, sends an HTTP request to your specified endpoint, and feeds the resulting output directly back to the language model. This capability enables dynamic, database-backed voice agents that interact with your enterprise infrastructure.
 
-* **Look up real-time data** — order status, appointment slots, account details, shipment tracking.
-* **Take an action in your backend** — create a support ticket, update a record, send a confirmation.
-* **Branch on your own logic** — call an endpoint that decides where the flow goes next.
+### Tool execution architecture
 
-Custom functions run inside a [function node](/build/conversation-flow/function-node). If the logic is self-contained and doesn't need your server, a [code node](/build/conversation-flow/code-node) runs it in a sandbox with no endpoint to host, and for common CRM, helpdesk, and calendar actions, [integration tools](/build/conversation-flow/integration-tools) call the provider directly.
+Depending on where your business logic resides, Tavly AI provides multiple node types to execute logic:
 
-### Example: order status lookup
+| Execution Method | Execution Environment | Best For | Endpoint Required |
+| :--- | :--- | :--- | :--- |
+| **Custom Function** | Your external server / API | Real-time database lookups, business actions, proprietary logic | **Yes** (Public URL) |
+| [**Code Node**](/build/conversation-flow/code-node) | Tavly AI sandbox | Lightweight JavaScript calculations, text parsing, formatting | **No** (Hosted in sandbox) |
+| [**Integration Tools**](/build/conversation-flow/integration-tools) | Third-party providers | Native CRM, calendar, and helpdesk actions | **No** (Direct provider integration) |
 
-A retail support agent needs to tell callers where their order is. You add a `get_order_status` custom function pointed at `https://api.yourstore.com/orders`. When a caller gives their order number, the agent calls the function with that number, your API returns the status and delivery date, and the flow branches to read it back or to escalate if the order can't be found.
+Custom functions run inside a [**function node**](/build/conversation-flow/function-node).
 
-## Create a custom function
+---
 
-When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or DELETE) to your URL with the function name and arguments. You can add headers and query parameters, and extract values from the response.
+## When should you use a custom function?
+
+Use a **custom function** whenever an agent requires **live external data**, needs to execute **backend actions**, or relies on **custom branching logic** during a call. If logic is self-contained without server access, use a **code node**; for native third-party CRM or calendar actions, use pre-built **integration tools** instead.
+
+Reach for a custom function in scenarios such as:
+
+* **Look up real-time data**: Retrieve active order status, open appointment slots, caller account details, or shipment tracking numbers.
+* **Take an action in your backend**: Create a support ticket in your internal database, update user records, or dispatch booking confirmations.
+* **Branch on your own logic**: Call an endpoint that evaluates business rules and returns structured instructions dictating where the conversation flow navigates next.
+
+### Practical scenario: order status lookup
+
+A retail support agent needs to inform callers about their delivery status:
+1. You configure a `get_order_status` custom function pointing to `https://api.yourstore.com/orders`.
+2. When a caller provides their order number, the agent invokes the function with that identifier as an argument.
+3. Your API returns the order status, carrier, and estimated delivery date.
+4. The conversation flow branches based on the response—speaking the status directly to the customer or escalating to a human representative if the order record cannot be found.
+
+---
+
+## How do you create and configure a custom function?
+
+To configure a **custom function**, define an informative **name and description**, choose an **HTTP method** (GET, POST, PUT, PATCH, DELETE), and specify a publicly reachable **endpoint URL**. Optionally configure **timeouts** (1,000–600,000 ms), **request headers**, **query parameters**, **payload parameters** via JSON schema, and map response fields to **dynamic variables**.
+
+When invoked, Tavly AI dispatches an HTTP request to your configured endpoint with the function name and arguments.
 
 <Steps>
   <Step title="Name and describe it">
-    Give the function a unique **name** using letters and underscores (for example `get_order_status`), and a clear **description**. The agent reads the description to decide when to call the function, so be specific about what it does and when to use it.
+    Assign the function a unique **name** using alphanumeric characters and underscores (such as `get_order_status`), along with a detailed **description**. Because the LLM reads this description to decide whether and when to invoke the function, specify precisely what data it takes and what action it performs.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/custom-function.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=4fea08589e8c8a30fb2cb20f813b02b6" alt="Custom function configuration showing name, description, HTTP method, endpoint URL, timeout, and headers fields" width="883" height="679" data-path="images/custom-function/custom-function.png" />
     </Frame>
 
-    For example:
-
-    * Name: `get_user_details`
-    * Description: `Get user details based on name and age`
+    Configuration example:
+    * **Name**: `get_user_details`
+    * **Description**: `Get user details based on name and age`
   </Step>
 
   <Step title="Choose the HTTP method">
-    Select the method Tavly AI uses to call your endpoint: **GET**, **POST**, **PUT**, **PATCH**, or **DELETE**. It defaults to POST.
+    Select the HTTP verb Tavly AI uses when calling your endpoint: **GET**, **POST**, **PUT**, **PATCH**, or **DELETE**. The setting defaults to **POST**.
 
-    Tavly AI sends a JSON body only for POST, PUT, and PATCH. GET and DELETE carry data as query parameters only.
+    | HTTP Method | Request Body Included | Data Transmission |
+    | :--- | :--- | :--- |
+    | **POST**, **PUT**, **PATCH** | **Yes** (JSON body) | Full JSON payload including function name, call context, and args |
+    | **GET**, **DELETE** | **No** | Values transmitted strictly as URL query parameters |
   </Step>
 
   <Step title="Add the endpoint URL">
-    Enter the URL Tavly AI calls to run the function. It must be a valid, publicly reachable URL. For security, Tavly AI blocks requests to localhost, private IP ranges, and cloud metadata addresses, so to test against a local server, expose it first with a tunneling service like ngrok.
+    Enter the publicly reachable URL that Tavly AI calls to execute the function. 
+    
+    For network security, Tavly AI strictly blocks requests directed to **`localhost`**, **private IP ranges** (e.g., RFC 1918), and **cloud metadata addresses**. To test against a local development machine, expose your local service via a secure tunneling service such as ngrok.
   </Step>
 
   <Step title="Set a timeout (optional)">
-    Set how long Tavly AI waits for your endpoint to respond, in milliseconds. It accepts `1000` (1 second) to `600000` (10 minutes) and defaults to `120000` (2 minutes). If your endpoint doesn't respond in time, the request fails and the agent receives the error message (for example, a timeout error) to act on. By default Tavly AI doesn't retry a custom function, but you can turn on automatic retries with `max_retry` — see [Retries](#retries).
+    Specify the duration Tavly AI waits for your endpoint to respond, configured in milliseconds.
+    * **Allowed range**: `1000` ms (1 second) to `600000` ms (10 minutes).
+    * **Default timeout**: `120000` ms (2 minutes).
+
+    If your service does not return within the allotted timeout window, the request terminates as failed, and the agent receives an error message (such as a timeout error) to handle within the flow. Automatic retries can be enabled with `max_retry` (see [Retries](#retries)).
   </Step>
 
   <Step title="Set request headers (optional)">
-    Define custom headers to include with the request. Header values can be static or include [dynamic variables](/build/dynamic-variables), such as an auth token you pass in as `{{token}}`.
+    Define static or dynamic HTTP headers sent with the request. Dynamic values can reference [dynamic variables](/build/dynamic-variables), such as an authorization bearer token passed as `{{token}}`.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" alt="Request headers configuration with an Authorization header set to a dynamic variable" width="830" height="132" data-path="images/custom-function/headers.png" />
@@ -61,18 +125,22 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 
   <Step title="Set query parameters (optional)">
-    Define query parameters as key/value pairs that Tavly AI appends to the endpoint URL. Values are applied directly and can include [dynamic variables](/build/dynamic-variables). Query parameters are never filled in by the LLM — for LLM-supplied values, use the request body parameters below.
+    Specify key-value query parameters appended to the endpoint URL. Parameter values are applied directly and can contain [dynamic variables](/build/dynamic-variables). 
+    
+    *Note: Query parameters are never populated autonomously by the LLM. For LLM-extracted values, define request body parameters.*
   </Step>
 
   <Step title="Define parameters">
-    For POST, PATCH, and PUT requests, define the parameters the agent sends in the request body, using either JSON schema or the form editor. As with query parameters, a property with a `description` is filled in by the LLM, while a property with a `const` value is applied directly.
+    For **POST**, **PATCH**, and **PUT** requests, define the schema for parameters injected into the request body using either the raw JSON schema editor or the visual form builder:
+    * Properties containing a `description` are populated dynamically by the LLM based on conversation context.
+    * Properties containing a `const` value are assigned static values or dynamic variable interpolations.
 
-    **Payload: args only**
-
-    When **Payload: args only** is on, the request body is just the function's arguments at the top level, with no wrapper. When it's off, the body follows the [request spec](#request-and-response-spec) below (`name`, `call`, and `args`).
+    #### Payload: args only
+    * **Enabled (ON)**: The request body contains only the function arguments at the root level without wrapping metadata.
+    * **Disabled (OFF)**: The body wraps arguments alongside metadata according to the standard [request spec](#what-are-the-request-and-response-specifications) (`name`, `call`, and `args`).
 
     <Tip>
-      Turn this on when your endpoint expects a flat JSON body that matches your parameter object exactly, with no outer wrapper.
+      Enable **Payload: args only** whenever your downstream API expects an exact JSON schema matching your argument definitions without Tavly AI wrapper keys.
     </Tip>
 
     Example parameter schema:
@@ -103,7 +171,7 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
     }
     ```
 
-    Example form editor:
+    Visual form editor interface:
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/json-form.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=6762a2122b6476f28a4f5ed79ffc9423" alt="Form editor for defining function parameters with name, type, and required columns" width="830" height="297" data-path="images/custom-function/json-form.png" />
@@ -111,11 +179,11 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 
   <Step title="Set response variables (optional)">
-    Extract values from the JSON response and save them as [dynamic variables](/build/dynamic-variables) to use later in the conversation.
+    Extract specific values from the returned JSON response and save them into [dynamic variables](/build/dynamic-variables) for subsequent use across the call.
 
-    Point each variable at a field in the response using dot notation, with array indexing where needed — for example `user.name` or `data.items[0].id`. This works only when your endpoint returns a JSON object.
+    Reference response fields using standard **dot notation** and **array indexing** (for example, `user.name` or `data.items[0].id`). This extraction mechanism requires your server to return a valid JSON object.
 
-    For example, from this response you could extract the user's name and reference it later as `{{user_name}}`:
+    For example, from the following response object, you can extract the user's name and reference it downstream as `{{user_name}}`:
 
     ```json theme={"dark"}
     {
@@ -132,29 +200,33 @@ When the function is called, Tavly AI sends a request (POST, GET, PUT, PATCH, or
   </Step>
 </Steps>
 
-### Troubleshooting
+### Troubleshooting validation errors
 
-If the function won't save, the parameters are usually invalid. The most common mistake is leaving `"type": "object"` off the top level of the JSON schema. Click one of the built-in examples and adjust from there.
+If a custom function configuration fails to save, the parameter schema is typically invalid. The most frequent cause is omitting `"type": "object"` at the top level of the JSON schema. Select one of the platform's pre-built template examples and customize the properties from that baseline.
 
-## Request and response spec
+---
 
-When the function is called, Tavly AI sends a request to your endpoint with the following spec.
+## What are the request and response specifications?
 
-**Request**
+Tavly AI dispatches requests containing an **HMAC-SHA256 signature**, the function **name**, argument payloads in **args**, and conversation context in **call**. Your server must return an HTTP **200–299 status code** with a response under **15,000 characters**. Requests time out after **120,000 ms** by default unless configured otherwise.
 
-* Headers
-  * `X-TavlyAI-Signature`: an HMAC-SHA256 signature of the request body, used to verify the request came from Tavly AI. See [Verify the request is from Tavly AI](#verify-the-request-is-from-Tavly AI) below.
-  * `Content-Type: application/json` (for POST, PUT, and PATCH).
-* Body (JSON, for POST, PUT, and PATCH only)
-  * `name`: the name of the custom function.
-  * `call`: the call object, for context about the call. It includes the transcript up to the moment the request is sent. See [Get Call](/api-references/get-call) for the full object.
-  * `args`: the function's arguments, as a JSON object.
+### Inbound request specification
+
+When invoked, Tavly AI transmits an HTTP request with the following structure:
+
+* **Headers**:
+  * `X-TavlyAI-Signature`: An **HMAC-SHA256 signature** generated across the raw request body string, utilized to authenticate request provenance. See [Verification](#how-do-you-verify-that-requests-originate-from-tavly-ai).
+  * `Content-Type: application/json`: Included for all POST, PUT, and PATCH methods.
+* **Body** (JSON payload for POST, PUT, and PATCH):
+  * `name`: The string name of the executed custom function.
+  * `call`: The call object containing rich session metadata, current call status, and a full transcript up to the execution moment. Refer to [Get Call](/api-references/get-call) for the complete schema.
+  * `args`: A JSON object holding the parameters collected and passed by the LLM or constants.
 
 <Note>
-  When **Payload: args only** is on, the body is just the arguments object — no `name`, `call`, or `args` wrapper. Parse the parameters from the top level, and run signature verification against that same body string.
+  When **Payload: args only** is activated, the request body contains exclusively the `args` object—omitting `name` and `call`. Parse parameters directly from the root JSON object, and verify request signatures against that raw body string.
 </Note>
 
-<Accordion title="Example request body">
+<Accordion title="View example request body payload">
   ```json theme={"dark"}
   {
     "name": "analyze_transcript",
@@ -285,29 +357,31 @@ When the function is called, Tavly AI sends a request to your endpoint with the 
   ```
 </Accordion>
 
-The request times out after the timeout you set, or 2 minutes by default. By default a custom function isn't retried — if the request fails or times out, the agent receives the error message (such as the HTTP status or a timeout error) and continues based on the flow. To retry failed requests automatically, set `max_retry` (see [Retries](#retries)).
+### Execution retries and backoff
 
-### Retries
-
-Set `max_retry` on the function to retry automatically after a failed attempt. It takes a value from 0 to 5 and defaults to 0 (no retry). Retries fire on any failure — network errors, timeouts, and 4xx or 5xx responses — with exponential backoff plus jitter between attempts. The backoff delay isn't configurable.
-
-The timeout applies per attempt, not as a budget across all attempts, so an attempt that times out is still retried. In the worst case the total time is your timeout times (`max_retry` + 1), plus the backoff between attempts. Only the final attempt's result reaches the agent.
+Configure `max_retry` to control automatic retry behavior following an invocation failure:
+* **Value range**: `0` to `5` (defaults to `0`, meaning no retries).
+* **Failure triggers**: Triggers on transport timeouts, network errors, and HTTP `4xx` or `5xx` error codes.
+* **Retry schedule**: Implements **exponential backoff with randomized jitter** between successive attempts (backoff parameters are system-managed).
+* **Timeout calculations**: Configured timeouts apply **per attempt**, rather than across the aggregate operation. The maximum theoretical latency is `timeout * (max_retry + 1) + aggregate_backoff_delays`. Only the response from the terminal attempt is returned to the agent.
 
 <Warning>
-  Each retry repeats the request, so your endpoint may process it more than once. Set `max_retry` above 0 only if your endpoint is idempotent.
+  Because every retry re-executes the HTTP request, your downstream endpoint may receive duplicate invocations. Set `max_retry > 0` strictly on **idempotent endpoints**.
 </Warning>
 
-**Response**
+### Outbound response requirements
 
-Return a status code between 200 and 299 to signal success. The response body can be a string, buffer, JSON object, or blob — all are converted to a string before being sent to the agent's LLM. Only a JSON object response can populate response variables.
+* **Status codes**: Return an HTTP status code between **`200` and `299`** to communicate a successful outcome.
+* **Payload formats**: Endpoints may return plain strings, buffers, blobs, or JSON objects. All formats are stringified prior to LLM injection. However, **only JSON objects** support dynamic variable mapping.
+* **Character limits**: Response bodies are capped at **15,000 characters** by default to protect context window limits. Contact Tavly AI support if your application requires a limit expansion.
 
-<Note>
-  The function result is capped at 15,000 characters by default to avoid overloading the LLM's context window. Contact support if you need a higher limit.
-</Note>
+---
 
-## Verify the request is from Tavly AI
+## How do you verify that requests originate from Tavly AI?
 
-To confirm a request came from Tavly AI, verify the `X-TavlyAI-Signature` header against the raw request body using your Tavly AI API key. For GET and DELETE requests the body is empty, so pass an empty string to the verify function.
+To verify request authenticity, validate the **`X-TavlyAI-Signature`** header against your **raw request body** using HMAC-SHA256 and your **Tavly AI API key**. Never parse or re-serialize the body prior to validation, as modified whitespace breaks signatures. Alternatively, restrict inbound traffic to Tavly AI's static outbound IP address **`100.20.5.228`**.
+
+For GET and DELETE requests where no body exists, supply an empty string `""` to the validation function.
 
 <CodeGroup>
   ```javascript Node.js theme={"dark"}
@@ -315,19 +389,21 @@ To confirm a request came from Tavly AI, verify the `X-TavlyAI-Signature` header
   import express from "express";
 
   const app = express();
-  // Use the raw body for signature verification, not JSON.stringify(req.body).
+  // CRITICAL: Intercept the unparsed raw buffer, not JSON.stringify(req.body)
   app.use(express.raw({ type: "application/json" }));
 
   app.post("/check-weather", async (req, res) => {
     const rawBody = req.body.toString("utf-8");
-    const signature = req.headers["x-tavly-signature"];
+    const signature = req.headers["x-tavlyai-signature"] || req.headers["x-tavly-signature"];
+    
     if (
       typeof signature !== "string" ||
       !(await Tavly.verify(rawBody, process.env.TAVLY_API_KEY, signature))
     ) {
-      console.error("Invalid signature");
+      console.error("Invalid signature detected");
       return res.status(401).json({ message: "Unauthorized" });
     }
+
     const content = JSON.parse(rawBody);
     if (content.args.city === "New York") {
       return res.json("25f and sunny");
@@ -349,13 +425,17 @@ To confirm a request came from Tavly AI, verify the `X-TavlyAI-Signature` header
   @app.post("/check-weather")
   async def check_weather(request: Request):
       raw_body = (await request.body()).decode("utf-8")
+      signature = request.headers.get("X-TavlyAI-Signature") or request.headers.get("X-Tavly-Signature")
+      
       valid_signature = tavly.verify(
           raw_body,
           api_key=os.environ["TAVLY_API_KEY"],
-          signature=request.headers.get("X-Tavly-Signature"),
+          signature=signature,
       )
+      
       if not valid_signature:
           return JSONResponse(status_code=401, content={"message": "Unauthorized"})
+          
       content = json.loads(raw_body)
       if content["args"]["city"] == "New York":
           return JSONResponse(status_code=200, content={"result": "25f and sunny"})
@@ -363,9 +443,13 @@ To confirm a request came from Tavly AI, verify the `X-TavlyAI-Signature` header
   ```
 </CodeGroup>
 
-<Note>You can also restrict your server to Tavly AI's outbound IP address: `100.20.5.228`.</Note>
+<Note>
+  In addition to cryptographic signature validation, you can restrict firewall access to Tavly AI's outbound static IP address: **`100.20.5.228`**.
+</Note>
 
-## FAQ
+---
+
+## Frequently asked questions
 
 <AccordionGroup>
   <Accordion title="Why isn't my agent calling the function?">
@@ -381,7 +465,7 @@ To confirm a request came from Tavly AI, verify the `X-TavlyAI-Signature` header
   </Accordion>
 
   <Accordion title="Does Tavly AI retry a failed custom function?">
-    Only if you ask it to. By default (`max_retry` = 0) a custom function isn't retried — if the request fails or times out, the agent receives the error message (such as the HTTP status or a timeout error) and continues based on the flow. Set `max_retry` up to 5 to retry on failure with exponential backoff; because each retry repeats the request, only do this if your endpoint is idempotent. See [Retries](#retries).
+    Only if you ask it to. By default (`max_retry` = 0) a custom function isn't retried — if the request fails or times out, the agent receives the error message (such as the HTTP status or a timeout error) and continues based on the flow. Set `max_retry` up to 5 to retry on failure with exponential backoff; because each retry repeats the request, only do this if your endpoint is idempotent. See [Retries](#execution-retries-and-backoff).
   </Accordion>
 
   <Accordion title="What happens if the user interrupts while a custom function is running?">
