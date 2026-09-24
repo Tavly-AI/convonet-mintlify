@@ -1,5 +1,5 @@
 ---
-title : " Custom function in conversation flow"
+title: "Custom function in conversation flow"
 description: "Add a custom function to a Tavly AI's conversation flow to call your external API mid-call. Configure method, URL, headers, parameters, and responses."
 ---
 
@@ -143,7 +143,7 @@ When the function is called, Tavly AI sends a request to your endpoint with the 
 **Request**
 
 * Headers
-  * `X-TavlyAI-Signature`: an HMAC-SHA256 signature of the request body, used to verify the request came from Tavly AI. See [Verify the request is from Tavly AI](#verify-the-request-is-from-Tavly AI) below.
+  * `X-TavlyAI-Signature`: an HMAC-SHA256 signature of the request body, used to verify the request came from Tavly AI. See [Verify the request is from Tavly AI](#verify-the-request-is-from-tavly-ai) below.
   * `Content-Type: application/json` (for POST, PUT, and PATCH).
 * Body (JSON, for POST, PUT, and PATCH only)
   * `name`: the name of the custom function.
