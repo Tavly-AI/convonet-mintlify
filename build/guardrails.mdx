@@ -1,46 +1,69 @@
 ---
-title : Guardrails
+title: 'Guardrails & Content Moderation'
+sidebarTitle: 'Guardrails'
+description: 'Protect Tavly voice conversations by intercepting disallowed topics and jailbreak attempts, substituting flagged dialogue with compliant fallback responses.'
+seo:
+  title: 'AI Guardrails & Content Moderation | Tavly AI Security'
+  description: 'Protect Tavly voice conversations by intercepting disallowed topics and jailbreak attempts, substituting flagged dialogue with compliant fallback responses.'
+og:title: 'AI Guardrails & Content Moderation in Tavly'
+og:description: 'Protect Tavly voice conversations by intercepting disallowed topics and jailbreak attempts, substituting flagged dialogue with compliant fallback responses.'
+og:image: 'https://mintcdn.com/retellai/3ssxg22la9RgW0-T/images/guardrail/guardrail_main.png'
+twitter:card: 'summary_large_image'
+icon: 'shield-check'
+keywords: ['AI guardrails', 'voice agent moderation', 'Tavly AI security', 'jailbreak protection', 'content filtering', 'call compliance']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What do guardrails do?'
+    answer: 'Guardrails are content moderation filters that evaluate both caller speech and agent replies against defined policy categories, instantly replacing non-compliant dialogue with a safe placeholder message.'
+  - question: 'Does triggering a guardrail hang up the call?'
+    answer: 'No. Guardrails strictly substitute the offending message with a benign response. The call session continues normally without interruption, transfer, or termination.'
+  - question: 'Will guardrails add latency to the call?'
+    answer: 'Yes. Active moderation inspection introduces approximately 50ms of processing latency per conversational turn.'
 ---
-> Use Tavly guardrails to detect prohibited topics in agent responses and user input, replacing flagged content with a safe placeholder so calls continue.
 
-Guardrails are a built-in content moderation layer that checks agent responses and user messages for prohibited topics. When a guardrail triggers, the prohibited content is automatically replaced with a safe placeholder message, keeping the call going without interruption.
+## What are Content Guardrails?
 
-## How Guardrails Work
+Tavly provides native content moderation guardrails that evaluate conversational turns against strictly defined policy categories. 
 
-Guardrails apply in two ways:
+When a statement breaches an active policy, the system suppresses the non-compliant generation and speaks a compliant placeholder message. This mechanism allows the call to remain active and secure without abrupt interruption.
 
-* **Output guardrails** check what the agent says. If the agent's response contains a prohibited topic, that response is replaced with a placeholder message before being spoken.
-* **Input guardrails** check what the user says. If the user's message contains a prohibited topic, the agent responds with a placeholder message instead of processing the request.
+## How does the Moderation Architecture work?
 
-In both cases, the call continues normally after the placeholder is delivered. Guardrails do not end the call, transfer the call, or trigger any other action — they only replace the problematic message.
+Guardrails intercept dialogue at two distinct evaluation boundaries: before the agent processes a prompt, and before the agent speaks its response.
 
-## Configuring Guardrails
+* **Input Guardrails:** Screens incoming caller speech *before* sending transcripts to the core language model. When caller requests trigger a restriction (like a jailbreak attempt), the agent returns an immediate refusal placeholder rather than fulfilling the malicious prompt.
+* **Output Guardrails:** Screens candidate agent responses *prior* to text-to-speech rendering. If the generated text touches a restricted category (like financial advice), Tavly drops the response and synthesizes a safe fallback phrase instead.
 
-You can configure guardrails when creating or updating an agent, either through the dashboard or the API. In the dashboard, guardrail settings are under **Security & Fallback Settings**.
+<Note> **Call Continuity:** Under both conditions, the call session continues normally. Guardrail triggers do not terminate phone lines, initiate transfers, or invoke tools—they strictly replace offending messages with benign responses.</Note>
 
-<Info>
-  Guardrails add about 50ms of latency to calls.
-</Info>
+## How do you Configure Guardrails?
+
+You can configure moderation rules when creating or updating agents via the REST API or the Tavly Dashboard. In the console, navigate to **Security & Fallback Settings** to toggle specific compliance topics.
+
+<Info> **Performance Impact:** Active moderation inspection introduces approximately 50ms of processing latency per conversational turn.</Info>
 
 <Frame caption="Guardrail configuration in the dashboard">
   <img src="https://mintcdn.com/retellai/3ssxg22la9RgW0-T/images/guardrail/guardrail_main.png?fit=max&auto=format&n=3ssxg22la9RgW0-T&q=85&s=465219030ccb01e09c977e75deb1e383" alt="Main guardrail settings screen showing output and input topic toggles" width="50%" data-path="images/guardrail/guardrail_main.png" />
 </Frame>
 
+## What Categories are Moderated?
+
 ### Output Topics
 
-These categories detect prohibited content in agent responses:
+Tavly natively screens outgoing agent generation against nine distinct compliance categories to ensure safe corporate deployments:
 
-| Topic                           | Description                                               |
-| ------------------------------- | --------------------------------------------------------- |
-| `harassment`                    | Harassing or abusive language                             |
-| `self_harm`                     | Content related to self-harm                              |
-| `sexual_exploitation`           | Sexually exploitative content                             |
-| `violence`                      | Violent content                                           |
-| `defense_and_national_security` | Defense and national security topics                      |
-| `illicit_and_harmful_activity`  | Illicit or harmful activities                             |
-| `gambling`                      | Gambling-related content                                  |
-| `regulated_professional_advice` | Regulated professional advice (legal, medical, financial) |
-| `child_safety_and_exploitation` | Child safety and exploitation content                     |
+| Policy Key | Covered Content |
+| :--- | :--- |
+| `harassment` | Abusive phrasing, intimidation, or hateful language |
+| `self_harm` | Discussions or instructions regarding self-inflicted harm |
+| `sexual_exploitation` | Sexually explicit or exploitative material |
+| `violence` | Violent acts, physical aggression, or threats |
+| `defense_and_national_security` | Classified intelligence, defense tactics, and military operations |
+| `illicit_and_harmful_activity` | Unlawful conduct, malicious exploits, or prohibited goods |
+| `gambling` | Betting, wagering, and gambling promotion |
+| `regulated_professional_advice` | Licensed professional counsel (legal advice, medical diagnoses, financial planning) |
+| `child_safety_and_exploitation` | Exploitative content involving minors and child safety violations |
 
 <Frame caption="Output guardrail topic options">
   <img src="https://mintcdn.com/retellai/3ssxg22la9RgW0-T/images/guardrail/output_guardrail.png?fit=max&auto=format&n=3ssxg22la9RgW0-T&q=85&s=20e3c058d6985e5e8b11781e741c5084" alt="Output guardrail categories for agent responses" width="50%" data-path="images/guardrail/output_guardrail.png" />
@@ -48,11 +71,11 @@ These categories detect prohibited content in agent responses:
 
 ### Input Topics
 
-One input topic is available; it detects attempts to jailbreak or manipulate the agent.
+Tavly provides dedicated adversarial protection to explicitly block prompt manipulation from malicious callers:
 
-| Topic                             | Description                                   |
-| --------------------------------- | --------------------------------------------- |
-| `platform_integrity_jailbreaking` | Attempts to jailbreak or manipulate the agent |
+| Policy Key | Covered Content |
+| :--- | :--- |
+| `platform_integrity_jailbreaking` | Adversarial prompts, system prompt extraction, roleplay overrides, and jailbreak attempts |
 
 <Frame caption="Input guardrail topic options">
   <img src="https://mintcdn.com/retellai/3ssxg22la9RgW0-T/images/guardrail/input_guardrail.png?fit=max&auto=format&n=3ssxg22la9RgW0-T&q=85&s=dd2d3ab589e9baff6c1ff4ada1590ecb" alt="Input guardrail categories for user messages" width="50%" data-path="images/guardrail/input_guardrail.png" />

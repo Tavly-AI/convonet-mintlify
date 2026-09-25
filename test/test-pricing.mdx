@@ -1,0 +1,55 @@
+---
+title: "Testing pricing"
+description: "How Tavly bills agent testing: text tests (Playground, simulation, batch) cost per message and voice tests (web, phone) cost per minute at production rates."
+---
+
+Agent testing incurs charges at the **exact same rates as production traffic**. Tavly does not provide a separate disconnected sandbox or discounted test tier; compute consumed during testing is billed identically to live production workloads. Factor test runs into your resource planning, and consult the [Tavly pricing page](https://www.tavlyai.com/pricing) for real-time rates.
+
+## Billing Summary by Testing Method
+
+| Method | Metering Basis | Pricing Model |
+| :--- | :--- | :--- |
+| [LLM Playground](/test/llm-playground) (Manual Chat) | Per message | Standard chat rate for the agent's configured LLM |
+| [Simulation testing](/test/llm-simulation-testing) (AI Simulated Chat) | Per message | Combined chat rates: agent LLM plus the model driving the synthetic caller |
+| [Batch testing](/test/batch-test-simulation) | Per message, plus evaluation surcharge | Message chat rates across all test cases, plus one post-call analysis unit per executed scenario |
+| [Web call testing](/test/test-web) | Per minute | Standard voice runtime rate (excludes carrier telephony fees) |
+| [Phone call testing](/test/test-phone) | Per minute | Standard voice runtime rate plus PSTN carrier telephony transit |
+
+## Text-Based Testing Economics
+
+Sessions run in the LLM Playground, simulation suites, and batch testing execute over text and bill on a **per-message** basis determined by the models generating each conversational turn. Typical rates span roughly **$0.001 to $0.05 per message** depending on model complexity, making lightweight models ideal for rapid iterative development. Consult the [pricing page](https://www.tavlyai.com/pricing) for granular per-model figures.
+
+Keep three compounding cost drivers in mind:
+
+* **Dual-model consumption in simulations**: The **LLM setting** designated in a test case governs strictly the simulated caller persona. The agent's replies bill according to its dedicated [LLM settings](/build/llm-options). Pairing an inexpensive caller model with a high-tier agent model still incurs full charges for the agent's messages.
+* **Multiplicative scaling across batches**: Batch runs evaluate each included case without bulk discounting. Running a 20-case test suite three consecutive times incurs charges for 60 individual simulation runs.
+* **Evaluation grading fees**: Automated rubric evaluation adds one post-call analysis unit per case to score pass/fail outcomes. Unsaved manual chats in the playground do not execute evaluation rubrics and do not incur this surcharge.
+
+## Voice Testing Economics
+
+Both [Web call testing](/test/test-web) and [phone call testing](/test/test-phone) stream live voice audio and bill on a **per-minute** basis identical to live production sessions. Total costs—combining streaming infrastructure, text-to-speech synthesis, and language model inference—generally range from **$0.07 to $0.31 per minute**, fluctuating based on selected voice providers and model tiers.
+
+* **Telephony surcharges on phone tests**: Inbound and outbound phone tests require an active [phone number](/deploy/purchase-number) ($2.00/month) and incur PSTN carrier fees (approximately $0.015 per minute on Tavly numbers).
+* **Zero carrier fees on web calls**: Web call tests run in the browser via WebRTC, bypassing telephony carrier transit charges entirely.
+
+Because voice minutes cost significantly more than text turns, perform the bulk of functional debugging using text simulation, reserving browser and telephony voice calls for final acoustic and conversational sign-off.
+
+## AI Agent Allocations
+
+[AI Agent](/test/testing-with-AI Agent) provides an included daily quota: **30 messages per user and 200 per workspace each day**, resetting at midnight Pacific Time. Beyond this allotment, AI Agent bills at **\$0.20 per message**, provided a workspace administrator has enabled pay-as-you-go billing for the feature. If disabled, AI Agent pauses requests until the daily quota resets. Your account must also maintain active billing in good standing; expired trials or payment failures immediately disable access.
+
+Simulated conversations executed by AI Agent on your behalf bill at standard per-message simulation rates. Review your detailed ledger under <code className="ui-btn">Billing → Usage</code>.
+
+## Included Complimentary Allowances
+
+* **\$10 in free credit** applied upon account registration.
+* **20 free concurrent call** channels.
+* **AI Agent**: 30 complimentary messages per user and 200 per workspace daily (resetting at midnight PT).
+* **AI QA**: The initial 100 minutes are complimentary, billing at \$0.10 per minute thereafter. See [AI QA](/ai-qa/overview).
+
+With the exception of daily AI Agent messages, testing directly decrements your account credit balance. Note that leasing a [phone number](/deploy/purchase-number) requires a valid payment card on file, meaning [phone call testing](/test/test-phone) requires payment setup even if promotional signup credits remain available.
+
+## Related Resources
+
+* [Tavly pricing](https://www.tavlyai.com/pricing): Up-to-date pricing matrix for models, voice synthesis, and telephony.
+* [Testing overview](/test/test-overview): Architectural comparison of available testing environments.

@@ -1,213 +1,217 @@
 ---
-title : "Dynamic variables : personalize Tavly agent calls"
+title: 'Dynamic Variables & Runtime Context'
+sidebarTitle: 'Dynamic Variables'
+description: 'Populate per-call parameters into Tavly voice agents using placeholder syntax to enable personalized greetings, contextual dialogue, and runtime routing.'
+seo:
+  title: 'Dynamic Variables & Runtime Context | Tavly AI'
+  description: 'Populate per-call parameters into Tavly voice agents using placeholder syntax to enable personalized greetings, contextual dialogue, and runtime routing.'
+og:title: 'Dynamic Variables in Tavly Voice Agents'
+og:description: 'Populate per-call parameters into Tavly voice agents using placeholder syntax to enable personalized greetings, contextual dialogue, and runtime routing.'
+og:image: 'https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/dynamic.png'
+twitter:card: 'summary_large_image'
+icon: 'brackets-curly'
+keywords: ['dynamic variables', 'Tavly AI runtime data', 'personalize voice agents', 'API call payload', 'contextual dialogue AI']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What are dynamic variables?'
+    answer: 'Dynamic variables allow you to pass specific runtime data (like a user’s name or account number) directly into your agent’s system prompt on a per-call basis using `{{variable_name}}` syntax.'
+  - question: 'What happens if a variable is missing?'
+    answer: 'If you omit a variable payload, Tavly will fallback to the agent-level default you configured. If no default exists, the variable placeholder is left untouched with literal curly braces.'
+  - question: 'Do you support nested JSON objects as variables?'
+    answer: 'No. All dynamic variable keys must be flat string structures (e.g., `client_name: "Mario"`). You cannot traverse nested objects like `{{client.name}}`.'
 ---
-> Inject per-call data into Tavly agents using `{{variable_name}}` syntax for personalized greetings, context-aware responses, and dynamic call routing.
 
-## Overview
+## What are Dynamic Variables?
 
-Dynamic variables allow you to inject personalized data into your agent's responses for each specific call. Using the `{{variable_name}}` syntax, you can create agents that adapt to different contexts while maintaining consistent conversation flows.
+Dynamic variables allow you to pass runtime data directly into your agent's conversation loop on a per-call basis. Using the `{{variable_name}}` placeholder syntax, you can deliver individualized interactions across customer segments while preserving a unified flow architecture.
 
-### Common Use Cases
+**Primary Use Cases:**
+* **Customer Greetings:** "Welcome back, `{{customer_name}}`. How can I assist you?"
+* **Transactional Context:** "I have your record pulled up for account `{{account_id}}`."
+* **Conditional Routing:** Forward calls to designated regional numbers based on `{{department_queue}}`.
+* **Schedule Verification:** Confirm dates dynamically via `{{appointment_date}}` or `{{delivery_window}}`.
 
-* **Personalized greetings**: "Hello `{{customer_name}}`, thanks for calling!"
-* **Context-aware responses**: "I see you're calling about order `{{order_id}}`"
-* **Dynamic routing**: Transfer to different numbers based on `{{department}}`
-* **Time-sensitive information**: Reference `{{appointment_date}}` or `{{deadline}}`
+## Where can you use Dynamic Variables?
 
-### Where Dynamic Variables Work
+You can embed dynamic variable placeholders across numerous platform components, and Tavly will resolve them instantly when a call connects.
 
-Dynamic variables can be used in:
+* **System Prompts:** Core agent behavioral instructions, guardrails, and role descriptions.
+* **Begin Message:** The initial spoken greeting delivered when a call connects.
+* **Tool & Function Definitions:** Endpoint URLs, tool descriptions, and JSON parameter descriptions.
+* **Call Control Policies:** Voicemail greetings, transfer target phone numbers, and warm transfer handoff summaries.
+* **Event Webhooks:** Query strings and paths in agent-level webhooks (e.g. `https://example.com/webhook?call_for={{customer_name}}`).
 
-* **Prompts**: Agent instructions and personality
-* **Begin message**: Opening greeting
-* **Tool configurations**:
-  * Custom function URLs
-  * Tool descriptions
-  * Property descriptions
-* **Call handling**:
-  * Voicemail prompts and messages
-  * Transfer call phone numbers
-  * Warm transfer instructions
-* **Webhook URLs**: Both agent-level (`webhook_url`) and account-level webhook URLs support dynamic variables, so you can route events per call (for example, `https://example.com/webhook?call_for={{customer_name}}`).
-
-## Add & test dynamic variables
+## How do you Configure Variables?
 
 <Steps>
-  <Step title="Add dynamic variables in your prompts">
-    Dynamic variables are placeholders surrounded by double curly braces. For example:
-
+  <Step title="Embed Placeholders">
+    Declare variables anywhere in your prompts using double curly braces:
     ```json theme={"dark"}
     "Hello {{user_name}}, I understand you're interested in {{product_name}}. How can I help you today?"
     ```
 
-    Supported fields include a **variable picker** so you do not have to remember exact names:
+    Supported text inputs include an interactive **variable picker**:
 
-    1. Type **`{{`** where you want a variable. A dropdown opens listing variables that apply in that context (for example, default system variables plus variables defined for the agent or flow).
-    2. **Filter** the list by typing more characters after `{{`.
-    3. **Choose a variable** with **Enter**, a **click**, or **Tab**. The editor inserts the full placeholder and closes the braces, for example `{{customer_name}}`.
+    1. Enter **`{{`** in any supported input. A popup menu appears displaying available system, agent, and flow variables.
+    2. Narrow candidate items by typing search characters.
+    3. Press **Enter**, **Tab**, or click an entry to automatically insert the complete placeholder (e.g. `{{customer_name}}`).
 
     <Note>
-      You can still type `{{variable_name}}` by hand in supported fields. The picker is optional.
+      The autocomplete picker is an optional convenience. You can type `{{variable_name}}` manually at any time. Whitespace within braces is automatically trimmed during resolution.
     </Note>
   </Step>
 
-  <Step title="Test your dynamic variables">
-    Before deploying, test your dynamic variables using the web interface. You can also set test values for each variable in a [simulation test case](/test/llm-simulation-testing), so automated test runs resolve placeholders the same way real calls do.
+  <Step title="Test and Simulate Variable Resolution">
+    Verify that placeholders resolve accurately using the dashboard test panel before deploying changes. You can assign mock values in [simulation test cases](/test/llm-simulation-testing) to ensure automated evaluations test real-world scenarios.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/dynamic.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=d7fd0be7594df5ff87f27d5d551b03fb" alt="Testing dynamic variables in dashboard" data-path="images/dynamic.png" />
     </Frame>
   </Step>
 
-  <Step title="Configure agent-level default dynamic variables">
-    You can set default values for dynamic variables at the agent level. Default variables serve as a fallback and will only be used when specific variables aren't included in the call request.
+  <Step title="Establish Agent-Level Fallbacks">
+    Configure agent-level default values in your agent settings. Default values act as fallback parameters whenever a specific variable key is completely omitted from an incoming API call or webhook payload.
 
     <Frame>
       <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/dynamic-default.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=38eebb99b95332428477860824d46e71" alt="Default dynamic variable values in agent settings" data-path="images/dynamic-default.png" />
     </Frame>
   </Step>
 
-  <Step title="Implement in production">
-    ### For Outbound Calls
-
-    When using the [Create Phone Call](/api-references/create-phone-call) API, set your variables in the
-    `tavly` field. Note that all values must be strings:
+  <Step title="Inject Variables into Live Calls">
+    **For Outbound Telephony:** When dispatching calls using the [Create Phone Call](/api-references/create-phone-call) endpoint, pass your variables inside the `tavly_llm_dynamic_variables` payload dictionary.
 
     ```json theme={"dark"}
     {
-        "user_name": "John Smith",
-        "product_name": "Premium Plan",
-        "account_status": "active"
+      "user_name": "John Smith",
+      "product_name": "Premium Plan",
+      "account_status": "active"
     }
     ```
 
-    ### For Inbound Calls
+    ### Inbound Telephony
 
-    You can supply dynamic variables in the [Inbound Call Webhook](/features/inbound-call-webhook). More details are at the linked doc.
+    Supply dynamic attributes dynamically via the [Inbound Call Webhook](/features/inbound-call-webhook) response when a call hits your number.
   </Step>
 </Steps>
 
-> **Important:** All values in `tavly_llm_dynamic_variables` must be strings. Numbers, booleans, or other data types are
-> not supported. A number is stored as `"42"` and a boolean as `"true"`. In a [Code Tool](/build/single-multi-prompt/code-tool) or [code node](/build/conversation-flow/code-node), cast them before use — for example `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`.
+<Warning>
+  All property values inside `tavly_llm_dynamic_variables` must be submitted as strings. Numeric, boolean, and nested object types are unsupported (pass numbers as `"42"` and booleans as `"true"`). When accessing variables inside a [Code Tool](/build/single-multi-prompt/code-tool) or [code node](/build/conversation-flow/code-node), cast them explicitly prior to comparison (e.g. `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`).
+</Warning>
+## What System Variables are built-in?
 
-<Note>The spaces around the variable name will be trimmed when evaluating the variable.</Note>
+Tavly automatically populates essential runtime variables for every session without requiring you to manually pass them.
 
-## Default System Variables
-
-Tavly automatically provides these system variables - no configuration required:
-
-| Variable                          | Description                                                                                          | Example                                                                                                               |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `{{current_agent_state}}`         | Current state name (for multi-state agents)                                                          | "greeting"                                                                                                            |
-| `{{previous_agent_state}}`        | Previous state name (for multi-state agents)                                                         | "qualification"                                                                                                       |
-| `{{current_node}}`                | Current node name (for Conversation Flow agents)                                                     | "greeting"                                                                                                            |
-| `{{previous_node}}`               | Previous node name (for Conversation Flow agents)                                                    | "qualification"                                                                                                       |
-| `{{current_time}}`                | Current time in `America/Los_Angeles`                                                                | "Thursday, March 28, 2024 at 11:46 PM PST"                                                                            |
-| `{{current_time_[timezone]}}`     | Current time in specified `timezone`, for example: `{{current_time_Australia/Sydney}}`               | "Thursday, March 28, 2024 at 11:46 PM AEDT"                                                                           |
-| `{{current_hour}}`                | Current hour as a fraction in `America/Los_Angeles`                                                  | "3.5"                                                                                                                 |
-| `{{current_hour_[timezone]}}`     | Current hour as a fraction in specified `timezone`, for example: `{{current_hour_Australia/Sydney}}` | "3.5"                                                                                                                 |
-| `{{current_calendar}}`            | 14-day calendar in `America/Los_Angeles`                                                             | "Thursday, March 28, 2024 PST (Today)<br />Friday, March 29, 2024 PST<br />...<br />Wednesday, April 10, 2024 PST"    |
-| `{{current_calendar_[timezone]}}` | 14-day calendar in specified `timezone`, for example: `{{current_calendar_Australia/Sydney}}`        | "Thursday, March 28, 2024 AEDT (Today)<br />Friday, March 29, 2024 AEDT<br />...<br />Wednesday, April 10, 2024 AEDT" |
-| `{{session_type}}`                | Session type, `voice` or `chat`                                                                      | `voice`                                                                                                               |
-| `{{session_duration}}`            | How long the session has been running, available after call / chat starts                            | `20 minutes 30 seconds`                                                                                               |
-| `{{session_duration_ms}}`         | Session duration in milliseconds, available after call / chat starts                                 | `1230000`                                                                                                             |
+| Variable | Definition | Output Sample |
+| :--- | :--- | :--- |
+| `{{current_agent_state}}` | Active state identifier (multi-state agents) | `"greeting"` |
+| `{{previous_agent_state}}` | Preceding state identifier (multi-state agents) | `"qualification"` |
+| `{{current_node}}` | Active node label (Conversation Flow agents) | `"greeting"` |
+| `{{previous_node}}` | Preceding node label (Conversation Flow agents) | `"qualification"` |
+| `{{current_time}}` | Current time in `America/Los_Angeles` | `"Thursday, March 28, 2024 at 11:46 PM PST"` |
+| `{{current_time_[timezone]}}` | Current time in a target timezone (e.g. `{{current_time_Australia/Sydney}}`) | `"Thursday, March 28, 2024 at 11:46 PM AEDT"` |
+| `{{current_hour}}` | Fractional decimal hour in `America/Los_Angeles` | `"3.5"` |
+| `{{current_hour_[timezone]}}` | Fractional decimal hour in target timezone | `"3.5"` |
+| `{{current_calendar}}` | Rolling 14-day date calendar in `America/Los_Angeles` | Schedule string listing dates relative to today |
+| `{{current_calendar_[timezone]}}` | Rolling 14-day date calendar in target timezone | Localized date list relative to today |
+| `{{session_type}}` | Channel category | `voice` or `chat` |
+| `{{session_duration}}` | Elapsed call duration in human-readable units | `"20 minutes 30 seconds"` |
+| `{{session_duration_ms}}` | Elapsed call duration in integer milliseconds | `"1230000"` |
 
 <Note>
-  The timezone in `{{current_time_[timezone]}}`, `{{current_hour_[timezone]}}`, and `{{current_calendar_[timezone]}}` is part of the variable name, so it can't be swapped by overriding a `timezone` variable directly. To set the timezone per call, pass it as a dynamic variable and use [nested variables](#nested-variables): write `{{current_time_{{my_timezone}} }}` in your prompt and pass `my_timezone` (for example `"America/Los_Angeles"`) at call start.
+  Timezone qualifiers form part of the variable key itself, rather than an independent argument. To set timezones per session dynamically, rely on [nested variables](#nested-variables): place `{{current_time_{{my_timezone}} }}` in your prompt and submit `my_timezone: "America/Los_Angeles"` at session start.
 </Note>
 
-### Phone Call Variables
+### Voice Call Metadata
 
-These variables are only available for phone calls:
+Available exclusively during voice phone calls:
 
-| Variable           | Description                                                              | Example                            |
-| ------------------ | ------------------------------------------------------------------------ | ---------------------------------- |
-| `{{direction}}`    | Call direction, `inbound` or `outbound`                                  | `inbound`                          |
-| `{{user_number}}`  | User's phone number (from\_number for inbound, to\_number for outbound)  | `+12137771234`                     |
-| `{{agent_number}}` | Agent's phone number (to\_number for inbound, from\_number for outbound) | `+12137771235`                     |
-| `{{call_id}}`      | Current call session id                                                  | `call_12345678906eaa0222bd3dd2a6c` |
-| `{{call_type}}`    | Call type, `web_call` or `phone_call`                                    | "phone\_call"                      |
+| Variable | Definition | Output Sample |
+| :--- | :--- | :--- |
+| `{{direction}}` | Call origin orientation | `inbound` or `outbound` |
+| `{{user_number}}` | Caller telephone number (origin on inbound; target on outbound) | `+12137771234` |
+| `{{agent_number}}` | Agent telephone number (target on inbound; origin on outbound) | `+12137771235` |
+| `{{call_id}}` | Global call session identifier | `call_12345678906eaa0222bd3dd2a6c` |
+| `{{call_type}}` | Transport protocol | `web_call` or `phone_call` |
 
-### Chat Variables
+### Chat Metadata
 
-These variables are only available for chat sessions:
+Available exclusively during chat interactions:
 
-| Variable      | Description                                        | Example                            |
-| ------------- | -------------------------------------------------- | ---------------------------------- |
-| `{{chat_id}}` | The unique identifier for the current chat session | `chat_12345678906eaa0222bd3dd2a6c` |
+| Variable | Definition | Output Sample |
+| :--- | :--- | :--- |
+| `{{chat_id}}` | Global chat session identifier | `chat_12345678906eaa0222bd3dd2a6c` |
 
-### Post-conversation Variables
+### Post-Session Analytics
 
-These variables exist only after the session ends, so only a post-call or post-chat function on the [agent's workflow](/agent/agent-workflow) can read them: `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, `{{call_status}}`, and one variable per custom [Post Call Extraction](/features/post-call-analysis-overview) field, named after the field. On chat agents the first two are `{{chat_summary}}` and `{{chat_successful}}`, and the status is `{{chat_status}}`.
+Populated after a session terminates and accessible by post-call hooks in your [agent's workflow](/agent/agent-workflow): `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, and `{{call_status}}`, alongside custom attributes extracted via [Post Call Extraction](/features/post-call-analysis-overview). For chat agents, equivalent attributes include `{{chat_summary}}`, `{{chat_successful}}`, and `{{chat_status}}`.
 
-### Contact Variables
+### CRM Contact Variables
 
-When a phone call matches a [contact](/features/contacts) by phone number, that contact's fields are passed in as variables automatically. You get `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and one variable per custom contact field, named after the field. Nothing is passed when no contact matches, so write the prompt to read correctly without them. See [contact memory](/integrations/build-contact-memory) for filling those fields from past conversations.
+If a phone number matches a stored record in [contacts](/features/contacts), Tavly exposes contact parameters: `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and any custom contact fields. If no matching record is found, these values remain unpopulated. Review [contact memory](/integrations/build-contact-memory) to populate these fields from historical conversations.
 
-## Nested Variables
+## Nested Variable Evaluation
 
-Tavly supports nested variables. You can use the following syntax to create nested variables:
+Tavly supports recursive substitution, where the output of an inner variable forms the identifier for an outer variable:
 
 ```
 {{current_time_{{my_timezone}} }}
 ```
 
-Now if you have set `my_timezone` to `America/Los_Angeles`, this would evaluate to `{{current_time_America/Los_Angeles }}` first, and will then evaluate to the actual time, as this is a system default variable.
+If `my_timezone` is provided as `"America/Los_Angeles"`, Tavly resolves the inner token to produce `{{current_time_America/Los_Angeles}}`, which then evaluates to the localized system timestamp.
 
 <Note>
-  Nested variables refer to variable-inside-variable substitution, not access to nested JSON properties. Because every value must be a string, you can't pass an object like `{"client": {"name": "Mario"}}` and reference `{{client.name}}`. Flatten the object into individual string variables instead, for example `{"client_name": "Mario"}` referenced as `{{client_name}}`.
+  Nested evaluation refers to recursive string interpolation, not JSON dot-notation traversal. Because variable dictionaries require flat string structures, objects like `{"client": {"name": "Mario"}}` cannot be referenced as `{{client.name}}`. Flatten objects into discrete strings (e.g. `client_name: "Mario"`) instead.
 </Note>
 
-## Handling Missing Variables
+## Managing Unset and Missing Variables
 
-### Default Behavior
+### Unset Resolution Rules
 
-When a dynamic variable has no assigned value, it remains in its raw form with the curly braces intact:
+When an active call omits a dynamic variable without a default fallback:
 
-**Example:**
-
-* Prompt: `"Hello {{user_name}}, how can I help you today?"`
-* If `user_name` is not provided (missing key or `null`): `"Hello {{user_name}}, how can I help you today?"`
-* If `user_name` is `""` (empty string): `"Hello , how can I help you today?"` — the placeholder is replaced with nothing
-* If `user_name` is `"John"`: `"Hello John, how can I help you today?"`
+* **Missing key or `null`**: The placeholder is left untouched with literal curly braces intact (`"Hello {{user_name}}"`).
+* **Empty string (`""`)**: The token is treated as an intentional blank value and is stripped cleanly (`"Hello "` without braces).
+* **Populated value**: The token is substituted with the supplied string (`"Hello John"`).
 
 <Note>
-  An empty string counts as a value. If you want the placeholder to be replaced by nothing (and to skip agent-level defaults), pass `""`. If you want to fall back to the agent-level default value, omit the key or pass `null`.
+  An empty string (`""`) counts as an explicit value, overriding agent-level defaults. To trigger an agent-level default fallback, omit the variable key entirely or supply `null`.
 </Note>
 
-### Checking for Unset Variables
+### Detecting Missing Values
 
-#### In Conversation Flow (Equations)
+#### Conversation Flow Equations
 
-To check if a variable is set in conversation flow conditions:
+In conditional branch rules:
 
 ```
 Equation: {{user_name}} exists
-Result: True if variable is defined (even an empty string is considered having a value)
+Result: Evaluates to True if the variable is defined (including empty strings)
 ```
 
-#### In Prompts
+#### Prompt Guardrails
 
-To handle unset variables in your prompts, you can add conditional logic:
+In system instructions, author conditional logic to protect against unpopulated braces:
 
 ```markdown theme={"dark"}
-If {{user_name}} appears with curly braces, use a generic greeting.
-Otherwise, greet the customer by name.
+If {{user_name}} appears with literal curly braces, use a generic greeting like "Hello there".
+Otherwise, address the customer directly using {{user_name}}.
 ```
 
-### Best Practices for Missing Variables
+### Best Practices
 
-1. **Set defaults at agent level**: Configure fallback values in agent settings
-2. **Use defensive prompting**: Design prompts that work with or without variables
-3. **Test thoroughly**: Always test with both set and unset variables
-4. **Document requirements**: Clearly indicate which variables are required vs optional
+1. **Assign agent-level fallbacks**: Configure baseline values in settings for non-critical fields.
+2. **Apply defensive prompt framing**: Structure dialogue instructions to remain natural whether values resolve or remain blank.
+3. **Verify edge cases in sandbox testing**: Evaluate agent responses against both populated and missing payload keys.
+4. **Document integration payloads**: Clearly communicate mandatory vs optional variable requirements across development teams.
 
-## 🎦 Video Tutorial
+## Video Walkthrough
 
 <iframe width="360" height="200" src="https://www.youtube.com/embed/19Z2OYBF_jA?si=WXPEC46NVE6ehIEl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
 
-### Additional Resources
+### Related Documentation
 
-* [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Examples and patterns from the Tavly community
-* [API Reference](/api-references/create-phone-call): Full documentation on passing dynamic variables
-* [Inbound Webhook Guide](/features/inbound-call-webhook): Setting variables for incoming calls
+* [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Reference patterns from the Tavly community
+* [API Reference](/api-references/create-phone-call): Parameter schemas for dispatching outbound calls
+* [Inbound Webhook Guide](/features/inbound-call-webhook): Delivering runtime variables for inbound phone lines
+

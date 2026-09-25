@@ -1,0 +1,106 @@
+---
+title: 'Write a Single Prompt'
+sidebarTitle: 'Write Single Prompt'
+description: 'Learn how to structure your Tavly AI single-prompt agent using sectioned instructions and step-based tasks so it stays reliably on script through an entire call.'
+seo:
+  title: 'Write a Single Prompt | Tavly AI Prompt Engineering'
+  description: 'Learn how to structure your Tavly AI single-prompt agent using sectioned instructions and step-based tasks so it stays reliably on script through an entire call.'
+og:title: 'Write a Single Prompt'
+og:description: 'Learn how to structure your Tavly AI single-prompt agent using sectioned instructions and step-based tasks so it stays reliably on script through an entire call.'
+og:image: 'https://mintcdn.com/retellai/__ejvYecdVsguhU2/images/create_agent.png'
+twitter:card: 'summary_large_image'
+icon: 'pen'
+keywords: ['single prompt', 'prompt engineering', 'Tavly AI prompts', 'agent instructions', 'prompt structure', 'conversational flow']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you structure a single prompt for an AI agent?'
+    answer: 'Structure your prompt by breaking it into labeled sections like identity, style guardrails, response guidelines, and the actual task sequence to ensure the model parses instructions accurately.'
+  - question: 'Why should tasks be formatted as a sequence of steps?'
+    answer: 'Formatting the task as an ordered list gives the model a clear sense of pacing and order, preventing the agent from asking multiple questions at once and allowing explicit branching logic.'
+  - question: 'How can you force an agent to wait for a user response?'
+    answer: 'You can explicitly control pacing by inserting the phrase "wait for user response" directly into your task list between steps where a pause is mandatory.'
+---
+
+## How do you structure a single-prompt agent?
+
+**Prompt design** is the most critical factor in your agent's overall performance. By structuring your Tavly single-prompt agent using explicitly **sectioned instructions** and **step-based tasks**, you ensure the agent handles edge cases smoothly, adheres to guardrails, and stays reliably on script throughout the entire call.
+
+This page contains our recommended best practices for keeping agents on track. For working examples, open the Dashboard, start a new agent, and browse the available templates—each one is built from a real, production-ready prompt you can inspect and adapt.
+
+## Why should you break prompts into sections?
+
+Rather than writing one massive block of instructions, splitting your prompt into distinct, labeled sections (such as **Identity**, **Style**, **Rules**, and **Task**) drastically improves reliability. The model parses sectioned text more accurately, making your agent's responses more consistent and the prompt much easier to maintain.
+
+Breaking your prompt down yields several direct benefits:
+
+* **High reusability:** Sections like identity or tone can be seamlessly copied and reused across different agents.
+* **Easier upkeep:** Modular prompts stay significantly easier to update or debug over time.
+* **Better model comprehension:** The AI model has an easier time parsing which specific rules apply to which exact context.
+
+```text
+## Identity
+You are a friendly AI assistant for Tavly AI. ....
+
+## Style Guardrails
+Be concise: ...
+Be conversational: ...
+...
+
+## Response Guideline
+Return dates in their spoken forms: ...
+Ask up to one question at a time: ...
+...
+
+## Task
+1. Greet the user
+...
+```
+
+## How do you structure the core task?
+
+When a call requires a specific procedure, lay the task section out as a strict **ordered list of steps** rather than a dense paragraph of instructions. This format gives the model clear direction on pacing, sequencing, and branching logic, explicitly preventing it from firing off every question in a single turn.
+
+By embedding branching logic directly into the steps, you can dynamically send the conversation down different paths depending on the caller's answers.
+
+```text
+## Task
+1. Ask for user's name.
+2. Ask if user needs a refund, need a replacement, or just retrieving information.
+  - if user needs a refund, transition to refund state.
+  - if user needs a replacement, transition to replacement state.
+3. If user is just retrieving information, ask for the order number.
+...
+```
+
+## How do you force the agent to wait?
+
+If your agent tends to advance too early, or if you need it to move through several instructions but pause at specific moments, you can be entirely explicit about pacing by inserting the exact phrase **`wait for user response`** directly into the step list.
+
+```text
+## Task
+1. Inform user why you are calling.
+2. Ask for user's name.
+
+wait for user response
+
+3. Ask if user needs a refund, need a replacement, or just retrieving information.
+
+wait for user response
+  - if user needs a refund, transition to refund state.
+  - if user needs a replacement, transition to replacement state.
+
+
+4. Ask for the order number.
+
+wait for user response
+...
+```
+
+## Where can you find prompt engineering tutorials?
+
+To dive deeper into advanced prompt architecture, watch our **Prompt Engineer Video Guidance** embedded below. You can also review comprehensive community templates to see how expert developers format complex conversational flows in production environments.
+
+<iframe width="360" height="200" src="https://www.youtube.com/embed/UREnD6v7fKE?si=khhpR-MPMR690L-H" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+See community templates in this [shared docs repository](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope).

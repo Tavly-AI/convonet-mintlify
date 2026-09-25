@@ -1,0 +1,62 @@
+---
+title: "Phone call testing"
+description: "Test a Tavly voice agent on a real phone call: attach a number, place an outbound test call or dial in, and validate audio, latency, DTMF, and transfers."
+---
+
+Phone call testing connects your voice agent directly to public telephony networks (PSTN), allowing you to audit features that [web call](/test/test-web) sessions cannot evaluate: carrier-grade audio compression, mobile network latency, dual-tone multi-frequency (DTMF) keypad inputs, and live line transfers. Conduct a phone test as your final pre-flight verification before routing live customer calls.
+
+<Note>
+  Telephony testing requires assigning an active [phone number](/deploy/purchase-number) to your agent. When placing or receiving a test call, the platform executes whichever [agent version](/agent/version) is linked to that number: an explicit version number, an environment tag, <code className="ui-btn">Latest Published</code>, or <code className="ui-btn">Latest Created</code>. Because <code className="ui-btn">Latest Created</code> dynamically resolves to your most recent draft, you can test work-in-progress agents without publishing them first.
+</Note>
+
+## Initiating an Outbound Test Call
+
+Trigger an automated outbound dial from Tavly directly to your personal phone.
+
+<Note>
+  To prevent toll fraud and regulatory violations, newer workspace accounts must complete [identity verification](/accounts/kyc) before Tavly enables outbound calling capabilities, including test calls. If your workspace has not satisfied KYC requirements, the telephone number drawer presents a verification banner rather than the call trigger button.
+</Note>
+
+<Steps>
+  <Step title="Assign the outbound agent to a number">
+    Navigate to the <code className="ui-btn">Phone Numbers</code> dashboard, select an owned number, and assign your agent as the designated <code className="ui-btn">Outbound agent</code>. Specify the target version to execute: a static version number, an environment tag, <code className="ui-btn">Latest Published</code>, or <code className="ui-btn">Latest Created</code> to test your unpublished draft.
+  </Step>
+
+  <Step title="Place the test call">
+    Within the number settings panel, click <code className="ui-btn">Make an outbound call</code>, enter your destination phone number, and start dialing. Supply test values for any [dynamic variables](/build/dynamic-variables) in the launch dialog so session placeholders resolve accurately.
+  </Step>
+</Steps>
+
+## Testing via Inbound Dialing
+
+<Steps>
+  <Step title="Assign the inbound agent to a number">
+    In the <code className="ui-btn">Phone Numbers</code> view, open an owned number and designate your agent as the <code className="ui-btn">Inbound agent</code>.
+  </Step>
+
+  <Step title="Dial the telephone number">
+    Place a phone call to the assigned number from your mobile device or landline. The telephony gateway connects your call directly to the bound agent.
+  </Step>
+</Steps>
+
+## Telephony Validation Checklist
+
+Testing over live carrier lines validates capabilities specific to telecom infrastructure:
+
+* **DTMF digit collection**: Confirm that the agent detects touch-tone keypad presses and navigates menu trees accurately.
+* **Telephony transfers**: Verify that cold transfers, warm handoffs, or agentic warm transfers complete successfully. External phone transfers cannot be simulated in browser audio.
+* **[Voicemail](/build/handle-voicemail) and IVR machine detection**: Ensure the answering machine detection (AMD) pipeline identifies voicemail greetings or IVR systems and executes configured branch logic. Machine detection runs exclusively on PSTN calls.
+* **Outbound SMS notifications**: Validate that mid-call SMS dispatch actions deliver messages to real devices.
+* **Carrier audio codecs and network latency**: Evaluate speech clarity under cellular audio compression and verify how conversational turn-taking behaves under real-world network delay.
+
+For instance, if an agent is designed to hand off billing inquiries to a support representative while confirming a numeric account PIN, dial into the agent, input digits on your phone keypad, and confirm that the transfer bridge executes cleanly without dropping audio.
+
+<Tip>
+  Following a test conversation, use [Conductor](/conductor/test-and-improve) to inspect call transcripts and generate automated tuning recommendations.
+</Tip>
+
+## Next Steps
+
+* [Web call testing](/test/test-web): Perform rapid browser-based voice testing without purchasing a phone number.
+* [Simulation testing](/test/llm-simulation-testing): Automate multi-turn test scenarios with rubric-based evaluation.
+* [Testing overview](/test/test-overview): Compare testing utilities across all development phases.

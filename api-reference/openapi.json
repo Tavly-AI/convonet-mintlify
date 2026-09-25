@@ -1,216 +1,282 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "title": "Tavly AI API",
+    "description": "API reference for managing voice and chat agents, executing calls, and handling webhooks with Tavly AI.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Tavly AI Support",
+      "email": "support@tavly.it",
+      "url": "https://www.tavly.it"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.tavly.it/v1",
+      "description": "Production Server"
     }
   ],
   "security": [
     {
-      "bearerAuth": []
+      "BearerAuth": []
     }
   ],
   "paths": {
-    "/plants": {
+    "/agents": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "summary": "List or Get Agents",
+        "description": "Retrieve a list of configured Tavly AI agents or details for a specific agent.",
+        "operationId": "getAgents",
         "parameters": [
           {
-            "name": "limit",
+            "name": "agent_id",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "required": false,
+            "description": "Optional unique identifier of the agent.",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful retrieval of agents.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agent"
+                      }
+                    }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       },
       "post": {
-        "description": "Creates a new plant in the store",
+        "summary": "Create Agent",
+        "description": "Create a new single-prompt, multi-prompt, or conversation flow agent.",
+        "operationId": "createAgent",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/CreateAgentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
-          "200": {
-            "description": "plant response",
+          "201": {
+            "description": "Agent created successfully.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/Agent"
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Invalid payload parameters."
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/plants/{id}": {
+    "/agents/{agent_id}": {
       "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+        "summary": "Delete Agent",
+        "description": "Permanently remove an existing Tavly AI agent.",
+        "operationId": "deleteAgent",
         "parameters": [
           {
-            "name": "id",
+            "name": "agent_id",
             "in": "path",
-            "description": "ID of plant to delete",
             "required": true,
+            "description": "The unique ID of the agent to delete.",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Agent successfully deleted.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "agent_12345"
+                    },
+                    "deleted": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
                 }
               }
             }
+          },
+          "404": {
+            "description": "Agent not found."
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+    },
+    "/webhooks/call-events": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "summary": "Call Event Webhook Handler",
+        "description": "Endpoint structure used by Tavly AI to dispatch real-time call and chat event notifications to your server.",
+        "operationId": "handleCallWebhook",
+        "security": [],
         "requestBody": {
-          "description": "Plant added to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/WebhookEvent"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Webhook received and acknowledged."
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "API key is missing or invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Unauthorized access. Invalid API Key."
+                }
               }
             }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "schemas": {
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "agent_98765"
+          },
+          "name": {
+            "type": "string",
+            "example": "Customer Support Agent"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "single_prompt",
+              "conversation_flow"
+            ],
+            "example": "single_prompt"
+          },
+          "voice": {
+            "type": "string",
+            "example": "expressive-en-us-1"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-31T10:00:00Z"
+          }
+        }
+      },
+      "CreateAgentRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Inbound Receptionist"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "single_prompt",
+              "conversation_flow"
+            ],
+            "example": "single_prompt"
+          },
+          "prompt": {
+            "type": "string",
+            "example": "You are a helpful customer support agent for Tavly AI."
+          },
+          "voice": {
+            "type": "string",
+            "example": "expressive-en-us-1"
+          }
+        }
+      },
+      "WebhookEvent": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "example": "call.completed"
+          },
+          "call_id": {
+            "type": "string",
+            "example": "call_abc123"
+          },
+          "duration": {
+            "type": "integer",
+            "example": 142
+          },
+          "status": {
+            "type": "string",
+            "example": "ended"
+          },
+          "transcript": {
+            "type": "string",
+            "example": "Hello, how can I help you today?..."
+          }
+        }
       }
     }
   }

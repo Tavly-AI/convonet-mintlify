@@ -1,164 +1,148 @@
 ---
-title: Transition conditions
+title: 'Transition Conditions: Control Conversation Flow'
+sidebarTitle: 'Transition Conditions'
+description: 'Master Tavly Transition Conditions to control exactly when and how your AI agent routes calls using LLM prompts and deterministic logic equations.'
+seo:
+  title: 'Transition Conditions | Control Flow Routing | Tavly AI'
+  description: 'Master Tavly Transition Conditions to control exactly when and how your AI agent routes calls using LLM prompts and deterministic logic equations.'
+og:title: 'Transition Conditions: Control Conversation Flow'
+og:description: 'Master Tavly Transition Conditions to control exactly when and how your AI agent routes calls using LLM prompts and deterministic logic equations.'
+twitter:card: 'summary_large_image'
+icon: 'arrows-split-up-and-left'
+keywords: ['transition conditions', 'AI logic routing', 'deterministic logic', 'prompt conditions', 'conversation flow control', 'Tavly variables']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What happens if the caller says something that fits none of the conditions?'
+    answer: 'If no conditions match and the node lacks an Else edge, the agent simply stays in the current node and responds according to its base instruction.'
+  - question: 'How can I review the transitions from a past call?'
+    answer: 'Open the call transcript in the history tab. It maps out every single transition alongside the exact node it moved from and to.'
+  - question: 'Is there a cap on how many transition conditions a node can have?'
+    answer: 'There is no strict limit per node, but each equation condition caps at 50 rules. Keeping prompt lists tight vastly improves LLM routing accuracy.'
+  - question: 'Why did the agent transition to a node incorrectly?'
+    answer: 'Ensure your base instructions do not use numbered labels (e.g., "Step 2") that confuse the LLM during evaluation. Renaming them to descriptive labels or letters fixes this.'
 ---
 
-> Control when a Tavly AI conversation flow agent moves between nodes: prompt conditions evaluated by the LLM, deterministic equation conditions, and else edges.
+## What is a Transition Condition?
 
-Transition conditions decide whether and where the agent moves next. Each edge out of a node pairs a condition with a destination: when the condition is met, the agent transitions to that node. This is where you get the most control over a flow, and where careful testing pays off most.
+**Transition conditions** strictly dictate whether an active AI agent moves to a new conversational state, and exactly where it routes to if so. 
 
-## Condition types
+Every single edge leading out of a functional node mathematically pairs a condition with a destination node. The exact moment that condition is satisfied, the agent transitions. This mechanism provides the absolute finest degree of control over a conversation flow, and is precisely where aggressive testing matters most.
 
-There are two types of transition conditions:
+## What types of conditions exist?
 
-* **Prompt**: A natural-language condition evaluated by the LLM against the conversation.
-* **Equation**: A deterministic comparison over [dynamic variables](/build/dynamic-variables) — no LLM involved.
+There are two fundamental kinds of transition conditions: natural language Prompts and deterministic Equations.
 
-Example prompt conditions:
+* **Prompt:** A natural-language descriptive condition that the underlying LLM actively evaluates against the real-time conversation context.
+* **Equation:** A strictly deterministic mathematical comparison executed against **[Dynamic Variables](/build/dynamic-variables)**. This involves **no LLM computation** whatsoever.
 
+**Example Prompt Conditions:**
 * `User said something about booking a meeting`
-* `User said something about cancelling a meeting`
 * `User claims to be over 18`
 * `User said they lived in New York or Los Angeles`
 
-Example equation conditions:
-
-```
+**Example Equation Conditions:**
+```text theme={"dark"}
 - {{user_age}} > 18
 - {{current_time}} > 9 AND {{current_time}} < 18
 - {{user_location}} == "New York"
-- {{user_location}} != "New York"
-- "New York, Los Angeles" CONTAINS {{user_location}}
-- {{user_age}} < 18 OR {{user_location}} == "New York"
 - {{name}} exists
 ```
 
-<Note>
-  Equation conditions can only reference dynamic variables. For information the agent learns during the call, either use a prompt condition or first capture the value with an [extract DV node](/build/conversation-flow/extract-dv-node) and branch on it afterwards.
-</Note>
+<Note> **Variable Dependency:** Equation conditions strictly evaluate against pre-existing dynamic variables. If the agent learns something for the first time mid-call, you must use a prompt condition, or formally extract it first using an [Extract Dynamic Variable Node](/build/conversation-flow/extract-dv-node).</Note>
 
-## Special edges
+## What are special edge types?
 
-Besides regular condition edges, a node can have:
+Beyond standard prompt and equation checks, nodes can support advanced fallback and override edges.
 
-* **Else edge**: The fallback. It fires when no other condition matches, so the flow never gets stuck. Use it deliberately — on a node with an else edge, any user turn that matches nothing else moves through it.
-* **Always edge**: Transitions unconditionally as soon as the user responds, skipping condition evaluation entirely. Useful when the node just needs one reply (e.g. an acknowledgment) before moving on.
-* **Skip Response edge**: Created when the node's **Skip Response** setting is on. The node transitions once the agent finishes speaking, without waiting for the user — good for disclaimers or hand-off lines.
+* **Else Edge:** The strict fallback path. It fires exclusively when absolutely nothing else matches, guaranteeing the flow never fatally stalls. Use it carefully—any unexpected user turn will route through here.
+* **Always Edge:** Transitions completely unconditionally the exact moment the user finishes responding, aggressively bypassing all logic evaluation.
+* **Skip Response Edge:** Generated automatically when a node's **Skip Response** setting is enabled. The transition fires the exact moment the agent finishes speaking, without waiting for human input.
 
-## Evaluation order
+## In what order are conditions checked?
 
-When a transition check runs, conditions are evaluated in this order:
+When a transition check initiates, the routing engine aggressively evaluates conditions in this strict, hierarchical order:
 
-1. **Always edge** — if the node has one, the agent transitions through it right after the user responds. Nothing else is checked.
-2. **Equation conditions** — evaluated deterministically before any prompt condition. Among equation edges, evaluation runs top to bottom and the first condition that evaluates true wins.
-3. **Prompt conditions** — if no equation matched, the LLM evaluates all prompt conditions together, alongside any [global node](/build/conversation-flow/global-node) entry conditions, and picks the single best match — or none.
-4. **Else edge** — if nothing matched and the node has an else edge, the agent transitions through it.
-5. **Stay** — otherwise the agent stays in the current node and keeps the conversation going.
+1. **Always Edge:** If present, transitions immediately. Nothing else is evaluated.
+2. **Equation Conditions:** Evaluated deterministically top-to-bottom. The very first true equation wins instantly.
+3. **Prompt Conditions:** If no equation matched, the LLM weighs every prompt condition simultaneously against any [Global Node](/build/conversation-flow/global-node) entry conditions. It picks the single best fit.
+4. **Else Edge:** If no equations or prompts matched, the flow forcefully routes here.
+5. **Stay:** If all checks fail and no Else edge exists, the agent remains in the current node.
 
-## When transitions are checked
+**When do these checks run?**
+* **Standard/Subagent Nodes:** Immediately after every single human turn.
+* **Tool Nodes (Function, Code, MCP, Extract):** Immediately after the backend tool returns its payload.
+* **Telephony Nodes (SMS, Transfer):** Immediately after the telephony action definitively succeeds or fails.
+* **Logic Split Node:** Instantaneously upon node entry.
 
-The trigger depends on the node type:
+## How do you write equation syntax?
 
-* **Conversation and subagent nodes**: after each user turn — or, with Skip Response on, as soon as the agent finishes speaking.
-* **Function, code, MCP, and extract DV nodes**: after the tool result arrives (when waiting for the result).
-* **SMS node**: after the SMS succeeds or fails.
-* **Call transfer and transfer agent nodes**: after the transfer result comes back (e.g. the transfer failed).
-* **Logic split node**: immediately on entry.
+An equation condition can support up to 50 individual comparisons joined by strictly structural logic: **ANY** (OR logic) or **ALL** (AND logic).
 
-When testing in the dashboard (audio or text), the current node is highlighted on the canvas, so you can watch exactly when each transition happens.
-
-## Equation reference
-
-An equation condition holds one or more equations — up to 50 — combined with **ANY** (at least one must be true) or **ALL** (all must be true).
-
-| Operator                   | Compares | Behavior                                                                                                                                    |
-| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `==`, `!=`                 | Strings  | Case-insensitive string match (or not) — `"new york"` equals `"New York"`. No numeric coercion — `"18"` and `"18.0"` are different strings. |
-| `>`, `>=`, `<`, `<=`       | Numbers  | Numeric comparison. If either side is empty or not a number, the equation evaluates to **false** — it never throws.                         |
-| `Contains`, `Not Contains` | Strings  | Whether the left value includes the right value as a substring, ignoring case.                                                              |
-| `exists`, `does not exist` | Variable | Whether the dynamic variable has been set. An empty string still counts as set.                                                             |
-
-The `exists` check is useful when information may or may not be available before the call:
-
-```
-- {{user_email}} exists
-- {{user_phone}} does not exist
-```
+| Operator | Evaluates | Core Behavior |
+| --- | --- | --- |
+| `==`, `!=` | Strings | Case-insensitive strict comparison. No numeric coercion (e.g., `"18"` != `"18.0"`). |
+| `>`, `>=`, `<`, `<=` | Numbers | Standard math comparison. Invalid numbers gracefully evaluate to **false** instead of crashing. |
+| `Contains`, `Not Contains` | Strings | Case-insensitive substring validation. |
+| `exists`, `does not exist` | Variable | Validates if a dynamic variable is populated. Empty strings evaluate to `true` (exists). |
 
 <Frame caption="An equation condition using the exists operator.">
   <img src="https://mintcdn.com/retellai/YTmPqPUaDmLakDGZ/images/cf/equation-exists.png?fit=max&auto=format&n=YTmPqPUaDmLakDGZ&q=85&s=d7e2c521747433b7695323d5ff49b005" alt="Equation editor showing a condition that checks whether a dynamic variable exists" width="1286" height="953" data-path="images/cf/equation-exists.png" />
 </Frame>
 
-## Add and edit conditions
+## How do you add and manage conditions?
+
+You construct transition logic directly within the node's edge menu, stacking and reordering equations to strictly define routing priorities.
 
 <Steps>
-  <Step title="Add a condition">
-    Click the node, then click the **+** button to add a transition condition. Choose **Prompt** or **Equation**.
-
+  <Step title="Add a new condition">
+    Click the target node, hit the **+** button, and explicitly select **Prompt** or **Equation**.
     <Frame caption="Adding a transition condition from the node's edge list.">
       <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/add-transition-condition.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=cbfe8baf022467b5d7098a19bb424388" alt="Node edge list with the + button open, offering a choice between a prompt and an equation transition condition" width="284" height="183" data-path="images/cf/add-transition-condition.png" />
     </Frame>
   </Step>
 
-  <Step title="Write the condition">
-    For a prompt condition, type the condition text directly on the edge.
-
-    For an equation condition, the equation editor opens. Click **Add equation** to add rows, the trash icon to delete one, and switch **ANY** to **ALL** to require every equation to be true.
-
+  <Step title="Write the condition text">
+    For prompts, simply type the natural language rule. For equations, construct the logical rows and aggressively toggle **ANY/ALL** to set the required structural threshold.
     <Frame caption="The equation editor with ANY/ALL and per-row controls.">
       <img src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/equation-editor.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=b8230b5f0933ccdef7b6ef9ef2b6cb0f" alt="Equation editor dialog showing equation rows with left value, operator, right value, an ANY/ALL selector, and add/delete controls" width="384" height="340" data-path="images/cf/equation-editor.png" />
     </Frame>
   </Step>
 
   <Step title="Reorder equations">
-    Drag the six-dot handle on the left of an equation to move it up or down. Order matters: the first equation condition that evaluates true wins.
-
+    Execution order dictates priority. Drag the six-dot handle to reorder rows—the very first equation that evaluates to `true` permanently wins the routing calculation.
     <Frame caption="Drag the handle to reorder equations.">
       <img src="https://mintcdn.com/retellai/YiYvhov2NLXI5cg3/images/cf/equation-editor-reorder.png?fit=max&auto=format&n=YiYvhov2NLXI5cg3&q=85&s=0c39e0b98b5c48eb5efe0b7d76a5bf9d" alt="Equation editor with a row being dragged by its six-dot handle to change evaluation order" width="910" height="842" data-path="images/cf/equation-editor-reorder.png" />
     </Frame>
   </Step>
 </Steps>
 
-## Write conditions that transition reliably
+## How do you improve transition accuracy?
 
-The LLM sees the current node's instruction while evaluating conditions, but each condition should stand on its own — describe what the user said or the state reached, without leaning on the instruction text:
+Ensure every condition makes contextual sense independently, without forcing the LLM to rely on the node's base instruction to fill in contextual gaps.
 
-* `When user indicates they want to book a meeting`
-* `User declines the invitation`
-* `User responds to question of their age`
-* For function nodes, you can reference the result: `CRM lookup returned successful result`
+* **Poor:** `When they say yes`
+* **Optimal:** `When the user indicates they want to book a meeting`
 
-To keep the agent from getting stuck, cover every case you expect at that point in the conversation. General cases (like objection handling) can live on [global nodes](/build/conversation-flow/global-node), so node-level conditions only need to cover what's specific to that step.
+If a transition misfires, explicitly tighten the prompt condition to describe exactly what the user said, or aggressively deploy [Fine-Tune Examples](/build/conversation-flow/finetune-examples) to force the LLM to map raw transcripts to the correct routing decision.
 
-For equation conditions, cover every branch the dynamic variables can take. For example, to treat callers from New York and Los Angeles differently when `{{user_location}}` is known before the call:
-
-```
-- {{user_location}} == "New York"
-- {{user_location}} == "Los Angeles"
-```
-
-## Improve transition accuracy
-
-If you observe an incorrect transition:
-
-* Rewrite the condition to be more specific about what the user said.
-* Add transition [finetune examples](/build/conversation-flow/finetune-examples) that show the model real transcripts with the correct decision.
 
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="The user said something unrelated to every condition — what happens?">
-    In order: if a global node's condition matches, the agent transitions there. Otherwise, if the node has an else edge, the agent moves through it. If neither, the agent stays in the current node and responds from its instruction.
+  <Accordion title="What happens if the caller says something that fits none of the conditions?">
+    The order runs like this: first, if a global node's condition matches, the agent moves there. If not, and the node has an else edge, the agent transitions through it. If neither applies, the agent simply stays in the current node and responds according to its instruction.
   </Accordion>
 
-  <Accordion title="How do I see the transitions for a past call?">
-    Open the call transcript in the history tab — it shows each transition with the node names it moved from and to. Name your nodes descriptively so this is easy to read.
+  <Accordion title="How can I review the transitions from a past call?">
+    Open the call transcript in the history tab — it lays out every transition along with which node it moved from and to. Giving your nodes descriptive names makes this much easier to follow.
   </Accordion>
 
-  <Accordion title="Is there a limit on the number of transition conditions?">
-    There's no limit on conditions per node, though each equation condition holds at most 50 equations. Keep the list focused — the more prompt conditions a node has, the harder it is for the LLM to pick the right one.
+  <Accordion title="Is there a cap on how many transition conditions a node can have?">
+    There's no limit on the number of conditions per node, though each individual equation condition can hold at most 50 equations. It's still worth keeping the list tight — the more prompt conditions a node carries, the harder it is for the LLM to reliably pick the right one.
   </Accordion>
 
-  <Accordion title="The agent transitioned to a node whose condition was never met — why?">
-    Check your [global prompt](/build/conversation-flow/global-setting) and node instructions for numbered labels like "PRIORITY 1", "Step 2", or "ATTEMPT 1". When the agent picks the next node, numbers in these lists can be confused with its transition options, so a transition can fire even though its condition was never met. Rename the items to letters ("PRIORITY A") or descriptive names ("New service intent") — the instructions themselves can stay the same.
+  <Accordion title="Why did the agent transition to a node whose condition was never actually met?">
+    Take a look at your [global prompt](/build/conversation-flow/global-setting) and node instructions for numbered labels like "PRIORITY 1," "Step 2," or "ATTEMPT 1." When the agent is choosing its next node, numbers appearing in lists like these can get mixed up with its actual transition options, causing a transition to fire even though the real condition was never satisfied. Renaming these to letters ("PRIORITY A") or descriptive labels ("New service intent") usually fixes it — the underlying instructions themselves don't need to change.
   </Accordion>
 </AccordionGroup>

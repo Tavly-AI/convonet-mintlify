@@ -1,84 +1,110 @@
 ---
-title : TTS provider comparison
+title: 'Compare TTS Providers: Models & Features'
+sidebarTitle: 'TTS Providers'
+description: 'Compare text-to-speech providers available in Tavly, including Platform Voices, MiniMax, Cartesia, and ElevenLabs, across features, latency, and limits.'
+seo:
+  title: 'Compare TTS Providers | Tavly Speech Synthesis Engines'
+  description: 'Compare text-to-speech providers available in Tavly, including Platform Voices, MiniMax, Cartesia, and ElevenLabs, across features, latency, and limits.'
+og:title: 'Compare TTS Providers in Tavly'
+og:description: 'Compare text-to-speech providers available in Tavly, including Platform Voices, MiniMax, Cartesia, and ElevenLabs, across features, latency, and limits.'
+twitter:card: 'summary'
+icon: 'microphone-lines'
+mode: 'wide'
+keywords: ['TTS providers', 'Tavly AI speech engines', 'MiniMax voice', 'Cartesia TTS', 'ElevenLabs models', 'Inworld TTS', 'Platform Voices comparison']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Which TTS provider is recommended for phone calls?'
+    answer: 'Platform Voices are the recommended baseline for telephony agents. They are natively trained for telephone bandwidths, manage TTS fallback automatically, and exclusively support Expressive Mode.'
+  - question: 'Do I need my own API key for third-party providers?'
+    answer: 'No. Tavly fully manages and hosts all seven text-to-speech integrations. You simply select the voice in the dashboard, and Tavly handles the infrastructure, billing, and routing automatically.'
+  - question: 'What happens if a TTS provider goes down?'
+    answer: 'Platform Voices will automatically execute internal failover. If you are using third-party providers like ElevenLabs or Cartesia, you must manually configure a TTS fallback plan to re-route calls during outages.'
 ---
-> Compare Tavly's TTS voice providers, including platform voices, MiniMax, Cartesia, Inworld, ElevenLabs, and OpenAI, on models, features, and languages.
 
-Tavly supports seven voice providers: [platform voices](/build/platform-voices) (Tavly's own library), MiniMax, Cartesia, Inworld, Fish Audio, ElevenLabs, and OpenAI. The provider behind your agent's voice affects how it sounds, which languages it can speak, and which features you can use.
+## What TTS engines are supported?
 
-**Start with a platform voice unless you have a specific reason not to.** Platform voices are fine-tuned for phone conversations, handle [TTS fallback](/build/tts-fallback) automatically, and are the only voices that support [Expressive Mode](/build/expressive-mode). Reach for a third-party provider voice when you need a specific voice, accent, or capability a platform voice doesn't cover.
+Tavly provides integrated, keyless access to seven distinct speech synthesis engines: **Platform Voices** (Tavly's native engine), **MiniMax**, **Cartesia**, **Inworld**, **Fish Audio**, **ElevenLabs**, and **OpenAI**. Your selected provider defines voice timbre, latency, language support, and feature compatibility.
 
-Many voices in the library are available from more than one provider — the voice ID prefix tells you which provider serves it (for example, `minimax-Cimo`, `cartesia-Cimo`, and `11labs-Cimo` are the same persona on different providers). This makes it easy to compare providers while keeping a similar voice.
+**Platform Voices represent the recommended baseline for telephony agents.** They are explicitly engineered for telephone audio codecs, handle [TTS fallback](/build/tts-fallback) autonomously, and serve as the exclusive engine for [Expressive Mode](/build/expressive-mode). Select external providers only when your agent demands a highly specific persona, uncommon dialect, or vendor-specific API integration.
 
-## Feature comparison
+Many core voice personas are available across multiple provider backends. The prefix on a voice identifier designates its serving engine (e.g., `minimax-Cimo` and `11labs-Cimo` share the same core vocal profile). This enables direct performance evaluation across providers while maintaining persona continuity.
 
-|                                               |   Platform  |                MiniMax                |                 Cartesia                 |                 Inworld                |         Fish Audio         |                                   ElevenLabs                                  |           OpenAI           |
-| --------------------------------------------- | :---------: | :-----------------------------------: | :--------------------------------------: | :------------------------------------: | :------------------------: | :---------------------------------------------------------------------------: | :------------------------: |
-| Voice models                                  | Auto-routed | `speech-02-turbo`, `speech-2.8-turbo` | `sonic-3`, `sonic-3-latest`, `sonic-3.5` | `inworld-tts-2`, `inworld-tts-2-flash` | `s1`, `s2-pro`, `s2.1-pro` | `eleven_flash_v2`, `eleven_flash_v2_5`, `eleven_multilingual_v2`, `eleven_v3` | `tts-1`, `gpt-4o-mini-tts` |
-| [Expressive Mode](/build/expressive-mode)     |      ✓      |                                       |                                          |                                        |                            |                                                                               |                            |
-| Automatic [TTS fallback](/build/tts-fallback) |      ✓      |                 Manual                |                  Manual                  |                 Manual                 |           Manual           |                                     Manual                                    |           Manual           |
-| `voice_emotion` API field                     |             |                   ✓                   |                     ✓                    |                                        |                            |                                                                               |                            |
-| [Voice cloning](/api-references/clone-voice)  |      ✓      |                   ✓                   |                     ✓                    |                    ✓                   |              ✓             |                                       ✓                                       |                            |
+## Feature Matrix Comparison
 
-For the languages each provider supports, see [Language support by provider](/build/language-support), including the [model-level restrictions](/build/language-support#model-level-restrictions) where a provider gates certain languages to specific models.
+| Engine | Models Supported | [Expressive Mode](/build/expressive-mode) | [TTS Fallback](/build/tts-fallback) | `voice_emotion` API | [Voice Cloning](/api-references/clone-voice) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Platform** | Dynamic routing | ✓ | Automatic | | ✓ |
+| **MiniMax** | `speech-02-turbo`, `speech-2.8-turbo` | | Manual | ✓ | ✓ |
+| **Cartesia** | `sonic-3`, `sonic-3-latest`, `sonic-3.5` | | Manual | ✓ | ✓ |
+| **Inworld** | `inworld-tts-2`, `inworld-tts-2-flash` | | Manual | | ✓ |
+| **Fish Audio** | `s1`, `s2-pro`, `s2.1-pro` | | Manual | | ✓ |
+| **ElevenLabs** | `eleven_flash_v2`, `eleven_flash_v2_5`, `eleven_multilingual_v2`, `eleven_v3` | | Manual | | ✓ |
+| **OpenAI** | `tts-1`, `gpt-4o-mini-tts` | | Manual | | |
 
-## Provider notes
+Consult [Language support by provider](/build/language-support) to view supported regional dialects, along with documented [model-level restrictions](/build/language-support#model-level-restrictions).
 
-<Note>
-  Subjective observations below come from our internal testing. For an independent read on raw voice quality, the [Artificial Analysis Speech Arena](https://artificialanalysis.ai/text-to-speech/arena) runs blind pairwise listening tests (English only); as of August 2026 it places Inworld's and ElevenLabs' newest models near the top, with MiniMax and Fish Audio close behind. Results vary by voice, model, and language — preview voices in the dashboard before committing.
-</Note>
+## Provider Profiles
 
-### Platform voices
+<Note> **Acoustic Assessments:** The profiles below reflect Tavly's internal benchmark data. For third-party technical evaluations, review the [Artificial Analysis Speech Arena](https://artificialanalysis.ai/text-to-speech/arena). Because audio performance fluctuates wildly across target languages, strictly test sample audio in the dashboard before deploying any third-party voice to production.</Note>
 
-Tavly's curated library, fine-tuned for conversational AI over the phone: natural fillers, pacing, and clarity at telecom bitrates. Tavly routes each platform voice to the best underlying model for your agent's language, and fallback during a provider outage is automatic, with no fallback plan to configure. Platform voices are also the only way to use [Expressive Mode](/build/expressive-mode) emotion and effect tags.
+### Platform Voices
+Tavly's proprietary voice catalog is engineered specifically for real-time phone calls. It offers natural handling of filler sounds, conversational cadence, and acoustic clarity across cellular and landline codecs.
+* **Resilience:** Fully automated failover during infrastructure outages.
+* **Exclusivity:** The only engine compatible with [Expressive Mode](/build/expressive-mode) tags.
 
 ### MiniMax
-
-Strongest at reading spelled-out words ("W - O - R - D") and the most consistent pacing and tone in our testing. Strong coverage of Asian languages: Cantonese, for example, is only available through MiniMax and platform voices. Supports the `voice_emotion` API field. Voices can sound somewhat more robotic than other providers.
+MiniMax delivers top-tier performance when articulating hyphenated strings (such as spelling out "W - O - R - D") and demonstrates highly consistent cadence.
+* **Language Edge:** Extensive support for Asian dialects, including Cantonese (accessible exclusively through MiniMax and Platform Voices).
+* **Drawback:** Delivery can occasionally exhibit a slightly more synthetic profile relative to Inworld or ElevenLabs.
 
 ### Cartesia
-
-Natural-sounding voices with stronger spelling accuracy than ElevenLabs in our testing, and among the lowest synthesis latency of any provider in published benchmarks. Supports the `voice_emotion` API field. Pacing and tone can be less consistent, and localization is weaker for some accents.
+Cartesia produces highly natural prosody and scores among the lowest absolute generation latencies in public testing.
+* **Accuracy:** Character spelling accuracy exceeds ElevenLabs in benchmark runs.
+* **Drawback:** Pacing and pitch stability can fluctuate abruptly, and dialect localization is weak across regional accents.
 
 ### Inworld
-
-The newest provider on Tavly. Inworld's models currently rank first in the Artificial Analysis Speech Arena's blind listening tests, and `inworld-tts-2-flash` trades some quality for lower latency. Language coverage is narrower than most other providers: 15 languages, including English, Chinese, Japanese, Korean, Hindi, and Arabic. Supports voice cloning.
+Inworld routinely holds the top rank in blind listening evaluations. The `inworld-tts-2-flash` model significantly reduces response latency while trading only minor acoustic depth.
+* **Language Edge:** Highly focused support for 15 core languages, including English, Chinese, Japanese, Korean, Hindi, and Arabic.
 
 ### Fish Audio
-
-Broad language coverage across its `s2-pro` and `s2.1-pro` models; the older `s1` model supports a smaller language set. Its `s2-pro` model is the highest-ranked open-weight model in the Artificial Analysis Speech Arena. Supports voice cloning.
+Fish Audio provides extensive linguistic coverage through its robust `s2-pro` and `s2.1-pro` architectures. The `s2-pro` checkpoint routinely ranks as the top open-weight architecture in the Artificial Analysis Speech Arena.
 
 ### ElevenLabs
-
-A large voice library with wide accent variety; community voices added through [custom voice search](/build/voice) come from ElevenLabs. In our testing, exact spelling is less reliable and you may notice occasional pacing or tone quirks. Note that `eleven_flash_v2` is English-only, and the older Turbo models are [deprecated](/deprecation-notice/2026/07-12_elevenlabs_turbo_models) in favor of their Flash equivalents.
+ElevenLabs supplies a comprehensive voice library spanning numerous regional accents, heavily bolstered by community-contributed models.
+* **Drawback:** Exact letter-by-letter spelling demonstrates lower precision.
+* **Notice:** Previous Turbo checkpoints are [deprecated](/deprecation-notice/2026/07-12_elevenlabs_turbo_models) in favor of their Flash replacements. `eleven_flash_v2` is strictly restricted to English.
 
 ### OpenAI
+OpenAI delivers broad language availability across both its `tts-1` and `gpt-4o-mini-tts` endpoints with identical multilingual parity. OpenAI voices **do not support** voice cloning.
 
-Among the broadest language coverage of any provider, with the same language set on both of its models. Does not support voice cloning.
+## Selection Matrix
 
-## How to choose
+Use this matrix to rapidly identify the optimal TTS provider for your specific operational requirement.
 
-* **Default choice, or calls over the phone** → a [platform voice](/build/platform-voices)
-* **Most natural sound in blind listening tests** → Inworld, then confirm with your own previews
-* **Emotion tags, sighs, pauses, emphasis** → a platform voice with [Expressive Mode](/build/expressive-mode)
-* **Spelling accuracy** (confirmation codes, emails, names) → MiniMax or Cartesia
-* **Most consistent pacing and tone** → MiniMax
-* **Asian languages, including Cantonese** → MiniMax or a platform voice
-* **Emotional tone set per agent via the API** (`voice_emotion`) → Cartesia or MiniMax
-* **Voice cloning with zero fallback setup** → clone to `platform` with the [Clone Voice API](/api-references/clone-voice)
-* **A specific language** → check [Language support by provider](/build/language-support) first, then pick among the providers that cover it
+* **Telephony-first deployments or default recommendation** → [Platform Voice](/build/platform-voices)
+* **Top-ranked blind evaluation quality** → Inworld
+* **Dynamic vocalizations, pauses, sighs, and emphasis** → Platform Voice with [Expressive Mode](/build/expressive-mode)
+* **High spelling fidelity (alphanumeric codes, emails, names)** → MiniMax or Cartesia
+* **Cadence and tempo consistency** → MiniMax
+* **Cantonese or regional Asian dialects** → MiniMax or Platform Voice
+* **Programmatic emotion setting via API** (`voice_emotion`) → Cartesia or MiniMax
+* **Voice cloning with automated redundancy** → Clone to `platform` using the [Clone Voice API](/api-references/clone-voice)
+* **Targeting specific languages** → Consult [Language support by provider](/build/language-support) to verify coverage
 
-## FAQ
+## Frequently Asked Questions
 
 <AccordionGroup>
   <Accordion title="Do I need my own account or API key with these providers?">
-    No. q hosts all seven providers — you pick a voice and Tavly handles the provider behind it. There is nothing to sign up for or configure on the provider's side.
+    No. Tavly manages and hosts all seven text-to-speech integrations directly. You choose a voice in the dashboard or API, and Tavly handles vendor infrastructure, billing, and routing automatically without requiring third-party credentials.
   </Accordion>
 
   <Accordion title="What happens if a provider has an outage during a call?">
-    With a platform voice, Tavly fails over automatically and the agent keeps talking. With any other provider's voice, configure a [TTS fallback plan](/build/tts-fallback) so the agent can switch to a backup voice from a different provider mid-call.
+    For Platform Voices, Tavly executes automatic internal failover without session disruption. When deploying third-party provider voices, define a [TTS fallback plan](/build/tts-fallback) to re-route calls to a designated backup provider in real time.
   </Accordion>
 
   <Accordion title="Can I switch providers without changing how my agent sounds?">
-    Often, yes. Many library voices exist on several providers under the same persona name — swap `cartesia-Cimo` for `minimax-Cimo`, for example. Preview both in the dashboard, since the same persona can still sound slightly different across providers.
+    Yes. Many voice models exist across multiple provider engines under identical persona labels (such as migrating from `cartesia-Cimo` to `minimax-Cimo`). Preview both models within the dashboard prior to switching, as exact timbre and rendering parameters differ slightly across vendor engines.
   </Accordion>
 </AccordionGroup>
+

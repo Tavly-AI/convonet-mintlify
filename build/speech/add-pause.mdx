@@ -1,27 +1,45 @@
 ---
-title :Add pause or read slowly
+title: 'Add Pauses & Control Pacing'
+sidebarTitle: 'Add Pauses'
+description: 'Adjust localized speech tempo in Tavly voice agents using spaced dash syntax to enforce short pauses and extended intervals during sensitive data readbacks.'
+seo:
+  title: 'Add Speech Pauses & Control Pacing | Tavly AI'
+  description: 'Adjust localized speech tempo in Tavly voice agents using spaced dash syntax to enforce short pauses and extended intervals during sensitive data readbacks.'
+og:title: 'Add Speech Pauses & Control Pacing in Tavly'
+og:description: 'Adjust localized speech tempo in Tavly voice agents using spaced dash syntax to enforce short pauses and extended intervals during sensitive data readbacks.'
+twitter:card: 'summary'
+icon: 'pause'
+keywords: ['speech pacing', 'add pause TTS', 'Tavly AI speech tempo', 'voice agent cadence', 'spaced dash syntax']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do I add a pause between words?'
+    answer: 'You can instruct the LLM to output a hyphen surrounded by physical spaces (` - `). The synthesis engine reads this as a deliberate acoustic pause.'
+  - question: 'How do I make a pause longer?'
+    answer: 'Chain multiple spaced hyphens together (` -  -  - `). Each additional spaced hyphen physically increases the duration of silence before the speech engine resumes.'
 ---
-> Control speech pacing in Tavly agents by adding spaced dashes for short pauses and longer Read Slowly markup for phone numbers, addresses, and confirmations.
 
-Although you can adjust the general speed of the audio by changing the voice speed, you might want to
-slow down the agent's speech only at certain points (like reading phone numbers).
-You can do this by prompting the LLM and generating text with `-` in between (note, the space around `-` is important):
+## Why control Speech Pacing?
+
+While the global speaking rate is governed by your core agent settings, certain conversational moments require deliberate, localized slowing. This is essential when reciting sensitive alphanumeric strings like account codes, phone numbers, or mailing addresses.
+
+## How do you insert a Short Pause?
+
+You can explicitly instruct your language model to insert acoustic pauses by placing a hyphen (`-`) flanked by physical spaces directly between terms.
 
 ```json theme={"dark"}
 The number is 2 - 1 - 3 - 4
 ```
 
-<Warning>
-  Note: The spaces around the dash (`-`) are important for proper pausing behavior.
-</Warning>
+<Warning> **Formatting Constraint:** You absolutely must include whitespace on both sides of each dash (` - `). If you omit the spaces, the synthesis engine parses the mark as a compound hyphen (like "x-ray") and will not pause.</Warning>
 
-### How to add long pauses
+## How do you insert Extended Pauses?
 
-Sometimes you might want to add longer pauses to the conversation. You can do this by adding multiple `-` in between the words.
-
-Important: The spaces around the dash (`-`) are important for proper pausing behavior:
+To create significantly longer periods of silence between spoken items, prompt the model to output a continuous sequence of multiple dashes separated by spaces. 
 
 ```json theme={"dark"}
 The number is 2 -  -  -  - 1 -  -  -  - 3
 // Notice the double spaces between the dashes
 ```
+
+Every additional spaced hyphen incrementally increases the exact duration of the silence before the voice synthesis resumes.

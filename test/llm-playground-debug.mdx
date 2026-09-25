@@ -1,0 +1,80 @@
+---
+title: Debug your agent response
+description: "Debug Tavly agents in the LLM Playground: inspect problematic responses or routing transitions, review targeted fixes, and regenerate turns to verify behavior."
+---
+
+When an agent produces unexpected phrasing, navigates to an incorrect branch, or provides erroneous arguments to a tool, the Debug tool allows you to isolate and resolve that specific turn directly rather than adjusting global prompts or conversational graphs blindly. Open the debugger on any response, state transition, or tool call inside the [LLM Playground](/test/llm-playground) to view recommended architectural remedies, then regenerate the turn to confirm resolution before live deployment.
+
+<Note>
+  Debug functionality is embedded within the LLM Playground and adapts to your agent's underlying architecture. [Conversation Flow](/build/conversation-flow/overview) agents unlock complete debugging capabilities, including node routing analysis and node-level structural modifications. Single-prompt and multi-prompt agents offer response generation and tool execution debugging, highlighting model temperature tuning as the primary remedy.
+</Note>
+
+<Frame caption="Opening the Debug panel on a turn in the LLM Playground.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/debug-panel-intro.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=1bfe4b378e813f9b6bc54c4a63b2dd92" data-path="images/test-llm/debug-panel-intro.mp4" />
+</Frame>
+
+## Resolving Incorrect Responses
+
+<Steps>
+  <Step title="Open Debug on the response">
+    Click the <code className="ui-btn">Debug</code> button attached to the agent's utterance in the transcript.
+  </Step>
+
+  <Step title="Review recommended fixes">
+    The <code className="ui-btn">Debug the AI response</code> modal displays remediation strategies tailored to the issue, linking directly to step-by-step documentation:
+
+    * [Add Fine-tuning Examples](/build/conversation-flow/debug-guide#add-conversation-finetune-examples) to teach desired tone, format, and syntax.
+    * [Split One Node into Two Nodes](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes) when an individual node handles too many conversational objectives.
+    * [Adjust LLM Temperature](/build/conversation-flow/debug-guide#adjust-the-llm-temperature) to reduce generation variance in favor of strict predictability.
+
+    For single-prompt and multi-prompt agents, temperature tuning is the sole suggested fix because these architectures do not use discrete graph nodes.
+  </Step>
+
+  <Step title="Regenerate to verify">
+    Select <code className="ui-btn">Regenerate the answer</code> to generate a single response reflecting your configuration adjustments. Use <code className="ui-btn">Regenerate 10 answers</code> to sample a 10-turn frequency distribution and confirm consistency across multiple inferences.
+  </Step>
+</Steps>
+
+<Frame caption="Debugging a wrong response.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/debug-regenerate-response.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=0d3f0e4ac56aa88e10c80551e50fb6b4" data-path="images/test-llm/debug-regenerate-response.mp4" />
+</Frame>
+
+## Resolving Transition and Routing Errors
+
+When an agent shifts to an incorrect node or fails to transition when criteria are met:
+
+<Steps>
+  <Step title="Open Debug on the transition">
+    Click <code className="ui-btn">Debug</code> on the agent response and select <code className="ui-btn">Didn't transition as expected?</code>, or click <code className="ui-btn">Debug</code> directly on the transition indicator pill in the transcript.
+  </Step>
+
+  <Step title="Review recommended transition fixes">
+    Follow the linked guides to refine transition logic:
+
+    * [Add Fine-tuning Transition Examples](/build/conversation-flow/finetune-examples#finetune-examples-for-transition) to provide explicit routing patterns for ambiguous inputs.
+    * [Split One Node into Two Nodes](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes) to cleanly decouple competing routing criteria.
+  </Step>
+
+  <Step title="Regenerate the transition">
+    Click <code className="ui-btn">Regenerate the transition</code> to re-evaluate routing with your modified rules, or choose <code className="ui-btn">Regenerate 10 transitions</code> to check the destination node distribution across 10 separate evaluations.
+  </Step>
+</Steps>
+
+<Frame caption="Debugging a transition.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/debug-regenerate-transition.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=45ce74f6456ae992a70a63b38417fa91" data-path="images/test-llm/debug-regenerate-transition.mp4" />
+</Frame>
+
+## Resolving Tool and Function Call Issues
+
+When an agent invokes the wrong external function or passes invalid parameters, hover over the corresponding <code className="ui-btn">Tool Invocation</code> entry in the conversation transcript and click <code className="ui-btn">Debug</code>. The <code className="ui-btn">Debug the tool invocation</code> interface outlines applicable configuration corrections. Use <code className="ui-btn">Regenerate the tool invocation</code> to test a single invocation against the latest settings, or select <code className="ui-btn">Regenerate 10 tool invocations</code> to inspect parameter stability across 10 trials.
+
+## Managing Response Consistency and Variance
+
+If identical user inputs yield inconsistent agent outputs, click <code className="ui-btn">Debug</code> on the target turn. The dialog links to core stabilization strategies: [add fine-tuning examples](/build/conversation-flow/debug-guide#add-conversation-finetune-examples), [split the node](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes), or [adjust the temperature](/build/conversation-flow/debug-guide#adjust-the-llm-temperature).
+
+Every debug panel includes a 10-iteration verification action: <code className="ui-btn">Regenerate 10 answers</code>, <code className="ui-btn">Regenerate 10 transitions</code>, and <code className="ui-btn">Regenerate 10 tool invocations</code>. Each sampling action runs 10 times consecutively and tabulates distinct outcomes with their exact frequency counts out of 10. This identifies dominant paths on non-deterministic turns and confirms that your changes deliver predictable behavior.
+
+## Related Resources
+
+* [Manually test your agent](/test/llm-playground): Explore interactive testing and synthetic persona simulations in the LLM Playground.
+* [Testing overview](/test/test-overview): Compare playground sessions, automated simulations, and live voice calls.

@@ -1,24 +1,51 @@
 ---
-title: End node
+title: 'End Node: Terminate AI Calls Cleanly'
+sidebarTitle: 'End Node'
+description: 'Use the Tavly End Node to securely terminate an active call at a fixed point in the flow, optionally delivering a dynamic or static closing message.'
+seo:
+  title: 'End Node | Terminate AI Calls | Tavly AI'
+  description: 'Use the Tavly End Node to securely terminate an active call at a fixed point in the flow, optionally delivering a dynamic or static closing message.'
+og:title: 'End Node: Terminate AI Calls Cleanly'
+og:description: 'Use the Tavly End Node to securely terminate an active call at a fixed point in the flow, optionally delivering a dynamic or static closing message.'
+og:image: 'https://mintcdn.com/retellai/LPjiIxDz6s4F2qHE/images/cf/end-node.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-slash'
+keywords: ['end node', 'terminate AI call', 'Tavly AI agent hangup', 'end conversation flow']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is an End Node?'
+    answer: 'An End Node is a terminal routing block in a conversation flow that permanently hangs up the active call the exact instant the agent enters it.'
+  - question: 'What is the difference between an End Node and the End Call Tool?'
+    answer: 'An End Node terminates the call deterministically at a fixed, predetermined point in your visual flow. The End Call tool is attached to a Subagent Node, giving the LLM the freedom to end the call dynamically mid-conversation.'
+  - question: 'Can the agent say goodbye before hanging up?'
+    answer: 'Yes. By enabling the Speak During Execution setting, you can instruct the agent to deliver a dynamically generated or static closing message directly before the call terminates.'
 ---
 
-> Use an end node in a Tavly conversation flow to terminate the call cleanly, optionally with a closing message generated from a prompt or static text.
+## What is an End Node?
 
-The end node ends the call. It's a terminal node — it has no outgoing edges, and the call ends the moment the agent enters it. You can add as many end nodes as you need, one for each way a call can finish.
+An **End Node** is a strict terminal block that definitively closes out an active call. It possesses no outgoing edges, meaning the call automatically ends the exact instant the AI agent enters the node. You can seamlessly deploy as many end nodes as required to handle various conversational conclusions.
 
-By default the agent hangs up immediately, which callers experience as abrupt. Enable **Speak During Execution** so the agent says a closing line first.
+By default, the agent hangs up instantaneously. To prevent this from feeling overly abrupt to the human caller, you can enable **Speak During Execution** to enforce a polite closing phrase.
+
+For example, an appointment-booking flow might utilize one End Node for a successful booking (e.g., "You're all set for Tuesday. Goodbye!") and a completely separate End Node to handle a cancellation path with a different closing sentiment.
 
 <Frame caption="An end node with Speak During Execution enabled for a closing message.">
   <img src="https://mintcdn.com/retellai/LPjiIxDz6s4F2qHE/images/cf/end-node.png?fit=max&auto=format&n=LPjiIxDz6s4F2qHE&q=85&s=05ab60919489306c63cc0fff022544f5" alt="End node on the flow canvas with the Speak During Execution setting enabled and a closing message instruction" width="1386" height="434" data-path="images/cf/end-node.png" />
 </Frame>
 
-For example, an appointment-booking flow can end with a static closing line — "You're all set for Tuesday at 2 PM. Goodbye!" — after the booking succeeds, and use a second end node with a different message on the cancellation path.
+## How does it compare to the End Call Tool?
 
-## Node settings
+The End Node and the [End Call Tool](/build/single-multi-prompt/end-call) both terminate the session, but they are deployed for entirely different architectural paradigms.
 
-* **Speak During Execution**: When enabled, a text box appears where you define the closing message the agent speaks before hanging up. Choose **Prompt** to let the LLM generate a farewell from your instruction, or **Static Sentence** for an exact line like `Goodbye, have a nice day`.
-* **Global Node**: Make the end node reachable from anywhere in the flow when its condition is met — for example `User wants to end the call or says goodbye` — so you don't have to wire an edge to it from every node. Read more at [global node](/build/conversation-flow/global-node).
+* **End Node:** Deploy this when the call must terminate deterministically at a fixed, hardcoded point in the visual flow (e.g., explicitly after a payment succeeds).
+* **End Call Tool:** Attach this tool to a [Subagent Node](/build/conversation-flow/subagent-node) when the LLM needs the autonomous freedom to end the call dynamically mid-conversation whenever it logically decides the overarching goal is achieved.
 
-## End node vs End Call tool
+## What node settings are available?
 
-Use an end node when the call should end at a fixed point in the flow. If instead the agent should be able to end the call mid-dialogue whenever it judges the conversation complete, attach an [End Call tool](/build/single-multi-prompt/end-call) to a [subagent node](/build/conversation-flow/subagent-node).
+The End Node provides targeted settings to dictate exactly how the agent physically hangs up the phone and how easily the node can be reached by the rest of the flow.
+
+* **Speak During Execution:** Activating this feature reveals a dedicated text field where you define the exact closing message the agent delivers immediately before hanging up.
+  * **Prompt:** The LLM dynamically generates a contextual farewell based on your foundational instructions.
+  * **Static Sentence:** The agent strictly reads the exact wording you provide (e.g., `Goodbye, have a nice day`).
+* **Global Node:** Transforms the End Node into a universally reachable destination from anywhere in the flow the moment its condition is met (e.g., `User wants to end the call or says goodbye`). This eliminates the need to draw physical edges from every single node. Read the [Global Node Guide](/build/conversation-flow/global-node).

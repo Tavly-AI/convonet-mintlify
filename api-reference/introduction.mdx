@@ -1,33 +1,93 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "Getting Started with MDX"
+date: "2026-09-21"
+description: "A complete MDX template with components, callouts, and code blocks."
+author: "Your Name"
+tags: ["mdx", "react", "nextjs"]
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+import { useState } from 'react';
 
-## Welcome
+# Getting Started with MDX
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+MDX allows you to write JSX directly inside your Markdown documents. This enables interactive elements like stateful React components alongside standard content.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+---
 
-## Authentication
+## 1. Interactive Component Example
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Below is an example of an inline interactive React component rendered directly in the document:
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+export const Counter = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <div style={{
+      padding: '1rem',
+      borderRadius: '8px',
+      border: '1px solid #333',
+      background: '#121212',
+      color: '#fff',
+      margin: '1rem 0',
+      maxWidth: '300px'
+    }}>
+      <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>Current Count: {count}</p>
+      <button 
+        onClick={() => setCount(count + 1)}
+        style={{
+          padding: '0.5rem 1rem',
+          borderRadius: '4px',
+          border: 'none',
+          background: '#e5b800',
+          color: '#000',
+          fontWeight: 'bold',
+          cursor: 'pointer'
+        }}
+      >
+        Increment
+      </button>
+    </div>
+  );
+};
+
+<Counter />
+
+---
+
+## 2. Structured Information
+
+You can combine standard Markdown elements seamlessly.
+
+### Features Checklist
+
+- [x] Full Markdown syntax support
+- [x] Embedded React components
+- [x] Frontmatter metadata for routing and SEO
+- [ ] Custom MDX provider styling
+
+### Data Overview
+
+| Feature | Markdown | MDX |
+| :--- | :---: | :---: |
+| Plain Text | Yes | Yes |
+| HTML Tags | Limited | Full |
+| React Components | No | Yes |
+| Dynamic State | No | Yes |
+
+---
+
+## 3. Code Block & Implementation
+
+Here is how you export custom layout components or utility functions within MDX:
+
+```typescript
+export interface Frontmatter {
+  title: string;
+  date: string;
+  description: string;
+}
+
+export function calculateReadTime(text: string): number {
+  const wordsPerMinute = 200;
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
+}

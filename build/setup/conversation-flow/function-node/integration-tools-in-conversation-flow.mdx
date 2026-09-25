@@ -1,22 +1,73 @@
 ---
-title: Integration tools in conversation flow
+title: 'Integration Tools in Conversation Flow'
+sidebarTitle: 'Integration Tools'
+description: 'Connect native CRM, helpdesk, and calendar tools to Tavly AI conversation flows. Execute HubSpot, Salesforce, and Cal.com actions without an intermediary server.'
+seo:
+  title: 'Integration Tools in Conversation Flow | Tavly AI Documentation'
+  description: 'Learn how to trigger HubSpot, Salesforce, Zendesk, and Cal.com tools within Tavly AI conversation flows and branch transitions based on execution results.'
+og:title: 'Integration Tools in Conversation Flow | Tavly AI'
+og:description: 'Connect native CRM, helpdesk, and calendar tools to Tavly AI conversation flows. Execute HubSpot, Salesforce, and Cal.com actions without an intermediary server.'
+og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/function-node-add-integration-tool.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=43f3006b516ff2967157505186395670'
+twitter:card: 'summary_large_image'
+icon: 'plug'
+keywords:
+  - 'integration tools'
+  - 'conversation flow'
+  - 'Salesforce integration'
+  - 'HubSpot voice agent'
+  - 'function node'
+  - 'Zendesk voice AI'
+  - 'Cal.com integration'
+  - 'CRM call automation'
+date: '2026-09-23'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What are integration tools in a Tavly AI conversation flow?'
+    answer: 'Integration tools are pre-built, managed connectors to platforms like Salesforce, HubSpot, Zendesk, and Cal.com executed within function nodes without requiring a self-hosted intermediary server.'
+  - question: 'How do integration tools handle authentication?'
+    answer: 'Tavly AI manages third-party authentication and API requests securely at the workspace level, eliminating the need to host external proxy servers or manage API tokens manually.'
+  - question: 'What happens if an integration tool call errors or times out?'
+    answer: 'Integration calls time out between 3 and 14 seconds depending on the provider. When a call errors or times out, the flow continues forward, requiring dedicated failure edges to handle exceptions safely.'
+  - question: 'Can integration tools be used outside function nodes?'
+    answer: 'Yes. Integration tools can also be utilized inside subagent nodes alongside custom tools, in single- or multi-prompt agents, and before or after calls in agent workflows.'
 ---
 
-> Call HubSpot, Salesforce, Zendesk, or Cal.com tools from a Tavly AI conversation flow function node, and branch transitions on what comes back.
+## What are integration tools in conversation flow?
 
-In a conversation flow, integration tools run through a [function node](/build/conversation-flow/function-node): the node fires the tool on entry, and the flow transitions on the result. Tavly AI handles the provider's API and auth, so there's no server of your own in between. For single- and multi-prompt agents, add the same tools from the Functions section instead; see [integration tools for prompt agents](/build/single-multi-prompt/integration-tools).
+**Integration tools** in Tavly AI conversation flows enable agents to interact directly with external enterprise platforms like **Salesforce**, **HubSpot**, **Zendesk**, and **Cal.com** mid-call. Executed automatically upon entering a **function node**, Tavly AI handles all third-party authentication and API orchestration natively without requiring an intermediary server.
 
-See the [integrations overview](/integrations/overview) for the providers Tavly AI connects to, what each one's tools do, and how to connect them. [Subagent nodes](/build/conversation-flow/subagent-node) can use integration tools too, alongside their other tool types. Integration tools can also run outside the conversation, before it starts or after it ends; see [agent workflow](/agent/agent-workflow).
+> Call HubSpot, Salesforce, Zendesk, or Cal.com tools from a function node inside a Tavly conversation flow, then branch the flow based on what comes back.
 
-## Add an integration tool to a flow
+Within a conversation flow, integration tools execute through a dedicated [**function node**](/build/conversation-flow/function-node). As soon as the agent enters the node, the tool triggers deterministically, returning live payload data that steers the call's next step. Because Tavly AI manages all API connectivity and credentials, you do not need to host or maintain an intermediary webhook service.
+
+### Integration tool runtime environments
+
+Integration tools can be invoked across various structural components within the Tavly AI architecture:
+
+| Component Type | Execution Behavior | Configuration Guide |
+| :--- | :--- | :--- |
+| [**Function Node**](/build/conversation-flow/function-node) | Executes deterministically immediately upon entering the node. | Attached directly inside the conversation flow canvas. |
+| [**Subagent Node**](/build/conversation-flow/subagent-node) | The LLM dynamically decides whether and when to invoke the tool mid-dialogue. | Added alongside custom functions and tools. |
+| [**Prompt Agents**](/build/single-multi-prompt/integration-tools) | Autonomous tool execution available across single- or multi-prompt architectures. | Managed via the dashboard Functions section. |
+| [**Agent Workflow**](/agent/agent-workflow) | Runs actions outside the live call lifecycle (pre-call setup or post-call wrap-up). | Configured in call lifecycle automation workflows. |
+
+For a comprehensive catalog of supported third-party providers, operational capabilities, and credential setup, see the [integrations overview](/integrations/overview).
+
+---
+
+## How do you add an integration tool to a flow?
+
+To add an **integration tool**, first connect the target provider in the workspace **Integrations** dashboard or directly from the flow editor. Next, add a **function node**, select the desired tool from the categorized menu, configure fixed or conversational dynamic inputs, map response fields to **dynamic variables**, and test execution.
 
 <Steps>
   <Step title="Connect the provider">
-    Connect it once on the dashboard's **Integrations** page — a workspace-level step covered in the [integrations overview](/integrations/overview#connect-a-provider).
+    Complete a one-time connection setup from the Tavly AI dashboard under the **Integrations** page at the workspace level. Detailed connection instructions are outlined in [connect a provider](/integrations/overview#connect-a-provider).
   </Step>
 
-  <Step title="Add the tool from the function menu">
-    In the flow, add a function; connected providers' tools appear in the menu grouped by provider. You can also pick **Add integration** in the menu to connect a new provider without leaving the flow.
+  <Step title="Pick the tool from the function menu">
+    Inside the conversation flow canvas, add a function node. Tools belonging to connected third-party providers appear organized by provider name. 
+    
+    You can also select **Add integration** directly within this menu to authorize a new provider without leaving the conversation flow editor.
 
     <Frame caption="Adding a Microsoft Dynamics 365 tool to a conversation flow's function node.">
       <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
@@ -25,13 +76,46 @@ See the [integrations overview](/integrations/overview) for the providers Tavly 
     </Frame>
   </Step>
 
-  <Step title="Select it inside a function node">
-    Pick the tool in the node, as with any function. Configuration works the same as for [prompt agents](/build/single-multi-prompt/integration-tools): inputs are fixed values or filled from the conversation, response fields map to [dynamic variables](/build/dynamic-variables), and you can test the tool with a live request before the first call.
+  <Step title="Attach it to a function node">
+    Select the desired integration tool within the node configuration panel. 
+    
+    Configuration follows the same structure used for [prompt agents](/build/single-multi-prompt/integration-tools):
+    * **Input parameters**: Define arguments as fixed values or dynamically extracted entities from prior conversation dialogue.
+    * **Response variables**: Extract response fields and assign them to [dynamic variables](/build/dynamic-variables) for downstream referencing.
+    * **Live testing**: Execute live tool test calls directly inside the node editor before publishing the flow to live production calls.
   </Step>
 </Steps>
 
-## Branch on the result
+---
 
-The function node considers the tool's result for transition timing (see [when transitions happen](/build/conversation-flow/function-node#when-can-transition-happen)), so your [transition conditions](/build/conversation-flow/transition-condition) can branch on what came back: one edge for "contact found", another for "no match", each leading to a different conversation node.
+## How do you branch conversational logic based on tool results?
 
-Each tool call times out after 3 to 14 seconds, depending on the provider and tool (as of August 2026). On timeout or error the flow still transitions, so give errors their own edge rather than letting them fall through a success path.
+Conversation flows branch using **transition conditions** linked directly to the tool's execution payload. Because function nodes incorporate response payloads into transition timing, edges evaluate specific outcome criteria—such as **contact found** versus **no match**—routing callers to dedicated conversation nodes. Error and timeout states require explicit condition edges for safe handling.
+
+To construct resilient branching logic:
+
+* **Conditional routing**: Because function nodes factor the tool's result into their transition timing (see [when transitions happen](/build/conversation-flow/function-node#when-can-transition-happen)), configure [transition conditions](/build/conversation-flow/transition-condition) to branch on specific return data—such as creating one edge for a successful contact match and an alternative edge when no record exists.
+* **Provider timeout windows**: Each integration tool call times out between **3 and 14 seconds**, depending on the specific provider and tool requested (accurate as of August 2026).
+* **Dedicated error handling**: If a third-party tool call times out or encounters an API error, the flow continues advancing. Always create dedicated failure and timeout transition edges to handle fallback logic gracefully rather than allowing failures to cascade through default success pathways.
+
+---
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Do I need to host an API server to use integration tools?">
+    No. Tavly AI manages all API requests, rate limits, and authentication handshakes directly with third-party providers like Salesforce, HubSpot, Zendesk, and Cal.com. No proxy server or custom middleware is required.
+  </Accordion>
+
+  <Accordion title="Can integration tools be executed by autonomous subagents?">
+    Yes. In addition to deterministic execution inside a function node, integration tools can be mounted inside a [subagent node](/build/conversation-flow/subagent-node). In a subagent node, the LLM autonomously decides whether and when to trigger the tool based on conversation dialogue.
+  </Accordion>
+
+  <Accordion title="How should timeouts and third-party API errors be handled?">
+    Third-party integration calls time out between 3 and 14 seconds depending on the connected provider. Because the flow will continue execution even if an error occurs, you should attach an explicit error edge to your function node to route the caller to a fallback conversation node.
+  </Accordion>
+
+  <Accordion title="Can I test an integration tool before deploying to a live call?">
+    Yes. Inside the function node configuration panel, you can supply sample inputs and execute a live test run against your connected provider to verify authentication and field mapping before publishing the flow.
+  </Accordion>
+</AccordionGroup>

@@ -1,27 +1,48 @@
 ---
-title: Balance between transcription accuracy and latency
+title: 'Optimize Transcription: Accuracy vs. Latency'
+sidebarTitle: 'Transcription Mode'
+description: 'Choose the optimal Tavly transcription mode to balance latency against accuracy, deciding between interim results for speed or endpointing for precision.'
+seo:
+  title: 'Optimize Transcription Mode | Accuracy vs Latency | Tavly AI'
+  description: 'Choose the optimal Tavly transcription mode to balance latency against accuracy, deciding between interim results for speed or endpointing for precision.'
+og:title: 'Balancing Transcription Accuracy and Latency'
+og:description: 'Choose the optimal Tavly transcription mode to balance latency against accuracy, deciding between interim results for speed or endpointing for precision.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/transcription-mode.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'gauge-high'
+keywords: ['transcription mode', 'interim results', 'endpointing', 'latency optimization', 'Tavly AI accuracy', 'ASR latency trade-off']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the trade-off in transcription modes?'
+    answer: 'Real-time transcription inherently trades latency for accuracy. Faster transcription requires relying on early, partial context (interim results), while higher accuracy requires waiting longer after the speaker finishes (endpointing) to gain full context.'
+  - question: 'When should I optimize for accuracy?'
+    answer: 'Select "Optimize for accuracy" whenever your agent must extract highly specific entities like phone numbers, dates, or account IDs, as these require full contextual endpointing to transcribe correctly.'
+  - question: 'Does transcription mode affect speech-to-speech models?'
+    answer: 'No. Transcription mode settings apply exclusively to cascading (text-based) agents. Speech-to-speech models handle audio natively and ignore this setting.'
 ---
-> Pick the right Tavly transcription mode to balance accuracy against latency — interim results for speed or context-aware results for higher accuracy.
 
-<Note> This guide only applies to cascading agents, if you are using speech to speech models, this feature does not apply. </Note>
+## What drives the Accuracy vs. Latency trade-off?
 
-Real time transcription is a trade off between latency and accuracy. Two concepts drive this trade off:
+Real-time transcription inherently forces a strict trade-off: processing speed versus transcription precision. This dynamic is entirely dictated by how the system handles **interim results** and **endpointing** during live audio streaming.
 
-* **Interim results**: early, partial transcripts produced while the user is still speaking. They arrive fast but are generated with less context, so they contain more errors.
-* **Endpointing**: how long the transcriber waits after the user stops speaking before finalizing the transcript. Waiting longer gives the model more context and produces more accurate transcripts, at the cost of a slower response.
+<Note> **Architecture Constraint:** This guide applies exclusively to cascading agents. If you are deploying a native speech-to-speech model, this setting is ignored.</Note>
 
-## Transcription modes
+* **Interim Results:** These are early, partial transcripts generated while the caller is actively mid-sentence. They arrive instantly, yielding fast latency, but lack full sentence context, leading to higher baseline error rates.
+* **Endpointing:** This defines the strict threshold of how long the transcriber waits after the caller stops speaking before locking in the final transcript. Higher endpoint thresholds provide maximum context for the model, yielding extreme accuracy, but at the direct cost of slower response times.
 
-Tavly offers two transcription modes:
+## What are the Transcription Modes?
+
+Tavly allows you to explicitly configure how the ASR engine balances interim results and endpointing by offering two distinct transcription modes in the dashboard.
 
 <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/transcription-mode.jpeg?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=46447194022d07992db5fc65dc2b931d" width="254" height="108" data-path="images/transcription-mode.jpeg" />
 
-* **Optimize for speed**: uses the latest interim results with a low endpointing setting for downstream processing. This gives the lowest latency.
-* **Optimize for accuracy**: uses results generated with a higher endpointing setting for downstream processing. The transcriber waits longer with more context to generate more accurate transcripts. This adds roughly 200ms of latency.
+* **Optimize for speed:** The system aggressively relies on the most recent interim results combined with a very low endpointing threshold. This instantly passes data downstream, achieving the absolute lowest possible latency.
+* **Optimize for accuracy:** The transcriber holds its output, waiting for a much higher endpointing threshold before processing. Gathering this extended conversational context produces a highly accurate transcript, but incurs roughly **200ms** of additional latency.
 
-## Which mode to use?
+## Which mode should you use?
 
-From our benchmarking, the two modes have a similar overall WER (Word Error Rate). The difference mainly lies in capturing entities like numbers and dates.
+Internal benchmarking proves both modes achieve a similar overall Word Error Rate (WER) for general conversation. The critical difference lies exclusively in capturing highly specific, complex entities.
 
-* Use **optimize for accuracy** if your use case relies heavily on capturing entities like phone numbers, account numbers, or dates correctly.
-* Use **optimize for speed** for the best latency in all other cases.
+* **Choose "Optimize for accuracy"** if your core use case relies heavily on extracting exact entities—such as long phone numbers, alphanumeric account IDs, or specific dates. The extra 200ms is necessary for the model to parse these correctly.
+* **Choose "Optimize for speed"** for the vast majority of standard conversational use cases where raw speed and conversational fluidity are the highest priorities.

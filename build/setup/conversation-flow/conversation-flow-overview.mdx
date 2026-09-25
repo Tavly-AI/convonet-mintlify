@@ -2,86 +2,86 @@
 title: 'Conversation Flow : Overview'
 ---
 
-# Conversation flow agents: structured voice AI call control
+# Conversation Flow Agents: Structured Control Over Voice AI Calls
 
-> Build structured Tavly voice agents with conversation flow — nodes for dialogue, tools, transfers, code, and transitions for precise call control.
+> Build structured Tavly voice agents using conversation flow — a system of nodes for dialogue, tools, transfers, code execution, and transitions that gives you precise control over how a call unfolds.
 
-## What is a Conversation Flow Agent?
+## What Is a Conversation Flow Agent?
 
-Conversation flow agents allow you to create multiple nodes to handle different scenarios in conversations. This approach provides more fine-grained control over the conversation flow compared to Single/Multi Prompt agents, enabling you to handle more complex scenarios with predictable outcomes.
+A conversation flow agent is built from multiple connected nodes, each handling a different part of the conversation. This gives you far more granular control over how a call proceeds compared to Single/Multi Prompt agents, making it possible to handle complicated scenarios while keeping the outcome predictable.
 
-### Key Benefits
+### Why Use One
 
-* **Structured conversations**: Define exact paths and transitions
-* **Predictable behavior**: Each node has specific logic and outcomes
-* **Complex scenario handling**: Support for conditional branching and state management
-* **Fine-tuning capabilities**: Improve performance with node-specific examples
+* **Structured conversations** — define the exact paths a call can take and how it moves between them
+* **Predictable behavior** — each node carries its own specific logic and produces a defined outcome
+* **Support for complexity** — conditional branching and state management are built in
+* **Room to fine-tune** — attach node-specific examples to sharpen performance
 
 <Frame>
   <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/overview.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=640760021e9ae1f52da8b17b17a41ac0" alt="Conversation flow diagram showing nodes connected by edges with transition conditions" width="2450" height="1122" data-path="images/cf/overview.jpeg" />
 </Frame>
 
-## Components
+## What a Flow Is Made Of
 
-* **Global Settings**: Configuration that applies to the entire conversation, including:
-  * Global prompt and personality
-  * Default voice and language settings
-  * Agent-wide parameters and behaviors
+* **Global Settings** — configuration that applies across the whole conversation:
+  * The global prompt and overall personality
+  * Default voice and language
+  * Agent-wide parameters and behavior
 
-* **[Node](/build/conversation-flow/node)**: The basic unit of conversation flow. Multiple node types are available:
-  * Conversation nodes for dialogue without tool calling
-  * Subagent nodes for dialogue with tool calling
-  * Function nodes for deterministic API and tool execution
-  * Logic nodes for branching
-  * End nodes for call termination
+* **[Node](/build/conversation-flow/node)** — the fundamental building block of a flow. Several node types exist:
+  * Conversation nodes, for dialogue that doesn't call any tools
+  * Subagent nodes, for dialogue that does call tools
+  * Function nodes, for deterministic API and tool execution
+  * Logic nodes, for branching
+  * End nodes, for terminating the call
 
-* **[Edge](/build/conversation-flow/transition-condition)**: Connections between nodes that define transition logic:
-  * Condition-based transitions
-  * Default fallback paths
-  * Dynamic routing based on conversation context
+* **[Edge](/build/conversation-flow/transition-condition)** — the connections between nodes that define how the flow moves:
+  * Transitions based on specific conditions
+  * A default fallback path when no condition matches
+  * Routing that adapts dynamically to the conversation
 
-* **Tools / Functions**: Reusable capabilities that can be attached to subagent nodes or invoked from function nodes. Conversation nodes do not use tools / functions:
-  * Custom API integrations
-  * Built-in utilities (calendar, SMS, transfers)
-  * External service connections
+* **Tools / Functions** — reusable capabilities attached to subagent nodes, or triggered from function nodes. Conversation nodes don't use tools or functions at all:
+  * Custom integrations with your own APIs
+  * Built-in utilities like calendar actions, SMS, and transfers
+  * Connections to external services
 
-## How it Works
+## How a Flow Runs
 
-Every node defines a small set of logic, and the transition condition is used to determine which node to transition to. Once the condition is met when checked, the agent will transition to the next node. There are also finetune examples on nodes that can help you further improve the performance. It might take longer to set up, as you want to cover all the scenarios, but after that it's much easier to maintain and the performance is more stable and predictable.
+Each node carries a small, self-contained piece of logic, and a transition condition determines where the conversation goes next. The moment a condition evaluates true, the agent moves to the corresponding node. Nodes can also carry fine-tuning examples that sharpen how well the agent performs at that step. Building this out generally takes longer up front, since you're mapping every scenario you want covered — but once it's built, it's noticeably easier to maintain, and performance stays stable and consistent.
 
-## Navigating between agents and subflows
+## Moving Between Agents and Subflows
 
-The builder has a **selector** at the top (it shows **Main flow** by default). Use it to move between everything you have open — each opens in its own tab:
+At the top of the builder sits a **selector**, defaulting to **Main flow**. Use it to jump between everything currently open, each of which lives in its own tab:
 
-* **Agents**: your main agent (**Main flow**) and any **transfer agents** you open from an [agentic warm transfer](/build/conversation-flow/call-transfer-node).
-* **Subflows**: any [subflows](/build/conversation-flow/components) you open for editing.
+* **Agents** — your primary agent (**Main flow**), plus any **transfer agents** opened from an [agentic warm transfer](/build/conversation-flow/call-transfer-node).
+* **Subflows** — any [subflows](/build/conversation-flow/components) you've opened for editing.
 
-You can return to **Main flow** at any time.
+You can jump back to **Main flow** whenever you like.
 
 <Frame>
   <img src="https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/flow-selector.png?fit=max&auto=format&n=I1roxGSvtapAS92i&q=85&s=1443ffebb9bfbc3c27bf3e391615d117" width="3788" height="1680" data-path="images/cf/flow-selector.png" />
 </Frame>
 
-## Quickstart
+## Getting Started Quickly
 
-Head to the Dashboard, create a new conversation flow agent and select a pre-built template to get started. You can view all options available to the agent within the Dashboard, with details of the options and any latency implications listed there. You can also view the estimated latency and cost of the agent. Modify the template to your needs, all changes are auto-saved.
+From the Dashboard, create a new conversation flow agent and start from one of the pre-built templates. The Dashboard shows every option available to the agent, along with details on each and any latency implications, plus estimated latency and cost for the agent overall. Adjust the template to fit your needs — every change saves automatically.
 
-## Reusing a flow across multiple agents
+## Sharing One Flow Across Multiple Agents
 
-A conversation flow is a standalone resource — identified by a `conversation_flow_id` — that an agent references through its `response_engine`. The same flow can be linked to multiple agents, so you can share a single flow across, for example, a staging agent and a production agent, or across multiple language or channel variants.
+A conversation flow exists as its own standalone resource, identified by a `conversation_flow_id`, which an agent points to through its `response_engine`. Because of this, the same flow can be linked to more than one agent — useful for keeping a staging agent and a production agent in sync, or for running several language or channel variants off the same logic.
 
-* In the dashboard, create the flow once, then create or edit each agent and select the existing flow as the agent's response engine.
-* Via API, set the same `response_engine.conversation_flow_id` on each agent when calling [Create Agent](/api-references/create-agent) or [Update Agent](/api-references/update-agent).
-* Updates to the flow apply to every agent that references it, so publish changes carefully and test in a non-production agent first.
+* From the dashboard: build the flow once, then when creating or editing any agent, select that existing flow as its response engine.
+* Via the API: set the same `response_engine.conversation_flow_id` value on each agent when calling [Create Agent](/api-references/create-agent) or [Update Agent](/api-references/update-agent).
+* Any edit you make to the flow affects every agent linked to it, so roll out changes carefully and test them on a non-production agent first.
 
-Agent-level settings (voice, language, webhook URL, data storage, Post Call Extraction, etc.) stay on the agent, so two agents sharing a flow can still differ in those areas.
+Settings that live at the agent level — voice, language, webhook URL, data storage, Post Call Extraction, and similar — stay independent per agent, so two agents can share a flow while still differing in these areas.
 
-## Pricing
+## How Pricing Works
 
-Since the choice of model can be overridden within individual nodes, the pricing for each call is calculated based on:
+Because the model used can be overridden on a per-node basis, the cost of each call is calculated from:
 
-* Time spent in each node (seconds)
-* Model price per second for that specific node
-* Total aggregated across all nodes visited during the call
+* How much time was spent in each node (in seconds)
+* That node's specific per-second model price
+* The sum of these costs across every node the call passed through
 
-This allows you to optimize costs by using different models for different parts of the conversation (e.g., cheaper models for simple routing, premium models for complex interactions).
+This setup lets you control costs deliberately — using cheaper models for simple routing steps and reserving premium models for the parts of the conversation that actually need them.

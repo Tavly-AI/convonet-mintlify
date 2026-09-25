@@ -1,0 +1,221 @@
+---
+title: 'Press Digit (IVR Navigation)'
+sidebarTitle: 'Press Digit'
+description: 'Enable Tavly AI single or multi-prompt agents to navigate DTMF-based IVR menus on outbound calls by automatically pressing keypad digits.'
+seo:
+  title: 'Press Digit Tool for IVR Navigation | Tavly AI Guide'
+  description: 'Enable Tavly AI single or multi-prompt agents to navigate DTMF-based IVR menus on outbound calls by automatically pressing keypad digits.'
+og:title: 'Press Digit (IVR Navigation)'
+og:description: 'Enable Tavly AI single or multi-prompt agents to navigate DTMF-based IVR menus on outbound calls by automatically pressing keypad digits.'
+og:image: 'https://mintcdn.com/retellai/O79pc0YgHPZo-0L5/images/telephony/press-digit-tool.gif'
+twitter:card: 'summary_large_image'
+icon: 'keyboard'
+keywords: ['press digit tool', 'IVR navigation', 'AI agent DTMF', 'Tavly AI keypad presses', 'automated outbound calls']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can an AI agent navigate IVR phone menus?'
+    answer: 'Yes, by adding the Press Digit tool, your Tavly AI agent can navigate DTMF-input IVR menus by pressing keypad digits during outbound calls.'
+  - question: 'Can I hardcode a specific digit for the agent to press?'
+    answer: 'Yes, you can explicitly instruct the agent in the prompt to press a specific digit (e.g., "Press 1 for support") rather than having it decide dynamically.'
+  - question: 'Why does the agent press a key before the IVR finishes speaking?'
+    answer: 'You need to raise the Pause Detection Delay setting in the Press Digit tool. This forces the agent to wait longer after the IVR pauses before deciding what to press.'
+---
+
+## What is the Press Digit tool?
+
+When your agent places an outbound call, it frequently encounters an IVR (Interactive Voice Response) system before reaching a human. The **Press Digit** tool enables the agent to autonomously send keypad presses (DTMF tones), allowing it to accurately navigate the menu and reach the correct department.
+
+IVR menus typically fall into two categories:
+* **Audio-input IVR:** Listens for spoken responses. Your agent inherently handles these through standard conversational prompting—no specialized tool required.
+* **DTMF-input IVR:** Strictly requires keypad presses. This is exactly what the Press Digit tool is designed to solve.
+
+## When should you use this tool?
+
+You should implement the Press Digit tool whenever a single or multi-prompt voice agent makes outbound calls that run directly into DTMF routing menus—such as dialing a scheduling line, keying in an extension, or navigating a partner's support tree.
+
+A few specific scenarios require an alternative approach:
+* Building a **conversation flow** agent? Utilize the [Press Digit Node](/build/conversation-flow/press-digit-node), which inherently handles DTMF as an independent node with dedicated transitions.
+* Need to capture digits the **caller** enters (e.g., a PIN or menu selection) rather than having the agent press them? See [Capture DTMF input from user](/build/user-dtmf).
+* Want the agent to automatically **hang up** the moment it hits an IVR instead of navigating it? Review [IVR hangup](/build/handle-voicemail#ivr-hangup).
+
+<Note>
+  Press Digit exclusively works on voice agents — it is not available for chat-based agents.
+</Note>
+
+**Example:** An outbound agent for a dental office calls an insurance provider. The provider's line triggers a DTMF menu: "Press 1 for members, press 2 for providers." The AI accurately presses `2`, keys in the patient's member ID when prompted, and successfully reaches a claims representative—all without human intervention.
+
+## How do you set up IVR navigation?
+
+Configuring IVR navigation involves adding the Press Digit tool in the dashboard, fine-tuning the pause detection delay, explicitly writing navigation rules into the main prompt, and optionally extracting post-call data for analytics.
+
+<Steps>
+  <Step title="Add the Press Digit tool">
+    From your agent's explicit tool settings, add **Press Digit**. A description is purely optional — leave it empty to inherit default behavior, or specify exactly when and what the agent should press.
+
+    <img height="200" src="https://mintcdn.com/retellai/O79pc0YgHPZo-0L5/images/telephony/press-digit-tool.gif?s=a91feaa9b9d5bd5053d164ea79300776" alt="Adding the Press Digit tool" data-path="images/telephony/press-digit-tool.gif" />
+
+    **Pause Detection Delay** dictates exactly how long the agent waits after the IVR goes quiet before committing to a keypad press, ensuring it hears the entire menu. It defaults to **1000 ms (1 second)** and scales up to **5000 ms**. Raise this parameter for slower-talking IVRs that pause mid-sentence to prevent premature digit presses.
+  </Step>
+
+  <Step title="Write navigation prompts">
+    Clearly define within the prompt exactly what the agent is trying to reach, preferred navigation keywords, phrases to actively avoid, and fallback instructions for ambiguous menus.
+
+    **Example prompt:**
+    ```text
+    ## IVR Navigation
+    When interacting with automated systems, menus, or IVR prompts:
+    Your goal is to reach the scheduling or appointments department.
+
+    Preferred navigation keywords:
+    • Scheduling
+    • Appointments
+    • New patients
+    • Front desk
+
+    Avoid:
+    • Billing
+    • Referrals
+    • Medical records
+    • Clinical departments
+
+    If you are unsure which IVR option is correct:
+    Choose the option most closely related to scheduling or appointments.
+    ```
+
+    **If the exact sequence is already known,** hardcode the instructions:
+    ```text
+    Press digit 1 to reach the support department.
+    ```
+    The agent can natively send a single digit or a full sequence (e.g., `1234#`) using `0-9`, `*`, and `#`.
+  </Step>
+
+  <Step title="Define interaction rules">
+    Explicitly clarify when the agent should speak versus press a key, and dictate exact protocols for edge cases like reaching the wrong company or being placed on hold.
+
+    **Example prompt:**
+    ```text
+    ## IVR Interaction Rules
+    1. If the IVR allows you to speak a department name or short phrase:
+        - Speak the appropriate department name clearly.
+
+    2. If the IVR explicitly instructs you to press a number:
+       - Use the press_digit function with the instructed digit.
+
+    3. If the IVR does not accept speech and requires numeric input:
+       - Use the press_digit function to select the best option.
+
+    4. If the IVR indicates that you have reached the wrong company:
+       - Immediately call end_call.
+
+    5. If you are transferred:
+       - Wait silently or respond with NO_RESPONSE_NEEDED if prompted to hold.
+       - Resume navigation or follow the live agent flow once connected.
+
+    ```
+  </Step>
+
+  <Step title="Extract IVR data after the call (optional)">
+    Capture rich analytical details regarding IVR navigation for reporting and debugging by adding field-level prompts under your agent's **Post-Call Data Extraction** settings.
+
+    <img height="200" src="https://mintcdn.com/retellai/O79pc0YgHPZo-0L5/images/telephony/extract-ivr-post-call-data.gif?s=a73b31c3d3ef69db6a399ade6d6dfefc" alt="Configuring IVR post-call data extraction" data-path="images/telephony/extract-ivr-post-call-data.gif" />
+
+    <AccordionGroup>
+      <Accordion title="hit_ivr (boolean)">
+        Did the call pass through any IVR or automated phone system before a human answered? This includes menus, "press 1" prompts, speech-based menus, automated routing, or virtual assistants. Hold music that plays after a human has already answered doesn't count. Output ONLY true or false.
+      </Accordion>
+
+      <Accordion title="reached_human (boolean)">
+        Did the caller end up speaking with an actual human staff member at any point — as opposed to an automated system, a recording, voicemail, or a virtual assistant? Output ONLY true or false.
+      </Accordion>
+
+      <Accordion title="ivr_loop (boolean)">
+        Did the IVR seem to loop or repeat the same prompt because it didn't understand the input, or the input was invalid (repeated "I'm sorry, I didn't get that," or returning to the main menu more than once)? Output ONLY true or false.
+      </Accordion>
+
+      <Accordion title="ivr_type (enum)">
+        **Allowed values:** `none` | `basic_menu` | `speech_ivr` | `voicemail_greeting_only` | `after_hours_message_only`
+
+        Classify which kind of automated system, if any, was encountered:
+
+        * **none**: no automation — a human picked up right away
+        * **basic_menu**: a "press 1/2/3" style DTMF menu
+        * **speech_ivr**: a system that asks spoken questions like "tell me why you're calling" and responds conversationally
+        * **voicemail_greeting_only**: went straight to a voicemail greeting or leave-a-message flow, with no menu involved
+        * **after_hours_message_only**: only an after-hours closure message played (possibly mentioning hours), with no routing offered to staff
+      </Accordion>
+
+      <Accordion title="ivr_outcome (enum)">
+        **Allowed values:** `reached_human` | `left_voicemail` | `hung_up` | `blocked_by_ivr` | `callback_required` | `transferred` | `ivr_loop_detected` | `invalid_extension` | `after_hours_info_only`
+
+        What was the end result of the automated-navigation portion of the call?
+
+        * **reached_human**: a human was successfully reached
+        * **left_voicemail**: voicemail was reached and either a message was left, or the voicemail prompt was the final state
+        * **hung_up**: the call ended before anything was resolved, whether the caller or the system disconnected
+        * **blocked_by_ivr**: unable to proceed because of IVR requirements or no matching menu option
+        * **callback_required**: the system said to call back later, or offered a callback as the only option
+        * **transferred**: the IVR routed the call to another line or department, even if it was placed on hold afterward
+        * **ivr_loop_detected**: a loop prevented any further progress
+        * **invalid_extension**: an entered extension failed or wasn't recognized
+        * **after_hours_info_only**: the call ended at an after-hours message with no human reached
+      </Accordion>
+
+      <Accordion title="ivr_steps_count (number)">
+        Count the distinct IVR steps — menu prompts or bot questions that needed a response — that occurred before reaching a human or the call ending. Output ONLY an integer, or 0 if there were none.
+      </Accordion>
+
+      <Accordion title="ivr_retries_count (number)">
+        Count how many times the IVR or bot asked for the same input again, or indicated it didn't understand — phrases like "please repeat," "invalid entry," or looping back to the same menu. Output ONLY an integer, or 0 if there were none.
+      </Accordion>
+
+      <Accordion title="ivr_path (text)">
+        Lay out the IVR navigation path as a breadcrumb trail using `>` between steps, capturing the main menu selections or intents.
+
+        **Example:** `Main Menu > Providers > Authorizations > Hold`
+      </Accordion>
+
+      <Accordion title="ivr_notes (short text)">
+        In one or two sentences, capture the operationally useful details from the IVR interaction — things like required identifiers, department options that were mentioned, or barriers such as "portal only" or after-hours limitations.
+      </Accordion>
+
+      <Accordion title="ivr_tree_text (multiline text)">
+        Produce a concise, numbered step-by-step breakdown of the IVR interaction. Each line should follow this format:
+
+        `N. Prompt: "<summary>" | Action: "<pressed/said>" | Result: "<next state>"`.
+
+        Only include steps that actually happened.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+
+  <Step title="Test it out">
+    Once saved, validate your agent by placing a live outbound call to a number with a known IVR system, or call the agent yourself and role-play an IVR by verbally reciting menu options.
+  </Step>
+</Steps>
+
+## How do you implement this with a Custom LLM?
+
+If you're bringing your own LLM instead of using Tavly's, you won't add the Press Digit tool directly. Instead, set `digit_to_press` on your response through the [LLM WebSocket protocol](/api-references/llm-websocket#response-event), and Tavly sends the DTMF tones once the related content has finished playing. Make sure the agent stays silent for that particular response so it isn't talking while the tones go out. A worked example is available in [function calling for a custom LLM](/integrate-llm/integrate-function-calling#transfer-and-press-digits).
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can I hardcode a specific digit for the agent to press?">
+    There's no preset digit field — the agent evaluates the live menu against your prompt and decides in the moment. If you want it to always press the same key, just state that explicitly in the prompt, such as `Press 1 to reach the support department.`
+  </Accordion>
+
+  <Accordion title="The agent is pressing a key before the menu has finished playing — how do I fix that?">
+    Raise the **Pause Detection Delay** setting on the Press Digit tool. It's 1000 ms by default and can go up to 5000 ms. A longer delay gives slower IVR systems time to finish reading their options before the agent responds.
+  </Accordion>
+
+  <Accordion title="Which keys is the agent able to press?">
+    Any of `0`–`9`, `*`, and `#`. It can send either a single key or an entire sequence in one go, such as an extension like `1234#`.
+  </Accordion>
+</AccordionGroup>
+
+## Related Pages
+* [Press Digit Node](/build/conversation-flow/press-digit-node) — The conversation-flow equivalent of this tool.
+* [Capture DTMF input from user](/build/user-dtmf) — For actively accepting keypad input transmitted by the caller.
+* [Handle voicemail and IVR](/build/handle-voicemail) — Best practices for detecting voicemails and hanging up automatically.
+* [Function calling](/build/single-multi-prompt/function-calling) — The complete reference for all tools available to an agent.

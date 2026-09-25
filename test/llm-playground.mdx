@@ -1,0 +1,119 @@
+---
+title: "Manually test your agent"
+description: "Test Tavly agents in the LLM Playground: conduct text conversations manually or via simulated AI callers, inspect tool invocations, and replay turns."
+---
+
+The LLM Playground provides a dedicated in-console text environment for testing conversational agents without initiating webRTC streams or dialing telephone numbers. Located under the <code className="ui-btn">Test LLM</code> tab of the agent testing drawer, it features two core operational modes: <code className="ui-btn">Manual Chat</code> for hands-on, turn-by-turn prompt evaluation, and <code className="ui-btn">AI Simulated Chat</code> for autonomous multi-turn dialog driven by a synthetic persona.
+
+For instance, after configuring a new booking flow, you can simulate a rescheduling request directly in the playground to confirm the agent triggers `check_availability` with intended date arguments before testing with live voice.
+
+## Accessing the Playground
+
+Navigate to your agent configuration screen, expand the <code className="ui-btn">Test</code> panel, and click the <code className="ui-btn">Test LLM</code> tab. The companion <code className="ui-btn">Test Audio</code> tab is reserved for [live voice testing](/test/test-web). The Test LLM tab is intentionally unavailable for [custom LLM](/integrate-llm/overview) architectures and native speech-to-speech voice models.
+
+Beyond the agent workspace, you can launch existing conversation transcripts directly into the playground by clicking <code className="ui-btn">View In Test Playground</code> across several dashboards:
+
+* The detail drawer of any past interaction in [Call History](/features/session-history) or Chat History.
+* An individual call record under [AI QA](/ai-qa/overview).
+* A specific test execution record inside [Batch Testing History](/test/batch-test-simulation).
+* The <code className="ui-btn">Test Subflow</code> tab within an isolated [Conversation Flow](/build/conversation-flow/overview) node.
+
+<Frame caption="The LLM Playground on the Test LLM tab.">
+  <img height="700" src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=fa9e0b2f8326de3eda9f09468a792b1d" alt="LLM Playground open on the Test LLM tab, showing the Manual Chat and AI Simulated Chat options and the conversation area." data-path="images/test-llm/test-llm-full.png" />
+</Frame>
+
+## Manual Chat Mode
+
+Select <code className="ui-btn">Manual Chat</code> to steer dialog turn by turn. Type your own conversational inputs and observe agent generations in real time. Rather than evaluating pass/fail assertions, this mode focuses on transparent flow inspection: every turn displays active state node transitions, triggered tool invocations, and function payload responses alongside the conversation transcript.
+
+When configuring multi-prompt or Conversation Flow setups, use the <code className="ui-btn">Current State</code> or <code className="ui-btn">Current Node</code> selector located above the transcript to designate the starting point of the session. You can also reassign this selector mid-conversation to jump directly between branches without having to navigate preceding conversational turns.
+
+Click <code className="ui-btn">New</code> to return to mode selection and begin an empty conversation. Select <code className="ui-btn">Save</code> to store the transcript into a named thread, which you can rename using the inline pencil icon. Once saved, a trash can icon appears to allow thread deletion. Use the thread selector dropdown to toggle between saved sessions and contrast agent responses across distinct runs.
+
+<Frame caption="Manual Test">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/playground-debug-console.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=d96ae57946e76d63c8eac429c6f287f5" data-path="images/test-llm/playground-debug-console.mp4" />
+</Frame>
+
+## AI Simulated Chat
+
+Switch to <code className="ui-btn">AI Simulated Chat</code> to have a synthetic user model autonomously execute caller turns. This mode requires two configuration inputs: a <code className="ui-btn">user prompt</code> detailing user objectives and conversational temperament, and an <code className="ui-btn">LLM setting</code> defining the model driving the synthetic caller. The simulation automatically integrates mock responses and test variable values established in the Dynamic Variables menu. Launch the run to watch both entities interact dynamically, with live tool dispatches and state shifts displayed inline.
+
+Structure your synthetic user prompt with clear identity details, primary objectives, and emotional constraints:
+
+```markdown wrap theme={"dark"}
+## Identity
+
+Your name is Mike.
+Your date of birth is June 10, 1999.
+Your order number is 7891273.
+
+## Goal
+
+Your primary objective is to return the package you received and get a refund.
+
+## Personality
+
+You are a patient customer. However, if the conversation becomes too long or complicated, you will show signs of impatience. If the issue remains unresolved, you may become frustrated and angry.
+```
+
+During execution, you can pause active exchanges, abort the run, or adjust prompt parameters before re-running. To persist a scenario, click <code className="ui-btn">Save</code>. An inline modal allows you to define success evaluation rubrics, dynamic test inputs, and custom function mocks without leaving the editor. Stored scenarios are added to your Test Cases catalogue under the [Simulation tab](/test/llm-simulation-testing), enabling standalone execution or inclusion in [batch](/test/batch-test-simulation) suites.
+
+<Frame caption="Running an AI Simulated Chat from a user prompt, with the agent and the simulated user talking turn by turn.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/playground-ai-simulated-chat.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=e05c8401998128289443b1b186a27289" data-path="images/test-llm/playground-ai-simulated-chat.mp4" />
+</Frame>
+
+## Interactive Transcript Debugging
+
+Load completed sessions into the Playground from [Batch Testing History](/test/batch-test-simulation), [Call History](/features/session-history), Chat History, or [AI QA](/ai-qa/overview) by selecting <code className="ui-btn">View In Test Playground</code>. The transcript populates within an editable <code className="ui-btn">Manual Chat</code> canvas in a new window, offering granular control over past turns:
+
+* **Edit user utterances**: Updating a previous caller message truncates all subsequent exchanges and generates new agent replies from that point forward.
+* **Regenerate agent turns**: Discard the current agent response and downstream history to produce an alternative generation.
+* **Delete isolated turns**: Prune individual conversational entries without invalidating the broader transcript.
+* **Replay conversation**: Click the reload icon beneath the transcript to reset agent replies and re-evaluate every user turn sequentially against the active system configuration.
+* **Extend dialog**: Type new manual turns to steer the conversation into unexplored branches.
+
+<Note>
+  Transcripts imported from historical records represent finalized calls, leaving the <code className="ui-btn">Send</code> trigger locked initially. Editing a turn, removing an entry, or re-running an agent reply immediately activates the input box.
+</Note>
+
+Because every turn exposes node pathing and tool metadata, interactive replay serves as an essential tool for diagnosing unexpected state shifts or debugging edge cases that are difficult to reproduce from scratch.
+
+<Frame caption="Loading a transcript with View in Test Playground, then editing a turn and rerunning the flow from that point.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/playground-view-in-playground.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=ea245f06162e133153cd8920ad1fe644" data-path="images/test-llm/playground-view-in-playground.mp4" />
+</Frame>
+
+## Dynamic Variables and Function Mocks
+
+Access the <code className="ui-btn">Test Inputs</code> panel adjacent to the mode selector to configure run parameters, clicking <code className="ui-btn">Save</code> to commit values. The panel contains two operational tabs:
+
+* <code className="ui-btn">Dynamic variables</code>: Supply sample values for [dynamic variable](/build/dynamic-variables) tags to ensure template strings resolve accurately during simulation.
+* <code className="ui-btn">Custom function mocks</code>: Define simulated return structures for agent tools. Whenever an agent attempts an external action—such as checking schedule availability, transferring lines, or sending SMS confirmations—the mock engine intercepts the call and delivers your preconfigured payload, preventing downstream side effects on external production systems.
+
+Configured inputs apply simultaneously across Test LLM and Test Audio environments for the selected agent. Values are stored strictly in local browser storage; they do not synchronize across team workspace accounts or alternate workstations.
+
+For comprehensive configuration guidelines, consult [test variables and mocks](/test/llm-simulation-testing#test-variables-and-mocks).
+
+<Frame caption="Setting dynamic variable test values.">
+  <img style={{width: "300px"}} src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/dynamic-variable.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=2366a40145cf70c007b9801d763fc42f" alt="Dynamic Variables input with test values set for the agent's placeholders." width="1060" height="1060" data-path="images/test-llm/dynamic-variable.png" />
+</Frame>
+
+<Frame caption="Mocking a custom function to return a set result.">
+  <img style={{width: "300px"}} src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/custom-function-mock.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=159972b5bc8e2cb24b7a035ba84d4dc5" alt="Custom Function Mocks tab with a function selected in the Function dropdown and its mock result set." width="1078" height="990" data-path="images/test-llm/custom-function-mock.png" />
+</Frame>
+
+## Turn-Level Response Debugging
+
+When an agent generation deviates from intended guidelines, click <code className="ui-btn">Debug</code> directly on that conversational turn. The debugger generates 10 successive model iterations, summarizing response variance into a frequency distribution to highlight probabilistic output clustering. To explore comprehensive remediation workflows—including few-shot prompt adjustments, node decomposition, and temperature tuning—see [Debug your agent response](/test/llm-playground-debug).
+
+## Best Practices
+
+* Start testing with straightforward conversational flows before introducing complex conversational constraints and adversarial inputs.
+* Mock side-effecting operations like telephone transfers, notifications, and database writes so test executions remain harmless.
+* Audit tool invocation parameters directly within the turn metadata rather than relying solely on the final conversational wording.
+* Retain critical debugging sessions as saved threads, converting valuable edge-case dialogues into [simulation test cases](/test/llm-simulation-testing) for automated regression prevention.
+
+## Related Resources
+
+* [Debug your agent response](/test/llm-playground-debug): Diagnose and resolve erratic phrasing or transition errors.
+* [Simulation testing](/test/llm-simulation-testing): Automate scenario evaluation against pass/fail criteria.
+* [Testing overview](/test/test-overview): Compare testing utilities across different stages of deployment.

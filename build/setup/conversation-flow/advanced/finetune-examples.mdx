@@ -1,74 +1,106 @@
 ---
-title: Finetune examples
+title: 'Finetune Examples: Train Node Behavior'
+sidebarTitle: 'Finetune Examples'
+description: 'Learn how to attach concrete conversation transcripts to Tavly nodes to act as few-shot demonstrations for fixing response tones and transition routing.'
+seo:
+  title: 'Finetune Examples | Few-Shot Prompting | Tavly AI'
+  description: 'Learn how to attach concrete conversation transcripts to Tavly nodes to act as few-shot demonstrations for fixing response tones and transition routing.'
+og:title: 'Finetune Examples: Train Node Behavior'
+og:description: 'Learn how to attach concrete conversation transcripts to Tavly nodes to act as few-shot demonstrations for fixing response tones and transition routing.'
+twitter:card: 'summary_large_image'
+icon: 'wand-magic-sparkles'
+keywords: ['finetune examples', 'few-shot prompting', 'train AI transitions', 'node behavior', 'conversation flow training']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Finetune Example?'
+    answer: 'A Finetune Example is a short conversation snippet attached directly to a node that acts as a few-shot demonstration, teaching the model precisely how to respond or route.'
+  - question: 'When should I use a Conversation Example?'
+    answer: 'Use a Conversation Example when the model says the right thing but in the wrong tone, or constantly leaves out required information in its replies.'
+  - question: 'When should I use a Transition Example?'
+    answer: 'Use a Transition Example when the agent persistently transitions to the wrong node or stays stuck in a node when it should have advanced.'
 ---
 
-> Add example transcripts to a Tavly conversation flow node to show the model exactly how to respond and which transition to pick in specific situations.
+## What are Finetune Examples?
 
-Finetune examples are conversation snippets you attach to a node. The model sees them as few-shot demonstrations when it generates a response or evaluates a transition condition. They are the most targeted way to fix a specific response or transition that isn't behaving as expected.
+**Finetune Examples** are short, concrete conversation snippets attached directly to a specific node. The underlying model treats them as active few-shot demonstrations when evaluating responses and calculating logic transitions. 
 
-Each node has two types of finetune examples:
+They are the absolute most surgical tool available for resolving specific behavioral issues where the agent continuously misfires.
 
-* **Conversation examples** — show the model how the agent should respond within the node (tone, phrasing, what to include or omit).
-* **Transition examples** — show the model which outgoing edge to pick given a particular conversation excerpt.
+Every functional node supports two distinct types of fine-tuning:
+* **Conversation Examples:** Teach the agent exactly how to respond natively within the node, dictating tone, phrasing, and critical information retention.
+* **Transition Examples:** Teach the model exactly which outgoing edge condition to trigger given a specific, ambiguous snippet of conversation.
 
-## Add a finetune example
+## How do you add a Finetune Example?
 
-1. Click the node you want to improve.
-2. In the node settings panel, scroll to **Fine-tuning Examples**.
-3. Click **Add example** and choose **Conversation** or **Transition**.
-4. Fill in the example transcript and, for transition examples, select the correct outgoing edge.
+You inject these examples securely through the node's settings panel, actively pairing user inputs with the desired agent output or routing decision.
 
-## Conversation examples
+<Steps>
+  <Step title="Select the Node">
+    Click on the specific node on your canvas that is failing or misbehaving.
+  </Step>
+  <Step title="Locate Fine-Tuning">
+    Scroll directly down to the **Fine-tuning Examples** section within the node's settings panel.
+  </Step>
+  <Step title="Add the Example">
+    Click **+ Add example** and explicitly choose either **Conversation** or **Transition**.
+  </Step>
+  <Step title="Write the Transcript">
+    Write out the verbatim example transcript. If creating a Transition example, aggressively map the transcript to the correct outgoing edge.
+  </Step>
+</Steps>
 
-Use conversation examples when the model's responses are grammatically correct but miss the mark — wrong tone, too verbose, wrong information included, or a specific phrase the agent should always say.
+## When to use Conversation Examples?
 
-**Example**: A closing node where the agent should always confirm the appointment time before saying goodbye.
+Deploy **Conversation Examples** when the underlying model's replies are grammatically accurate but contextually off-target—such as rambling, failing to adopt a persona, or ignoring instructions to always include specific data.
 
-```
+**Example:** A closing node where the agent must strictly confirm an appointment time before ending the call.
+
+```text theme={"dark"}
 User: Okay, sounds good.
 Agent: Perfect — you're confirmed for Thursday at 3 PM. Talk soon, goodbye!
 ```
 
-Tips:
-* Use real or realistic transcripts, not idealized ones.
-* Keep examples short and focused on the specific behavior you want.
-* Add 2–5 examples per issue; more is not always better.
+**Conversation Best Practices:**
+* Use raw, realistic transcripts rather than hyper-polished theoretical text.
+* Keep every example extremely short and hyper-focused on the targeted behavioral flaw.
+* Limit to **2-5 examples** per issue. Overloading the prompt does not inherently improve accuracy.
 
-## Transition examples
+## When to use Transition Examples?
 
-Use transition examples when the model picks the wrong outgoing edge. Each example pairs a conversation excerpt with the correct transition label.
+Deploy **Transition Examples** when the model consistently calculates the wrong logic and picks the wrong outgoing edge. You must pair a raw conversation snippet with the exact transition that should have fired.
 
-**Example**: A node with two edges — `User confirmed the appointment` and `User asked to reschedule`. If the model keeps firing the wrong one:
+**Example:** A node contains two edges: `User confirmed the appointment` and `User asked to reschedule`. If the model consistently misroutes ambiguous requests:
 
-```
+```text theme={"dark"}
 User: Actually, can we move it to Friday?
 Agent: Of course, let me check availability.
 → Transition: User asked to reschedule
 ```
 
-```
+```text theme={"dark"}
 User: Yes, Thursday at 3 works for me.
 Agent: Great, you're all set!
 → Transition: User confirmed the appointment
 ```
 
-Tips:
-* Match the example to the exact wording pattern the model is getting wrong.
-* Cover edge cases — short answers, ambiguous phrasing, or polite deflections.
-* Check the [call history transcript](/build/conversation-flow/debug-guide) to find real examples of incorrect transitions to use as training data.
+**Transition Best Practices:**
+* Aggressively match the example to the exact phrasing pattern the model currently fails on.
+* Target extreme edge cases: one-word answers, ambiguous phrasing, or polite deflections.
+* Harvest real failures from the [Call History Transcript](/build/conversation-flow/debug-guide) to use as highly effective training data.
 
-## When to use finetune examples
+## What are the limits and best practices?
 
-| Symptom | Fix |
+Finetune examples dynamically increase prompt complexity and token usage. They must be managed carefully to preserve latency.
+
+| Symptom | Correct Fix |
 |---|---|
-| Agent says the right thing but in the wrong tone | Conversation example |
-| Agent omits key information in its reply | Conversation example |
-| Agent transitions to the wrong node | Transition example |
-| Agent stays in the node when it should transition | Transition example |
-| Agent transitions too eagerly | Transition example showing a case that should *not* transition |
+| The agent says the right thing, but in the wrong tone. | Conversation example |
+| The agent leaves out key information in its reply. | Conversation example |
+| The agent transitions to the wrong node. | Transition example |
+| The agent stays in the node when it should have moved on. | Transition example |
+| The agent transitions too eagerly. | A transition example explicitly showing a case that should *not* trigger. |
 
-## Limits and best practices
-
-* Finetune examples add tokens to every LLM call for that node. Keep each example concise to control cost and latency.
-* Use examples to fix specific observed failures, not as a substitute for clear node instructions.
-* If a response problem persists after adding examples, also consider splitting the node or switching to a more capable model — see the [debug guide](/build/conversation-flow/debug-guide).
+* **Token Costs:** Finetune examples add tokens to **every single LLM call** executed within that node. Keep them ruthlessly brief to minimize latency.
+* **Not a Crutch:** Use examples exclusively to fix observed failures—they are absolutely not a replacement for writing clear, logical node instructions.
+* **Escalation:** If a problem persists despite adding 5+ examples, you must split the node into smaller chunks or upgrade to a more capable LLM. See the [Debug Guide](/build/conversation-flow/debug-guide).

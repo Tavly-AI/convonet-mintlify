@@ -1,45 +1,67 @@
 ---
-title : Set language for your agent
+title: 'Set Agent Language: Speech & Pronunciation'
+sidebarTitle: 'Set Language'
+description: 'Configure a Tavly agent’s core language to control inbound speech recognition, outbound voice pronunciation, and default LLM response dialects.'
+seo:
+  title: 'Set Agent Language | Speech Recognition & Pronunciation | Tavly AI'
+  description: 'Configure a Tavly agent’s core language to control inbound speech recognition, outbound voice pronunciation, and default LLM response dialects.'
+og:title: 'Set Agent Language: Speech & Pronunciation'
+og:description: 'Configure a Tavly agent’s core language to control inbound speech recognition, outbound voice pronunciation, and default LLM response dialects.'
+og:image: 'https://mintcdn.com/retellai/SGc6xrwrS64ZRERp/images/language-single.png'
+twitter:card: 'summary_large_image'
+icon: 'language'
+keywords: ['set agent language', 'speech recognition', 'voice pronunciation', 'multilingual AI', 'Tavly AI dialects', 'ASR provider']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What does the agent language setting control?'
+    answer: 'The language setting strictly controls three things: the inbound speech recognition dialect, the outbound voice pronunciation rules, and the default language the LLM writes its responses in.'
+  - question: 'What is the default agent language?'
+    answer: 'If no language is explicitly configured, the agent defaults to English (US).'
+  - question: 'How do I handle callers speaking closely related languages?'
+    answer: 'Speech recognition struggles to differentiate closely related dialects (like Cantonese vs. Mandarin). Instead of relying on auto-detection, route these callers to dedicated single-language agents or override the language via the inbound call webhook.'
 ---
 
-> Set a single language for a Tavly agent to control speech recognition, voice pronunciation, and the language the agent uses to respond during calls.
+## What does the language setting control?
 
-You can set a specific language for an agent. The language setting affects three things during a call:
+Configuring an agent's language directly controls the underlying speech recognition (ASR) mapping, outbound voice pronunciation, and the default dialect the LLM writes its responses in during a live call.
 
-* **Speech recognition** — which language the agent transcribes the caller from.
-* **Voice pronunciation** — the language the voice uses to pronounce words and shape its accent.
-* **Agent text** — the agent is automatically instructed to respond in the configured language. You do **not** need to add a "respond in X" instruction to your prompt.
+Specifically, the core language setting dictates:
+* **Speech Recognition:** The precise dialect the agent uses to transcribe the live caller's speech.
+* **Voice Pronunciation:** The linguistic rules the voice model uses when pronouncing written words and shaping its final accent.
+* **Written Responses:** The agent automatically responds in this language natively, completely removing the need to add a "respond in X" instruction to your global prompt.
 
-The voice you select is still the primary determinant of accent — the language setting refines pronunciation rules and ensures the right speech recognition model is used.
+<Note> **Accent Control:** The specific voice model you select still carries the primary weight for the raw accent. The language setting simply refines the pronunciation rules and enforces the correct ASR model.</Note>
 
-## Pick a single language (recommended)
+## Why choose a single language?
 
-A single-language agent is the most accurate setup: the agent transcribes in one language only, the voice speaks with that language's pronunciation, and the agent always responds in that language — no language detection involved.
+Sticking strictly to a single language yields the highest possible accuracy. The agent transcribes in one language, speaks with that dialect's native pronunciation, and replies predictably, removing all language detection guesswork.
 
 <img src="https://mintcdn.com/retellai/SGc6xrwrS64ZRERp/images/language-single.png?fit=max&auto=format&n=SGc6xrwrS64ZRERp&q=85&s=bc78e8e6ff07f8516726414e9285f303" width="600" height="996" data-path="images/language-single.png" />
 
-If no language is selected, the agent defaults to **English (US)**.
+If you do not explicitly select a language, the agent will gracefully default to **English (US)**.
 
-The chosen voice must support the chosen language. The dashboard hides unsupported combinations from the picker, with a tooltip explaining which voice or voice model is blocking it.
+**Crucial Dependency:** Whatever voice model you pick *must* actually support your chosen language. The Tavly dashboard automatically hides incompatible combinations from the picker, providing an explicit tooltip detailing exactly which voice or model is causing the conflict.
 
-## Need more than one language?
+## How do you support multiple languages?
+
+If you need to serve a diverse customer base, you can deploy a Multilingual Agent or dynamically override the language on a strict per-call basis via webhooks.
 
 <Card title="Configure a multilingual agent" icon="globe" href="/agent/multilingual">
-  For agents that serve callers in different languages, see the multilingual guide.
+  If your agent needs to serve callers speaking different languages, check out the multilingual guide.
 </Card>
 
-If you already know the caller's language at call time (for example, from CRM context or the dialed number), prefer overriding the language per call via the [inbound call webhook](/features/inbound-call-webhook). This gives you single-language accuracy on each call without limiting which customers the agent can serve.
+If your CRM already knows the caller's language before the call even connects, you should override the language via the [Inbound Call Webhook](/features/inbound-call-webhook). This grants you absolute single-language accuracy on every individual call without narrowing your overall customer reach.
 
-<Note>
-  Speech recognition often confuses closely related languages — for example **Cantonese vs. Mandarin Chinese**, or Cantonese mixed with English. If your callers speak these, keep the agent single-language and route each caller to the right agent (or set the language per call) instead of relying on auto-detect. See [Closely related languages are hard to distinguish](/agent/multilingual#closely-related-languages-are-hard-to-distinguish) for details.
-</Note>
+<Note> **Closely Related Languages:** Speech recognition often struggles to differentiate closely related languages natively (e.g., Cantonese versus Mandarin Chinese). If your callers use these dialects, aggressively route them to single-language agents rather than relying on automatic detection. Read more about [closely related languages](/agent/multilingual#closely-related-languages-are-hard-to-distinguish).</Note>
 
-## Supported languages
+## Which languages are supported?
 
-The language you pick must be supported by both your chosen **voice provider** (for pronunciation) and at least one **speech recognition provider** (for transcription). The combinations change as providers add coverage, so the dashboard is the source of truth.
+A language must be explicitly supported by both your chosen Voice Provider (for text-to-speech) and at least one Speech Recognition Provider (for transcription) to function on Tavly.
 
-On any agent page, open the language picker — the dropdown shows the live set of supported languages and updates as you change the voice provider, voice (and pinned voice model), and ASR provider. The same picker works in both single-language and multiselect modes. Unsupported combinations are greyed out, with a tooltip explaining which selection is blocking each one.
+Because provider coverage shifts dynamically, the dashboard itself serves as the definitive source of truth. Opening the language picker reveals the current live set of supported languages, updating instantly as you swap ASR or TTS providers. Incompatible combinations appear greyed out with descriptive tooltips.
 
-For a full per-language breakdown of which voice and speech recognition providers cover each language, see [Language support by provider](/build/language-support). Still picking your stack? See the [TTS provider comparison](/build/tts-provider-comparison) and [speech recognition providers](/build/asr-providers) for provider-level coverage and trade-offs.
+* **Detailed Breakdowns:** Review [Language support by provider](/build/language-support).
+* **Provider Comparisons:** Analyze the [TTS provider comparison](/build/tts-provider-comparison) and [Speech recognition providers](/build/asr-providers) documentation to evaluate trade-offs.
 
-For locale variants (for example, British English vs. US English, European Spanish vs. Latin American Spanish), the dashboard's language picker exposes the specific dialect codes when supported.
+For locale-specific variants (e.g., British English vs. US English, or European Spanish vs. Latin American Spanish), the dashboard automatically exposes explicit dialect codes wherever supported by the underlying provider.

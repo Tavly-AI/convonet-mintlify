@@ -1,116 +1,112 @@
 ---
-title :Prompt Engineering Guide
+title: 'Prompt Engineering Guide for Voice Agents'
+sidebarTitle: 'Prompt Engineering'
+description: 'Learn how to architect modular, highly deterministic prompts for Tavly voice agents to ensure consistent behavior, exact tool execution, and natural dialogue.'
+seo:
+  title: 'Prompt Engineering Guide | Voice AI Agents | Tavly'
+  description: 'Learn how to architect modular, highly deterministic prompts for Tavly voice agents to ensure consistent behavior, exact tool execution, and natural dialogue.'
+og:title: 'Prompt Engineering Guide for Voice Agents'
+og:description: 'Learn how to architect modular, highly deterministic prompts for Tavly voice agents to ensure consistent behavior, exact tool execution, and natural dialogue.'
+twitter:card: 'summary_large_image'
+icon: 'pen-nib'
+keywords: ['prompt engineering', 'voice AI prompts', 'LLM prompt structure', 'Tavly AI instructions', 'tool orchestration', 'deterministic LLM execution']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the best way to structure an AI voice prompt?'
+    answer: 'Avoid monolithic text blocks. Split your prompt into explicit, modular sections (e.g., Agent Persona, Conversational Constraints, Tool Orchestration) to improve maintainability and execution accuracy.'
+  - question: 'When should I migrate from a single prompt to a Conversation Flow?'
+    answer: 'Migrate to a Conversation Flow agent when your logic requires tracking multiple variables, executing 5+ distinct external tools, or managing complex branching logic (3-4+ paths) that a single prompt struggles to route consistently.'
+  - question: 'How do I ensure the LLM triggers tools correctly?'
+    answer: 'Do not rely solely on API schemas. Define explicit trigger phrases, deterministic prerequisites, and clear functional purposes directly in your prompt text so the LLM knows exactly when and why to execute a tool.'
 ---
-> Best practices for writing Tavly agent prompts that produce reliable, natural-sounding phone conversations — structure, examples, edge cases, and pitfalls.
 
-## Introduction
+## Why does Prompt Architecture matter?
 
-Prompt engineering is the foundation of creating effective AI phone agents. A well-crafted prompt determines how your agent interprets situations, responds to users, and handles edge cases. This guide provides proven strategies for writing prompts that agents can follow reliably.
+Prompt design dictates how your Tavly agent parses conversational history, routes dialogue logic, and executes tools. A highly structured, modular prompt guarantees that the underlying LLM makes predictable, deterministic decisions across diverse caller scenarios.
 
-<Note>
-  This guide focuses on general prompt engineering principles. For agent-specific implementation:
+<Note> **Global Applicability:** These rules apply everywhere. In **Single Prompt Agents**, inject these structures into your root prompt. In **Conversation Flow Agents**, apply these guidelines to the specific system instructions of each individual node.</Note>
 
-  * **Single/Multi Prompt Agents**: Apply these principles directly in your prompts
-  * **Conversation Flow Agents**: Use these principles within individual node instructions
-</Note>
+## How should you layout your prompt?
 
-## Getting Started
+You must avoid monolithic walls of text. Segmenting your prompt into modular, clearly defined Markdown sections aggressively improves LLM execution accuracy, reduces prompt leakage, and allows you to share brand personas across multiple agents.
 
-To see examples of effective prompts, create a new agent in the Dashboard and explore our pre-built templates. These templates demonstrate best practices for various use cases.
-
-## Best Practice 1: Use Sectional Prompts
-
-Break large prompts into focused sections for better organization and LLM comprehension. This structured approach offers several benefits:
-
-* **Reusability**: Sections can be adapted across different agents
-* **Maintainability**: Easy to update specific behaviors without affecting others
-* **Clarity**: LLMs process structured information more accurately
-
-### Recommended Prompt Structure
+### Standard Section Layout
+Organize your prompt using explicit Markdown headers to isolate behavioral rules:
 
 ```markdown theme={"dark"}
-## Identity
-You are a friendly AI assistant for [Company Name].
-Your role is to [specific purpose].
-You have expertise in [relevant domains].
+## Agent Persona
+You operate as a voice representative for [Company Name].
+Primary objective: [Define core task].
+Domain knowledge: [List relevant products or systems].
 
-## Style Guardrails
-Be concise: Keep responses under 2 sentences unless explaining complex topics.
-Be conversational: Use natural language, contractions, and acknowledge what the caller says.
-Be empathetic: Show understanding for the caller's situation.
+## Conversational Constraints
+- Keep replies brief: 1 to 2 sentences per turn unless detailing technical steps.
+- Speak naturally: Use standard contractions and acknowledge incoming caller statements.
+- Maintain professional patience: Acknowledge caller difficulties calmly.
 
-## Response Guidelines
-Return dates in spoken form: Say "January fifteenth" not "1/15".
-Ask one question at a time: Avoid overwhelming the caller with multiple questions.
-Confirm understanding: Paraphrase important information back to the caller.
+## Spoken Output Standards
+- Speak dates in full word form: Say "March fourth" instead of "3/4".
+- Limit prompts to one query per turn: Do not combine questions.
+- Mirror critical parameters: Restate important account numbers or names to verify accuracy.
 
-## Task Instructions
-[Specific steps the agent should follow]
+## Workflow Execution
+[Step-by-step procedure the agent must execute during the call]
 
-## Objection Handling
-If the caller says they're not interested: "I understand. Is there anything specific..."
-If the caller is frustrated: "I hear your frustration, let me help resolve this..."
+## Handling Disruption and Resistance
+- When the caller declines assistance: "Understood. Before we disconnect, is there another item..."
+- When the caller expresses irritation: "I recognize the difficulty here. Let me address this immediately..."
 ```
 
-## Best Practice 2: Use Conversation Flow for Complex Tasks
+## When should you scale to Conversation Flow?
 
-When your agent needs to handle complex logic or multiple tools, consider using Conversation Flow agents instead of trying to manage everything in a single prompt.
+Complex conversational trees rapidly degrade LLM reliability when forced into a single prompt. If your agent requires deep conditional logic, you must migrate to a node-based **Conversation Flow** architecture.
 
-### When to Switch to Conversation Flow:
+**Migration Triggers:**
+Transition your agent to a Conversation Flow if it hits any of the following complexity thresholds:
+* Requires **3 to 4+** distinct branching conditional paths.
+* Interfaces with **5 or more** distinct external tools or integrations.
+* Must track and persist multiple operational variables across consecutive turns.
+* Consistently hallucinates or fails edge-case routing within a single prompt.
 
-* **Multiple decision branches**: More than 3-4 conditional paths
-* **Tool coordination**: Using 5+ different functions/tools
-* **State management**: Tracking multiple variables throughout the conversation
-* **Reliability concerns**: Single prompt shows inconsistent behavior
+| Capability | Single/Multi Prompt | Conversation Flow |
+| :--- | :--- | :--- |
+| **Execution Scope** | Single prompt handles full dialogue tree | Each node targets a single isolated action |
+| **Tool Execution** | Prompt-driven probabilistic routing | Deterministic execution per node setup |
+| **Debugging** | Whole-prompt iteration | Discrete step testing and optimization |
+| **Logic Control** | Inferred state tracking | Explicit state graphs and transitions |
 
-### Benefits of Conversation Flow:
+## How do you orchestrate Tool Execution?
 
-* Each node focuses on one specific task
-* Deterministic tool calling and transitions
-* Easier to debug and optimize individual steps
-* More predictable agent behavior
+Language models routinely fail to execute tools accurately if they only rely on the API schema description. You must explicitly define exact trigger phrases, sequencing rules, and negative constraints directly in your prompt text.
 
-## Best Practice 3: Explicit Tool Calling Instructions
+<Note> **Architecture Note:** This orchestration guide applies specifically to Single/Multi Prompt Agents. Conversation Flow Agents execute their tools deterministically via node-level configurations.</Note>
 
-<Note>This section applies only to Single/Multi Prompt Agents. Conversation Flow Agents handle function calls deterministically through their node configuration.</Note>
+### The 4 Rules of Explicit Orchestration
+1. **Explicit Triggers:** Hardcode the exact user keywords that mandate a function call.
+2. **Deterministic Order:** explicitly define prerequisites (e.g., "Always collect Account ID before calling `check_status`").
+3. **Negative Constraints:** Define the exact edge cases where a tool must *never* run.
+4. **Functional Purpose:** Tell the LLM *why* the tool exists so it understands the strategic value of the output.
 
-### The Challenge
-
-LLMs often struggle to determine when to call tools based solely on tool descriptions. Without explicit instructions, agents may:
-
-* Call tools at inappropriate times
-* Fail to call tools when needed
-* Use the wrong tool for a situation
-
-### Solution: Define Clear Triggers
-
-Always specify exact conditions for tool usage in your prompts. Reference tools by their exact names.
-
-#### Example: Customer Service Agent
+### Orchestration Pattern Example
 
 ```markdown theme={"dark"}
-## Tool Usage Instructions
+## Tool Invocation Protocol
 
-1. Gather initial information about the customer's issue.
+1. Collect caller details:
+   - Obtain caller name and account identifier before triggering ANY queries.
 
-2. Determine the type of request:
-   - If customer mentions "refund" or "money back":
-     → Call function `transfer_to_support` immediately
-   - If customer needs order status:
-     → Call function `check_order_status` with order_id
-   - If customer wants to change their order:
-     → First call `check_order_status`
-     → Then transition to modification_state
+2. Route by user intent:
+   - When the user asks for a refund or disputed charge:
+     -> Run `transfer_to_support` without additional queries.
+   - When the user asks for shipment or delivery tracking:
+     -> Run `check_order_status` using the provided order_id.
+   - When the user requests an item change or order update:
+     -> First run `check_order_status` to verify state.
+     -> Then transition to modification_state.
 
-3. After retrieving information:
-   - Always summarize what you found
-   - Ask if they need additional help
-   - If yes, determine next appropriate action
+3. Post-execution response:
+   - Report the retrieved data back to the caller clearly.
+   - Confirm whether the caller requires follow-up actions.
+   - Process the next step only after confirmation.
 ```
-
-### Best Practices for Tool Instructions
-
-1. **Use trigger words**: List specific words/phrases that should trigger tool calls
-2. **Define sequences**: Specify when tools should be called in order
-3. **Set boundaries**: Clarify when NOT to call certain tools
-4. **Provide context**: Explain why each tool is being called

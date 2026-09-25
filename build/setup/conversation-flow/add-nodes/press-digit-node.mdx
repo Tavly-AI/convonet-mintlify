@@ -1,26 +1,50 @@
 ---
-title: Press Digit Node
+title: 'Press Digit Node: Navigate IVR Menus'
+sidebarTitle: 'Press Digit Node'
+description: 'Use the Tavly Press Digit Node to silently navigate complex Interactive Voice Response (IVR) systems during outbound phone calls.'
+seo:
+  title: 'Press Digit Node | Navigate IVR Menus with AI | Tavly AI'
+  description: 'Use the Tavly Press Digit Node to silently navigate complex Interactive Voice Response (IVR) systems during outbound phone calls.'
+og:title: 'Press Digit Node: Navigate IVR Menus'
+og:description: 'Use the Tavly Press Digit Node to silently navigate complex Interactive Voice Response (IVR) systems during outbound phone calls.'
+og:image: 'https://mintcdn.com/retellai/i0NYIKgRtRqm3xFI/images/cf/press-digit-node.gif'
+twitter:card: 'summary_large_image'
+icon: 'phone-intercom'
+keywords: ['press digit node', 'navigate IVR AI', 'Tavly AI keypad', 'AI dialer node', 'DTMF automation']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Press Digit Node?'
+    answer: 'The Press Digit Node allows a Tavly AI agent to silently navigate Interactive Voice Response (IVR) menus during outbound phone calls by intelligently figuring out and dispatching the correct keypad digits.'
+  - question: 'Does the agent speak while inside the Press Digit Node?'
+    answer: 'No. The agent remains completely silent while inside this node, continuously evaluating the IVR audio to determine exactly which digit to press.'
+  - question: 'When does the Press Digit Node re-evaluate?'
+    answer: 'Every time the IVR system finishes speaking and pauses, the node re-evaluates the context to determine if a digit press is warranted, governed strictly by the detection delay setting.'
 ---
 
-> Press digit nodes let Tavly agents navigate IVR menus by inferring and pressing the correct keypad digit silently during an outbound phone call.
+## What is a Press Digit Node?
 
-The Press Digit Node is used to navigate through IVR (Interactive Voice Response) systems. When in this node, the agent will not speak. Instead, it evaluates whether it should press a digit and determines which specific digit to press.
+The **Press Digit Node** allows an active AI agent to silently navigate complex **Interactive Voice Response (IVR)** systems during outbound calls. The agent remains entirely silent while actively evaluating the telephonic menu to intelligently determine exactly which keypad digit to press. 
 
-The node evaluates whether to press a digit each time the user (IVR system) finishes speaking. This timing is also affected by the detection delay setting. If a digit press is needed, the agent will infer the appropriate digit and press it.
+Every single time the IVR system finishes a spoken phrase, the node automatically re-evaluates the audio context to determine if a digit press is required. The exact timing of this evaluation is strictly shaped by the node's **detection delay** setting.
 
 <iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/agoG3VHbSxA" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
 
-<img src="https://mintcdn.com/retellai/i0NYIKgRtRqm3xFI/images/cf/press-digit-node.gif?s=fddd18cca34075a2c70ce43598015e93" alt="Press digit node navigating an IVR system" width="800" height="502" data-path="images/cf/press-digit-node.gif" />
+<Frame caption="Press digit node silently navigating an IVR system.">
+  <img src="https://mintcdn.com/retellai/i0NYIKgRtRqm3xFI/images/cf/press-digit-node.gif?s=fddd18cca34075a2c70ce43598015e93" alt="Press digit node navigating an IVR system" width="800" height="502" data-path="images/cf/press-digit-node.gif" />
+</Frame>
 
-## Configure Press Digit Behavior
+## How do you set up press digit behavior?
+
+You must explicitly define exactly how the agent parses the IVR menu by writing rigid navigation instructions, configuring a proper audio detection delay, and mapping out structural transitions for success and failure states.
 
 <Steps>
-  <Step title="Setup IVR Navigation Instructions">
-    Provide clear instructions so the agent knows whether and what digit to press. Include keywords or phrases to listen for, as well as which ones to avoid.
+  <Step title="Write navigation instructions">
+    Provide the agent with explicit guidance on exactly what keywords to aggressively listen for and which departments to actively avoid.
 
     **Sample prompt:**
 
-    ```
+    ```text theme={"dark"}
     Your goal is to reach the scheduling or appointments department.
 
     Preferred navigation keywords:
@@ -40,39 +64,37 @@ The node evaluates whether to press a digit each time the user (IVR system) fini
     ```
   </Step>
 
-  <Step title="Configure Detection Delay">
-    Some IVR systems speak slowly, so to make sure the agent does not make any decision prematurely, you can set a delay on pauses to make sure the whole IVR menu is captured. We recommend setting this to 1 second.
+  <Step title="Set the detection delay">
+    Since many legacy IVR systems speak slowly or pause awkwardly, setting a deliberate detection delay ensures the agent actively hears the entire menu before finalizing a decision. A delay of **1 second** is the recommended baseline starting point.
   </Step>
 
-  <Step title="Configure Transitions">
-    Transitions occur when the IVR system finishes speaking. When writing your transitions, ensure you cover both successful navigation and potential failure scenarios or edge cases.
+  <Step title="Set up transitions">
+    Transitions evaluate and fire strictly whenever the IVR system stops speaking. You must thoroughly map out edges for both successful navigation and critical failure edge cases.
 
-    **Success scenario:** Define when the agent has successfully navigated to the target. For example, write conditions like `Reached scheduling department`. If the digit press was correct, the IVR response will confirm this.
-
-    **Edge cases:** Cover scenarios like getting stuck in loops. For example, write conditions like `Menu repeated 3 times` to handle repetitive menus.
+    * **Successful navigation:** Define a strict condition representing the target destination (e.g., `Reached scheduling department`). If the agent pressed the correct digit, the IVR's subsequent audio will confirm this state.
+    * **Edge cases:** Actively account for getting stuck in infinite loops or dead ends. Use conditions like `Menu repeated 3 times` to forcefully break out of failing menus.
 
     **Example transition conditions:**
 
-    ```
+    ```text theme={"dark"}
     You've reached the scheduling department.
     ```
-
-    ```
+    ```text theme={"dark"}
     Menu repeated 3 times.
     ```
-
-    ```
+    ```text theme={"dark"}
     You've reached the wrong department or company.
     ```
-
-    ```
+    ```text theme={"dark"}
     You've reached an after-hours or voicemail message.
     ```
   </Step>
 </Steps>
 
-## Rest of Node Settings
+## What configurations are available?
 
-* **Global Node**: read more at [Global Node](/build/conversation-flow/global-node)
-* **LLM**: choose a different model for this particular node. Will be used for determining whether and what digit to press.
-* **Fine-tuning examples**: Add example conversations to train your AI agent how to handle specific scenarios. Read more at [finetune examples](/build/conversation-flow/finetune-examples).
+The Press Digit node offers several advanced configurations to strictly govern how the LLM evaluates the audio stream and when the node becomes universally reachable.
+
+* **Global Node:** Transforms this node into a globally reachable destination from anywhere else in the flow. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **LLM Override:** Explicitly assign a different underlying language model strictly for this node to determine exactly whether and which digit must be pressed.
+* **Fine-Tuning Examples:** Inject precise sample conversation transcripts to aggressively teach the agent how to perfectly handle specific IVR menu scenarios. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).

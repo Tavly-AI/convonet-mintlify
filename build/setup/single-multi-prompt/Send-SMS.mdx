@@ -1,41 +1,64 @@
 ---
-title: 'Send SMS'
+title: 'Send SMS Tool Configuration'
+sidebarTitle: 'Send SMS'
+description: 'Learn how to enable the Send SMS tool in Tavly AI, allowing your single or multi-prompt agent to text callers mid-conversation using SMS-enabled numbers.'
+seo:
+  title: 'Send SMS Tool for AI Agents | Tavly AI Guide'
+  description: 'Learn how to enable the Send SMS tool in Tavly AI, allowing your single or multi-prompt agent to text callers mid-conversation using SMS-enabled numbers.'
+og:title: 'Send SMS Tool Configuration'
+og:description: 'Learn how to enable the Send SMS tool in Tavly AI, allowing your single or multi-prompt agent to text callers mid-conversation using SMS-enabled numbers.'
+og:image: 'https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/send-sms.jpeg'
+twitter:card: 'summary_large_image'
+icon: 'message-square'
+keywords: ['send SMS tool', 'AI agent text messaging', 'mid-call SMS', 'Tavly AI SMS', 'A2P approval']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the Send SMS tool in Tavly AI?'
+    answer: 'The Send SMS tool allows a Tavly AI agent to send text messages dynamically to a caller or a third-party number while a phone call is still active.'
+  - question: 'Can an AI agent read incoming text messages during a call?'
+    answer: 'Yes, agents can receive an SMS mid-call and interpret its contents, including text, images, or audio, provided the number has cleared A2P approval.'
+  - question: 'What is the difference between an SMS-approved Tavly number and my agent’s own number?'
+    answer: 'An SMS-approved Tavly number skips A2P registration but forces a strict fixed message template. The agent’s own number requires A2P approval but allows fully custom, prompt-driven text messages.'
 ---
 
-> Use the Send SMS tool so a Tavly AI single or multi-prompt agent can text the caller or another number mid-call from SMS-enabled Tavly AI or imported numbers.
+## What is the Send SMS tool?
 
-This tool is used to send an SMS during a phone call. You can send to the caller's number or a different number.
+The **Send SMS** tool empowers a Tavly single or multi-prompt agent to seamlessly transmit a text message while a live phone call is actively in progress. You can programmatically direct this SMS to the caller's native number or redirect it to a completely different destination.
 
-<Note> This tool only works for phone numbers that have SMS enabled, or when using an SMS-approved Tavly AI number. Read more about [enabling SMS](/deploy/enable-sms). </Note>
+<Note> This tool exclusively functions on numbers specifically provisioned with SMS capabilities, or on a pre-approved Tavly number. Review [enabling SMS](/deploy/enable-sms) for explicit setup details. </Note>
 
-<Tip>Agents can also **receive SMS during an active call** and understand the content, including text, images, audio, and video. This works out of the box for Tavly AI Twilio numbers, and for custom telephony numbers that passed A2P applications. Read more at [Receive SMS during call](/deploy/enable-sms#receive-sms-during-call).</Tip>
+<Tip>Agents are not restricted to outbound messaging. They can autonomously **receive an SMS mid-call** and intelligently interpret the inbound payload, whether that consists of raw text, an image, audio, or video files. This functionality works automatically on Tavly Twilio numbers, and on custom telephony endpoints that have successfully cleared A2P approval. Review [Receive SMS during call](/deploy/enable-sms#receive-sms-during-call) for deeper technical implementation.</Tip>
 
 <img src="https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/send-sms.jpeg?fit=max&auto=format&n=aS6kWND7Eh5Z5FzB&q=85&s=71aa61a6bcfea415589a9c9d58c2e72c" width="432" height="453" data-path="images/sms/send-sms.jpeg" />
 
-## Choose where to send from
+## How do you pick a sending number?
+
+When configuring the Send SMS tool, you must explicitly declare the outbound phone number. You can utilize a pre-approved Tavly pool number for rapid deployment, or use the agent's dedicated number for highly personalized, dynamic messaging.
 
 <Frame caption="Send from options for in-call SMS (Single/Multi Prompt)">
-  <img src="https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/sms-tool-retell-number.png?fit=max&auto=format&n=aS6kWND7Eh5Z5FzB&q=85&s=f8360b62c242b7e3614dcad4ef5966fd" alt="Send In-Call SMS tool configuration showing SMS-approved Tavly AI number and agent's associated number options" width="50%" data-path="images/sms/sms-tool-retell-number.png" />
+  <img src="https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/sms-tool-retell-number.png?fit=max&auto=format&n=aS6kWND7Eh5Z5FzB&q=85&s=f8360b62c242b7e3614dcad4ef5966fd" alt="Send In-Call SMS tool configuration" width="50%" data-path="images/sms/sms-tool-retell-number.png" />
 </Frame>
 
-You can choose one of two options for the sending number:
+There are two primary architectures for routing your outbound texts:
 
-* **SMS-approved Tavly AI number**: Send from Tavly AI's pool of numbers that are already approved for SMS. This bypasses the A2P application process entirely. The message content is a **preset template provided by Tavly AI** — you cannot customize the text or use a prompt.
-* **Agent's associated number**: Send from the phone number bound to the agent. This requires your number to have SMS enabled through the [A2P application](/deploy/enable-sms#enable-sms-capabilities), and the agent should [collect SMS consent](/deploy/sms-campaign-application#make-your-agent-collect-consent-the-same-way) before sending.
+* **SMS-approved Tavly number:** This securely draws from a pool of numbers Tavly has already explicitly cleared for SMS use, bypassing the rigorous A2P 10DLC approval process entirely. The strict trade-off: the message body is locked to a **fixed template Tavly provides**, and it absolutely cannot be edited or dynamically driven by a prompt.
+* **Agent's associated number:** This sends directly from the dedicated number attached to the agent itself. This route strictly requires your number to have achieved complete [A2P approval](/deploy/enable-sms#enable-sms-capabilities) for SMS routing. Furthermore, your agent must explicitly [collect the caller's consent](/deploy/sms-campaign-application#make-your-agent-collect-consent-the-same-way) before initiating any text message.
 
-## Configure SMS content
+## How do you set the message content?
 
-* **When sending from the agent's associated number**: You can write a prompt to let the agent infer the SMS content, or use static SMS content. Dynamic variables are supported for static SMS content.
-* **When sending from an SMS-approved Tavly AI number**: The message is a preset template provided by Tavly AI. You cannot edit the content.
+The content of your message depends entirely on the sending number you selected. You can leverage the LLM to generate dynamic text on an approved custom number, or rely on a static template if using the Tavly pool.
 
-## Configure SMS destination
+* **Sending from the agent's own number:** You can write a detailed prompt and let the agent autonomously decide what to say, or you can supply fixed text. Note that standard dynamic variables successfully resolve inside static text payloads.
+* **Sending from an SMS-approved Tavly number:** The content payload is strictly locked to Tavly's unalterable preset template; there is no programmatic method to override or change it.
 
-By default, the SMS is sent to the caller's number. You can also choose to send to a different number — either a static number or a dynamic variable (e.g. `{{customer_phone}}`).
+## How do you set the destination number?
 
-## Talk while waiting
+By default, the outbound SMS automatically resolves to the caller's inbound phone number. However, you can explicitly redirect the payload elsewhere by supplying a fixed number, or by utilizing a dynamic variable such as `{{customer_phone}}`.
 
-Enable this option to have the agent say a short phrase while the SMS is being sent. You can configure the message as a prompt or a static sentence.
+## How do you control agent speech during the SMS?
 
-## Speak after sending message
+You can configure the agent to maintain conversational fluidity while the backend API request processes the text message. You can instruct the agent to speak during the SMS dispatch, and again immediately after delivery confirmation.
 
-Enable this option to have the agent speak after the SMS has been sent. This is useful for confirming to the user that the message was delivered.
+* **Speak While the Message Sends:** Enable this configuration to instruct the agent to say something brief while the network processes the outbound text. This auditory filler can be dynamically generated by a prompt or hardcoded as a fixed sentence.
+* **Speak After the Message Sends:** Enable this to guarantee the agent explicitly confirms delivery once the SMS has successfully gone through. This is exceptionally handy for smoothly letting the caller know the message was successfully dispatched to their device.

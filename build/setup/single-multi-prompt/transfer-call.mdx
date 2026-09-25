@@ -1,0 +1,188 @@
+---
+title: 'Transfer Call Tool'
+sidebarTitle: 'Transfer Call'
+description: 'Learn how to add the Transfer Call tool to a Tavly AI agent to hand active calls off to a human using cold, warm, or agentic warm transfer modes.'
+seo:
+  title: 'Transfer Call Tool for AI Agents | Tavly AI Guide'
+  description: 'Learn how to add the Transfer Call tool to a Tavly AI agent to hand active calls off to a human using cold, warm, or agentic warm transfer modes.'
+og:title: 'Transfer Call Tool Configuration'
+og:description: 'Learn how to add the Transfer Call tool to a Tavly AI agent to hand active calls off to a human using cold, warm, or agentic warm transfer modes.'
+og:image: 'https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-add-function.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-forwarded'
+keywords: ['transfer call tool', 'call routing', 'AI agent transfer', 'warm transfer', 'cold transfer', 'agentic warm transfer', 'Tavly AI tools']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between a cold transfer and a warm transfer?'
+    answer: 'A cold transfer routes the call directly and the AI exits immediately. A warm transfer allows the AI to stay connected, wait for a human to answer, and deliver a private briefing before connecting.'
+  - question: 'What is an agentic warm transfer?'
+    answer: 'An agentic warm transfer uses a secondary AI agent to privately vet the human recipient before deciding whether to bridge the caller or cancel the transfer.'
+  - question: 'Can I override the caller ID during a transfer?'
+    answer: 'Yes, you can choose to display the original caller’s number instead of the AI agent’s number, provided your telephony provider explicitly supports caller ID override.'
+---
+
+## What is the Transfer Call tool?
+
+The **Transfer Call** tool allows your Tavly single or multi-prompt agent to pass a live call to a human, a specific department, or an external line mid-conversation. You can execute transfers using cold, warm, or agentic warm transfer modes.
+
+For instance, an AI support agent might handle routine FAQs independently, but immediately transfer the call to a live person the moment a caller requests a refund or becomes audibly frustrated.
+
+<Warning>
+  Transfer Call only works on traditional phone calls — not web calls. It is supported natively on Tavly numbers and on numbers you've imported via SIP.
+</Warning>
+
+If you want to hand the conversation to another *AI agent* rather than a phone number, use the [Agent Transfer](/build/single-multi-prompt/transfer-agent) tool instead. It offers lower latency and carries the complete conversation history directly to the next agent. If you are using a conversation flow agent, utilize the [call transfer node](/build/conversation-flow/call-transfer-node) instead.
+
+## How do you configure a transfer?
+
+Configuring a transfer requires adding the tool to your agent, setting a valid SIP or E.164 destination, defining the triggering prompt conditions, selecting your desired transfer mode, and optionally configuring caller ID and SIP headers.
+
+<Steps>
+  <Step title="Add the Call Transfer function">
+    Navigate to the **Functions** section, click **+ Add**, and explicitly select **Call Transfer** from the dropdown list.
+
+    <Frame caption="Add Call Transfer from the Functions dropdown.">
+      <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-add-function.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=9bd8bd82fe4982ab99f9aa490c5e34b7" alt="Functions section of a single-prompt agent" style={{ maxHeight: '560px' }} width="1385" height="1120" data-path="images/transfer-call/transfer-call-add-function.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set the destination">
+    Point the transfer to a precise endpoint using one of the following formats:
+    * A standard number in E.164 format.
+    * A SIP URI formatted like `sip:username@domain` (e.g., `sip:user@tavly.ai`).
+    * A [dynamic variable](/build/dynamic-variables) that strictly resolves when the call occurs.
+
+    If your destination number is not E.164, switch **Format to E.164** to **Keep raw input** to pass the string through unchanged (only applicable to custom telephony). You can also append an extension utilizing `0-9`, `*`, and `#`.
+
+    <Frame caption="Enter the transfer number in E.164 format, or use a dynamic variable.">
+      <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-target.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=95d09033387e1249c6470b36e88a19c4" alt="Transfer Call window" style={{ maxHeight: '560px' }} width="1460" height="900" data-path="images/transfer-call/transfer-call-target.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Tell the agent when to transfer">
+    Add a strict condition to the agent's main prompt describing exactly when it must trigger a transfer.
+
+    > If the user is angry or frustrated, use the transfer_call tool to transfer the conversation to a human agent.
+  </Step>
+
+  <Step title="Pick a transfer mode">
+    Three distinct modes dictate how the handoff executes:
+    * **Cold Transfer:** The call routes straight to the destination and the AI exits immediately.
+    * **Warm Transfer:** The AI stays connected, waits for a human, delivers a private briefing, and runs a brief three-way introduction before bridging the caller.
+    * **Agentic Warm Transfer:** A secondary AI (the **transfer agent**) takes the handoff, vets whoever answers, and autonomously decides whether to bridge or cancel the transfer.
+
+    <Frame caption="The three transfer types.">
+      <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-types.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=4807cbd6ee982966aeef95e30bd4bee6" alt="Transfer Call window with transfer modes" style={{ maxHeight: '560px' }} width="1460" height="716" data-path="images/transfer-call/transfer-call-types.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set caller ID behavior (optional)">
+    Define which specific phone number the destination sees:
+    1. **Tavly Agent's Number:** The destination sees the AI's phone number.
+    2. **User's Number:** The destination sees the original caller's number. This strictly requires your telephony provider to support caller ID override. If override is unsupported, the transfer will fail completely.
+
+    <Frame caption="Choose whether the destination sees the Tavly agent's number or the caller's number.">
+      <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-caller-id.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=204d55ac5f4b5d63609d46003c1a89cc" alt="Caller ID settings" style={{ maxHeight: '560px' }} width="1460" height="620" data-path="images/transfer-call/transfer-call-caller-id.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set ring duration (optional)">
+    Configure precisely how long the destination should ring before the attempt is flagged as unanswered.
+
+    <Frame caption="Set how long the destination rings before the transfer counts as unanswered.">
+      <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-ring-duration.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=b8a08c82f6ca4e5887ce948ae5d2dac6" alt="Transfer Ring Duration" style={{ maxHeight: '560px' }} width="1460" height="480" data-path="images/transfer-call/transfer-call-ring-duration.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Add custom SIP headers (optional)">
+    Custom SIP headers are forwarded directly to your SIP provider on the `SIP INVITE` for advanced routing logic. Refer to the [SIP headers reference](/build/telephony/sip-headers).
+    <Warning>Custom SIP headers only survive when routed directly to a SIP endpoint; they drop over PSTN networks.</Warning>
+  </Step>
+</Steps>
+
+## What are the Cold Transfer settings?
+
+Cold transfers expose one critical advanced setting: the underlying SIP protocol method that handles the handoff. You can select either **SIP INVITE** (the default standard) or **SIP REFER** (instructs the endpoint to place a separate outbound call).
+
+Note that displaying the **User's Number** is only available when the method is set strictly to **SIP INVITE**.
+
+<Frame caption="Choose SIP INVITE or SIP REFER for the cold transfer handoff.">
+  <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-sip-method.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=8aba579d08f712c3be955b7fdfad229f" alt="SIP Transfer Method" style={{ maxHeight: '560px' }} width="1460" height="528" data-path="images/transfer-call/transfer-call-sip-method.png" />
+</Frame>
+
+## What are the Warm Transfer settings?
+
+Warm transfers allow the AI to stay on the line to manage the handoff dynamically. You can configure on-hold music, whisper debriefs, and three-way greetings to ensure a seamless experience before fully connecting the caller.
+
+* **During Transfer:** Manage **On-hold Music**, **Ring Duration**, and IVR navigation.
+* **Agent Connection:** Toggle **Internal queue** awareness and set a private **Whisper Debrief Message** heard only by the destination.
+* **Connection Phase:** Configure a **Three-Way Ring Tone** and an introductory **Three-Way Debrief Message** heard by both parties simultaneously.
+
+<Frame caption="Warm transfer settings, including the queue question and whisper message.">
+  <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-warm-settings.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=8db2b4dec7531f7cae7d75f5935bcfc9" alt="Warm transfer settings" style={{ maxHeight: '560px' }} width="1045" height="1120" data-path="images/transfer-call/transfer-call-warm-settings.png" />
+</Frame>
+
+## What are the Agentic Warm Transfer settings?
+
+Agentic Warm Transfers utilize a secondary **Transfer Agent** that specifically screens the handoff. You can configure how this secondary AI decides to bridge the call, what happens if a timeout occurs, and the specific handoff messages.
+
+* **Transfer Agent:** Select the dedicated secondary AI responsible solely for screening the recipient.
+* **Wait Time & Timeout:** Define how long the screening agent has to make a decision, and specify the fallback action (**Cancel** or **Bridge**) if it times out.
+* **Handoff Messaging:** Configure a static or dynamically prompted **Three-Way Message** delivered when the transfer is finalized.
+
+<Frame caption="Agentic warm transfer settings.">
+  <img src="https://mintcdn.com/retellai/h8x4O1GW5f8KQTjZ/images/transfer-call/transfer-call-agentic-settings.png?fit=max&auto=format&n=h8x4O1GW5f8KQTjZ&q=85&s=333560ea3b6a4235bb1ad88a30578bc7" alt="Agentic warm transfer settings" style={{ maxHeight: '560px' }} width="1367" height="1120" data-path="images/transfer-call/transfer-call-agentic-settings.png" />
+</Frame>
+
+<Note>
+  **Custom on-hold music (API only):** To upload custom audio, utilize the `create-asset` endpoint and set `on_hold_music` to `custom` passing the returned asset ID. Supported formats include MP3, WAV, WebM, OGG, M4A, AAC, and FLAC (max 10 MB and 210 seconds).
+</Note>
+
+### Understanding Transfer Agents
+
+A **transfer agent** is a specialized, purpose-built AI that solely screens handoffs. It dials the destination, converses with whoever answers, and decides whether to allow the transfer. It utilizes only two unique tools:
+* **Bridge Transfer:** The recipient is ready; connect the caller.
+* **Cancel Transfer:** The recipient is unavailable; send the caller back to the main AI agent.
+
+<Frame caption="Search for a transfer agent, preview it, then confirm.">
+  <img src="https://mintcdn.com/retellai/pYRxYvv70IUyhP6N/images/transfer-agents/select-transfer-agent-preview.png?fit=max&auto=format&n=pYRxYvv70IUyhP6N&q=85&s=d24e40314911030208991cc266a45842" alt="Select transfer agent" width="2146" height="1418" data-path="images/transfer-agents/select-transfer-agent-preview.png" />
+</Frame>
+
+<Note>
+  Transfer agents live in a separate list from your regular agents and can't be used to handle inbound, outbound, or batch calls on their own. Whether an agent is designated as a transfer agent gets locked in at creation time, so an existing agent can't later be converted into one.
+</Note>
+
+The transfer agent is handed the original conversation automatically — there's nothing you need to pass along manually. It already knows who's calling and what they need, so it can brief whoever picks up the destination line. Dynamic variables carry over as well, including anything you [extracted earlier in the call](/build/single-multi-prompt/extract-dv), along with `original_call_id`, which lets you tie the two call records together afterward.
+
+What it doesn't see is anything said after the transfer begins, and your main agent never has visibility into the screening conversation either. Both legs are recorded and transcribed as completely separate calls.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What's the difference between Transfer Call and Agent Transfer?">
+    **Transfer Call** places an actual phone call to a separate number — a human, a department line, or an outside number. **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** instead swaps in a different *AI* agent within the same ongoing call: no new phone call gets placed, latency is lower, and the new agent inherits the entire conversation history. Reach for Transfer Call when you need a real person or outside line; reach for Agent Transfer when you're switching between AI agents.
+  </Accordion>
+
+  <Accordion title="Agentic warm transfer also uses a second AI agent — how is that different from Agent Transfer?">
+    They solve different problems, and in each case the second AI agent is talking to a different person.
+
+    **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** changes which AI agent is talking to *your caller*. There's no separate phone call involved — it's the same call, the same call ID, and the conversation history flows straight through. Use it to move a caller from, say, a general receptionist agent to a billing specialist agent.
+
+    **Agentic warm transfer**, on the other hand, places a genuine outbound call to a phone number. The transfer agent talks to *whoever answers at that destination* — never to your original caller, who remains on hold throughout. Use this mode to vet a human before connecting them to your caller.
+
+    Once the transfer agent decides to bridge, the caller and destination are connected directly and every AI leaves the call. With Agent Transfer, by contrast, an AI agent remains on the line the whole time.
+  </Accordion>
+
+  <Accordion title="How does billing work for a transferred call?">
+    For as long as the agent remains on the line — including any hold or briefing time during a warm or agentic warm transfer — the call is billed at your normal per-minute rate. Once the caller is connected to the destination and the agent exits, the AI agent fee stops accruing, and only the telephony charge continues for whatever remains of the call. See [Billing](/accounts/billing) for a full cost breakdown.
+  </Accordion>
+
+  <Accordion title="Should I use warm or cold transfer?">
+    Reach for **cold transfer** when all you need is to route the call and step away. Use **warm transfer** when the agent should wait for a person to pick up, deliver a private briefing to them, or introduce the caller before connecting the two. Use **agentic warm transfer** when you specifically want an AI agent to screen or brief the destination before anyone is connected.
+  </Accordion>
+
+  <Accordion title="The destination is seeing the wrong caller ID — why?">
+    Displaying the original caller's number depends on your telephony provider supporting caller ID override. Tavly Twilio numbers support this on both warm and cold transfers; Tavly Telnyx numbers only support it through cold transfer (SIP REFER). If your provider doesn't support override, the transfer will fail outright. To fix it, switch **Displayed Caller ID** to **Tavly Agent's Number**, or move to a number that does support override.
+  </Accordion>
+</AccordionGroup>

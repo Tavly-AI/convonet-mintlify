@@ -1,0 +1,81 @@
+---
+title: Testing overview
+---
+
+> Evaluate Tavly voice and chat agents across development stages using LLM Playground sessions, automated simulations, batch test suites, browser web calls, and live telephony tests.
+
+Tavly provides a tiered testing framework designed to validate agent behavior from rapid prototype iteration to full pre-production telephony sign-off. Use text-based, low-latency tools during design and prompt engineering, then transition to live-streamed audio environments to confirm conversational cadence and telecom infrastructure before handling live traffic.
+
+## Testing Environments
+
+### LLM Playground
+
+Engage in rapid text-based conversations with your agent, either by typing manually or by activating an automated AI caller persona. The playground displays real-time execution traces, including tool executions, API payload parameters, and state transitions across conversation nodes. Access this interface via the <code className="ui-btn">Test LLM</code> tab in the testing drawer. For comprehensive guides, consult [Manually test your agent](/test/llm-playground) and [Debug your agent response](/test/llm-playground-debug).
+
+### Simulation Testing
+
+Convert conversation scripts into automated test cases with defined pass/fail rubrics. Run individual scenarios or execute comprehensive [batch](/test/batch-test-simulation) runs to prevent behavioral regressions during prompt updates. You can also leverage [Conductor](/test/testing-with-conductor) to synthesize test scenarios from production logs, trigger batch evaluations, and inspect failure patterns. Learn more in [Automatically test your agent](/test/llm-simulation-testing).
+
+### Web Call Testing
+
+Stream live conversational audio directly inside your browser. Web calls let you evaluate synthetic voice naturalness, end-to-end response latency, and barge-in interruption behavior without provisioning telecom lines. Refer to [Web call testing](/test/test-web).
+
+### Phone Call Testing
+
+Dial outbound to a mobile number or receive inbound calls over public telephony networks. This testing mode validates carrier audio fidelity, dual-tone multi-frequency (DTMF) keypad input processing, and live call transfers. See [Phone call testing](/test/test-phone).
+
+## Selecting the Right Testing Method
+
+Select the simplest testing method that covers your immediate validation requirement:
+
+| Target Validation Objective | LLM Playground | Simulation Testing | Web Call | Phone Call |
+| :--- | :---: | :---: | :---: | :---: |
+| Fast iteration on prompt phrasing and conversational logic | ✅ | ✅ | | |
+| Turn-by-turn verification of node state transitions and tool calls | ✅ | ✅ | | |
+| Replaying or editing an isolated conversational turn to diagnose errors | ✅ | | | |
+| Role-playing specific user personas or edge cases using synthetic users | ✅ | ✅ | | |
+| Automated pass/fail grading against programmatic criteria | | ✅ | | |
+| Continuous regression detection across test suites or CI pipelines | | ✅ | | |
+| Auditing synthetic voice acoustics, latency, and speech interruptions | | | ✅ | ✅ |
+| Verifying SIP transfers, DTMF digits, and carrier audio quality | | | | ✅ |
+| Testing without provisioning or assigning a phone number | ✅ | ✅ | ✅ | |
+
+<Note>
+  Automated grading is exclusive to simulation testing. While the LLM Playground's AI user simulator can dynamically generate conversation dialogue, it does not evaluate performance against assertions. Convert playground sessions into simulation test cases whenever automated evaluation is required.
+</Note>
+
+Review [testing pricing](/test/testing-pricing) for detailed breakdown of run rates and compute charges.
+
+## Agent Architecture Compatibility
+
+Testing method availability varies according to agent runtime configuration:
+
+* **Custom LLM Agents**: Must be tested using real-time audio (web calls or phone calls). Because generation logic resides on external infrastructure, the Test LLM tab remains hidden, and simulation or batch testing cannot be executed.
+* **Speech-to-Speech (S2S) Models**: Audio-only testing applies. S2S models process native voice waveforms directly without intermediate text steps, preventing text-only simulation.
+* **Chat Agents**: Exclusively text-driven. Because chat agents lack voice synthesis pipelines, the Test Audio panel is disabled; validate behavior using the LLM Playground and simulation suites.
+
+## Recommended Testing Lifecycle
+
+<Steps>
+  <Step title="Build and debug">
+    Develop core conversational flow in the [LLM Playground](/test/llm-playground). Experiment with prompts, review tool call inputs, and [debug](/test/llm-playground-debug) anomalous turns.
+  </Step>
+
+  <Step title="Lock in a regression suite">
+    Formalize vital user flows into [simulation test cases](/test/llm-simulation-testing). Trigger them as a [batch](/test/batch-test-simulation) upon every deployment. Employ [Conductor](/test/testing-with-conductor) to turn real production logs into automated test cases.
+  </Step>
+
+  <Step title="Validate the voice">
+    Place a [web call](/test/test-web) in your browser to evaluate speech latency, tone cadence, and agent handling of conversational barge-in.
+  </Step>
+
+  <Step title="Confirm telephony">
+    Place a live [phone call](/test/test-phone) to verify carrier audio codecs, DTMF digit reception, and transfer routing before launching into production.
+  </Step>
+</Steps>
+
+To evaluate real-world production calls post-completion for hallucination rates, conversation resolution, and round-trip latency, integrate [AI Quality Assurance](/ai-qa/overview) into your monitoring stack.
+
+<Tip>
+  Maintain a dedicated pre-flight test checklist covering standard user paths and adversarial edge cases, executing it prior to every production release.
+</Tip>

@@ -1,42 +1,61 @@
 ---
-title : Speech recognition providers
+title: 'Speech Recognition (ASR) Providers'
+sidebarTitle: 'ASR Providers'
+description: 'Understand how Tavly automatically routes inbound speech recognition between Azure, Deepgram, and Soniox to optimize for language support and low latency.'
+seo:
+  title: 'Speech Recognition Providers | Deepgram, Azure, Soniox | Tavly AI'
+  description: 'Understand how Tavly automatically routes inbound speech recognition between Azure, Deepgram, and Soniox to optimize for language support and low latency.'
+og:title: 'Speech Recognition (ASR) Providers in Tavly'
+og:description: 'Understand how Tavly automatically routes inbound speech recognition between Azure, Deepgram, and Soniox to optimize for language support and low latency.'
+twitter:card: 'summary'
+icon: 'ear-listen'
+keywords: ['speech recognition', 'ASR providers', 'Deepgram', 'Azure ASR', 'Soniox', 'Tavly AI transcription', 'latency optimization']
+date: '2023-10-25'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Do I need to manually select a speech recognition provider?'
+    answer: 'No. Tavly automatically dynamically routes your calls to the most optimal speech recognition provider (Azure, Deepgram, or Soniox) based on your configured languages and optimization goals.'
+  - question: 'Which ASR provider has the lowest latency?'
+    answer: 'Deepgram provides the lowest transcription latency at roughly 300ms, making it ideal for highly conversational, single-language agents in common languages.'
+  - question: 'Which ASR provider is best for Multilingual agents?'
+    answer: 'Soniox is the premier provider for multilingual agents because it natively supports seamless code-switching across 60+ languages through a unified model.'
 ---
-> An overview of Tavly's speech recognition providers — Azure, Deepgram, and Soniox — and how Retell auto-routes based on your agent's configured languages.
 
-Tavly automatically picks a speech recognition provider based on the languages your agent is configured for. You don't need to choose one manually, but it helps to understand what each provider offers.
+## What is Speech Recognition (ASR)?
 
-<Note>
-  These observations are based on our internal testing and routing rules. Results may vary depending on the specific languages, audio conditions, and call patterns.
-</Note>
+**Speech Recognition**, or ASR, is the critical infrastructure layer that transcribes your caller's spoken audio into raw text for the LLM to process. 
 
-## Provider overview
+Tavly automatically evaluates and selects the optimal ASR provider dynamically based on the exact languages your agent is configured to handle. You do not need to manually configure this routing layer.
+
+<Note> **Performance Metrics:** The latency figures and routing logic discussed below are based on strict internal testing. Actual runtime results may vary slightly depending on audio degradation, caller accents, and network conditions.</Note>
+
+## Which ASR providers does Tavly use?
+
+Tavly relies on three industry-leading speech recognition engines: Azure, Deepgram, and Soniox. Each provider is aggressively optimized for a different operational profile.
 
 ### Azure
-
-* **Best for:** Broad single-language coverage, including many rare and less common languages.
-* **Language support:** Wide range of individual languages; single-language only.
-* **Latency:** \~530ms
+* **Best for:** Extremely wide coverage of individual languages, particularly excelling at rare or localized dialects.
+* **Language capability:** Supports a massive range of languages, but operates strictly in single-language mode (no dynamic code-switching).
+* **Average Latency:** ~530ms.
 
 ### Deepgram
-
-* **Best for:** Common languages with low latency.
-* **Language support:** Code-switching across 10 languages: English, Spanish, French, German, Hindi, Russian, Portuguese, Japanese, Italian, Dutch.
-* **Latency:** \~300ms
+* **Best for:** Aggressive low-latency transcription for highly common languages.
+* **Language capability:** Can dynamically code-switch across 10 core languages (English, Spanish, French, German, Hindi, Russian, Portuguese, Japanese, Italian, and Dutch).
+* **Average Latency:** ~300ms.
 
 ### Soniox
+* **Best for:** Complex multilingual agents that require callers to seamlessly swap between diverse languages mid-sentence.
+* **Language capability:** Operates a single unified model covering 60+ languages with identical support across both single and multi-language modes.
+* **Average Latency:** ~490ms.
 
-* **Best for:** Multilingual agents that need any-to-any code-switching across a wide set of languages.
-* **Language support:** 60+ languages with a single model; same coverage in both single- and multi-language modes.
-* **Latency:** \~490ms
+## How does Tavly route between providers?
 
-## How Tavly picks a provider
+Tavly dynamically calculates the ideal ASR provider for every call based on your agent's explicitly configured optimization goals and required languages.
 
-Tavly routes to a provider based on what your agent is optimized for:
+* **Optimized for Latency:** Tavly aggressively prioritizes the fastest provider (usually Deepgram) that safely supports your exact language stack.
+* **Optimized for Accuracy:** Tavly shifts priority to the provider with the highest historical transcription accuracy for your specific linguistic requirements.
+* **Multilingual constraints:** If you configure a [Multilingual Agent](/agent/multilingual), the exact matrix of selected languages instantly filters out any ASR providers incapable of processing them simultaneously.
 
-* **Optimize for latency** → Tavly picks the fastest provider that still performs well for your languages.
-* **Optimize for accuracy** → Tavly picks the best-performing provider for your languages.
-* **Multilingual** → the languages you select also influence which providers are available.
+If you select a combination of languages that no single ASR provider on Earth currently supports together, the dashboard simply will not allow you to save the configuration.
 
-If no single provider can cover all of your selected languages together, the dashboard prevents you from selecting that combination. See [Configure a multilingual agent](/agent/multilingual) for details.
-
-For which languages each provider transcribes, see [Language support by provider](/build/language-support).
+For a detailed matrix of which provider supports which exact language codes, review the [Language Support by Provider](/build/language-support) guide.

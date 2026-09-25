@@ -1,0 +1,222 @@
+---
+title: "Automatically test your agent"
+description: "Test a Tavly agent with LLM simulation: an AI-simulated user runs your scenario in a text conversation, and success criteria grade each run."
+---
+
+Automated simulation testing is hosted within the <code className="ui-btn">Simulation</code> dashboard, providing programmatic validation of agent logic without initiating audio streams or telephony calls. An artificial intelligence persona drives conversational turns against the agent according to structured behavioral instructions, after which an LLM evaluation pass grades the complete interaction as pass or fail with a diagnostic rationale. As you save these scenarios, they assemble into a comprehensive regression testing suite executable individually or across [batch](/test/batch-test-simulation) operations.
+
+Every simulation test case comprises five core components:
+
+* **User prompt**: Detailed character persona specifying caller identity, underlying goals, and conversational temperament.
+* **Success criteria**: Declarative assertions used by the evaluation engine to judge execution quality.
+* **Dynamic variables**: Preset parameters that resolve inline session placeholders during test execution.
+* **Custom function mocks**: Intercept rules that stub external API calls with deterministic outputs.
+* **Caller LLM selection**: The specific language model powering the synthetic user persona.
+
+Unlike the [LLM Playground](/test/llm-playground), which is designed for interactive manual prototyping and single-turn exploration, simulation testing provides deterministic, criteria-based evaluation suitable for automated verification.
+
+For instance, an e-commerce support team can configure a test scenario where an impatient caller requests a product refund. The defined criteria assert that the agent executes the refund workflow, calls the `end_call` function, and maintains brief responses. Any subsequent prompt modification that breaks this protocol triggers an automated failure prior to shipping updates to production.
+
+<Note>
+  Simulation testing supports single-prompt, multi-prompt, and Conversation Flow agent architectures via text-based execution. External Custom LLM agents are not supported.
+</Note>
+
+## The Simulation Workspace
+
+Open your agent workspace in the dashboard and navigate to the <code className="ui-btn">Simulation</code> tab in the primary header. This environment contains two primary panels:
+
+* <code className="ui-btn">Test Cases</code>: The repository where you define, import, manage, and trigger test scenarios.
+* <code className="ui-btn">Batch Testing History</code>: The audit log tracking execution outcomes, grading logs, and failure analyses. Consult [Batch testing](/test/batch-test-simulation) for operational guidance.
+
+<Frame caption="The Simulation tab, with the Test Cases and Batch Testing History tabs.">
+  <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/simulation-tab-overview.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=56f0dee71a2adad1d53d279a270e560b" data-path="images/test-llm/simulation-tab-overview.mp4" />
+</Frame>
+
+<Tip>
+  Need to accelerate test creation? Conductor can synthesize robust test suites automatically from historical call recordings or functional outlines. Refer to [Testing with Conductor](/test/testing-with-conductor).
+</Tip>
+
+## Constructing a Test Case
+
+From the <code className="ui-btn">Test Cases</code> view, select <code className="ui-btn">Test Case</code> to trigger the <code className="ui-btn">Add a Test Case</code> creation drawer, or click <code className="ui-btn">Import</code> to upload schemas from JSON files.
+
+<Steps>
+  <Step title="Assign an identifier">
+    Select a descriptive, unambiguous name for tracking in test reports, such as `return-refund-impatient-caller`.
+  </Step>
+
+  <Step title="Author the synthetic persona prompt">
+    Define the identity, conversational objectives, and disposition of the simulated caller. Include explicit variable details the agent expects to collect (such as caller name, date of birth, or account references):
+
+    ```markdown theme={"dark"}
+    ## Identity
+
+    Your name is Mike.
+    Your date of birth is June 10, 1999.
+    Your order number is 7891273.
+
+    ## Goal
+
+    Your primary objective is to return the package you received and get a refund.
+
+    ## Personality
+
+    You are a patient customer. However, if the conversation becomes too long or complicated, you will show signs of impatience. If the issue remains unresolved, you may become frustrated and angry.
+    ```
+  </Step>
+
+  <Step title="Configure evaluation criteria and test inputs">
+    Specify the [success criteria](#define-success-criteria) used to grade the interaction, and configure necessary [test variables and mocks](#test-variables-and-mocks) to ensure deterministic execution.
+  </Step>
+
+  <Step title="Select the simulated user model">
+    At the bottom of the modal, pick the foundation LLM that powers the caller's responses, then save the case. This selection strictly governs the synthetic persona. Your agent continues running on its dedicated [model configuration](/build/llm-options), and message consumption is metered independently for both entities.
+  </Step>
+</Steps>
+
+Select individual or multiple cases using row checkboxes to perform batch operations: click <code className="ui-btn">Run Test</code> to launch a test batch, <code className="ui-btn">Duplicate</code> to copy definitions, <code className="ui-btn">Export</code> to download portable JSON files for use across other agents, or <code className="ui-btn">Delete</code> to permanently remove cases.
+
+<Frame caption="The Add a Test Case dialog.">
+  <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/sim_create.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=dabaebf61a1200159a96b00c93fbea05" alt="Add a test case dialog with fields for Name, User Prompt, and Success Criteria, plus a Test Variables & Mocks section with Dynamic Variables and Custom Function Mocks tabs." width="679" height="811" data-path="images/sim_create.png" />
+</Frame>
+
+## Defining Success Criteria
+
+Success criteria represent the explicit evaluation rules applied to the conversational transcript upon completion. The evaluator analyzes all defined criteria collectively in a single inference pass: a test case passes if and only if every assertion is met. The report yields a single unified verdict and summary rationale for the full interaction rather than isolated grades per requirement. Consequently, failing even one condition fails the entire run.
+
+Executions can also conclude with an **Error** state if conversation parameters exceed operational bounds before evaluation completes:
+* A session surpasses the 10-minute timeout ceiling.
+* The dialogue exceeds 400 total conversational turns.
+* The simulation engine detects repetitive user looping.
+* The agent stops generating responses and goes silent.
+
+In an Error state, the platform outputs the underlying execution error rather than a rubric grade.
+
+<Note>
+  This differs fundamentally from [AI QA](/ai-qa/overview) scoring on live production calls. AI QA computes granular pass/fail verdicts and rationales for each metric individually. Simulation testing delivers a binary holistic grade. To isolate evaluation of individual behaviors, distribute criteria into separate test cases or run AI QA evaluations on call logs.
+</Note>
+
+Structure criteria as clear, discrete, and verifiable assertions:
+
+```markdown theme={"dark"}
+1. Verify that the customer successfully returned the package and received a refund.
+2. Confirm that the end_call function was called at the end of the conversation.
+3. Ensure the agent's responses are conversational and contain 5 sentences or fewer.
+```
+
+Criteria can inspect transactional outcomes (e.g., verifying a processed refund), function execution (e.g., confirming `end_call` triggered), or dialogue quality (e.g., sentence brevity and tone).
+
+## Configuring Test Variables and Mocks
+
+The <code className="ui-btn">Test Variables & Mocks</code> configuration section ensures test runs remain realistic, controlled, and isolated from live systems. These parameters apply equally to text simulation runs and browser-based [web call tests](/test/test-web).
+
+### Dynamic Variables
+
+When your agent uses [dynamic variables](/build/dynamic-variables), assign explicit values so template placeholders like `{{customer_name}}` resolve realistically during simulation.
+
+Use variable assignments to validate branching logic. For example, if an agent greets callers with "Welcome back `{{customer_name}}`, let's discuss your `{{appointment_date}}` appointment," populating both parameters tests returning customer flows, whereas omitting `appointment_date` activates fallback branches for unscheduled callers.
+
+To streamline configuration across test suites, import values directly from an [environment tag](/agent/version). Agents include default `prod` and `staging` tags alongside any custom labels, with each tag maintaining its own parameter mapping. Use <code className="ui-btn">Load Saved Values</code> to populate the test form from a tag. Modifications made within the test case remain local to that test and do not overwrite the tag.
+
+<Warning>
+  Environment tag variables are active across live telephone lines and chat sessions bound to that tag. Updating a tag like `prod` directly from configuration alters real-time production traffic. Always exercise care when editing tag values directly.
+</Warning>
+
+### Custom Function Mocks
+
+Mocks intercept [function calls](/build/add-function-calling) emitted by the agent, returning static payloads to keep test runs deterministic and prevent unwanted mutations in production systems.
+
+Mocking is supported for all external integrations: custom webhooks, [code tools](/build/single-multi-prompt/code-tool), [integration tools](/integrations/overview#use-integration-tools-in-an-agent), native Cal.com integrations, call transfers, and outbound SMS. Conversely, built-in conversational actions execute natively in simulation and ignore mock definitions; these include call termination, DTMF keypad generation, variable extraction, and sub-agent transfers. **MCP tools also bypass mocks**: although visible in the function selector, tests execute real calls against your MCP server.
+
+In the <code className="ui-btn">Custom Function Mocks</code> interface, click <code className="ui-btn">+ Add</code> and choose the target operation from the <code className="ui-btn">Function</code> list:
+
+* For native actions such as call transfers, select <code className="ui-btn">Successfully</code> or <code className="ui-btn">Failed</code>.
+* For custom functions, provide the JSON response payload to return.
+
+For example, a mock for `check_availability` might supply:
+
+```json theme={"dark"}
+{
+  "availability_for_selected_time": [
+    {
+      "date": "Tuesday, February 25, 2025 (Pacific Standard Time)",
+      "availability_range": [
+        "From 1:00 PM to 3:00 PM",
+        "From 3:30 PM to 4:00 PM",
+        "From 7:00 PM to 7:30 PM"
+      ]
+    }
+  ]
+}
+```
+
+Ensure every function touching live external APIs is mocked. Any function left unconfigured executes against its real endpoint during testing.
+
+<Warning>
+  Leaving custom functions, code tools, calendar integrations, or MCP tools unmocked causes tests to invoke live endpoints, risking unintended charges, calendar bookings, or database updates. Mock every external tool and ensure mock bodies contain non-empty payloads; empty mocks are bypassed in favor of live execution.
+
+  Outbound SMS and live transfers represent exceptions: simulation mode automatically stubs these operations regardless of mock configuration, preventing tests from dispatching real text messages or dialing external phones.
+</Warning>
+
+<Frame caption="Mocking the Transfer to Human function to return a canned success.">
+  <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/custom-function-mock.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=159972b5bc8e2cb24b7a035ba84d4dc5" alt="Custom Function Mocks tab with Transfer to Human selected in the Function dropdown, the Successfully radio chosen, a mocked response reading 'Successfully transferred the call', and a + Add button below to mock more functions." width="1078" height="990" data-path="images/test-llm/custom-function-mock.png" />
+</Frame>
+
+## Executing and Inspecting Runs
+
+To trigger test execution, select target cases in the <code className="ui-btn">Test Cases</code> tab and click <code className="ui-btn">Run Test</code>, or click <code className="ui-btn">Test</code> directly on an individual case row. Tavly creates a batch execution job in either scenario (including single-case runs) and streams results to <code className="ui-btn">Batch Testing History</code>.
+
+Each batch iteration evaluates selected scenarios once. To evaluate non-deterministic variance for a scenario, duplicate the test case or initiate multiple successive runs. See [Batch testing](/test/batch-test-simulation) for analysis workflows.
+
+## Programmatic Management via REST API
+
+Integrate simulation test suites directly into CI/CD deployment pipelines using the Tavly REST API:
+
+<Steps>
+  <Step title="Define and update test cases">
+    Call [Create a test case definition](/api-references/create-test-case-definition) to register new scenarios, or utilize [List test case definitions](/api-references/list-test-case-definitions) and [Update test case definition](/api-references/update-test-case-definition) to synchronize existing definitions.
+  </Step>
+
+  <Step title="Initiate batch evaluation">
+    Trigger [Run a batch test](/api-references/create-batch-test) providing an array of test case IDs. The endpoint returns a batch ID with an initial `status` of `in_progress`, processing runs asynchronously.
+  </Step>
+
+  <Step title="Poll completion status">
+    Query [Get batch test](/api-references/get-batch-test) periodically until `status` transitions to `complete`. Inspect aggregate counts (`pass_count`, `fail_count`, `error_count`, and `total_count`) to automate release gates.
+  </Step>
+
+  <Step title="Retrieve detailed run outputs">
+    Invoke [List test runs](/api-references/list-test-runs) for the batch to enumerate individual results, then inspect specific turn-by-turn logs and grading rationales via [Get a test run](/api-references/get-test-run).
+  </Step>
+</Steps>
+
+Evaluating an individual case via API uses the same workflow with a single-item array; there is no standalone single-run endpoint.
+
+## Best Practices
+
+* **Mock external mutations prior to running**: Unmocked custom webhooks, code blocks, scheduling tools, and MCP services hit live endpoints, which can create unintended production side effects.
+* **Isolate criteria to single checkable outcomes**: Write granular assertions focusing on verifiable states, events, or output parameters.
+* **Test distinct user journeys with dynamic variables**: Create separate test cases for distinct user states (such as new callers vs. existing account holders).
+* **Evaluate pass rates across iterations**: Because caller personas and grading judges use generative models, evaluate stability across repeated runs rather than relying on a single isolated failure.
+* **Derive test cases from production failures**: Ingest real edge-case transcripts into regression cases using [Testing with Conductor](/test/testing-with-conductor) or [AI QA](/ai-qa/overview).
+* **Incorporate challenging edge cases**: Validate resilience against hostile personas, mid-call topic switches, and refusals to provide information.
+* **Run test suites automatically across updates**: Trigger regression batches upon prompt or graph changes prior to production deployment.
+
+## Key Terminology
+
+| Term | Definition |
+| :--- | :--- |
+| **Test case** | A persisted evaluation specification combining caller prompt, success criteria, dynamic variables, and function mocks. |
+| **Simulated user** | The synthetic LLM agent executing caller utterances according to persona prompt guidelines. |
+| **User prompt (persona)** | The behavioral instructions defining the simulated caller's identity, objectives, and mannerisms. |
+| **Success criteria** | Declarative rules evaluated holistically to yield a binary pass or fail grade and explanation. |
+| **Function mock** | A static response payload intercepting external function dispatches during testing. |
+| **Dynamic variables** | Session-level parameters populated with sample data to resolve prompt placeholders. |
+| **Batch test** | The concurrent execution of multiple test cases tracked in Batch Testing History. |
+| **Pass rate** | The percentage of test cases in a batch meeting all defined success criteria. |
+
+## Next Steps
+
+* [Batch test your agent](/test/batch-test-simulation): Execute multi-case test batches and monitor pass rates over time.
+* [Testing with Conductor](/test/testing-with-conductor): Automatically synthesize test cases from call logs and specifications.
+* [Testing overview](/test/test-overview): Compare simulation testing with the LLM Playground and live telephony tests.
