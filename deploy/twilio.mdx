@@ -1,0 +1,173 @@
+---
+title: 'Twilio Integration: Connect Elastic SIP Trunking'
+sidebarTitle: 'Twilio'
+description: 'Connect Twilio phone numbers to Tavly via elastic SIP trunking: configure origination, termination, credential authentication, and caller ID header policies.'
+seo:
+  title: 'Twilio Integration | Elastic SIP Trunking Setup | Tavly AI'
+  description: 'Connect Twilio phone numbers to Tavly via elastic SIP trunking: configure origination, termination, credential authentication, and caller ID header policies.'
+og:title: 'Twilio Integration: Connect Elastic SIP Trunking'
+og:description: 'Connect Twilio phone numbers to Tavly via elastic SIP trunking: configure origination, termination, credential authentication, and caller ID header policies.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone'
+keywords: ['Twilio integration', 'elastic SIP trunking', 'Twilio SIP setup', 'termination URI', 'origination SIP URI', 'caller ID masking', 'Tavly AI Twilio']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you connect a Twilio phone number to Tavly AI?'
+    answer: 'Create an Elastic SIP Trunk in Twilio, set Tavly''s SIP address (sip:sip.tavlyai.com) as the origination URI, configure termination credentials or IP access control lists, assign your Twilio numbers to the trunk, and import them into the Tavly console.'
+  - question: 'What should you do if inbound calls connect but outbound calls fail?'
+    answer: 'Verify your termination SIP URI format (ensuring no trailing spaces and selecting a localized regional URI) and confirm that your credential username matches the authentication list entry rather than its friendly display name.'
+  - question: 'How do call transfers work over a Twilio SIP trunk?'
+    answer: 'To perform cold transfers using SIP REFER, enable SIP REFER and PSTN transfer in Twilio''s trunk settings. Note that Twilio drops custom SIP headers on SIP REFER, so use SIP INVITE transfers if header propagation is required.'
+  - question: 'How can you display a custom verified business number as caller ID on Twilio?'
+    answer: 'Verify your phone number under Twilio''s Verified Caller IDs, create a SIP header manipulation policy replacing the From number field with your E.164 caller ID, and attach that policy to your trunk termination settings.'
+---
+
+Connect a Twilio number to Tavly with [elastic SIP trunking](/deploy/custom-telephony), so your agents can make and receive calls on numbers you own in Twilio. Set up termination (outbound) and origination (inbound), add credentials, then import the number into Tavly.
+
+## What is Twilio Elastic SIP Trunking integration?
+
+**Twilio Elastic SIP Trunking integration** connects phone numbers owned in your Twilio account directly to Tavly conversational voice agents. By establishing bidirectional SIP signaling—origination for incoming calls and termination for outgoing traffic—teams retain existing carrier numbers, utilize custom caller IDs, and maintain compliance while powering calls with conversational AI.
+
+Connecting Twilio elastic SIP trunking provides reliable carrier termination with dedicated access control:
+
+| SIP Trunk Direction | Traffic Flow | Configuration Endpoint | Authentication Requirement |
+| :--- | :--- | :--- | :--- |
+| **Origination (Inbound)** | Twilio PSTN → Tavly Agent | `sip:sip.tavlyai.com` | None (Tavly open gateway) |
+| **Termination (Outbound)** | Tavly Agent → Twilio PSTN | Localized Twilio SIP URI (`{trunk}.pstn.twilio.com`) | IP ACL (`18.98.16.120/30`) or Credential List |
+
+## How do you configure a Twilio Elastic SIP Trunk step by step?
+
+To configure a **Twilio Elastic SIP Trunk**, create the trunk in the Twilio Console, establish a localized termination URI with IP or credential access control, set Tavly's SIP address as your origination URI, assign your phone numbers to the trunk, and import the numbers into Tavly.
+
+Follow these sequential steps to establish the integration:
+
+<Steps>
+  <Step title="Create elastic SIP trunking">
+    1. Create the trunk, give it a name, and toggle general settings:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/general.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=45e4528d4346100ac95626af7b68ecd1" data-path="images/custom-telephony/twilio/general.jpeg" />
+
+    2. Set up termination (outbound routing):
+
+    * The termination SIP URI here is important; you'll use it in later steps. Use a localized termination URI near your region. You can expand and view your localized URIs in the Twilio console.
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/termination.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=914580b920340ea68cc0538f86b4634f" data-path="images/custom-telephony/twilio/termination.jpeg" />
+
+    * For your elastic SIP trunk to accept our outbound request, you need to whitelist an IP address or create an auth with a username and password:
+      * If you opt for the auth route, specify the username and password in the next step when importing the number to Tavly:
+        <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/auth.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=b80e3f28082c1994258c80e484a32008" data-path="images/custom-telephony/twilio/auth.jpeg" />
+      * You need to whitelist Tavly SIP SBC CIDR block `18.98.16.120/30` like the following:
+        <img height="200" src="https://mintcdn.com/retellai/7L57j1f5OEkhUYOX/images/custom-telephony/twilio/acl.jpeg?fit=max&auto=format&n=7L57j1f5OEkhUYOX&q=85&s=c2c2fb7e31abc2dd483a233aa639a2ce" data-path="images/custom-telephony/twilio/acl.jpeg" />
+
+    3. Set up origination (inbound routing):
+
+    * Here you will specify Tavly's SIP server address as the origination SIP URI: `sip:sip.tavlyai.com`.
+
+    <img height="200" src="https://mintcdn.com/retellai/YUAGucMAZXdWZD8p/images/custom-telephony/twilio/origination.jpeg?fit=max&auto=format&n=YUAGucMAZXdWZD8p&q=85&s=4267334c1b7365c242ab6f271d3efc66" data-path="images/custom-telephony/twilio/origination.jpeg" />
+  </Step>
+
+  <Step title="Move numbers to elastic SIP trunking">
+    Once you've created the elastic SIP trunk, purchase new numbers or move existing Twilio numbers to this trunk:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/numbers.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=c0dc1323bc03138d736eaa31305f5d3a" data-path="images/custom-telephony/twilio/numbers.jpeg" />
+  </Step>
+
+  <Step title="Import numbers to Tavly">
+    Now that the number is set up with your elastic SIP trunk, import it to Tavly so our gateway knows how to route the call:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/import-number.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=19c4a219923eb0adc03c807cb8d767c3" data-path="images/custom-telephony/import-number.png" />
+
+    Supply the termination SIP URI you configured in Step 1. If you configured credential authentication, supply the username and password as well:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/import-number-detail-twilio.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=da61515fce726ff48b2a00846f81e190" data-path="images/custom-telephony/import-number-detail-twilio.png" />
+
+    You can also import numbers programmatically via the [Import Number API](/api-references/import-phone-number).
+
+    Now that the number is imported, you can make and receive calls with it just like a number purchased directly from Tavly. It shows up in your dashboard, and you can place calls from the console or via the [Create Phone Call API](/api-references/create-phone-call). To disconnect the number from Tavly, delete it from the dashboard or via the [Delete Number API](/api-references/delete-phone-number).
+  </Step>
+</Steps>
+
+## How do you troubleshoot common Twilio SIP issues?
+
+Common Twilio SIP issues involve **termination URI syntax**, **authentication credentials**, **SIP REFER transfer settings**, and **geographic dialing permissions**. Verify that your termination URI contains no accidental whitespace, confirm credential usernames match configuration records rather than friendly names, and enable destination countries under Twilio Voice Geographic Permissions.
+
+Review the following resolution paths for frequent deployment snags:
+
+### 1. After connecting, inbound works but outbound does not?
+
+* **Check your termination SIP URI**: If there's an accidental whitespace in the string, remove it. Also use a localized termination URI near your deployment region (consult Twilio's localized URIs documentation).
+* **Check your username and credentials**: Make sure you entered the username and credentials specified in your Credential List. Note that the username is not the friendly name shown in the credential list; double-check that you did not confuse the two.
+
+<img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/credentials.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=9261227c219742c9a8d02d29dde0d326" data-path="images/custom-telephony/twilio/credentials.png" />
+
+### 2. How do I enable call transfers on a Twilio trunk?
+
+Tavly's [Call Transfer tool](/build/single-multi-prompt/transfer-call) works over your Twilio trunk, but two Twilio-side settings matter:
+
+* **Cold transfer with SIP REFER**: Your trunk must allow SIP REFER and PSTN transfer. Enable this in the Twilio console for the elastic SIP trunk. See [Custom telephony FAQ](/deploy/custom-telephony) for configuration guidance.
+* **Custom SIP headers on cold transfer**: Twilio does not honor custom SIP headers on SIP REFER, so headers you set in the Call Transfer tool are dropped for cold transfers over Twilio. Use SIP INVITE if you need those headers to reach the destination. See [SIP headers](/build/telephony/sip-headers).
+* **Dialing outside your country**: Enable the destination country under **Voice Geographic Permissions → Elastic SIP Trunking**.
+
+### 3. How do I set up dialing to international countries?
+
+* Search "geo" in the Twilio Console to locate the **Voice Geographic Permissions** setting:
+
+<img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/geo.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=a0c345fdd79fd5ae1a1018630ec9c472" data-path="images/custom-telephony/twilio/geo.png" />
+
+* Choose **Elastic SIP Trunking** in the selector, and check the countries you wish to dial. See [International calling](/deploy/international-call) for Tavly's supported destinations and fees:
+
+<img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/twilio/international.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=e63218daa41a0660de38538b952785e8" data-path="images/custom-telephony/twilio/international.png" />
+
+Still stuck? See [Debug outbound call](/reliability/debug-outbound-call) for common SIP failures, or [debug SIP calls with PCAP files](/reliability/debug-calls-pcap) to inspect the signaling in Wireshark.
+
+## How do you configure phone number masking and custom caller ID?
+
+To configure **phone number masking and custom caller ID**, verify your business number under Twilio's Verified Caller IDs console using an SMS or phone OTP. Then, create a SIP header manipulation policy that replaces the **From number** with your verified E.164 number and assign the policy to your trunk.
+
+If you have a personal phone number or a trusted business number you'd like to display to callees, import verified phone numbers into Twilio to serve as the caller ID:
+
+### Add a Caller ID
+
+1. Go to the [Verified Caller IDs page](https://www.twilio.com/console/phone-numbers/verified).
+2. Click **Add a new Caller ID**.
+3. Enter the desired phone number to verify, select the desired verification method, and click **Verify Number**:
+
+<img height="200" src="https://mintcdn.com/retellai/wDbYgGV0r_bHeVyI/images/custom-telephony/twilio/add-caller-id.jpeg?fit=max&auto=format&n=wDbYgGV0r_bHeVyI&q=85&s=9b365e1a769c73efccf907d0431497b1" data-path="images/custom-telephony/twilio/add-caller-id.jpeg" />
+
+4. The number entered will receive an OTP Authentication code for verification. Enter this verification code on the next window:
+
+<img height="200" src="https://mintcdn.com/retellai/T6odbQPcAHafphF3/images/custom-telephony/twilio/otp-code.jpeg?fit=max&auto=format&n=T6odbQPcAHafphF3&q=85&s=6af725385dab140d234749ffb9a82ef7" data-path="images/custom-telephony/twilio/otp-code.jpeg" />
+
+5. Once you click **Submit**, if the correct OTP code was entered, you will receive a **Successful** notification and the number will be added to your account as a verified caller ID.
+
+### Configure SIP Header Rules to Display Caller ID
+
+This uses Twilio's native header manipulation. To set or parse [custom SIP headers](/build/telephony/sip-headers) on the Tavly side, see the SIP headers guide.
+
+1. In the Twilio Console, navigate to **Elastic SIP Trunking → Trunks → [your trunk] → Termination**.
+2. Scroll down to Header Manipulation and open **View all SIP header manipulation policies**:
+
+<img height="200" src="https://mintcdn.com/retellai/xg079QHgWguuhP1T/images/custom-telephony/twilio/header-policies.png?fit=max&auto=format&n=xg079QHgWguuhP1T&q=85&s=1bcd8c4549e65c7d06945d4cd88b6123" data-path="images/custom-telephony/twilio/header-policies.png" />
+
+3. Click on **Create a policy** in the top right and give your policy a friendly name.
+4. Click on **+ Add request rule** and give the rule a friendly name.
+5. Under the Actions section, set the following values:
+   * **SIP header field**: **From number**
+   * **Action**: **Replace with**
+   * **Value**: Your caller ID in E.164 format (e.g. `+18881230987`)
+
+<img height="200" src="https://mintcdn.com/retellai/xg079QHgWguuhP1T/images/custom-telephony/twilio/actions.png?fit=max&auto=format&n=xg079QHgWguuhP1T&q=85&s=ab914fc9a20b9bfb5c33e8c619a93900" data-path="images/custom-telephony/twilio/actions.png" />
+
+6. Click **Add rule**, and then click **Save policy**.
+7. Return to the **Termination** tab within your trunk, and select the new header manipulation policy from the dropdown.
+8. Now, any number imported from this Twilio trunk into your Tavly account will use your verified caller ID. Place an outbound test call to validate the changes.
+   * *Note:* You will need at least one number purchased from Twilio in your SIP trunk in order to apply the caller ID.
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Learn about elastic SIP trunking vs. direct SIP URI dialing.
+* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session tokens over SIP trunks.

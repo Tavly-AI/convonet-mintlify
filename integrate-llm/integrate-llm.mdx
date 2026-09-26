@@ -1,0 +1,467 @@
+---
+title: "Connect Custom LLMs to Tavly Voice Agents"
+sidebarTitle: "Connect Custom LLM"
+description: "Connect your custom LLM to Tavly AI voice agents over WebSockets, stream token responses, construct transcript prompts, and cancel discarded speech requests."
+seo:
+  title: "Connect Custom LLM to Tavly Voice Agents via WebSocket"
+  description: "Connect your custom LLM to Tavly AI voice agents over WebSockets, stream token responses, construct transcript prompts, and cancel discarded speech requests."
+og:title: "Connect Custom LLM to Tavly Voice Agents via WebSocket"
+og:description: "Connect your custom LLM to Tavly AI voice agents over WebSockets, stream token responses, construct transcript prompts, and cancel discarded speech requests."
+twitter:card: "summary_large_image"
+icon: "plug"
+keywords:
+  - "connect custom LLM"
+  - "Tavly voice agent WebSocket"
+  - "stream LLM tokens voice"
+  - "time to first sentence"
+  - "speech-to-text transcript prompt"
+  - "handle discarded responses"
+  - "low-latency voice AI"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why is time to first sentence more critical than total response latency?"
+    answer: "Tavly voice agents begin speech synthesis as soon as the first sentence boundary is reached. Callers perceive responsiveness from this initial utterance rather than waiting for the entire generation to finish."
+  - question: "What happens if a custom LLM server does not answer a response_required event?"
+    answer: "Tavly holds the line open and stays silent until content_complete: true is received. If no output is intended, servers should transmit an empty string with content_complete: true."
+  - question: "How does the server stop generating audio when a caller interrupts mid-thought?"
+    answer: "Tavly increments the response_id when callers speak. Your server should track the latest response_id and abort active streaming generation loops whenever a request becomes stale."
+  - question: "Can servers maintain private session state outside the Tavly transcript?"
+    answer: "Yes, servers can store session state, CRM entities, or conversation graph positions in memory or Redis keyed by the call_id extracted from the WebSocket handshake URL."
+---
+
+# Connect your LLM
+
+> Stream LLM completions to a Tavly voice agent over the LLM WebSocket, build prompts from the live transcript, and cancel responses Tavly discards.
+
+After [setting up a WebSocket server](/integrate-llm/setup-websocket-server), your backend responds to Tavly events with static confirmations. Connecting your language model transforms that server into an intelligent conversational engine.
+
+Engineering real-time voice interactions requires special attention to two operational requirements: streaming token output so the agent starts vocalizing immediately, and aggressively discarding outdated responses when callers interrupt to avoid paying for unused inference.
+
+---
+
+## Why is time to first sentence critical in conversational voice AI?
+
+In conversational voice AI, caller latency is determined by **time to first sentence** rather than total generation time. Tavly synthesizes and plays audio immediately upon receiving the first complete grammatical sentence chunk. Optimizing first-token generation and streaming short opening clauses creates natural, fluid turn-taking without awkward pauses.
+
+Because voice synthesizers stream audio sequentially, the perceived delay experienced by a human caller equals:
+
+$$\text{Perceived Latency} = \text{Time to First Token (TTFT)} + \text{Duration to Complete First Sentence}$$
+
+If an LLM takes 400 milliseconds to emit its first token and another 250 milliseconds to finish a short seven-word introductory clause, the voice agent begins speaking in 650 milliseconds—well within the standard threshold of natural human conversation. Structuring prompts to encourage punchy, immediate sentence starters keeps perceived latency minimal regardless of total response length.
+
+---
+
+## How do you build conversational prompts from the live call transcript?
+
+To construct voice prompts, map the conversation history from the incoming `transcript` array, assigning `agent` utterances to the assistant role and caller speech to the user role. Include prompt instructions demanding short, conversational sentences under 30 words, forbid markdown and emoji, and provide localized timezone data.
+
+Voice prompt engineering differs significantly from asynchronous text chat interfaces:
+
+* **Speech-first syntax**: Spoken conversations require concise sentences. Instruct the model to present one idea at a time and avoid formatting artifacts (such as bolding, markdown bullet points, asterisks, or emoji), which text-to-speech engines attempt to pronounce literally.
+* **Acoustic error tolerance**: Live transcripts originate from automated speech recognition (ASR) engines and occasionally contain phonetic misinterpretations. Direct the model to infer semantic meaning contextually rather than demanding that callers repeat themselves.
+* **Conversational repair**: If comprehension fails completely, instruct the agent to ask for clarification naturally (e.g., *"Sorry, you cut out for a second"*) without breaking character or mentioning transcription errors.
+* **Temporal context**: Supply current date, day of week, and timezone parameters within the system prompt so the agent understands time-relative statements (such as *"tomorrow morning"* or *"next Monday"*).
+* **Silence nudges**: When `interaction_type` is set to `reminder_required`, append a subtle system nudge instructing the agent to check in with the caller rather than addressing a new question.
+
+---
+
+## How do you stream LLM completions to Tavly over the WebSocket?
+
+To stream completions, establish an asynchronous model stream targeting an efficient LLM like `gpt-4o-mini`, emitting text deltas inside `response` events with **`content_complete: false`**. Check for caller interruptions using an `isStale` callback, aborting active streams if superseded, and ensure a `finally` block sends `content_complete: true`.
+
+The following server implementations establish token streaming while defensively guarding against network timeouts and aborted requests.
+
+<CodeGroup>
+  ```typescript llm.ts theme={"dark"}
+  import OpenAI from "openai";
+  import { WebSocket } from "ws";
+
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  const AGENT_PROMPT = `You are Ava, the scheduling assistant for Bright Smile Dental.
+  You book, move, and cancel appointments. Office hours are 9am to 5pm on weekdays.
+  If a caller asks for anything clinical, offer to take a message for the dentist.`;
+
+  const SYSTEM_PROMPT = `You are a voice agent on a live phone call. Everything you write is
+  spoken aloud, so write the way people talk: short sentences, one idea at a time, no lists,
+  no markdown, no emoji. Keep replies under 30 words unless the caller asks for detail.
+
+  The transcript comes from speech recognition and will contain errors. If you can tell what
+  the caller meant, respond to that. Only ask them to repeat when you genuinely cannot tell,
+  and when you do, say it conversationally ("sorry, you cut out there") rather than mentioning
+  transcription.
+
+  ## Role
+  ${AGENT_PROMPT}`;
+
+  const TIME_ZONE = "America/Los_Angeles";
+
+  export interface ResponseRequiredRequest {
+    response_id: number;
+    interaction_type: "response_required" | "reminder_required";
+    transcript: Array<{ role: "agent" | "user"; content: string }>;
+  }
+
+  function buildMessages(request: ResponseRequiredRequest): OpenAI.Chat.ChatCompletionMessageParam[] {
+    const now = new Date().toLocaleString("en-US", { timeZone: TIME_ZONE });
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content: `${SYSTEM_PROMPT}\n\nThe current date and time is ${now} (${TIME_ZONE}).`,
+      },
+    ];
+
+    for (const utterance of request.transcript) {
+      messages.push({
+        role: utterance.role === "agent" ? "assistant" : "user",
+        content: utterance.content,
+      });
+    }
+
+    if (request.interaction_type === "reminder_required") {
+      messages.push({
+        role: "user",
+        content: "(The caller has gone quiet. Check in briefly.)",
+      });
+    }
+
+    return messages;
+  }
+
+  export async function draftResponse(
+    request: ResponseRequiredRequest,
+    ws: WebSocket,
+    isStale: () => boolean,
+  ) {
+    let abandoned = false;
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: buildMessages(request),
+        stream: true,
+        temperature: 0.3,
+        max_tokens: 200,
+      });
+
+      for await (const chunk of stream) {
+        // Abort generation immediately if caller interruption superseded this turn
+        if (isStale()) {
+          abandoned = true;
+          stream.controller.abort();
+          break;
+        }
+
+        const content = chunk.choices[0]?.delta?.content;
+        if (!content) continue;
+
+        ws.send(
+          JSON.stringify({
+            response_type: "response",
+            response_id: request.response_id,
+            content,
+            content_complete: false,
+          }),
+        );
+      }
+    } catch (err) {
+      console.error("LLM stream encountered error:", err);
+    } finally {
+      // Guarantee response termination so Tavly does not stall waiting for speech
+      if (!abandoned) {
+        ws.send(
+          JSON.stringify({
+            response_type: "response",
+            response_id: request.response_id,
+            content: "",
+            content_complete: true,
+          }),
+        );
+      }
+    }
+  }
+  ```
+
+  ```python llm.py theme={"dark"}
+  import os
+  from datetime import datetime
+  from typing import Callable, AsyncGenerator
+  from zoneinfo import ZoneInfo
+  from openai import AsyncOpenAI
+
+  openai = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+  AGENT_PROMPT = """You are Ava, the scheduling assistant for Bright Smile Dental.
+  You book, move, and cancel appointments. Office hours are 9am to 5pm on weekdays.
+  If a caller asks for anything clinical, offer to take a message for the dentist."""
+
+  SYSTEM_PROMPT = f"""You are a voice agent on a live phone call. Everything you write is
+  spoken aloud, so write the way people talk: short sentences, one idea at a time, no lists,
+  no markdown, no emoji. Keep replies under 30 words unless the caller asks for detail.
+
+  The transcript comes from speech recognition and will contain errors. If you can tell what
+  the caller meant, respond to that. Only ask them to repeat when you genuinely cannot tell,
+  and when you do, say it conversationally ("sorry, you cut out there") rather than mentioning
+  transcription.
+
+  ## Role
+  {AGENT_PROMPT}"""
+
+  TIME_ZONE = "America/Los_Angeles"
+
+
+  def build_messages(request):
+      now = datetime.now(ZoneInfo(TIME_ZONE)).strftime("%A, %B %d, %Y at %I:%M %p")
+
+      messages = [
+          {
+              "role": "system",
+              "content": f"{SYSTEM_PROMPT}\n\nThe current date and time is {now} ({TIME_ZONE}).",
+          }
+      ]
+
+      for utterance in request.transcript:
+          role = "assistant" if utterance.role == "agent" else "user"
+          messages.append({"role": role, "content": utterance.content})
+
+      if request.interaction_type == "reminder_required":
+          messages.append(
+              {
+                  "role": "user",
+                  "content": "(The caller has gone quiet. Check in briefly.)",
+              }
+          )
+
+      return messages
+
+
+  async def draft_response(request, is_stale: Callable[[], bool]):
+      try:
+          stream = await openai.chat.completions.create(
+              model="gpt-4o-mini",
+              messages=build_messages(request),
+              stream=True,
+              temperature=0.3,
+              max_tokens=200,
+          )
+
+          async for chunk in stream:
+              if is_stale():
+                  await stream.close()
+                  return
+
+              if not chunk.choices:
+                  continue
+
+              content = chunk.choices[0].delta.content
+              if not content:
+                  continue
+
+              yield {
+                  "response_type": "response",
+                  "response_id": request.response_id,
+                  "content": content,
+                  "content_complete": False,
+              }
+      except Exception as err:
+          print(f"LLM stream encountered error: {err}")
+
+      # Final event closes response and triggers synthesis completion
+      yield {
+          "response_type": "response",
+          "response_id": request.response_id,
+          "content": "",
+          "content_complete": True,
+      }
+  ```
+</CodeGroup>
+
+---
+
+## How do you detect and cancel discarded responses when callers interrupt?
+
+When a caller pauses mid-thought and resumes speaking, Tavly supersedes pending requests by incrementing the **`response_id`**. Servers must track the highest received identifier, immediately abort active generation loops via an **`isStale` check**, and discard stale tokens to conserve compute costs and prevent unprompted audio playback.
+
+Tavly triggers a response request the instant speech endpointing detects an apparent pause. If the user continues their thought, Tavly discards the prior turn and issues a subsequent request with an incremented `response_id`. Tavly enforces strict validation:
+
+1. Tavly accepts streaming chunks **only for the most recent `response_id`**.
+2. Any tokens delivered with outdated response IDs are dropped silently at the gateway.
+3. Aborting upstream LLM requests as soon as `isStale()` evaluates to true frees inference capacity and protects your provider rate limits.
+
+<CodeGroup>
+  ```typescript Node.js theme={"dark"}
+  import { WebSocket, RawData } from "ws";
+  import { draftResponse, ResponseRequiredRequest } from "./llm";
+
+  export function setupCallSocket(ws: WebSocket) {
+    let latestResponseId = 0;
+
+    ws.on("message", (data: RawData, isBinary: boolean) => {
+      if (isBinary) {
+        ws.close(1007, "Expected a text JSON frame.");
+        return;
+      }
+      const request = JSON.parse(data.toString());
+
+      switch (request.interaction_type) {
+        case "ping_pong":
+          ws.send(
+            JSON.stringify({
+              response_type: "ping_pong",
+              timestamp: request.timestamp,
+            }),
+          );
+          break;
+
+        case "response_required":
+        case "reminder_required":
+          latestResponseId = request.response_id;
+          draftResponse(
+            request as ResponseRequiredRequest,
+            ws,
+            () => request.response_id !== latestResponseId,
+          );
+          break;
+      }
+    });
+  }
+  ```
+
+  ```python Python theme={"dark"}
+  import asyncio
+  import json
+  from fastapi import WebSocket, WebSocketDisconnect
+  from llm import draft_response
+
+
+  async def handle_call_websocket(websocket: WebSocket, call_id: str):
+      await websocket.accept()
+      latest_response_id = 0
+
+      async def respond(request):
+          is_stale = lambda: request["response_id"] != latest_response_id
+          async for event in draft_response(request, is_stale):
+              if is_stale():
+                  return
+              await websocket.send_json(event)
+
+      try:
+          while True:
+              request = json.loads(await websocket.receive_text())
+              interaction_type = request.get("interaction_type")
+
+              if interaction_type == "ping_pong":
+                  await websocket.send_json(
+                      {
+                          "response_type": "ping_pong",
+                          "timestamp": request["timestamp"],
+                      }
+                  )
+
+              elif interaction_type in ("response_required", "reminder_required"):
+                  latest_response_id = request["response_id"]
+                  asyncio.create_task(respond(request))
+      except WebSocketDisconnect:
+          print(f"Call WebSocket closed for call_id: {call_id}")
+  ```
+</CodeGroup>
+
+---
+
+## How do you leverage call metadata and dynamic variables for personalization?
+
+Set **`call_details: true`** in your connection `config` to receive caller telephone numbers, directionality, and custom **`retell_llm_dynamic_variables`** immediately upon socket opening. This enables zero-latency personalization—such as greeting customers by name or preloading account context—without performing separate database round trips before the opening greeting.
+
+The initial metadata payload delivers essential contextual fields:
+
+* **Telephony parameters**: `from_number`, `to_number`, and `direction` identifying inbound or outbound directionality (available on telephony calls).
+* **Dynamic variables**: `retell_llm_dynamic_variables` contains any [dynamic variables](/build/context/dynamic-variables) injected at call initialization, such as customer account IDs or contact names.
+* **Custom metadata**: The `metadata` JSON object populated during API call dispatch.
+* **Identifiers**: `call_id`, `agent_id`, and `call_type` (`web_call` vs `phone_call`) for internal logging.
+
+### Greeting customers by name upon connection
+
+A high-performance design pattern involves holding the initial greeting until `call_details` lands, allowing your agent to deliver a customized greeting on turn zero:
+
+```typescript Node.js theme={"dark"}
+case "call_details": {
+  const customerName = request.call.retell_llm_dynamic_variables?.customer_name;
+  ws.send(
+    JSON.stringify({
+      response_type: "response",
+      response_id: 0,
+      content: customerName
+        ? `Hello ${customerName}, thank you for calling Bright Smile Dental. How can I assist you today?`
+        : "Thank you for calling Bright Smile Dental. How can I assist you today?",
+      content_complete: true,
+    }),
+  );
+  break;
+}
+```
+
+<Note>
+  Because `llm_websocket_url` supports templated query parameters, you can also route calls by tenant or customer group dynamically (e.g., `wss://api.yourdomain.com/voice?tenant_id={{tenant_id}}`).
+</Note>
+
+---
+
+## How do you test and evaluate custom LLM latency in live calls?
+
+Test your custom LLM server by placing a call through the agent's **Test Audio** dashboard panel. After concluding the session, inspect the **latency breakdown** in Call History to compare total LLM generation duration against network round-trip time (`llm_websocket_network_rtt`), verifying that time to first sentence remains minimal.
+
+Once your server is running, perform end-to-end evaluation:
+
+1. Launch a simulated call from your Tavly dashboard using the **Test Audio** console.
+2. Verify conversational responsiveness, evaluating whether the agent begins vocalizing promptly after you complete each utterance.
+3. Interrupt the agent mid-sentence to confirm that your server aborts stale generation loops without lagging.
+4. Navigate to [Session History](/features/session-history) in your dashboard and consult the [latency metrics breakdown](/reliability/latency/check-actual-latency).
+5. Compare the `llm` metric (total LLM generation time including network transmission) against `llm_websocket_network_rtt` (isolated WebSocket round-trip time) to isolate server compute duration from network transit.
+
+---
+
+## Frequently asked questions about connecting custom LLMs to Tavly
+
+Custom LLM integrations connect your language models directly to Tavly agents over full-duplex WebSockets. By streaming sentence deltas, handling turn-taking cancellations via `response_id` validation, and preloading caller metadata into system prompts, developers create low-latency, personalized conversational voice experiences that respond with sub-second immediacy.
+
+<AccordionGroup>
+  <Accordion title="Do I have to answer every response_required event?">
+    Yes, unless an event has already been superseded by a higher `response_id`. Tavly pauses waiting for audio until your server transmits `content_complete: true`. If your agent intentionally chooses not to speak, transmit an empty content string (`content: ""`) with `content_complete: true`.
+  </Accordion>
+
+  <Accordion title="What happens if my LLM provider errors or times out?">
+    Tavly does not automatically time out or guess the answer; it waits for your server to signal completion. Always wrap your LLM calls in a `try...finally` block that guarantees an event with `content_complete: true` is emitted. For production resilience, consider a local fallback model or an apology phrase.
+  </Accordion>
+
+  <Accordion title="Can I maintain conversation state on my server instead of relying on transcripts?">
+    Yes. While Tavly provides full conversation transcripts inside each request payload, your backend can maintain private session state (such as entity stores, RAG document references, or finite state machine stages) in server memory or a Redis cache keyed by `call_id`.
+  </Accordion>
+
+  <Accordion title="Why does the agent talk over the caller or pause too long before answering?">
+    Turn-taking is governed by Tavly's speech engine rather than your LLM. Adjust **responsiveness** and **interruption sensitivity** inside your agent's [speech settings](/build/setup/single-multi-prompt/configure-basic-settings). You can also dynamically modify these thresholds mid-call via runtime events.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add Function Calling" icon="code-branch" href="/integrate-llm/integrate-function-calling">
+    Enable your custom LLM agent to book appointments, trigger cold transfers, and press DTMF tones.
+  </Card>
+
+  <Card title="LLM Best Practices" icon="lightbulb" href="/integrate-llm/llm-best-practice">
+    Explore advanced techniques for low-latency prompt engineering, caching, and state management.
+  </Card>
+
+  <Card title="Troubleshooting Custom LLMs" icon="triangle-exclamation" href="/integrate-llm/troubleshooting">
+    Diagnose silence bugs, network timeouts, and dropped WebSocket connection issues.
+  </Card>
+
+  <Card title="Setup WebSocket Server" icon="server" href="/integrate-llm/setup-websocket-server">
+    Review foundational WebSocket server connection setup and event protocols.
+  </Card>
+</CardGroup>

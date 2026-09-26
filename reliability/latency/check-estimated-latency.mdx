@@ -1,0 +1,79 @@
+---
+title: 'Check Estimated Latency: Pre-Flight Voice Agent Response Times'
+sidebarTitle: 'Check Estimated Latency'
+description: 'Inspect estimated end-to-end voice agent latency in Tavly AI before going live: analyze TTS, LLM, and ASR breakdowns, and audit turtle-icon latency factors.'
+seo:
+  title: 'Check Estimated Latency | Voice Agent Benchmarks | Tavly AI'
+  description: 'Inspect estimated end-to-end voice agent latency in Tavly AI before going live: analyze TTS, LLM, and ASR breakdowns, and audit turtle-icon latency factors.'
+og:title: 'Check Estimated Latency: Pre-Flight Voice Agent Response Times'
+og:description: 'Inspect estimated end-to-end voice agent latency in Tavly AI before going live: analyze TTS, LLM, and ASR breakdowns, and audit turtle-icon latency factors.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/latency.png'
+twitter:card: 'summary_large_image'
+icon: 'gauge'
+keywords: ['estimated latency', 'voice agent latency', 'turtle icon settings', 'response wait time', 'Tavly AI latency', 'turn turnaround time', 'TTS LLM ASR breakdown']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is estimated latency in Tavly AI?'
+    answer: 'Estimated latency is the projected end-to-end turnaround time from when a user stops speaking to when the Tavly AI agent begins responding, calculated from chosen transcription, LLM, and TTS configurations.'
+  - question: 'How low can latency reach on the Tavly AI platform?'
+    answer: 'The Tavly AI platform achieves end-to-end conversational latencies as low as 600ms under optimal model, prompt, and voice configurations.'
+  - question: 'What do turtle-marked settings indicate in agent configuration?'
+    answer: 'Turtle icons designate deliberate configuration options—such as Response Wait Time—that increase turnaround latency to prioritize conversational pacing, turn-taking accuracy, or complex logic.'
+  - question: 'Where can you inspect the estimated latency breakdown?'
+    answer: 'You can view estimated average latency and its per-component breakdown for TTS, LLM, transcription, and configured wait times directly within the agent detail page.'
+---
+
+## What is estimated latency in Tavly AI?
+
+**Estimated latency** is the projected end-to-end turnaround duration—measured from the exact moment a user stops speaking to when the AI agent begins audio playback. The **Tavly platform achieves latencies as low as 600ms**, allowing developers to benchmark conversational responsiveness pre-flight before deploying agents to live telephony environments.
+
+Understanding this projected baseline helps engineering teams anticipate conversational pacing and evaluate pipeline tradeoffs before executing live customer calls:
+
+* **End-to-End Scope**: Measures round-trip elapsed time spanning user silence detection (**endpointing**), automated speech recognition (**ASR**), language model inference (**LLM**), and text-to-speech audio synthesis (**TTS**).
+* **600ms Benchmark**: Achievable under optimized configurations featuring high-speed speech-to-text models, streamlined system prompts, fast-tier LLM processing, and low-latency voice synthesis engines.
+* **Pre-Flight Validation**: Allows you to simulate and adjust architectural choices without incurring live telephony carrier expenses.
+
+## Where do you view the estimated latency breakdown?
+
+You can view the estimated average latency directly in the **agent detail page** under the dedicated **Estimated Latency** section. This panel presents a consolidated turnaround benchmark alongside granular component rows detailing projected runtimes across **speech transcription (ASR)**, **language model generation (LLM)**, and **voice synthesis (TTS)**.
+
+<Frame caption="Estimated Latency breakdown across pipeline components in the agent detail page.">
+  <img src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/latency.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=036a3fb04b4f9a14a64ed1a3e55127c6" alt="Agent header showing estimated latency with a breakdown for TTS, LLM, and transcription" style={{ maxHeight: 560 }} width="1151" height="441" data-path="reliability/images/latency.png" />
+</Frame>
+
+The dashboard categorizes latency into discrete pipeline stages, giving complete transparency into which subsystems contribute to overall response delays:
+
+| Pipeline Component | Measurement Scope | Primary Factors Influencing Latency |
+| :--- | :--- | :--- |
+| **Speech-to-Text (ASR)** | Duration required to transcribe spoken caller audio after endpointing | Audio chunk streaming, acoustic model choice, and background noise filters |
+| **Language Model (LLM)** | Elapsed duration between prompt dispatch and time-to-first-token (TTFT) | Model parameter size, prompt token length, reasoning steps, and fast-tier routing |
+| **Text-to-Speech (TTS)** | Time elapsed from first LLM token stream to first synthesized audio byte | Synthesis engine architecture, sampling rate, and custom vs. platform voice selection |
+| **Configured Pauses** | Deliberate wait intervals inserted prior to speech playback | Turn-taking buffer settings such as Response Wait time |
+
+## What do turtle-marked settings indicate in agent configuration?
+
+**Turtle-marked settings** identify optional configuration parameters that deliberately introduce additional response delay into the conversational pipeline. Features bearing a **turtle icon**—such as intentional **Response Wait time**—trade raw processing speed for enhanced conversational naturalness, preventing abrupt interruptions and providing users adequate time to finish complex thoughts.
+
+When evaluating agent configuration in the Tavly dashboard, look for the visual indicator:
+
+<Frame caption="Turtle-marked settings display an explicit latency warning tooltip on hover.">
+  <img src="https://mintcdn.com/retellai/eAAhB9vO0xukbujE/images/response-wait-time-turtle.png?fit=max&auto=format&n=eAAhB9vO0xukbujE&q=85&s=fbbbe5a85aeba2c37fd4cd6af4277447" alt="The Response Wait time setting in Speech Settings with a turtle icon beside its label. A tooltip anchored to the icon reads 'When tuned down, the latency will increase', and the slider sits at the far right showing 0.4s." style={{ maxHeight: 560 }} width="935" height="230" data-path="images/response-wait-time-turtle.png" />
+</Frame>
+
+### Understanding the Turtle Icon (🐢) Warning
+* **Visual Marker**: Located immediately adjacent to setting labels in the agent configuration interface.
+* **Hover Tooltip**: Hovering over the icon surfaces an explicit alert (e.g., *"When tuned down, the latency will increase"*) warning that the current threshold introduces measurable conversational delay.
+* **Intentional Latency vs. System Degradation**: Turtle settings represent intentional design choices rather than infrastructure bottlenecks. They are explicitly surfaced so developers do not mistake intentional pauses for platform latency issues.
+
+## How does Response Wait time affect estimated latency?
+
+The **Response Wait time** setting introduces a deliberate pause before agent speech playback, appearing as an independent, additive row within your estimated latency breakdown. Adjusting this slider grants callers extra pause time during complex dialogue, directly increasing total turnaround latency to prevent the agent from interrupting hesitant speakers.
+
+Configuring this setting creates explicit architectural tradeoffs:
+
+1. **Additive Latency Representation**: Any duration configured in the [Response Wait time](/build/single-multi-prompt/configure-basic-settings) setting is surfaced as its own independent line item in the Estimated Latency card, directly adding to the cumulative total.
+2. **Pacing vs. Responsiveness Tradeoff**:
+   * **Higher Wait Times (More Patient)**: Extends silence detection thresholds (up to several seconds), accommodating callers who pause frequently while thinking or reading information aloud.
+   * **Lower Wait Times (More Responsive)**: Decreases turnaround delay towards the sub-second baseline, ideal for snappy transactional inquiries like appointment confirmations or status checks.
+3. **Post-Deployment Validation**: While estimated latency provides pre-flight forecasts, verify actual in-call performance using [Check actual latency](/reliability/latency/check-actual-latency) and resolve unintended bottlenecks with our [Troubleshoot high latency guide](/reliability/latency/troubleshoot-latency).

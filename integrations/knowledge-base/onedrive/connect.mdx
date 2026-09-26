@@ -1,0 +1,173 @@
+---
+title: "Connect Microsoft OneDrive"
+sidebarTitle: "Connect"
+description: "Connect Microsoft OneDrive to Tavly AI via delegated read-only OAuth: authenticate personal or business accounts to sync documents into agent knowledge bases."
+seo:
+  title: "Connect Microsoft OneDrive to Tavly AI | Knowledge Base Setup"
+  description: "Connect Microsoft OneDrive to Tavly AI via delegated read-only OAuth: authenticate personal or business accounts to sync documents into agent knowledge bases."
+og:title: "Connect Microsoft OneDrive to Tavly AI | Knowledge Base Setup"
+og:description: "Connect Microsoft OneDrive to Tavly AI via delegated read-only OAuth: authenticate personal or business accounts to sync documents into agent knowledge bases."
+og:image: "https://mintcdn.com/retellai/1tHVSSAFz8J09UUc/images/integration/microsoft-onedrive-connect-dialog.png?fit=max&auto=format&n=1tHVSSAFz8J09UUc&q=85&s=4ddecb5a319d46701ae4beaf7bd4a116"
+twitter:card: "summary_large_image"
+icon: "plug"
+keywords:
+  - "Microsoft OneDrive integration"
+  - "Tavly AI OneDrive connect"
+  - "OneDrive OAuth setup"
+  - "Microsoft 365 knowledge base"
+  - "OneDrive for Business"
+  - "Files.Read.All delegated permission"
+  - "OneDrive document sync"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Can Tavly AI read every file in my Microsoft OneDrive?"
+    answer: "No. Although Microsoft's delegated Graph permissions operate account-wide, Tavly strictly downloads and embeds only the specific files you explicitly select and add to a knowledge base."
+  - question: "Why does the Microsoft OneDrive OAuth flow prompt for consent twice?"
+    answer: "Personal and enterprise OneDrive instances utilize distinct Microsoft Graph API endpoints. The initial sign-in detects your tenant type, while the second authorizes native picker access."
+  - question: "Do I need a Microsoft Entra ID administrator to connect OneDrive?"
+    answer: "Usually no. Tavly requests read-only delegated permissions that standard users can approve. If your organization disables user app consent, an Entra ID admin must grant approval."
+  - question: "Can I connect both personal and business OneDrive accounts to Tavly AI?"
+    answer: "Yes. Tavly supports multiple concurrent connections. Because personal and organizational accounts are bound to different endpoints, each is configured as an independent connection."
+---
+
+# Connect OneDrive
+
+> Connect Microsoft OneDrive to Tavly AI with a read-only Microsoft sign-in, then sync OneDrive files into knowledge bases your agent answers from.
+
+## What is the Tavly AI Microsoft OneDrive integration and when should you use it?
+
+**Tavly AI Microsoft OneDrive integration** connects your personal or business OneDrive to Tavly via read-only delegated Microsoft OAuth. This enables voice and chat agents to retrieve answers directly from living Word documents, Excel workbooks, and PDFs. When files are updated in Microsoft 365, connected knowledge bases re-sync automatically without manual export workflows.
+
+Connecting Microsoft OneDrive lets you [add OneDrive files to knowledge bases](/integrations/knowledge-base/onedrive/knowledge-base-sync), equipping your voice and chat agents to answer customer questions using current Word documents, Excel spreadsheets, and PDF guides maintained in Microsoft 365. Both personal OneDrive and OneDrive for Business (work or school accounts) are fully supported under strict, read-only security permissions.
+
+Like [Google Drive](/integrations/knowledge-base/google-drive/connect) and [Notion](/integrations/knowledge-base/notion/connect), Microsoft OneDrive adds no real-time integration tools or webhook actions to your agent. Its purpose is feeding living documents into vector knowledge bases.
+
+### When to connect OneDrive
+
+Connect OneDrive when your organization stores operational documentation and customer-facing policies across Microsoft 365:
+
+* **Automate knowledge synchronization**: When a team member edits a pricing sheet, service catalog, or policy document in OneDrive, Tavly re-indexes the file on its scheduled refresh cycle, eliminating outdated static files.
+* **Empower non-technical documentation owners**: Team members edit native `.docx` or `.xlsx` files using Microsoft Word or Excel without requiring access to the Tavly dashboard.
+* **Enforce enterprise tenant governance**: All sign-ins, user consent scopes, and access revocations run through Microsoft Entra ID, ensuring corporate compliance standards are maintained.
+
+> **Real-World Implementation:** An HVAC service enterprise maintains its annual service-plan pricing in an Excel workbook hosted on the operations director's OneDrive. Whenever equipment supplier pricing fluctuates, the workbook is updated in OneDrive. Because the file is connected to a Tavly knowledge base, phone booking agents quote updated service tiers immediately following the next sync without manual dashboard adjustments.
+
+---
+
+## What prerequisites are required to connect OneDrive to Tavly AI?
+
+Connecting OneDrive requires a **Microsoft account with an active OneDrive** (personal or OneDrive for Business) and user permission to grant delegated app consent. For organizational Microsoft Entra ID tenants that restrict self-service consent, a global or cloud application administrator must approve Tavly before users can complete authentication.
+
+* **Valid Microsoft Account**: A personal Microsoft account or an organizational Microsoft 365 work/school account with active OneDrive provisioning. Because Tavly operates under delegated permissions bound to this account, we recommend using a dedicated, shared team account; if an individual employee account is deactivated, associated knowledge base files will pause background refreshes.
+* **App Consent Authorization**: Tavly requests read-only delegated permissions that standard users can approve. If your Entra ID tenant restricts third-party app consent, an Entra ID administrator must complete tenant-wide approval.
+* **Supported Source Files**: Ensure target documents reside in your personal or business **My files** storage area rather than restricted SharePoint libraries or unsupported formats.
+
+---
+
+## How do you authenticate and connect Microsoft OneDrive in Tavly?
+
+To connect OneDrive, open the Tavly Dashboard, navigate to **Integrations → Available**, select **Microsoft OneDrive**, and click **Connect**. Specify a recognizable connection name, proceed to Microsoft's secure OAuth portal, complete the two-step delegated read-only consent flow, and allow Tavly to securely store an encrypted refresh token for automated retrieval.
+
+<Steps>
+  <Step title="Initiate the connection flow">
+    In the Tavly Dashboard, open **Integrations**, navigate to the **Available** tab, locate **Microsoft OneDrive**, and click **Connect** (or click **Add Account** if another OneDrive connection exists). Alternatively, click **Connect Microsoft OneDrive** within the knowledge base **Add** source dropdown.
+  </Step>
+
+  <Step title="Authenticate with Microsoft OAuth">
+    The connection dialog prompts for an internal connection label (prefilled with `Microsoft OneDrive - OAuth`). Enter a descriptive label and click **Connect** (or **Add Account**). The browser redirects to Microsoft's official OAuth sign-in portal.
+
+    Expect up to two approval screens:
+    1. **Identity and Account Scoping**: Identifies whether the account is personal or associated with a work/school Entra ID tenant.
+    2. **File Picker Authorization**: Grants Tavly read access to your specific OneDrive document root so you can browse and select files from within Tavly.
+
+    Both prompts require read-only access. If your account previously consented to the application, Microsoft automatically skips the second screen. Tavly stores an encrypted refresh token, eliminating the need for recurring sign-ins.
+
+    <Frame caption="The Microsoft OneDrive connection dialog, with only a connection name to fill in.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/1tHVSSAFz8J09UUc/images/integration/microsoft-onedrive-connect-dialog.png?fit=max&auto=format&n=1tHVSSAFz8J09UUc&q=85&s=4ddecb5a319d46701ae4beaf7bd4a116" alt="Retell's Microsoft OneDrive connection dialog. It has a single Connection name field prefilled with Microsoft OneDrive - OAuth, a hint reading 'Learn how OneDrive files sync into your knowledge bases' with a See docs link, and Cancel and Add Account buttons. There is no Functions tab, since OneDrive adds no integration tools; connecting continues to a Microsoft sign-in." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1204" height="1006" data-path="images/integration/microsoft-onedrive-connect-dialog.png" />
+      </div>
+    </Frame>
+  </Step>
+</Steps>
+
+After completing authentication, the connection appears in every knowledge base's **Add** menu. Consult [OneDrive knowledge base sync](/integrations/knowledge-base/onedrive/knowledge-base-sync) for instructions on selecting files and configuring sync intervals.
+
+---
+
+## What files and storage locations can you select from OneDrive?
+
+Tavly accesses downloadable files directly from the authenticated user's **My files** directory in OneDrive, supporting formats including DOCX, XLSX, and PDF. Content stored within SharePoint document libraries, shared team sites, OneNote notebooks, and empty container folders cannot be indexed directly and will be rejected if selected during source configuration.
+
+### Storage scope and restrictions
+
+* **Supported Personal & Business Files**: The file picker accesses the signed-in account's native OneDrive root directory. Word documents (`.docx`), Excel spreadsheets (`.xlsx`), and PDF documents (`.pdf`) are fully supported.
+* **SharePoint Libraries Excluded**: The integration isolates access to the **My files** tab. Views such as Recent, Shared, Quick access, My organization, and SharePoint team site views are deliberately restricted. If a selected file resolves to an underlying SharePoint document library, the knowledge base rejects it during saving with: `Selected file is in SharePoint, not OneDrive`. To index these files, copy them into the authenticated account's personal OneDrive storage.
+* **Folders and Notebooks Unsupported**: Directory folders are supported solely for navigation. OneNote notebooks (`.one`) cannot be ingested as downloadable binary files and will be rejected with: `OneDrive item is not a downloadable file`.
+
+---
+
+## How does Tavly securely access and govern OneDrive data?
+
+Tavly requests two delegated, read-only Microsoft permissions—**Files.Read.All** via Microsoft Graph and **OneDrive.ReadOnly**—restricted strictly to reading metadata and downloading user-selected documents. Tavly never acquires write permissions, cannot delete files, and stores refresh tokens encrypted at rest, which you can revoke instantly in Tavly or through Microsoft Entra ID.
+
+### Delegated OAuth permissions matrix
+
+| OAuth Scope / Permission | Authority Endpoint | Operational Purpose |
+| :--- | :--- | :--- |
+| `Files.Read.All` | Microsoft Graph API | Reads file metadata (name, size, `lastModifiedDateTime`) and downloads document bodies for user-selected knowledge base sources. |
+| `OneDrive.ReadOnly` (Personal) / `<tenant>-my.sharepoint.com/MyFiles.Read` (Work/School) | Microsoft File Picker | Powers Microsoft's native web picker, enabling users to browse and select files securely from inside Tavly. |
+
+### Security architecture and token revocation
+
+* **Read-Only Enforcement**: Neither scope permits write, modify, or delete operations. Tavly cannot alter files or inject metadata into your OneDrive.
+* **Delegated Least-Privilege Scope**: Permissions are delegated to the signing-in user identity and cannot exceed that user's existing tenant rights. While Microsoft's Graph API issues an account-scoped token, Tavly strictly downloads only the explicit files you select in the picker.
+* **Immediate Revocation**: Deleting the connection from the **Connected** tab in Tavly instantly purges stored OAuth tokens. To revoke access from Microsoft's identity platform:
+  * **Personal Accounts**: Navigate to Microsoft Account Privacy settings under **Apps and services that can access your data** and remove Tavly.
+  * **Work / School Accounts**: Revoke access via the Microsoft My Apps portal, or have an Entra ID administrator revoke consent under **Enterprise applications**.
+
+---
+
+## Frequently asked questions about connecting Microsoft OneDrive
+
+Connecting OneDrive utilizes read-only delegated permissions without modifying files or indexing unselected directories. Both personal and work accounts are supported as distinct connections within Tavly workspaces. Deleting a connection ceases automated refreshes while retaining existing embedded vectors so agents continue answering caller inquiries without abrupt operational downtime.
+
+<AccordionGroup>
+  <Accordion title="Can Tavly AI read every file stored in my OneDrive?">
+    No. Although Microsoft's delegated Graph scope is account-wide, Tavly only requests metadata and downloads content for files you explicitly choose in the picker and save to a knowledge base. Tavly never enumerates, parses, or stores unselected documents.
+  </Accordion>
+
+  <Accordion title="Why was I prompted to approve permissions twice during authentication?">
+    Microsoft isolates personal Microsoft accounts from organizational Entra ID business accounts on separate infrastructure. The initial sign-in detects your tenant classification, while the second screen provisions delegated access to that specific storage endpoint.
+  </Accordion>
+
+  <Accordion title="Does connecting OneDrive require administrator approval?">
+    In standard setups, no. Tavly requests delegated read-only scopes that individual users can approve. However, if your Entra ID tenant administrators have disabled self-service app consent, Microsoft displays a **Need admin approval** screen, requiring IT administrator clearance.
+  </Accordion>
+
+  <Accordion title="Can I connect both personal and business accounts to Tavly AI?">
+    Yes. Each account connection is managed independently in Tavly. You can link a personal Microsoft account and one or more corporate work accounts simultaneously, and all connected drives appear in your knowledge base source selection menus.
+  </Accordion>
+
+  <Accordion title="What happens to my knowledge bases if I disconnect OneDrive?">
+    Documents previously synchronized remain active in your knowledge base index, allowing your AI agent to continue answering inquiries. However, automatic background sync pauses, and source files display a **Sync not available** status badge.
+  </Accordion>
+
+  <Accordion title="Why does connection fail with 'Microsoft account type or tenant changed'?">
+    Tavly verifies that the account validated at the beginning of the OAuth flow matches the account completing final authorization. Switching user accounts or toggling between personal and enterprise accounts mid-flow triggers this safety check. Re-initiate the connection while authenticated into a single target account.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="OneDrive knowledge base sync" icon="rotate" href="/integrations/knowledge-base/onedrive/knowledge-base-sync">
+    Select specific documents, configure vector chunking, and manage automated 24-hour sync schedules.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Discover every CRM, knowledge base, and helpdesk integration supported across the Tavly ecosystem.
+  </Card>
+</CardGroup>

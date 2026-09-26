@@ -48,7 +48,7 @@ Integration tools can be invoked across various structural components within the
 | :--- | :--- | :--- |
 | [**Function Node**](/build/conversation-flow/function-node) | Executes deterministically immediately upon entering the node. | Attached directly inside the conversation flow canvas. |
 | [**Subagent Node**](/build/conversation-flow/subagent-node) | The LLM dynamically decides whether and when to invoke the tool mid-dialogue. | Added alongside custom functions and tools. |
-| [**Prompt Agents**](/build/single-multi-prompt/integration-tools) | Autonomous tool execution available across single- or multi-prompt architectures. | Managed via the dashboard Functions section. |
+| [**Prompt Agents**](/build/setup/single-multi-prompt/integration-tools) | Autonomous tool execution available across single- or multi-prompt architectures. | Managed via the dashboard Functions section. |
 | [**Agent Workflow**](/agent/agent-workflow) | Runs actions outside the live call lifecycle (pre-call setup or post-call wrap-up). | Configured in call lifecycle automation workflows. |
 
 For a comprehensive catalog of supported third-party providers, operational capabilities, and credential setup, see the [integrations overview](/integrations/overview).
@@ -79,9 +79,9 @@ To add an **integration tool**, first connect the target provider in the workspa
   <Step title="Attach it to a function node">
     Select the desired integration tool within the node configuration panel. 
     
-    Configuration follows the same structure used for [prompt agents](/build/single-multi-prompt/integration-tools):
+    Configuration follows the same structure used for [prompt agents](/build/setup/single-multi-prompt/integration-tools):
     * **Input parameters**: Define arguments as fixed values or dynamically extracted entities from prior conversation dialogue.
-    * **Response variables**: Extract response fields and assign them to [dynamic variables](/build/dynamic-variables) for downstream referencing.
+    * **Response variables**: Extract response fields and assign them to [dynamic variables](/build/context/dynamic-variables) for downstream referencing.
     * **Live testing**: Execute live tool test calls directly inside the node editor before publishing the flow to live production calls.
   </Step>
 </Steps>

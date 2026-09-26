@@ -1,0 +1,281 @@
+---
+title: 'Connect Salesforce: External Client App & OAuth Client Credentials'
+sidebarTitle: 'Connect Salesforce'
+description: 'Connect Salesforce to Tavly AI with an External Client App: configure OAuth client credentials, assign Run As user policies, and enable live CRM contact sync.'
+seo:
+  title: 'Connect Salesforce to Tavly AI | External Client App Guide'
+  description: 'Connect Salesforce to Tavly AI with an External Client App: configure OAuth client credentials, assign Run As user policies, and enable live CRM contact sync.'
+og:title: 'Connect Salesforce: External Client App & OAuth Client Credentials'
+og:description: 'Connect Salesforce to Tavly AI with an External Client App: configure OAuth client credentials, assign Run As user policies, and enable live CRM contact sync.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'salesforce'
+keywords: ['connect Salesforce to Tavly AI', 'Salesforce External Client App', 'OAuth 2.0 client credentials Salesforce', 'Salesforce voice agent integration', 'Salesforce contact sync', 'Run As user Salesforce', 'voice AI CRM integration']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can I connect more than one Salesforce organization to a Tavly workspace?'
+    answer: 'You can create multiple distinct Salesforce connections. However, only one CRM connection across all providers can drive automated two-way contact synchronization for your workspace at any given time.'
+  - question: 'Why does Salesforce reject "Full access (full)" scope for client credentials?'
+    answer: 'Since Salesforce Winter 26, client credentials flow tokens automatically filter out the "full" scope. A request configured solely with "full" is rejected with "invalid_grant: no valid scopes defined". Always select "Manage user data via APIs (api)" instead.'
+  - question: 'What profile permissions does the Salesforce Run As user require?'
+    answer: 'The Run As user requires "API Enabled" on their profile, Read/Edit on Contact, Create on Task (for activity logging), and appropriate Read/Edit permissions on Lead, Account, Opportunity, Case, or custom objects touched by agent function tools.'
+---
+
+## What is the Tavly AI Salesforce integration and when should you use it?
+
+The **Tavly AI Salesforce integration** connects your Salesforce org to Tavly using an **External Client App** powered by the **OAuth 2.0 client credentials flow**. Connect Salesforce when it acts as your primary system of record to greet synced contacts by name, write back conversation analysis, log calls as Tasks, and execute live SOQL queries.
+
+Connecting your enterprise Salesforce environment establishes direct, programmatic synchronization between conversational voice agents and your core CRM objects:
+
+* **Caller Identification & Personalization**: Automatically match incoming callers against Salesforce Contact records, exposing profile data to agents as dynamic variables.
+* **Closed-Loop Property Enrichment**: Automatically write back conversation qualifications, sentiment scores, and extracted customer preferences directly to Contact fields.
+* **Automated Activity Logging**: Record each voice call and chat session as a completed **Task** on the Contact's activity timeline, preserving durations and AI summaries.
+* **Direct Object Manipulation**: Deploy native [Salesforce agent functions](/integrations/crm/salesforce/agent-functions) to look up opportunities, query custom objects, generate leads, and execute SOQL queries in real time during conversations.
+
+<Note>
+  Tavly authenticates with Salesforce exclusively using the **OAuth 2.0 client credentials flow**, eliminating the need for periodic interactive user re-logins.
+</Note>
+
+***
+
+## What prerequisites and editions are required to connect Salesforce?
+
+Connecting Salesforce requires an edition with native API access—**Enterprise**, **Unlimited**, **Developer**, or **Performance** (Professional requires the paid API add-on; Essentials is unsupported). Administrators must possess **System Administrator** permissions to create External Client Apps and configure a dedicated integration user as the **Run As** execution principal.
+
+Before configuring the integration, ensure your environment meets these enterprise criteria:
+
+* **Supported Salesforce Edition**: Enterprise, Unlimited, Developer, or Performance edition. Professional requires Salesforce's paid API feature license; Essentials does not support API integrations.
+* **Administrative Privileges**: System Administrator profile permissions, or an administrative permission set permitting External Client App authoring.
+* **Dedicated Integration User**: Provision a dedicated service user account (e.g., `tavly-integration@yourdomain.com`) as the **Run As** user to ensure API continuity when employee roles change.
+
+### Video Walkthrough: Connecting Salesforce End-to-End
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/N3Wx9IMniIU" title="How to Connect Salesforce with Retell built-in CRM" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+***
+
+## How do you create an External Client App with client credentials in Salesforce?
+
+To create the app, navigate to **Setup → Apps → External Client Apps → External Client App Manager** in Salesforce and click **New External Client App**. Enable **OAuth Settings**, supply a placeholder callback URL, select the mandatory `api` scope (**Manage user data via APIs**), and check **Enable Client Credentials Flow**.
+
+Follow these setup steps within Salesforce Setup:
+
+<Steps>
+  <Step title="Open the External Client App Manager">
+    Log in to Salesforce as a System Administrator. Click the **gear icon** in the top-right corner and select **Setup**. In the left navigation sidebar under **Platform Tools**, expand **Apps → External Client Apps** and select **External Client App Manager**. Click the **New External Client App** button in the upper-right corner.
+
+    <Frame caption="The External Client App Manager in Salesforce Setup.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=6d5fe07b005ac7997198c05c0900891f" alt="The Salesforce External Client App Manager page. The left Setup sidebar shows Apps expanded with External Client Apps > External Client App Manager selected, and the New External Client App button is highlighted at the top right of the page." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} data-og-width="3448" width="3448" data-og-height="1840" height="1840" data-path="images/integration/salesforce-new-app.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=280&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=a188d2243982da46afa1c8dd3e752eee 280w, https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=560&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=49abf852df3d453e93d4ba41e2a13a50 560w, https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=840&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=6d7df5da8e3b0f5a5e56bc47332ef49f 840w, https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=1100&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=b47a993bfdaf9dcbe66df83d843d6d02 1100w, https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=1650&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=9614dce0204f136bfe69b88795f4d937 1650w, https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png?w=2500&fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=517172dd249ac1c11fb5f10e19146ecd 2500w" />
+      </div>
+    </Frame>
+
+    <Note>
+      **External Client Apps** have superseded legacy **Connected Apps** for new Salesforce integrations. If your org continues to deploy Connected Apps under **App Manager**, field definitions remain identical, though client credentials policy toggles reside under **Manage → Edit Policies**.
+    </Note>
+  </Step>
+
+  <Step title="Configure basic app metadata">
+    Under **Basic Information**, configure:
+    * **External Client App Name**: A clear workspace identifier, such as `Tavly AI`.
+    * **API Name**: Automatically generated from the app name; accept default.
+    * **Contact Email**: The administrator contact email.
+    * **Distribution State**: Leave set to `Local` (the app executes strictly within your org).
+  </Step>
+
+  <Step title="Enable OAuth settings and configure scopes">
+    Expand **API (Enable OAuth Settings)** and enable OAuth. Enter the following placeholder in the mandatory **Callback URL** field (client credentials flow does not perform browser redirects):
+
+    ```text
+    https://api.retellai.com/oauth-callback/salesforce
+    ```
+
+    Under **Selected OAuth Scopes**, select:
+    * **Manage user data via APIs (api)**: Mandatory. Grants access to execute REST, Bulk, and SOQL API requests.
+    * **Perform requests at any time (refresh_token, offline_access)**: Optional. While client credentials do not use refresh tokens, this scope is safe to include.
+
+    <Warning>
+      **Do Not Select "Full access (full)" Alone**: The client credentials flow filters out `full` from granted tokens. Since the Salesforce Winter '26 release, token requests lacking other valid scopes fail with `invalid_grant: no valid scopes defined`. Always select `api`.
+    </Warning>
+  </Step>
+
+  <Step title="Enable client credentials flow and save">
+    Under **Flow Enablement**, check **Enable Client Credentials Flow**. Leave all other authorization flows unchecked, then click **Create**.
+
+    <Frame caption="Enabling the Client Credentials Flow under Flow Enablement.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-oauth.png?fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=50da9df582b0836f64790a548a5f3e87" alt="Salesforce External Client App creation form. App Settings shows a Callback URL and, in Selected OAuth Scopes, Full access (full), which is an outdated choice: select Manage user data via APIs (api) instead, per the step above. Below, the Flow Enablement section has the Enable Client Credentials Flow checkbox checked, with Authorization Code, Device, JWT Bearer, and Token Exchange flows unchecked." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="3450" height="1832" data-path="images/integration/salesforce-oauth.png" />
+      </div>
+    </Frame>
+
+    <Warning>
+      **Replication Delay**: New External Client Apps can take between 2 and 30 minutes to propagate across Salesforce global infrastructure. If connection attempts immediately fail, wait 10 minutes before diagnosing credential issues.
+    </Warning>
+  </Step>
+</Steps>
+
+***
+
+## How do you configure OAuth policies and assign the Run As integration user?
+
+Under the app's **Policies** tab, click **Edit**, navigate to **OAuth Flows and External Client App Enhancements**, and check **Enable Client Credentials Flow**. Enter your dedicated integration user's exact **Username** (not email) into the **Run As (Username)** field, and ensure their profile possesses **API Enabled** and object-level permissions.
+
+Because client credentials flows operate without an interactive login, Salesforce evaluates permissions against this designated execution user:
+
+<Steps>
+  <Step title="Retrieve Consumer Key and Consumer Secret">
+    Open your External Client App in the manager and select the **Settings** tab. Under **App Settings**, click **Consumer Key and Secret** (Salesforce may require email verification). Securely copy:
+    * **Consumer Key**: Tavly **Client ID**.
+    * **Consumer Secret**: Tavly **Client Secret**.
+
+    <Frame caption="Accessing Consumer Key and Secret on the app's Settings tab.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-consumer-secret.png?fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=03c81415fefd89bee621b40747de7a10" alt="The Settings tab of a Salesforce External Client App named Retell AI. Basic Information shows the app name, API name Retell_AI, contact email, and Distribution State Local. Below, the OAuth Settings section contains an App Settings box with the Consumer Key and Secret link highlighted, above the Callback URL field." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="3456" height="1824" data-path="images/integration/salesforce-consumer-secret.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Configure the Policies tab and Run As user">
+    Switch to the app's **Policies** tab and click **Edit**. Under **OAuth Flows and External Client App Enhancements**, check **Enable Client Credentials Flow**. Enter your integration user's exact username in the **Run As (Username)** field.
+
+    <Tip>
+      Enter the user's **Username**, not their email address. In sandboxes or multi-tenant orgs, usernames carry domain extensions (e.g., `integration@company.com.sandbox`). Verify the exact string under **Setup → Users → Users**.
+    </Tip>
+
+    <Frame caption="Configuring the Run As User under the app's Policies tab.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-app-policy.png?fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=15e21ef64778a992e23837e071a4adcd" alt="The Policies tab of a Salesforce External Client App. App Policies shows Start Page set to None. Under OAuth Policies, Plugin Policies sets Permitted Users to All users can self-authorize. The highlighted OAuth Flows and External Client App Enhancements section has Enable Client Credentials Flow checked and a Run As (Username) field filled in with an integration user's Salesforce username." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="3448" height="1816" data-path="images/integration/salesforce-app-policy.png" />
+      </div>
+    </Frame>
+
+    <Note>
+      **Dual Flow Enablement**: The **Enable Client Credentials Flow** toggle must be checked in two locations: on the app creation screen (enabling the flow) and on the Policies tab (binding the flow to the Run As user).
+    </Note>
+  </Step>
+
+  <Step title="Validate Run As user profile permissions">
+    Confirm that the integration user's profile or assigned permission sets grant necessary access:
+    * **API Enabled**: Required system permission on user profile.
+    * **Contact Object**: Read permission on all imported fields; Edit permission on fields updated via outbound sync.
+    * **Task Object**: Create permission to support automated timeline activity logging.
+    * **Agent Function Objects**: Read/Edit permissions on Lead, Account, Opportunity, Case, or custom objects utilized in [Salesforce agent functions](/integrations/crm/salesforce/agent-functions). Creating Notes requires Edit access on the parent record.
+  </Step>
+
+  <Step title="Save policies">
+    Click **Save** to finalize OAuth policies.
+  </Step>
+</Steps>
+
+***
+
+## How do you connect and authenticate Salesforce inside Tavly?
+
+In the Tavly dashboard, open **Integrations → Available**, select **Salesforce**, and input your connection alias, **Instance URL** (`https://<domain>.my.salesforce.com`), **Client ID** (Consumer Key), and **Client Secret** (Consumer Secret). Click **Connect** to trigger an automated API handshake verification test before configuring contact synchronization.
+
+Follow these connection steps:
+
+<Steps>
+  <Step title="Initiate Salesforce connection">
+    In the Tavly Dashboard, navigate to **Integrations → Available**, locate **Salesforce**, and click **Connect** (or **Add Account**).
+  </Step>
+
+  <Step title="Supply connection parameters">
+    Enter the required authentication parameters:
+
+    | Field Name | Parameter Requirements |
+    | :--- | :--- |
+    | **Connection name** | Workspace alias; prefilled with `Salesforce - OAuth`. |
+    | **Instance URL** | Your lowercase My Domain URL in the form `https://<domain>.my.salesforce.com`. |
+    | **Client ID** | The Salesforce **Consumer Key**. |
+    | **Client Secret** | The Salesforce **Consumer Secret**. |
+
+    <Warning>
+      **My Domain URL Validation**: The instance URL must match the format `https://<domain>.my.salesforce.com` without paths. Lightning portal URLs (`.lightning.force.com`) and naked `.salesforce.com` domains are rejected. Sandboxes in the format `https://acme--dev.sandbox.my.salesforce.com` are supported.
+    </Warning>
+
+    <Frame caption="The Salesforce connection modal in the Tavly dashboard.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/config-salesforce-integration.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=cf8fda29ba06c52721dca625558028a2" alt="Retell's Salesforce connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Salesforce - OAuth, an Instance URL field with the placeholder https://acme.my.salesforce.com, and Client ID and Client Secret fields with placeholders for the connected app's credentials, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1204" height="1004" data-path="images/integration/config-salesforce-integration.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Verify connection handshake">
+    Click **Connect**. Tavly immediately sends a validation request to Salesforce's token endpoint. Upon verification, Tavly confirms the connection and offers **Set up contact sync**.
+  </Step>
+
+  <Step title="Access the Connected tab">
+    The verified integration appears under the **Connected** tab. Proceed to configure [Salesforce contact sync](/integrations/crm/salesforce/contact-sync) or attach [Salesforce agent functions](/integrations/crm/salesforce/agent-functions) to your agents.
+  </Step>
+</Steps>
+
+***
+
+## How do you troubleshoot common Salesforce connection and policy errors?
+
+If connection fails initially, allow up to **30 minutes** for Salesforce app replication, verify the My Domain URL format (excluding `.lightning.force.com`), and confirm **Enable Client Credentials Flow** is checked in both creation and policy screens. For IP restrictions, set **IP Relaxation** to **Relax IP restrictions** on the app's Policies tab.
+
+### Diagnostic Matrix
+
+<AccordionGroup>
+  <Accordion title="Connecting fails immediately after app creation">
+    Salesforce requires up to 30 minutes to replicate newly registered External Client Apps across its global token infrastructure. If validation fails, wait 10 to 15 minutes and retry before modifying credentials. Verify that **Enable Client Credentials Flow** is active on both creation settings and the Policies tab.
+  </Accordion>
+
+  <Accordion title="Tavly rejects the supplied Instance URL">
+    Retrieve your canonical My Domain URL from Salesforce Setup under **Company Settings → My Domain**. Ensure the URL starts with `https://` and ends in `.my.salesforce.com`. Remove paths, query strings, and trailing slashes.
+  </Accordion>
+
+  <Accordion title="Active connection shows an authentication error (HTTP 401 / INVALID_SESSION_ID)">
+    This error indicates that Salesforce rejected the access token request. Common causes include rotated Consumer Secrets, disabled Run As user accounts, or modified OAuth policies. Reconnect with refreshed credentials.
+  </Accordion>
+
+  <Accordion title="API requests are blocked by corporate IP restrictions">
+    If your Salesforce organization enforces login IP ranges on profiles or OAuth apps, cloud-based API calls from Tavly are rejected. On the External Client App's **Policies** tab, set **IP Relaxation** to **Relax IP restrictions**, or exempt the Run As integration user profile from login range filters.
+  </Accordion>
+
+  <Accordion title="Rotating the Consumer Secret">
+    Navigate to **Integrations → Connected** in Tavly and open Salesforce settings. Enter the newly generated Consumer Secret (and Consumer Key if altered) and select **Reconnect**. Tavly validates the new credentials immediately without disrupting existing contact sync mappings.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can I connect more than one Salesforce organization to a Tavly workspace?">
+    You can create multiple distinct Salesforce connections. However, only one CRM connection across all providers can drive automated two-way contact synchronization for your workspace at any given time.
+  </Accordion>
+
+  <Accordion title="Why does Salesforce reject 'Full access (full)' scope for client credentials?">
+    Since Salesforce Winter '26, client credentials flow tokens automatically filter out the `full` scope. A request configured solely with `full` is rejected with `invalid_grant: no valid scopes defined`. Always select `Manage user data via APIs (api)` instead.
+  </Accordion>
+
+  <Accordion title="What profile permissions does the Salesforce Run As user require?">
+    The Run As user requires **API Enabled** on their profile, Read/Edit on Contact, Create on Task (for activity logging), and appropriate Read/Edit permissions on Lead, Account, Opportunity, Case, or custom objects touched by agent function tools.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Salesforce Contact Sync" icon="arrows-rotate" href="/integrations/crm/salesforce/contact-sync">
+    Import Salesforce Contacts, map custom fields, and log conversations as native Tasks.
+  </Card>
+
+  <Card title="Salesforce Agent Functions" icon="wrench" href="/integrations/crm/salesforce/agent-functions">
+    Deploy tools to search contacts, inspect opportunities, update records, and run SOQL queries.
+  </Card>
+
+  <Card title="Integrations Overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of native CRM, helpdesk, calendar, and knowledge base integrations.
+  </Card>
+
+  <Card title="CRM Integrations Architecture" icon="database" href="/integrations/crm/crm-integrations">
+    Learn how two-way contact sync, analysis data mappings, and timeline logging operate across CRMs.
+  </Card>
+</CardGroup>

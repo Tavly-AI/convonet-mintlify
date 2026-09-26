@@ -1,0 +1,139 @@
+---
+title: 'Troubleshoot High Latency: Reduce Voice Agent Response Delays'
+sidebarTitle: 'Troubleshoot High Latency'
+description: 'Diagnose and resolve high latency in Tavly voice agents: optimize LLM model choice, trim prompt token size, configure fast tier, and audit ASR and TTS delays.'
+seo:
+  title: 'Troubleshoot High Latency | Optimize Voice AI Response Time | Tavly AI'
+  description: 'Diagnose and resolve high latency in Tavly voice agents: optimize LLM model choice, trim prompt token size, configure fast tier, and audit ASR and TTS delays.'
+og:title: 'Troubleshoot High Latency: Reduce Voice Agent Response Delays'
+og:description: 'Diagnose and resolve high latency in Tavly voice agents: optimize LLM model choice, trim prompt token size, configure fast tier, and audit ASR and TTS delays.'
+og:image: 'https://mintcdn.com/retellai/eAAhB9vO0xukbujE/images/response-wait-time-turtle.png'
+twitter:card: 'summary_large_image'
+icon: 'wrench'
+keywords: ['troubleshoot latency', 'voice agent latency', 'high latency fix', 'LLM time to first token', 'ASR endpointing', 'fast tier', 'TTS latency', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What are the two most common causes of high latency in voice agents?'
+    answer: 'Across voice agents, LLM model choice and prompt token length are the two most frequent contributors to elevated latency, as every prompt token adds to the time-to-first-token on every turn.'
+  - question: 'How does prompt length impact turn-taking response speed?'
+    answer: 'System prompt tokens must be processed on every conversational turn. Prompts exceeding roughly 8,000 tokens experience noticeably degraded time-to-first-token, making prompt trimming an immediate latency optimization.'
+  - question: 'How does transcription endpointing affect perceived latency?'
+    answer: 'Endpointing is the silence duration Tavly waits to verify a user has finished speaking. Accuracy-optimized transcription waits approximately 200ms longer than speed-optimized mode before initiating LLM processing.'
+  - question: 'What is Fast Tier and how does it reduce response delays?'
+    answer: 'Fast Tier routes LLM requests through dedicated, high-priority compute infrastructure, significantly decreasing both average turn latency and call-to-call response variance under peak traffic conditions.'
+---
+
+## Why is your Tavly AI voice agent experiencing high latency?
+
+Across voice agents, **LLM model selection** and **prompt token length** are the two primary causes of excessive turnaround latency. However, individual bottlenecks vary widely across pipelines, requiring developers to inspect their per-call **latency breakdown** to isolate whether delays originate from speech transcription (ASR), language modeling, voice synthesis (TTS), or network transport.
+
+Before concluding what causes slowness for a specific agent, confirm metrics against that agent's per-call [latency breakdown](/reliability/latency/check-actual-latency) rather than assuming:
+
+* **Variable Root Causes**: While language modeling often dominates, audio issues may stem from transcription silence buffers, voice provider synthesis backlogs, or telephony network jitter.
+* **Component-Level Isolation**: Analyzing discrete metrics prevents misdirected optimizations—such as shortening a prompt when the actual delay is caused by an external TTS engine.
+* **Top-to-Bottom Optimization**: Systematic elimination of macro factors (model architecture and token volume) should precede fine-grained component adjustments.
+
+## What primary levers resolve high voice agent latency?
+
+The three highest-impact levers for reducing latency are **switching to a faster, smaller LLM model**, **shortening system prompts** below the 8k token threshold, and **enabling fast tier** routing. These strategic adjustments minimize time-to-first-token (TTFT) across every interaction turn while significantly dampening call-to-call variance under live production traffic.
+
+| Primary Lever | Target Pipeline Layer | Impact on Turnaround Time | Strategic Trade-offs |
+| :--- | :--- | :--- | :--- |
+| **Choose a Faster LLM Model** | LLM Inference | Drastically lowers time-to-first-token (TTFT) | Slightly reduces reasoning depth; requires prompt re-validation |
+| **Shorten System Prompt** | Token Pre-fill | Eliminates token pre-fill penalties on every conversational turn | Requires offloading reference content to Knowledge Base or Tools |
+| **Enable Fast Tier** | Infrastructure Compute | Reduces average response times and minimizes variance spikes | Premium pricing surcharge compared to standard model rates |
+
+<Steps>
+  <Step title="Choose a faster LLM model">
+    Model choice is often one of the largest factors in LLM response time, though its exact impact depends on your agent's workload. Always verify against the call's LLM latency before assuming the model is the bottleneck:
+
+    * **Smaller models respond faster**: If your use case can tolerate slightly less complex reasoning, switching to a smaller model noticeably reduces turnaround latency.
+    * **Reasoning-oriented models add overhead**: Larger, reasoning-intensive models are inherently slower to first token, trading conversational speed for cognitive depth.
+    * **Provider variance**: Latency varies between upstream providers even for models of comparable parameter scale. If you have already trimmed prompt tokens and still experience high LLM latency, testing an equivalent model from an alternative provider can resolve the issue.
+
+    <Note>
+      Switching models changes your agent's conversational behavior, not just its speed. Re-test your prompt instructions and dialogue flows thoroughly after switching—treat model selection as a deliberate architectural change, not a simple toggle.
+    </Note>
+  </Step>
+
+  <Step title="Shorten your prompt">
+    Every token included in your prompt increases the time-to-first-token, and that computation cost is paid on **every turn** of the conversation:
+
+    * **Focus System Prompts**: Keep prompts concise, direct, and strictly aligned with the immediate task.
+    * **Offload Secondary Detail**: Migrate background policies, catalogs, and extensive FAQs into the [Knowledge Base](/build/knowledge-base) or into granular tool descriptions rather than bloating the main prompt.
+    * **Audit Handbook Presets**: [Agent Handbook](/build/response/agent-handbook) presets add tokens to every interaction (the estimated token count appears on hover). Disable any preset that is not strictly required.
+    * **Avoid the 8k Token Wall**: Prompts expanding beyond roughly **8,000 tokens** become noticeably slower. If your prompt exceeds this boundary, trimming tokens represents one of the easiest and most immediate latency wins.
+  </Step>
+
+  <Step title="Enable fast tier">
+    [Fast tier](/build/response/llm-options#fast-tier-premium-performance) routes your LLM inferences through dedicated, high-priority infrastructure, decreasing average response times while dampening call-to-call tail variance.
+
+    While fast tier carries a premium rate over standard model pricing, it represents one of the most reliable methods to stabilize inconsistent response pacing under production loads.
+  </Step>
+</Steps>
+
+## How do you diagnose latency bottlenecks by pipeline component?
+
+When macro optimizations fail to resolve delays, inspect the per-call latency telemetry to target specific pipeline layers. Diagnose whether spikes stem from **LLM provider outages**, **ASR endpointing silence windows**, **TTS engine synthesis delays**, or **network jitter** exceeding 300ms round-trip ping times between your client and Tavly servers.
+
+| Component Bottleneck | Observable Symptom | Root Cause Diagnostic | Recommended Remediation |
+| :--- | :--- | :--- | :--- |
+| **High LLM Latency** | `llm` field elevated in call history | Upstream provider outage or token bloat | Check [Status Page](https://status.retellai.com/); enable Fast Tier or switch models |
+| **High ASR Latency** | `asr` field elevated; late turn-taking | Extended endpointing silence window | Switch to speed-optimized transcription mode (~200ms faster) |
+| **High TTS Latency** | `tts` field elevated; delayed audio start | Complex voice features or slow synthesis engine | Disable voice emotion settings; test alternative platform voices |
+| **Choppy Audio / Jitter** | Broken speech playback, packet loss | Client-to-server ping >300ms; RTP packet drop | Inspect call [PCAP in Wireshark](/reliability/debug-calls-pcap#analyze-rtp-streams); localize SIP trunking |
+
+### High LLM Latency
+If LLM latency dominates your end-to-end turnaround time and is suddenly worse than usual, your upstream provider may be experiencing transient load:
+1. Check our [Status Page](https://status.retellai.com/) for ongoing platform or third-party provider incidents.
+2. If an active incident is detected, wait for upstream restoration.
+3. If no incident is reported, revisit your [model choice and prompt length](#what-primary-levers-resolve-high-voice-agent-latency)—consistently high LLM latency almost always points to model size or prompt volume.
+
+### High ASR (Transcription) Latency
+After a user stops speaking, Tavly waits for a short silence window—called **endpointing**—to verify the speaker has finished their turn before dispatching audio for transcription:
+1. **Transcription Mode Selection**: The accuracy-optimized [transcription mode](/build/understanding/transcription-mode) intentionally waits longer (roughly **200ms** more) than the speed-optimized mode to gather acoustic context. Switch to the speed-optimized setting if rapid responsiveness outweighs absolute transcription precision.
+2. **Disable Boosted Keywords**: Turn off **Boosted Keywords** if enabled, as keyword biasing algorithms can add transcription processing latency.
+
+### High TTS Latency
+The voice provider and synthesis configuration you select directly dictate how rapidly the first audio byte is streamed:
+1. **Disable Emotion Overheads**: Advanced synthesis options—such as dynamic emotion tagging—can increase TTS latency in specific model configurations. Disable these features if ultra-low latency is required.
+2. **Switch Voice Engines**: Synthesis speed varies considerably between voice providers. If TTS metrics dominate your latency breakdown, benchmark alternative voice engines.
+
+### Choppy or Unstable Audio
+Broken, choppy, or stuttering audio is typically caused by network transport jitter or carrier server load rather than AI model inference latency:
+1. **Ping Latency Check**: Run a network ping test from your client server to `api.tavlyai.com`. A round-trip time (RTT) consistently exceeding **300ms** introduces audible latency spikes.
+2. **RTP Stream Packet Analysis**: To confirm network jitter or packet loss on a problematic call, download and [analyze its PCAP file](/reliability/debug-calls-pcap#analyze-rtp-streams) in Wireshark.
+3. **Escalation**: If ping times are low and network transport appears stable yet audio instability persists, submit an escalation ticket with example call IDs.
+
+## What secondary factors and settings push latency higher?
+
+Secondary latency drivers include active **turtle-icon features** (aim to keep estimated latency under **1.5s**), prolonged **Response Wait time** sliders (which add up to 5.5s of intentional pause), and excessive **geographic network distance** between telephony carriers, callers, and regional Tavly processing servers.
+
+<Steps>
+  <Step title="Turn off unnecessary turtle-icon features">
+    Features marked with a turtle icon 🐢 add to your [estimated latency](/reliability/latency/check-estimated-latency). Strive to keep estimated turnaround latency under **1.5s**, and disable any turtle-marked feature that is not essential to your workflow.
+
+    <Frame caption="Turtle-marked settings display a clear latency warning on hover.">
+      <img src="https://mintcdn.com/retellai/eAAhB9vO0xukbujE/images/response-wait-time-turtle.png?fit=max&auto=format&n=eAAhB9vO0xukbujE&q=85&s=fbbbe5a85aeba2c37fd4cd6af4277447" alt="The Response Wait time setting in Speech Settings with a turtle icon beside its label. A tooltip anchored to the icon reads 'When tuned down, the latency will increase', and the slider sits at the far right showing 0.4s." style={{ maxHeight: 560 }} width="935" height="230" data-path="images/response-wait-time-turtle.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Check your response wait time">
+    The **Response Wait time** setting in [speech settings](/build/setup/single-multi-prompt/configure-basic-settings) inserts a deliberate silence pause before every agent response, configurable up to 5.5 seconds at its most patient. Any duration configured here appears as an additive row in your estimated latency breakdown. If the agent feels sluggish but per-call telemetry components are low, decrease this slider.
+  </Step>
+
+  <Step title="Consider geographic network distance">
+    International calling legs incur physical speed-of-light delays due to network routing distance between continents. When deploying campaigns across multiple countries or regions, utilize local phone numbers provisioned in the same geographic region as your target callers to minimize transit hops.
+  </Step>
+</Steps>
+
+## How do you escalate unresolved latency issues to support?
+
+If latency issues persist after tuning model architecture, prompt size, and pipeline components, escalate the problem directly to the **Tavly support team**. Provide your specific **call ID**, current empirical latency metrics from Call History or the Get Call API, and an itemized summary of previously attempted troubleshooting steps.
+
+Follow this escalation workflow to ensure rapid resolution:
+
+1. **Locate Call Identifier**: Retrieve the unique `call_id` from your dashboard session logs or API records.
+2. **Submit Support Request**: Contact our technical team via [support](/general/support).
+3. **Attach Diagnostic Telemetry**: Include your specific call ID, exact latency values recorded across components (`e2e`, `asr`, `llm`, `tts`), and an outline of configurations already tested.

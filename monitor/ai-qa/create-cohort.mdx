@@ -1,0 +1,128 @@
+---
+title: 'Define a QA Cohort: Filter Calls and Set Sampling Rates'
+sidebarTitle: 'Define a QA Cohort'
+description: 'Define a Tavly AI QA cohort: configure agent filters, date ranges, and call durations, then set sampling rates and weekly caps to govern evaluation costs.'
+seo:
+  title: 'Define AI QA Call Cohorts & Sampling Rates | Tavly AI Documentation'
+  description: 'Define a Tavly AI QA cohort: configure agent filters, date ranges, and call durations, then set sampling rates and weekly caps to govern evaluation costs.'
+og:title: 'Define a QA Cohort: Filter Calls and Set Sampling Rates'
+og:description: 'Define a Tavly AI QA cohort: configure agent filters, date ranges, and call durations, then set sampling rates and weekly caps to govern evaluation costs.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-cohort.png'
+twitter:card: 'summary_large_image'
+icon: 'filter-list'
+keywords: ['define QA cohort', 'call sampling percentage', 'filter call recordings', 'AI QA dynamic cohort', 'call duration filter', 'weekly max evaluation cap', 'Tavly AI QA']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between static and dynamic QA cohorts?'
+    answer: 'A static cohort defines both a start date and an end date, evaluating a fixed historical window. A dynamic cohort specifies only a start date, leaving the end date open to continuously ingest and audit newly completed calls.'
+  - question: 'How do sampling percentages interact with the weekly maximum cap?'
+    answer: 'The weekly maximum cap acts as a hard upper ceiling. If your sampling percentage yields fewer calls than the cap, the percentage applies; if call volume surges and exceeds the cap, the weekly maximum is strictly enforced.'
+  - question: 'Can I exclude very short calls that did not connect with callers?'
+    answer: 'Yes. Use the call duration filter to exclude short interactions (e.g., calls under 30 seconds) that lack meaningful dialogue, or filter by disconnection reason to omit voicemail or dial failures.'
+  - question: 'Can custom Post Call Extraction fields be used as cohort filters?'
+    answer: 'Yes. You can filter cohorts using any custom Post Call Extraction property (such as appointment_booked = false) to audit specific conversational outcomes.'
+---
+
+## What is a QA cohort and how does it scope call evaluations?
+
+A **Tavly QA cohort** establishes the operational boundaries for automated call auditing by isolating specific subsets of conversations across agents, dates, and call characteristics. Cohorts allow quality assurance leaders and developers to sample representative cross-sections of telephony traffic, measure targeted conversational improvements, and benchmark performance across customer interaction channels.
+
+<Frame caption="The cohort creation form, where you name the cohort, filter calls, and set sampling.">
+  <img height="700" src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-cohort.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=b9bea42f1fd99e208d4ca79ae7eec9d9" alt="QA cohort creation form with fields for cohort name, agent and call filters, and sampling percentage" data-path="ai-qa/images/create-cohort.png" />
+</Frame>
+
+### Key Advantages of Cohort Partitioning
+
+* **Controlled Spend Governance**: Audit a statistically valid percentage of total call volume rather than incurring 100% processing costs on non-critical traffic.
+* **Targeted A/B Performance Auditing**: Isolate newly deployed agent versions against legacy versions to confirm prompt stability and adherence.
+* **Continuous Monitoring**: Create rolling, perpetual cohorts that ingest new calls as they occur to detect regression spikes instantly.
+
+---
+
+## How do you filter conversations by agent, duration, and metadata?
+
+To **filter conversations**, configure criteria across five primary parameters: target specific agents, establish date boundaries, set duration thresholds, select disconnection reasons, and apply custom Post Call Extraction tags. Leaving the end date empty creates a dynamic, continuous cohort that automatically ingests and evaluates newly completed calls in real time.
+
+### Comprehensive Filter Parameters
+
+| Filter Dimension | Operational Behavior & Configuration Options |
+| :--- | :--- |
+| **Target Agents** | Select one or more specific voice agents. Use this to audit single specialized workflows or compare relative performance across agent variants. |
+| **Date Range** | **Start Date** is mandatory. **End Date** is optional—omitting it creates a **dynamic rolling cohort** that continues auditing incoming sessions indefinitely. |
+| **Call Duration** | Filter by conversation length. Exclude low-signal calls (e.g., under 30 seconds) or focus strictly on extended interactions (e.g., > 5 minutes) requiring deeper scrutiny. |
+| **Disconnection Reason** | Filter by termination trigger (e.g., `user_hangup`, `agent_hangup`, `dial_no_answer`) using [disconnection diagnostics](/reliability/debug-call-disconnect). |
+| **Post Call Extraction** | Filter by structured extraction tags from [Post Call Extraction](/monitor/post-call-analysis-overview) (e.g., isolate calls where `call_successful = false`). |
+
+---
+
+## How do you configure sampling rates and weekly maximum caps?
+
+To **configure sampling rates and weekly maximum caps**, designate a sampling percentage alongside a strict weekly volume ceiling. The percentage determines the proportion of matching calls audited, while the weekly max enforces an absolute budgetary cap. If call volume exceeds the percentage calculation, the weekly cap serves as an enforceable ceiling.
+
+### Dual-Constraint Sampling Model
+
+1. **Sampling Percentage**:
+   * Specifies the proportion of matching filtered calls to submit for AI evaluation.
+   * *Example*: A setting of `25%` randomly samples 1 out of every 4 calls that pass your filter criteria.
+2. **Weekly Maximum Cap**:
+   * Enforces a non-negotiable volume ceiling on the total number of calls evaluated in any rolling 7-day period.
+   * *Example*: Setting a weekly cap of `200` ensures that even during unexpected traffic surges, the cohort will never analyze more than 200 calls per week.
+
+<Note>
+  **Evaluation Precedence**: The weekly maximum operates as an absolute safety ceiling. If the sampling percentage yields fewer calls than the cap, the percentage calculation applies. If traffic surges and the percentage yields more calls than the cap, evaluation pauses once the weekly cap is reached.
+</Note>
+
+---
+
+## What is the step-by-step workflow to create and deploy a QA cohort?
+
+To **create and deploy a QA cohort**, open the AI Quality Assurance console, click Create QA, and enter a descriptive cohort name. Configure your agent and duration filters, establish sampling rates and weekly limits, and click Next to define the AI resolution criteria that evaluate interaction success.
+
+<Steps>
+  <Step title="Name the cohort">
+    Assign a recognizable identifier reflecting the audit's strategic purpose (e.g., `High-value customers Q4`, `Bilingual Billing Support - Week 1`, or `Inbound Triage Ongoing`).
+  </Step>
+
+  <Step title="Apply scoping filters">
+    Select the voice agents to monitor, choose your date horizons, set minimum duration thresholds (e.g., `> 45s`), and optionally filter by termination reasons or custom extraction parameters.
+  </Step>
+
+  <Step title="Establish sampling percentage and weekly ceiling">
+    Input your target evaluation rate (e.g., `50%`) and define a conservative weekly volume cap (e.g., `100 calls/week`) to maintain predictable billing.
+  </Step>
+
+  <Step title="Advance to resolution criteria">
+    Click **Next** to proceed to the [Resolution Criteria](/monitor/ai-qa/define-resolution-criteria) configuration panel, where you define the specific conditions that determine call success.
+  </Step>
+</Steps>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between static and dynamic QA cohorts?">
+    A static cohort specifies both a start date and an end date, evaluating a closed historical period. A dynamic cohort specifies only a start date, allowing the system to continuously ingest and evaluate newly completed calls matching your filters.
+  </Accordion>
+
+  <Accordion title="How do sampling percentages interact with the weekly maximum cap?">
+    The weekly cap operates as a hard budget ceiling. If the sampling percentage calculation yields fewer calls than the cap, all sampled calls are analyzed. If call volumes spike beyond the cap, evaluations pause once the ceiling is reached.
+  </Accordion>
+
+  <Accordion title="Can I exclude very short calls that did not connect with callers?">
+    Yes. Set a minimum duration filter (such as 30 seconds) to omit brief non-conversational connections, or filter by disconnection reason to exclude voicemail interceptions and unanswered dials.
+  </Accordion>
+
+  <Accordion title="Can custom Post Call Extraction fields be used as cohort filters?">
+    Yes. You can filter cohorts by any custom Post Call Extraction field (e.g., `appointment_booked = false`) to isolate calls that failed specific conversational milestones.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [AI Quality Assurance overview](/monitor/ai-qa/overview): High-level system architecture, supported metrics, and pricing.
+* [Access AI QA](/monitor/ai-qa/get-started): Getting started guide for launching evaluations from the dashboard.
+* [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria): Configure prompt rules and metric thresholds for call success.
+* [View QA results](/monitor/ai-qa/view-qa-results): Inspect aggregate cohort trends, failure modes, and transcript citations.
+* [Post Call Extraction overview](/monitor/post-call-analysis-overview): Configure custom structured fields to use as cohort filters.

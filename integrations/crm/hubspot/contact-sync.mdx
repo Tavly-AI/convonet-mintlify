@@ -1,0 +1,169 @@
+---
+title: 'HubSpot Contact Sync: Two-Way Property Mapping & Activity Logs'
+sidebarTitle: 'Contact Sync'
+description: 'Sync HubSpot contacts with Tavly AI: map bidirectional custom properties, write back post-call extraction data, and log call engagements to the timeline.'
+seo:
+  title: 'HubSpot Contact Sync & Call Timeline Logging | Tavly AI Docs'
+  description: 'Sync HubSpot contacts with Tavly AI: map bidirectional custom properties, write back post-call extraction data, and log call engagements to the timeline.'
+og:title: 'HubSpot Contact Sync: Two-Way Property Mapping & Activity Logs'
+og:description: 'Sync HubSpot contacts with Tavly AI: map bidirectional custom properties, write back post-call extraction data, and log call engagements to the timeline.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/hubspot-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'arrows-rotate'
+keywords: ['HubSpot contact sync', 'Tavly AI HubSpot integration', 'two-way CRM sync', 'HubSpot call engagement logging', 'post call analysis mapping', 'voice AI dynamic variables', 'HubSpot timeline sync']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Does Tavly automatically create new contacts in HubSpot?'
+    answer: 'Only if explicitly enabled. By default, outbound sync updates existing records only. Turning on "Create new contacts in CRM" allows Tavly to create new HubSpot contact records following conversations with new callers.'
+  - question: 'Can I synchronize custom contact properties between HubSpot and Tavly?'
+    answer: 'Yes. You can map any native or custom HubSpot contact property to a Tavly custom field. Non-contact objects like deals and companies are managed via real-time agent function tools.'
+  - question: 'What happens to imported contacts in Tavly if the HubSpot connection is removed?'
+    answer: 'All previously imported contacts remain preserved in your Tavly workspace. Removing or disconnecting the integration stops future sync cycles and credential access without deleting stored contact profiles.'
+---
+
+## What is HubSpot contact sync and what capabilities does it enable?
+
+**HubSpot contact sync** provides automated, bidirectional data synchronization between your HubSpot portal and Tavly AI. It imports contacts on a recurring **5-minute** polling schedule, matches records using **E.164 phone numbers**, maps **Post Call Extraction** insights to HubSpot contact properties, and automatically writes completed call activities to customer timelines.
+
+Synchronizing your portal enables seamless telephony workflows where customer data flows freely across conversation lifecycles:
+
+* **Bidirectional Contact Synchronization**: Ingest contacts from HubSpot and push updated field values back to customer records automatically.
+* **Autonomous Property Enrichment**: Map extracted metrics from [Post Call Extraction](/monitor/post-call-analysis-overview) to HubSpot properties using configurable update modes.
+* **Automated Timeline Activity Logging**: Record call durations, summaries, recordings, and transcripts directly onto contact engagement feeds without manual entry.
+
+<Tip>
+  Contact sync requires an authenticated [HubSpot connection](/integrations/crm/hubspot/connect). If you only require agents to search contacts or read deals on demand, [HubSpot agent functions](/integrations/crm/hubspot/agent-functions) execute via live API calls without enabling persistent contact sync.
+</Tip>
+
+***
+
+## What OAuth scopes are required for HubSpot contact synchronization?
+
+Contact synchronization requires three primary scopes granted on your HubSpot private app: `crm.objects.contacts.read` (for importing records and running connection tests), `crm.schemas.contacts.read` (for reading property definitions and configuring field mappings), and `crm.objects.contacts.write` (for outbound property updates and timeline activity logging). Omission of any scope will cause synchronization or activity logging to fail silently.
+
+These permissions are granted in [Step 2 of the connection guide](/integrations/crm/hubspot/connect#what-scopes-are-required-for-contact-sync-activity-logging-and-tools):
+
+| Scope Identifier | Synchronization Functionality |
+| :--- | :--- |
+| `crm.objects.contacts.read` | Reads and ingests contact records from your HubSpot portal. |
+| `crm.schemas.contacts.read` | Retrieves property schema definitions for field mapping interfaces and data validation. |
+| `crm.objects.contacts.write` | Pushes outbound updates to HubSpot properties and publishes Call and Communication records to timelines. |
+
+<Warning>
+  A missing scope does not trigger an error badge on your connection card because HubSpot responds with an HTTP `403` instead of an authentication rejection. Ensure all three scopes are granted before initiating synchronization.
+</Warning>
+
+***
+
+## How do you configure and verify HubSpot contact sync in Tavly?
+
+To set up sync, open your verified HubSpot connection under **Integrations → Connected** and select **Set up contact sync**. Configure inbound and outbound property mappings (locking the mandatory `phone_number` key), enable **Log activities automatically**, and execute an initial full-scan sync to import existing portal records into the **Contacts** view.
+
+Follow these configuration steps:
+
+### 1. Configure Property Mappings
+
+In the contact sync modal, define synchronization rules across two directional tabs:
+
+* **Import contacts (HubSpot → Tavly)**: Select which HubSpot properties populate your Tavly contact profiles. Tavly automatically pre-fills and locks the mapping from HubSpot `phone` to Tavly `phone_number`.
+* **Sync to HubSpot (Tavly → HubSpot)**: Define which Tavly contact fields write back to HubSpot properties when updated via dashboard edits or conversation analysis.
+* **Activity Logging**: Toggle on **Log activities automatically** on the **Sync to HubSpot** tab to publish interaction records to contact timelines.
+
+Consult the comprehensive [CRM data mappings guide](/integrations/crm/crm-data-mappings) for update mode behaviors (`Overwrite`, `Fill if empty`, `Merge`) and custom field creation rules.
+
+### 2. Verify Initial Synchronization
+
+* **Full-Scan Execution**: The initial sync performs a complete rescan across all portal contacts possessing the mapped phone property. Large customer databases may take several minutes to finish ingesting.
+* **Recurring Polling**: Following the initial import, Tavly polls HubSpot every **5 minutes** (as of August 2026), incrementally fetching only contacts modified since the previous sync timestamp.
+* **Inspect the Contacts Directory**: Navigate to **Contacts** in the Tavly dashboard to verify that records display with valid international E.164 phone numbers and mapped custom attributes.
+
+<Note>
+  Contacts lacking a value in the mapped phone field are skipped automatically, as are contacts containing phone numbers that cannot be normalized to the international E.164 standard. Standardize phone formatting in HubSpot to ensure comprehensive synchronization.
+</Note>
+
+***
+
+## How are voice calls and web chats logged to the HubSpot activity timeline?
+
+Tavly automatically records completed conversations directly to the matched HubSpot contact's timeline. Phone calls are created as **Call engagements** marked with `COMPLETED` status, duration, and call direction. Web chats log as **Communication objects** via the SMS channel. Both include the **conversation ID**, phone numbers, disconnection reason, and summary.
+
+The activity record payload includes:
+
+| Logged Parameter | Description |
+| :--- | :--- |
+| **Activity Status** | Automatically marked as `COMPLETED`. |
+| **Duration & Direction** | Accurate call duration in seconds, tagged as inbound or outbound. |
+| **Conversation ID** | Unique Tavly session identifier linking to full audio and transcript archives. |
+| **Telephony Endpoints** | Originating and receiving phone numbers in E.164 format. |
+| **Disconnection Reason** | Standardized termination diagnostic (e.g., caller hung up, agent ended call). |
+| **AI Summary** | Comprehensive, multi-paragraph interaction summary generated post-call. |
+
+<Note>
+  Tavly attaches activities exclusively to contacts matched by phone number from the currently connected HubSpot portal. Calls from unrecognized phone numbers or contacts created outside of HubSpot sync do not generate activity logs.
+</Note>
+
+***
+
+## How do you troubleshoot HubSpot contact sync and timeline logging errors?
+
+If properties fail to populate, verify that the target field is mapped correctly on the inbound or outbound tab and that `crm.objects.contacts.write` is active. If calls fail to log, confirm **Log activities automatically** is toggled on and verify that caller numbers resolve to valid international **E.164 formats**.
+
+### Diagnostic Checklist
+
+<AccordionGroup>
+  <Accordion title="Sync runs cleanly but a specific property never populates">
+    Property-level permission restrictions do not generate workspace-level connection alerts. Verify that the property is mapped under the appropriate directional tab, that field types are compatible, and that your private app has `crm.objects.contacts.write` permission for outbound sync.
+  </Accordion>
+
+  <Accordion title="Calls and chats are not appearing on the HubSpot contact timeline">
+    Activity logging requires three distinct conditions:
+    1. **Log activities automatically** must be active on the **Sync to HubSpot** tab.
+    2. The caller's phone number must match a contact previously imported from the currently active HubSpot connection.
+    3. The private app token must possess the `crm.objects.contacts.write` scope.
+  </Accordion>
+
+  <Accordion title="Contacts appear missing from Tavly after running synchronization">
+    Tavly requires a valid, parsable phone number in international E.164 format. Records with empty phone fields or numbers stored in custom phone properties that were not mapped during setup are omitted from synchronization.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Does Tavly automatically create new contacts in HubSpot?">
+    Only if explicitly enabled. By default, outbound sync updates existing records only. Turning on **Create new contacts in CRM** on the **Sync to HubSpot** tab allows Tavly to create new HubSpot contact records following conversations with unrecognized callers.
+  </Accordion>
+
+  <Accordion title="Can I synchronize custom contact properties between HubSpot and Tavly?">
+    Yes. You can map any native or custom HubSpot contact property to a Tavly [custom field](/integrations/crm/crm-data-mappings#custom-fields). Non-contact objects like deals and companies are managed via real-time [agent function tools](/integrations/crm/hubspot/agent-functions).
+  </Accordion>
+
+  <Accordion title="What happens to imported contacts in Tavly if the HubSpot connection is removed?">
+    All previously imported contacts remain preserved in your Tavly workspace. Removing or disconnecting the integration stops future sync cycles and credential access without deleting stored contact profiles.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="CRM Data Mappings" icon="arrows-left-right" href="/integrations/crm/crm-data-mappings">
+    Configure update modes, type conversions, and field merge rules across your CRM stack.
+  </Card>
+
+  <Card title="Persistent Contact Memory" icon="brain" href="/integrations/crm/persistent-memory">
+    Accumulate caller preferences and multi-session summaries directly onto contact profiles.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Reference synced HubSpot contact properties inside live agent conversational prompts.
+  </Card>
+
+  <Card title="HubSpot Agent Functions" icon="wrench" href="/integrations/crm/hubspot/agent-functions">
+    Equip voice agents with tools to query deals, look up companies, and create tasks mid-call.
+  </Card>
+</CardGroup>

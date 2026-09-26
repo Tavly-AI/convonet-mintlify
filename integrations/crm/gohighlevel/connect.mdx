@@ -1,0 +1,244 @@
+---
+title: "Connect GoHighLevel"
+sidebarTitle: "Connect"
+description: "Connect GoHighLevel to Tavly AI using a Private Integration token and Location ID: configure sub-account API scopes, sync contacts, and book live calendars."
+seo:
+  title: "Connect GoHighLevel to Tavly AI | CRM Setup Guide"
+  description: "Connect GoHighLevel to Tavly AI using a Private Integration token and Location ID: configure sub-account API scopes, sync contacts, and book live calendars."
+og:title: "Connect GoHighLevel to Tavly AI | CRM Setup Guide"
+og:description: "Connect GoHighLevel to Tavly AI using a Private Integration token and Location ID: configure sub-account API scopes, sync contacts, and book live calendars."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png"
+twitter:card: "summary_large_image"
+icon: "arrow-trend-up"
+keywords:
+  - "gohighlevel integration"
+  - "private integration token"
+  - "location id"
+  - "crm voice agent"
+  - "calendar booking integration"
+  - "gohighlevel api scopes"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Can you connect multiple GoHighLevel sub-accounts to Tavly AI?"
+    answer: "Yes. You can connect multiple sub-accounts by establishing a distinct connection for each location with its own Private Integration token and Location ID."
+  - question: "Where do you find the GoHighLevel Location ID?"
+    answer: "You can find the Location ID in the sub-account under Settings > Business Profile in the General Information card, or extract it from the browser URL directly after /location/."
+  - question: "Why does GoHighLevel return a connection error after token rotation?"
+    answer: "A connection error occurs if an expired or revoked token is used, or if an executed agent tool requires an API scope that was not granted in the Private Integration settings."
+---
+
+# Connect GoHighLevel
+
+> Connect GoHighLevel to Tavly AI with a Private Integration token and Location ID: the scopes to grant, where each value lives, and how to verify.
+
+## What is the Tavly AI GoHighLevel integration and when should you use it?
+
+**Tavly AI GoHighLevel integration** connects your GoHighLevel sub-account to Tavly using a Private Integration token and Location ID. Connect GoHighLevel when it acts as your primary system of record to greet synced contacts by name, fire workflows via contact tags, advance pipeline opportunities, and book appointments directly on native calendars.
+
+Connecting GoHighLevel requires a **Private Integration token** and the sub-account's **Location ID**. A single connection unifies both [contact sync](/integrations/crm/gohighlevel/contact-sync) and [agent functions](/integrations/crm/gohighlevel/agent-functions): conversational agents work the sub-account's contacts, tags, and opportunities, and Tavly keeps the records current.
+
+<Note>
+  A GoHighLevel connection is scoped to **one sub-account (location)**. An agency managing several locations connects each one separately.
+</Note>
+
+### Core use cases for integrating GoHighLevel
+
+Connect GoHighLevel when you want your voice and conversational agents working directly from your CRM without manual data transfers:
+
+* **Call or text people who already exist in GoHighLevel**: Contacts sync into Tavly automatically, allowing your agent to greet callers by name and identify their pipeline stage immediately.
+* **Fire GoHighLevel workflows from conversation outcomes**: The **Add Contact Tags** tool tags the contact in real time. Because GoHighLevel workflows trigger on tags, outcomes like `booked` or `interested` initiate existing follow-up automation.
+* **Work deals directly over phone calls**: Agents can list a contact's opportunities, advance deals across pipeline stages, or create new opportunities when callers qualify.
+* **Book appointments on sub-account calendars**: The connection reads real-time slot availability to book, reschedule, or cancel appointments, unifying record management and scheduling in one integration.
+
+Agents also manage contacts, tasks, notes, and appointments through [integration tools](/integrations/crm/gohighlevel/agent-functions#which-gohighlevel-function-tools-are-available-for-conversational-agents) and book sub-account [calendars](/integrations/crm/gohighlevel/agent-functions#how-do-agents-book-and-manage-sub-account-calendars).
+
+```
+[Inbound / Outbound Call]
+         │
+         ▼
+ ┌───────────────┐        Fetch Contact & Pipeline Data
+ │   Tavly AI    │ ◄────────────────────────────────────────► ┌─────────────────────────┐
+ │ Voice Agents  │                                            │  GoHighLevel Sub-Account │
+ └───────┬───────┘                                            │  (Location-Scoped API)   │
+         │                                                    └────────────┬────────────┘
+         │ 1. Tag Contact (`booked`, `qualified`)                          │
+         │ 2. Create / Update Opportunities                                │ Triggers native
+         │ 3. Schedule Calendar Appointments                               │ automations
+         ▼                                                                 ▼
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │ Native GoHighLevel Workflows (SMS Confirmations, Pipeline Automations)      │
+ └─────────────────────────────────────────────────────────────────────────────┘
+```
+
+> **Real-World Scenario:** An agency manages an inbound appointment line for a med spa location using Tavly. The agent identifies the caller, personalizes the dialogue using their CRM profile, books an appointment slot, and tags the record as `booked`. The location's native GoHighLevel workflow immediately dispatches an SMS confirmation without altering existing workflows.
+
+---
+
+## What prerequisites are required to connect a GoHighLevel sub-account?
+
+Connecting GoHighLevel requires administrative access to the specific **sub-account (location)** you wish to integrate. Because Private Integrations are scoped at the location level, tokens must be created within the sub-account rather than at the agency level. If disabled, enable Private Integrations under sub-account Labs settings first.
+
+* **Admin Permissions**: Administrative privileges within the designated GoHighLevel sub-account.
+* **Location Scope**: Private Integrations exist at both the agency and sub-account levels; Tavly requires a **location-scoped** token generated inside the specific sub-account.
+* **Labs Activation (if required)**: If **Private Integrations** is not visible under **Settings**, toggle it on under **Settings → Labs** in the agency or sub-account view.
+
+---
+
+## How do you create a Private Integration token and configure scopes in GoHighLevel?
+
+In the sub-account, navigate to **Settings → Private Integrations**, click **Create new Integration**, and name it `Tavly AI`. On the **Scopes** tab, select required permissions covering contacts, opportunities, custom fields, and calendars. Save the integration and immediately copy the generated access token, as it is displayed only once.
+
+<Steps>
+  <Step title="Open Private Integrations">
+    In the sub-account, go to **Settings > Private Integrations** (under **Other Settings**) and click **Create new Integration**. Name it something descriptive, for example `Tavly AI`.
+
+    <Note>
+      If **Private Integrations** isn't in the Settings menu, enable the feature under **Settings > Labs** (agency or sub-account view) first. By default admins can create Private Integrations; access can be restricted per user under **Roles & Permissions** (**Settings > Team** at the agency, **Settings > My Staff** in a sub-account).
+    </Note>
+  </Step>
+
+  <Step title="Select scopes">
+    On the **Scopes** tab, open the **Select scopes** dropdown. Each of its entries pairs a label with the scope's slug, like "View Contacts - contacts.readonly", and the list is searchable, so search by the slugs below.
+
+    <Frame caption="The Scopes tab of a GoHighLevel Private Integration, with the searchable scope picker open.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=d4ffc67b935e031b0accb9f010e49079" alt="GoHighLevel's Private Integrations page on the Scopes tab, reached from Settings > Private Integrations in the sub-account sidebar. The Select scopes dropdown is highlighted with a blue ring and open, showing a searchable list of 157 scopes where each entry pairs a label with its slug, such as View Calendars - calendars.readonly. A Select all option and a counter reading 0 of 157 selected sit at the top of the list." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} data-og-width="1620" width="1620" data-og-height="830" height="830" data-path="images/integration/gohighlevel-private-integration-scopes.png" data-optimize="true" data-opv="3" srcset="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=280&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=435f9d66215dc35ce91d2b83472406e9 280w, https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=560&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=b476332a1bac37a4ba26a16d4235c8c4 560w, https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=840&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=ee88a9d1b81481fefc0d7facda4757ad 840w, https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=1100&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=875cbcc8bf16cc730459ef1017a8cde3 1100w, https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=1650&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=478c1df40d72fa877c7dab2805354ff0 1650w, https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png?w=2500&fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=4aec7a6e5f4e361edb2dff46a475fa4b 2500w" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Copy the token">
+    Save the integration and copy the token right away; GoHighLevel shows it only at creation.
+  </Step>
+</Steps>
+
+---
+
+## What scopes are required for GoHighLevel contact sync, tools, and booking?
+
+Contact synchronization and tools require `contacts.readonly` and `contacts.write`. Opportunity workflows require `opportunities.readonly/write`. Reading custom field definitions requires `locations/customFields.readonly`. Calendar checking, booking, and rescheduling require `calendars.readonly`, `calendars/events.readonly`, and `calendars/events.write`. Missing scopes trigger authorization errors that flag the connection as broken.
+
+| Scope Slug | Operational Purpose | Feature Dependency |
+| :--- | :--- | :--- |
+| `contacts.readonly`<br />`contacts.write` | Enables initial contact sync, connection credential tests, contact lookups, profile updates, contact tagging, task creation, notes, and fetching a contact's appointment history. | Contact Sync, Connection Test, Agent Contact Tools |
+| `opportunities.readonly`<br />`opportunities.write` | Grants permissions to read pipelines, list existing opportunities, create new deals, and advance deal stages during live calls. | Pipeline Management, Opportunity Tools |
+| `locations/customFields.readonly` | Fetches custom field definitions from GoHighLevel to populate mapping dropdowns in Tavly. | Contact Field Mapping |
+| `calendars.readonly`<br />`calendars/events.readonly`<br />`calendars/events.write` | Grants access to check appointment slot availability, book confirmed slots, reschedule bookings, and process cancellations on sub-account calendars. | [Calendar Tools](/integrations/crm/gohighlevel/agent-functions#how-do-agents-book-and-manage-sub-account-calendars) |
+
+<Warning>
+  Grant all required scopes during initial setup. Without `contacts.readonly`, Tavly's automated connection test fails immediately. Furthermore, if a live agent function encounters an omitted scope, GoHighLevel returns an identical authorization error code to an expired token, flagging the integration with a **Connection error** status.
+</Warning>
+
+---
+
+## How do you find your GoHighLevel sub-account Location ID?
+
+To locate your Location ID, open the sub-account and navigate to **Settings → Business Profile**; the ID is displayed at the top of the General Information card. Alternatively, inspect your browser address bar while inside the sub-account and copy the alphanumeric string immediately following `/location/` in the URL.
+
+<Frame caption="Business Profile settings in the sub-account, with the Location ID at the top of General Information.">
+  <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+    <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-location-id.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=78da6d6fdbc55cb84b11e144f63a8790" alt="GoHighLevel's Business Profile Settings page. In the left Settings sidebar, Business Profile is highlighted under My Business. In the General Information card, the Location ID field is highlighted at the top right with a copy button beside it; the ID value and the business contact and address details are redacted." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="830" data-path="images/integration/gohighlevel-location-id.png" />
+  </div>
+</Frame>
+
+### Methods to retrieve your Location ID
+
+1. **Sub-Account Business Profile**: Navigate to **Settings > Business Profile** inside your sub-account. Locate the **Location ID** field in the upper right corner of the **General Information** section and click the copy icon.
+2. **Browser URL Extraction**: When viewing the sub-account dashboard, inspect the current browser URL. The Location ID is the unique alphanumeric segment following `/location/` (for example, `ve9EPM428h8vShlRW1KT` in `https://app.gohighlevel.com/location/ve9EPM428h8vShlRW1KT/dashboard`).
+
+---
+
+## How do you connect and authenticate GoHighLevel in Tavly?
+
+In the Tavly dashboard, navigate to **Integrations → Available**, select **GoHighLevel**, and input your connection alias, Private Integration token (as the API key), and sub-account **Location ID**. Click **Connect** to trigger an automated test query against sub-account contacts, verifying credentials before offering contact sync setup.
+
+<Steps>
+  <Step title="Add the connection">
+    In the Tavly Dashboard, open **Integrations**, select the **Available** tab, locate **GoHighLevel**, and click **Connect** (or click **Add Account** if an existing connection is present).
+  </Step>
+
+  <Step title="Enter connection credentials">
+    Configure the integration fields in the connection modal:
+
+    | Form Field | Parameter Description | Example / Recommendation |
+    | :--- | :--- | :--- |
+    | **Connection name** | Descriptive identifier for this connection within Tavly; defaults to `GoHighLevel - API key`. | Using the sub-account or location name (e.g., `Austin Clinic - MedSpa`) provides clear visibility. |
+    | **API key** | The Private Integration access token generated in Step 1. | Secure alphanumeric bearer token. |
+    | **Location ID** | The unique sub-account ID obtained in Step 2. | `ve9EPM428h8vShlRW1KT` |
+
+    Click **Connect** (or **Add Account**). Tavly automatically validates credentials by performing a test search against sub-account contacts. Upon validation, the dialog offers an option to **Set up contact sync**.
+
+    <Frame caption="The GoHighLevel connection dialog: token as the API key, plus the sub-account's Location ID.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=fd003ba6c3a9d4bbeda117b5c0d76a03" alt="Retell's GoHighLevel connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with GoHighLevel - API key, an API Key field, and a Location ID field showing the example placeholder ve9EPM428h8vShlRW1KT, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1206" height="1006" data-path="images/integration/gohighlevel-connect-dialog.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Verify connection status">
+    Navigate to the **Connected** tab within the Tavly Dashboard. The GoHighLevel integration will display an active status. Proceed to [GoHighLevel contact sync](/integrations/crm/gohighlevel/contact-sync) to import your database, or assign [agent functions](/integrations/crm/gohighlevel/agent-functions) to your assistants immediately.
+  </Step>
+</Steps>
+
+---
+
+## How do you rotate Private Integration tokens and manage scopes?
+
+To rotate credentials safely, select **Rotate and expire this token later** in GoHighLevel, preserving previous token validity for **7 days** while swapping keys. In Tavly, open connection settings and click **Reconnect** with the new token. Additional scopes can also be added in GoHighLevel at any time without token regeneration.
+
+* **Modify Scopes Dynamically**: Add or modify permissions within the Private Integration's **Scopes** tab anytime without regenerating the access token. Added scopes take effect immediately across existing agent calls.
+* **Scheduled Token Rotation**: GoHighLevel recommends rotating access tokens every **90 days**. When rotating in **Settings > Private Integrations**:
+  * **Rotate and expire this token later**: Retains the existing token for a **7-day grace period**, allowing seamless credential swapping in Tavly without downtime.
+  * **Rotate and expire this token now**: Revokes the active token immediately, causing Tavly operations to fail until updated credentials are provided.
+* **Reconnect in Tavly**: Go to **Integrations → Connected** in Tavly, click your GoHighLevel connection settings, replace the existing token, and click **Reconnect**. Tavly validates the new credentials immediately, preserving all custom field mappings and synced contact records.
+
+---
+
+## How do you troubleshoot common GoHighLevel connection errors?
+
+If connecting fails with an authorization error, verify you supplied a sub-account token rather than an agency-level API key. If an active connection errors, check whether Private Integration tokens were rotated or deleted, or if a tool encountered an omitted scope that GoHighLevel reported as an unauthorized token.
+
+<AccordionGroup>
+  <Accordion title="Connecting fails with an authorization error">
+    Confirm that you pasted a **Private Integration token** generated directly from the same sub-account whose **Location ID** you entered. Agency-level tokens, tokens generated in different sub-accounts, and deprecated legacy v1 API keys cannot authenticate location endpoints.
+  </Accordion>
+
+  <Accordion title="The connection errored after working successfully">
+    Tavly flags an integration with an error status when GoHighLevel returns an unauthorized HTTP response. This typically occurs when a token has been rotated, expired, or deleted, or when an agent attempts an operation lacking required API scopes. To resolve, edit the connection in Tavly, paste an active token (or enable omitted scopes in GoHighLevel), and select **Reconnect**.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about connecting GoHighLevel
+
+Yes, you can connect multiple GoHighLevel sub-accounts by creating a separate integration for each location using its unique token and Location ID. While one CRM connection manages workspace contact synchronization at a time, conversational agent tools remain active across every connected sub-account simultaneously.
+
+<AccordionGroup>
+  <Accordion title="Can I connect multiple sub-accounts to Tavly?">
+    Yes. You can configure multiple GoHighLevel connections within a single Tavly workspace, dedicating one connection per location with its own Private Integration token and Location ID. Note that only **one CRM connection** in your workspace can manage automated [contact sync](/integrations/crm/gohighlevel/contact-sync) at any time. However, [agent function tools](/integrations/crm/gohighlevel/agent-functions) remain fully functional across all connected accounts.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="GoHighLevel contact sync" icon="rotate" href="/integrations/crm/gohighlevel/contact-sync">
+    Import sub-account contacts, configure bi-directional field mapping, and log call outcomes as notes.
+  </Card>
+
+  <Card title="GoHighLevel agent functions" icon="wrench" href="/integrations/crm/gohighlevel/agent-functions">
+    Empower conversational agents to look up contacts, assign trigger tags, and manage opportunities.
+  </Card>
+
+  <Card title="CRM integrations overview" icon="database" href="/integrations/crm/crm-integrations">
+    Learn how contact synchronization, post-call analysis mapping, and activity logging function across CRMs.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of external integrations and agent tool configurations supported by Tavly.
+  </Card>
+</CardGroup>

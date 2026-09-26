@@ -1,0 +1,124 @@
+---
+title: 'Create Chat Completion: Web and SMS Implementation'
+sidebarTitle: 'Chat Completion'
+description: 'Implement conversational chat with Tavly AI: create chat sessions, generate responses with create chat completion, manage state, and deploy across web and SMS.'
+seo:
+  title: 'Create Chat Completion | Web & SMS Chat Implementation | Tavly AI'
+  description: 'Implement conversational chat with Tavly AI: create chat sessions, generate responses with create chat completion, manage state, and deploy across web and SMS.'
+og:title: 'Create Chat Completion: Web and SMS Implementation'
+og:description: 'Implement conversational chat with Tavly AI: create chat sessions, generate responses with create chat completion, manage state, and deploy across web and SMS.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'message-square'
+keywords: ['create chat completion', 'chat completion API', 'Tavly chat agent', 'conversational chat API', 'SMS chat integration', 'stateful chat sessions', 'chat lifecycle']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How is conversation context managed in Tavly chat completions?'
+    answer: 'Tavly automatically maintains and stores full conversation history in its managed database under the session chat_id, meaning client applications do not need to resend prior message history on each request.'
+  - question: 'Can you send images or multimedia via the Create Chat Completion API?'
+    answer: 'No. The Create Chat Completion API supports plain text messaging only. Multimedia (MMS) is supported exclusively when deploying chat agents over Twilio SMS phone numbers.'
+  - question: 'How are inactive chat sessions closed?'
+    answer: 'Chat sessions close either explicitly by calling the End Chat API or automatically when the configured Auto-Close Inactive Chats timeout triggers.'
+  - question: 'What endpoints are required for a complete chat lifecycle?'
+    answer: 'A complete chat lifecycle uses create-chat to start a session, create-chat-completion to exchange messages, get-chat or list-chats to retrieve transcripts, and end-chat to terminate the session.'
+---
+
+## What is the Tavly Create Chat Completion API?
+
+The **Tavly Create Chat Completion API** provides stateful, programmatic text generation for conversational AI chat agents across web interfaces and SMS channels. Tavly automatically stores conversation history and manages conversational context in its managed database, eliminating the requirement for client applications to pass full dialogue turns on every request.
+
+Building conversational chat into web applications, customer portals, or mobile clients requires reliable turn-taking and persistent memory:
+
+| Capability | Create Chat Completion API (Web / App) | Twilio SMS Integration |
+| :--- | :--- | :--- |
+| **Primary Channel** | Web applications, custom mobile apps, in-app widgets | Cellular SMS / MMS text messaging |
+| **Context Management** | Automatically persisted under `chat_id` in database | Automatically persisted under `chat_id` in database |
+| **Media Support** | Plain text only | Plain text and multimedia messaging (MMS images/files) |
+| **Session Control** | Explicit endpoints (`create-chat`, `end-chat`) | Phone number binding and inactivity timeout triggers |
+| **Webhook Delivery** | Real-time chat webhooks | Inbound SMS webhooks and carrier status callbacks |
+
+---
+
+## How do you implement chat completion step by step?
+
+To implement **chat completion step by step**, build a configured chat agent, initialize a session using the Create Chat endpoint to acquire a session ID, dispatch user messages through Create Chat Completion, retrieve transcripts via Get Chat, and conclude the dialogue using the End Chat endpoint.
+
+Follow this sequential integration lifecycle across your application backend:
+
+<Steps>
+  <Step title="Create a Chat Agent">
+    Before initiating a chat session, configure an AI chat agent to handle conversation prompts, persona guidelines, and tool executions.
+
+    Review the [Create Chat Agent](/build/create-chat-agent) guide for detailed instructions on configuring agent prompts and response engine models.
+  </Step>
+
+  <Step title="Create a Chat Session">
+    Initialize a new conversation session using the `POST /v3/create-chat` API endpoint:
+
+    ```bash cURL
+    curl -X POST https://api.tavlyai.com/v3/create-chat \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "agent_id": "agent_abc123"
+      }'
+    ```
+
+    The API returns a unique `chat_id` required for all subsequent turn requests. For full payload details, refer to the [Create Chat API Reference](/api-references/create-chat).
+  </Step>
+
+  <Step title="Create a Chat Completion">
+    Generate conversational responses from the chat agent by submitting user turns to the `POST /v3/create-chat-completion` endpoint:
+
+    ```bash cURL
+    curl -X POST https://api.tavlyai.com/v3/create-chat-completion \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "chat_id": "chat_xyz789",
+        "content": "Hello, can you help me check my order status?"
+      }'
+    ```
+
+    The API returns the agent's generated response in the `messages` array. All conversation turns are automatically tracked in Tavly's database, eliminating manual context management. Consult the [Create Chat Completion API Reference](/api-references/create-chat-completion).
+  </Step>
+
+  <Step title="Retrieve Chat Details">
+    Retrieve the full conversation transcript and metadata for a specific session using the `GET /v3/get-chat/{chat_id}` endpoint.
+
+    To paginate and inspect historical conversations across users, query the `POST /v3/list-chats` endpoint. See the [Get Chat API Reference](/api-references/get-chat) and [List Chats API Reference](/api-references/list-chats).
+  </Step>
+
+  <Step title="End the Chat Session">
+    When the user concludes their interaction or signs off, terminate the session using the `POST /v3/end-chat` endpoint.
+
+    If **Auto-Close Inactive Chats** is enabled in your agent settings, sessions automatically close when the inactivity timer expires. Refer to the [End Chat API Reference](/api-references/end-chat).
+  </Step>
+</Steps>
+
+---
+
+## How do you deploy chat agents over SMS?
+
+To deploy **chat agents over SMS**, integrate your Tavly account with Twilio to link phone numbers with inbound and outbound SMS agents. While API-based text chat is restricted to plain text, SMS phone channels support multimedia messages (MMS), automated webhook notifications, and manual outbound message dispatching.
+
+Tavly supports deploying chat agents directly to cellular phone numbers via native Twilio integration:
+
+* **Two-Way Texting**: Enable chat agents to receive and reply to customer text messages automatically.
+* **Inbound & Outbound Roles**: Assign dedicated inbound agents to answer incoming SMS inquiries and outbound agents to dispatch notifications.
+* **Inbound SMS Webhooks**: Dynamically intercept and route incoming texts using the [Inbound Call and SMS Webhook](/deploy/inbound-call-webhook).
+* **Console Controls**: Access the **Make an outbound SMS** dashboard interface to initiate text conversations manually.
+
+For setup instructions, follow the [Enable SMS messaging](/deploy/enable-sms) guide.
+
+<Note>
+  **SMS** conversations with your chat agent on a phone number can include **multimedia** (such as MMS images and documents). **Text chat** via the `create-chat-completion` API endpoint supports plain text exclusively.
+</Note>
+
+## Related Resources
+
+* [Create chat agent](/build/create-chat-agent): Configure prompts, response engines, and tool execution.
+* [Enable SMS messaging](/deploy/enable-sms): Connect Twilio phone numbers to conversational text agents.
+* [Inbound call and SMS webhook](/deploy/inbound-call-webhook): Dynamically override agents and inject caller context.
+* [Chat event webhooks](/features/webhook-overview): Subscribe to real-time chat creation and completion callbacks.

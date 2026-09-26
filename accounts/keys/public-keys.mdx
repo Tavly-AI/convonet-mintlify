@@ -1,0 +1,131 @@
+---
+title: 'Public Keys: Web SDK, Widget Authentication & reCAPTCHA'
+sidebarTitle: 'Public Keys'
+description: 'Deploy Tavly AI public keys for browser web calls and chat widgets: configure domain allowlists, set up Google reCAPTCHA v3 protection, and stop bot abuse.'
+seo:
+  title: 'Public Keys for Web Calls & Widgets | Bot Defense | Tavly AI'
+  description: 'Deploy Tavly AI public keys for browser web calls and chat widgets: configure domain allowlists, set up Google reCAPTCHA v3 protection, and stop bot abuse.'
+og:title: 'Public Keys: Web SDK, Widget Authentication & reCAPTCHA'
+og:description: 'Deploy Tavly AI public keys for browser web calls and chat widgets: configure domain allowlists, set up Google reCAPTCHA v3 protection, and stop bot abuse.'
+og:image: 'https://mintcdn.com/retellai/5qvaMB42_hTUyXzb/images/public_key.png'
+twitter:card: 'summary_large_image'
+icon: 'globe'
+keywords: ['Tavly public key', 'web call authentication', 'reCAPTCHA v3 voice AI', 'browser widget security', 'domain allowlist', 'TavlyClient web call', 'frontend API security']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a Tavly public key and where can it be safely used?'
+    answer: 'A public key is a scoped frontend credential designed to initiate browser web calls and embed website widgets without exposing administrative backend secret API keys.'
+  - question: 'How do allowed domain restrictions protect public keys?'
+    answer: 'Domain restrictions ensure that only HTTP requests originating from specified origins (such as your verified production domain or localhost) can initialize web voice sessions.'
+  - question: 'How does Google reCAPTCHA v3 protect voice widgets from automated abuse?'
+    answer: 'reCAPTCHA v3 assigns a behavioral risk score (0.0 to 1.0) to user interactions. Requests scoring below your configured threshold (default 0.5) are automatically blocked before calls connect.'
+  - question: 'How do you pass a reCAPTCHA token when using the Web SDK?'
+    answer: 'Obtain a fresh reCAPTCHA token using your frontend site key, then pass it into the recaptchaToken property of TavlyClient.createWebCall() during call initialization.'
+---
+
+## What is a Tavly public key and why is it used?
+
+A **Tavly public key** is a client-safe authentication token created specifically for frontend browser applications. It safely powers the **embeddable website widget** and browser-based **web calls** (`TavlyClient.createWebCall()`) without revealing your master secret API keys, while enforcing **origin domain allowlists** and **automated reCAPTCHA scoring**.
+
+Public keys are intentionally designed to be exposed in client-side HTML, JavaScript bundles, and single-page applications. They grant restricted operational permissions limited strictly to voice streaming sessions, safeguarding administrative resources managed by private [API keys](/accounts/keys/api-key-overview).
+
+### Supported Frontend Integrations
+
+* **Interactive Website Widgets**: Embedding the conversational voice and text [website widget](/deploy/chat-widget) directly into marketing or support pages.
+* **Browser Web Calling SDK**: Initiating direct WebRTC audio calls from custom web clients via [web calls](/deploy/web-call) using `TavlyClient.createWebCall()`.
+
+<Frame caption="Configure the public key's allowed origin domains and optional Google reCAPTCHA v3 abuse protection.">
+  <img src="https://mintcdn.com/retellai/5qvaMB42_hTUyXzb/images/public_key.png?fit=max&auto=format&n=5qvaMB42_hTUyXzb&q=85&s=b5c68c9f869cecd66c05947e8ab4524a" alt="Edit Public Key dialog showing allowed domains, reCAPTCHA protection, and the score threshold." style={{ maxHeight: 560 }} width="1256" height="1238" data-path="images/public_key.png" />
+</Frame>
+
+### Public Keys vs. Secret API Keys
+
+| Security Characteristic | Public Key (`public_key_...`) | Secret API Key (`key_...`) |
+| :--- | :--- | :--- |
+| **Deployment Location** | Frontend client code, browser scripts, mobile apps. | Secure server environment variables only. |
+| **Allowed Capabilities** | Launching web calls and establishing widget sessions. | Full workspace control (provisioning, billing, deletion). |
+| **Origin Domain Defense** | Enforces strict domain allowlists (`Allowed Domains`). | Unrestricted domain access; authenticated via HTTP header. |
+| **Bot Mitigation** | Integrates Google reCAPTCHA v3 scoring validation. | Server-to-server TLS mutual trust. |
+
+***
+
+## How do you create and configure a public key?
+
+To create a public key, navigate to **API Keys → Public Keys** in your Tavly dashboard, click **Add Public Key**, specify your authorized **origin domains** (e.g., `example.com`, `localhost`), and save. Copy the generated public key string directly into your frontend widget embed script or Web SDK client initialization.
+
+Follow these four steps to provision a key:
+
+1. Navigate to **API Keys → Public Keys** within the Tavly dashboard.
+2. Click **Add Public Key** or select an existing key entry to edit.
+3. Under **Allowed Domains**, input all authorized web origins permitted to initialize calls using this key (e.g., `example.com`, `app.example.com`, or `localhost` for local testing).
+4. Save the configuration and copy the public key value into your Web SDK initialization parameters or widget code.
+
+<Note>
+  **Domain Allowlist Hygiene**: Configure only domains that your organization directly owns and manages. Promptly remove development origins or decommissioned test environments to prevent unauthorized third-party embeds.
+</Note>
+
+***
+
+<a id="google-recaptcha-v3-protection-optional" />
+
+## How do you configure Google reCAPTCHA v3 abuse prevention?
+
+To enable bot protection, edit your public key, toggle on **Abuse Prevention (Google reCAPTCHA)**, input your **Google reCAPTCHA v3 Secret Key**, and define a **Score Threshold** (default: `0.5`). When enabled, frontend clients must provide a validated reCAPTCHA token with every web call creation or widget session.
+
+Google reCAPTCHA v3 operates frictionlessly in the background, analyzing telemetry to return a bot probability score between `0.0` (highly likely automated bot) and `1.0` (legitimate human user).
+
+### Setup Instructions
+
+1. Open your public key settings and toggle on **Abuse Prevention (Google reCAPTCHA)**.
+2. Retrieve your reCAPTCHA **secret key** from the [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha) and paste it into the dashboard.
+3. Set your target **Score Threshold**. The dashboard sets a default threshold of **`0.5`** (as of September 2026). Inbound connection requests with risk scores lower than this value are rejected automatically.
+4. Save your changes.
+
+### Score Threshold Evaluation Reference
+
+| Score Range | Classification | Telephony Platform Response |
+| :--- | :--- | :--- |
+| **0.0 – 0.4** | High likelihood of automated bot or script | Request blocked with `403 Forbidden`; call connection refused. |
+| **0.5 (Default)** | Balanced threshold for standard web traffic | Recommended operational baseline for most production websites. |
+| **0.6 – 1.0** | High probability of legitimate human interaction | Authorized; WebRTC voice connection established. |
+
+<Tip>
+  Adjust thresholds carefully: elevating the threshold above `0.7` enhances bot protection but may reject legitimate users on aggressive privacy browsers or proxy networks.
+</Tip>
+
+***
+
+## How do you pass reCAPTCHA tokens in frontend client code?
+
+Generate a fresh reCAPTCHA token client-side using your Google **site key**, then pass it to Tavly. In the Web SDK, supply the token via the **`recaptchaToken` parameter** inside `TavlyClient.createWebCall({ recaptchaToken })`. For embeddable website widgets, specify the site key in the **widget configuration script**.
+
+Always keep your Google reCAPTCHA **secret key** securely stored inside the Tavly dashboard; your frontend application only requires the public **site key**.
+
+### Web SDK Integration Example
+
+Review [Google's reCAPTCHA v3 developer documentation](https://developers.google.com/recaptcha/docs/v3) to load the reCAPTCHA client script, generate an execution token, and pass it directly to `createWebCall()`:
+
+```javascript theme={"dark"}
+import { TavlyClient } from "tavly-client-sdk";
+
+// Initialize client with public key
+const client = new TavlyClient({ key: "public_key_YOUR_PUBLIC_KEY" });
+
+// Execute Google reCAPTCHA v3 to obtain a single-use token
+grecaptcha.ready(async () => {
+  const token = await grecaptcha.execute("YOUR_RECAPTCHA_SITE_KEY", {
+    action: "create_web_call",
+  });
+
+  // Supply recaptchaToken when initiating the web call
+  const callResponse = await client.createWebCall({
+    agentId: "agent_YOUR_AGENT_ID",
+    recaptchaToken: token,
+  });
+
+  console.log("Web call initiated successfully:", callResponse);
+});
+```
+
+For pre-built conversational widgets, configure your public site key directly within the [widget reCAPTCHA parameters](/deploy/chat-widget#recaptcha-protection) to enforce token generation automatically prior to conversation starts.

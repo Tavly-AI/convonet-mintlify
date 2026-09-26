@@ -1,11 +1,51 @@
 ---
-title:  "A/B Testing"
-description: "Run Tavly A/B tests by splitting inbound and outbound voice and chat traffic between agents to compare prompts, voices, and flows in production."
+title: 'A/B Testing: Split Voice & Chat Agent Traffic'
+sidebarTitle: 'A/B Testing'
+description: 'Run Tavly A/B tests by splitting inbound and outbound voice and chat traffic between agents to evaluate prompts, voices, and workflows in live production.'
+seo:
+  title: 'A/B Testing | Split Voice & Chat Agent Traffic | Tavly AI'
+  description: 'Run Tavly A/B tests by splitting inbound and outbound voice and chat traffic between agents to evaluate prompts, voices, and workflows in live production.'
+og:title: 'A/B Testing: Split Voice & Chat Agent Traffic'
+og:description: 'Run Tavly A/B tests by splitting inbound and outbound voice and chat traffic between agents to evaluate prompts, voices, and workflows in live production.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'split'
+keywords: ['A/B testing', 'traffic splitting', 'voice agent testing', 'chat agent comparison', 'prompt experimentation', 'agent version analytics', 'Tavly AI deployment']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is A/B testing in Tavly AI?'
+    answer: 'A/B testing allows developers to distribute incoming and outgoing voice or chat traffic across multiple agent configurations based on defined percentage weights, enabling production comparison of prompts, voices, and workflows without altering baseline agents.'
+  - question: 'Where is A/B testing supported across Tavly services?'
+    answer: 'A/B testing is supported across four conversational channels: inbound phone calls, outbound phone campaigns, incoming web/widget chats, and API-initiated outbound chat conversations.'
+  - question: 'How does A/B testing differ from dynamic agent selection?'
+    answer: 'A/B testing randomly distributes traffic according to fixed percentage weights (e.g., 80/20), whereas dynamic agent selection assigns specific agents per call or chat based on real-time caller data, webhooks, or API parameters.'
+  - question: 'How do you analyze performance metrics between A/B test variants?'
+    answer: 'Open the Analytics dashboard, set your experiment date range, filter by the specific agents and versions tested, and compare comparative telemetry including call duration, latency, and task completion rates.'
 ---
 
 A/B testing lets you compare multiple agents or scripts by sending a percentage of traffic to each. You define a traffic split (for example, 80% to one agent and 20% to another) so you can test different prompts, voices, or flows without changing your main agent.
 
-## Where A/B testing is available
+## What is A/B testing?
+
+**A/B testing** in Tavly allows teams to split conversational traffic across multiple agent variants or scripts using configurable percentage allocations. By routing live interactions (such as an 80/20 split) between different agent configurations, developers can empirically evaluate prompt wording, synthetic voices, and dialogue flows without replacing their core production agent.
+
+Every A/B testing setup revolves around three operational pillars:
+
+* **Multiple agents**: Bind or assign two or more agents to the same phone number or chat configuration.
+* **Traffic split**: Set the percentage of traffic each agent receives (e.g., 80% / 20%). Traffic is distributed according to this split.
+* **Empirical optimization**: Test different scripts on marketing or support calls, try prompt or voice changes, or compare conversation flows in chat.
+
+| Traffic Channel | Supported Modality | Configuration Location | Key Documentation Reference |
+| :--- | :--- | :--- | :--- |
+| **Inbound Calls** | Telephony Voice | Phone Number settings drawer | [Receive calls](/deploy/inbound-call) |
+| **Outbound Calls** | Telephony Voice | Phone Number settings drawer | [Outbound calls](/deploy/outbound-call) |
+| **Inbound Chat** | Web / Widget Chat | Chat widget configuration | [Chat widget](/deploy/chat-widget) |
+| **Outbound Chat** | REST API Chat | Chat completion request params | [Create Chat Completion](/deploy/create-chat-completion) |
+
+## Where is A/B testing available across channels?
+
+**A/B testing is available across four production channels**: inbound phone calls, outbound phone calls, inbound chat widgets, and outbound API chat sessions. Each channel allows teams to bind multiple agent configurations and establish percentage traffic splits to compare performance, latency, and resolution rates in live customer environments.
 
 A/B testing is supported for:
 
@@ -14,15 +54,11 @@ A/B testing is supported for:
 * **Inbound chats** — Incoming chat conversations
 * **Outbound chats** — Chat sessions you initiate
 
-## How it works
+## How do you configure A/B testing on phone numbers?
 
-* **Multiple agents**: Bind or assign two or more agents to the same number or chat configuration.
-* **Traffic split**: Set the percentage of traffic each agent receives (e.g., 80% / 20%). Traffic is distributed according to this split.
-* **Use cases**: Test different scripts on marketing or support calls, try prompt or voice changes, or compare conversation flows in chat.
+To configure **A/B testing on phone numbers**, open your number in the Phone Numbers dashboard and enable the **A/B Testing toggle** next to Call Agent. Click **Edit** in the modal to add agent variants and assign percentage weights totaling 100%, then click **Deploy** to activate traffic distribution immediately.
 
-## Where to configure
-
-**Phone numbers (calls):** On the phone number configuration page, the A/B Testing toggle appears next to the Call Agent field. Turn it on to bind multiple agents and set a traffic split. The screenshot below shows the control with A/B testing disabled.
+On the phone number configuration page, the A/B Testing toggle appears next to the Call Agent field. Turn it on to bind multiple agents and set a traffic split. The screenshot below shows the control with A/B testing disabled:
 
 <Frame caption="A/B Testing control on the phone number configuration page (disabled)">
   <img src="https://mintcdn.com/retellai/OUoENzk-DjeUQ4lb/images/deploy/phone-call/ab-testing-disabled.png?fit=max&auto=format&n=OUoENzk-DjeUQ4lb&q=85&s=25946aa3ee6fa45200c2bde81cefc3cf" alt="Phone number configuration showing Call Agent dropdown and A/B Testing toggle in the off position" width="1024" height="93" data-path="images/deploy/phone-call/ab-testing-disabled.png" />
@@ -46,28 +82,51 @@ After you click **Deploy**, the configuration is active. The Call Agent section 
   <img src="https://mintcdn.com/retellai/OUoENzk-DjeUQ4lb/images/deploy/phone-call/ab-testing-deployed.png?fit=max&auto=format&n=OUoENzk-DjeUQ4lb&q=85&s=63c0babd4cedf06ac8d12c075011d290" alt="Call Agent section with A/B Testing on, showing Agent A and Agent B each at 50% with Edit option" width="1024" height="134" data-path="images/deploy/phone-call/ab-testing-deployed.png" />
 </Frame>
 
-| Context                       | Configure in                                                                                                                                                                                                           |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Inbound calls**             | Number configuration: bind multiple agents to the number and set the traffic split. See [Receive calls](/deploy/inbound-call).                                                                                         |
-| **Outbound calls**            | Number configuration: bind multiple agents for outbound and set the traffic split. See [Outbound calls](/deploy/outbound-call).                                                                                        |
+Review configuration entry points across different modalities:
+
+| Context | Configure in |
+| :--- | :--- |
+| **Inbound calls** | Number configuration: bind multiple agents to the number and set the traffic split. See [Receive calls](/deploy/inbound-call). |
+| **Outbound calls** | Number configuration: bind multiple agents for outbound and set the traffic split. See [Outbound calls](/deploy/outbound-call). |
 | **Chat (inbound & outbound)** | Chat agent or widget configuration where you assign the chat agent; enable A/B testing and set the traffic split. See [Create Chat Completion](/deploy/create-chat-completion) and [Chat widget](/deploy/chat-widget). |
 
-## View analytics by agent version
+## How do you view analytics and compare agent versions?
 
-After you deploy an A/B test, you can compare performance by specific agent versions in the Analytics dashboard.
+To view analytics by agent version, navigate to the **Analytics** dashboard, choose your experimental date range, and apply filters for the specific agents and versions tested. All dashboard charts will update dynamically, enabling direct comparison of call success rates, session durations, conversational latency, and completion metrics across experiment variants.
 
-1. Open **Analytics** in the Tavly dashboard.
-2. Set a date range that covers your experiment period.
-3. In the filter bar, click **Agent** (or click **Filter** and add **Agent**).
-4. In the left panel, select the agent(s) used in your A/B test.
-5. In the right panel, select the specific version(s) you want to analyze (for example, `Version 3` vs `Version 4` of the same agent).
-6. Click **Save** to apply the filter.
+Follow these steps to analyze variant performance:
 
-All charts on the page will update to the selected agent-version scope, so you can compare metrics (such as call success rate, duration, and latency) for each variant.
+<Steps>
+  <Step title="Open Analytics">
+    Open **Analytics** in the Tavly dashboard.
+  </Step>
 
-For more details on Analytics, see [Get analytics insight](/features/analytics-dashboard).
+  <Step title="Set date window">
+    Set a date range that covers your experiment period.
+  </Step>
 
-## A/B testing vs dynamic agent selection
+  <Step title="Select Agent filter">
+    In the filter bar, click **Agent** (or click **Filter** and add **Agent**).
+  </Step>
+
+  <Step title="Choose test agents">
+    In the left panel, select the agent(s) used in your A/B test.
+  </Step>
+
+  <Step title="Designate target versions">
+    In the right panel, select the specific version(s) you want to analyze (for example, `Version 3` vs `Version 4` of the same agent).
+  </Step>
+
+  <Step title="Apply and review charts">
+    Click **Save** to apply the filter.
+  </Step>
+</Steps>
+
+All charts on the page will update to the selected agent-version scope, so you can compare metrics (such as call success rate, duration, and latency) for each variant. For more details on Analytics, see [Get analytics insight](/features/analytics-dashboard).
+
+## How does A/B testing compare to dynamic agent selection?
+
+**A/B testing differs from dynamic agent selection** based on whether traffic routing is randomized or contextual. A/B testing applies a fixed statistical split (such as 50/50) without caller awareness, while dynamic agent selection routes calls or chats contextually using webhook logic, caller ID lookup, or custom runtime metadata.
 
 <Tabs>
   <Tab title="A/B testing">
@@ -78,3 +137,10 @@ For more details on Analytics, see [Get analytics insight](/features/analytics-d
     Use when you want to **choose the agent per call or per chat** based on caller, context, or other data. For inbound calls, use the [Inbound Call Webhook](/features/inbound-call-webhook). For outbound calls or chats, pass the agent (or other overrides) in the API when you create the call or chat.
   </Tab>
 </Tabs>
+
+## Related Resources
+
+* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Launch outbound calling campaigns with traffic splits.
+* [Analytics dashboard](/features/analytics-dashboard): Inspect call duration, latency, and resolution rates.
+* [Inbound call webhook](/features/inbound-call-webhook): Dynamically route incoming calls based on caller metadata.

@@ -1,0 +1,118 @@
+---
+title: 'International Calling: Rates and Supported Destinations'
+sidebarTitle: 'International Calling'
+description: 'Review Tavly international calling rates and supported countries: compare Twilio and Telnyx per-minute telephony pricing and enable global AI voice calling.'
+seo:
+  title: 'International Calling | Global Rates & Supported Countries | Tavly AI'
+  description: 'Review Tavly international calling rates and supported countries: compare Twilio and Telnyx per-minute telephony pricing and enable global AI voice calling.'
+og:title: 'International Calling: Rates and Supported Destinations'
+og:description: 'Review Tavly international calling rates and supported countries: compare Twilio and Telnyx per-minute telephony pricing and enable global AI voice calling.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'globe'
+keywords: ['international calling', 'global telephony rates', 'international calling rates', 'Twilio rates', 'Telnyx international rates', 'E.164 dialing', 'Tavly AI calling']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Which international countries can Tavly agents call?'
+    answer: 'Tavly supports calls to 16 global destinations via Twilio (including the US, Canada, UK, Germany, India, Australia, Japan, France, and Mexico) and key destinations via Telnyx (US, Canada, and India).'
+  - question: 'What phone number format is required for international calling?'
+    answer: 'All international destinations must be formatted using the canonical ITU-T E.164 standard, including a leading plus sign, country code, area code, and subscriber number (e.g. +442071838750).'
+  - question: 'Are international telephony costs billed separately from AI agent runtime?'
+    answer: 'Yes. Telephony carrier minutes are billed at published per-minute rates based on the destination country, separate from Tavly agent execution and LLM token processing fees.'
+  - question: 'Can you purchase local phone numbers in foreign countries?'
+    answer: 'Yes. Tavly offers international phone numbers for direct purchase in the dashboard, and also supports connecting existing foreign numbers via custom elastic SIP trunking.'
+---
+
+## What is Tavly international calling?
+
+**Tavly international calling** allows conversational AI voice agents to place high-quality outbound telephone calls to global destinations directly from your workspace. By leveraging underlying tier-1 carrier networks such as Twilio and Telnyx, businesses reach customers across North America, Europe, Asia, and Oceania without contracting local telecommunications providers in each country.
+
+Global outbound calling integrates directly into standard enterprise telephony workflows:
+
+* **Unified Workspace Management**: Initiate global calls from a centralized dashboard or single API without managing multi-vendor carrier relationships.
+* **Global Customer Outreach**: For example, a US-based customer success team can deploy Tavly agents to contact users across India, the United Kingdom, and Australia using the same primary application workflows.
+* **International Number Ingestion**: Purchase local international numbers directly or import foreign numbers from existing telecom carriers.
+
+To purchase dedicated international lines, explore the [purchase a number](/deploy/purchase-number) guide.
+
+---
+
+## How do international calling rates compare across carrier networks?
+
+**International calling rates** vary by destination country and underlying carrier provider, billed on a per-minute basis. For example, US calls start at $0.015/min on Twilio and $0.03/min on Telnyx, while calls to India cost $0.15/min on Twilio versus $0.25/min on Telnyx.
+
+Telephony costs depend on the underlying carrier assigned to your Tavly-managed number. Review the destination pricing matrices below:
+
+### Twilio Carrier Destinations & Per-Minute Rates
+
+| Destination Country | ISO Code | Dialing Prefix | Per-Minute Rate (USD) |
+| :--- | :--- | :--- | :--- |
+| 🇺🇸 **United States** | `US` | `+1` | **$0.015** |
+| 🇺🇸 **United States (Toll-Free)** | `US` | `+1 (800/888/...)` | **$0.060** |
+| 🇨🇦 **Canada** | `CA` | `+1` | **$0.030** |
+| 🇲🇽 **Mexico** | `MX` | `+52` | **$0.050** |
+| 🇫🇷 **France** | `FR` | `+33` | **$0.060** |
+| 🇮🇹 **Italy** | `IT` | `+39` | **$0.060** |
+| 🇦🇺 **Australia** | `AU` | `+61` | **$0.100** |
+| 🇩🇪 **Germany** | `DE` | `+49` | **$0.100** |
+| 🇪🇸 **Spain** | `ES` | `+34` | **$0.100** |
+| 🇬🇧 **United Kingdom** | `GB` | `+44` | **$0.100** |
+| 🇮🇳 **India** | `IN` | `+91` | **$0.150** |
+| 🇲🇾 **Malaysia** | `MY` | `+60` | **$0.200** |
+| 🇯🇵 **Japan** | `JP` | `+81` | **$0.280** |
+| 🇮🇩 **Indonesia** | `ID` | `+62` | **$0.400** |
+| 🇹🇭 **Thailand** | `TH` | `+66` | **$0.450** |
+| 🇵🇭 **Philippines** | `PH` | `+63` | **$0.800** |
+
+### Telnyx Carrier Destinations & Per-Minute Rates
+
+| Destination Country | ISO Code | Dialing Prefix | Per-Minute Rate (USD) |
+| :--- | :--- | :--- | :--- |
+| 🇺🇸 **United States** | `US` | `+1` | **$0.030** |
+| 🇨🇦 **Canada** | `CA` | `+1` | **$0.030** |
+| 🇮🇳 **India** | `IN` | `+91` | **$0.250** |
+
+---
+
+## How do you place an international call with Tavly?
+
+To **place an international call with Tavly**, initiate an outbound call using the Create Phone Call API or dashboard, specifying your destination in canonical international E.164 format with leading plus sign and country code. The recipient country must be included on the supported carrier destinations list.
+
+Follow these standard practices when initiating cross-border telephone calls:
+
+1. **Verify Country Support**: Ensure your destination appears in the carrier pricing tables above.
+2. **Format in Canonical E.164**: Pass phone numbers formatted according to ITU-T standards (`+{country_code}{subscriber_number}`):
+   * United Kingdom: `+442071838750`
+   * India: `+919876543210`
+   * Australia: `+61298765432`
+3. **Execute API Request**: Dispatch the call using the standard [outbound calls](/deploy/outbound-call) workflow:
+
+```json theme={"dark"}
+{
+  "from_number": "+14157774444",
+  "to_number": "+442071838750"
+}
+```
+
+<Note>
+  If using an **imported phone number** (via custom telephony or BYOC), international dialing permissions are governed entirely by your third-party telephony provider's geographic permissions.
+</Note>
+
+---
+
+## How do you purchase international phone numbers?
+
+To **purchase international phone numbers**, navigate to the Phone Numbers section in your Tavly console and search available inventory across supported foreign countries. Alternatively, teams can port or import existing numbers from external telephony providers using elastic SIP trunking or direct SIP URI interconnects.
+
+Teams expanding global presence can acquire local caller IDs through two primary paths:
+
+* **Direct Tavly Number Purchase**: Browse numbers in Canada, the United Kingdom, and international regions directly from the console inventory. Review the [purchase a number](/deploy/purchase-number) guide for regulatory verification requirements.
+* **Custom Telephony Interconnects (BYOC)**: If you already own local DIDs in specific countries, connect them via [custom telephony](/deploy/custom-telephony) using providers such as Twilio, Telnyx, Vonage, or enterprise SBCs.
+
+## Related Resources
+
+* [Make outbound calls](/deploy/outbound-call): Learn how to dispatch automated telephone calls programmatically.
+* [Purchase and manage numbers](/deploy/purchase-number): Acquire local, toll-free, and international numbers.
+* [Custom telephony overview](/deploy/custom-telephony): Configure BYOC trunks and connect external carriers.
+* [Concurrency scaling](/deploy/concurrency): Scale simultaneous outbound channels for global campaigns.

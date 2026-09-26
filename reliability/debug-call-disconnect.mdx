@@ -1,0 +1,112 @@
+---
+title: 'Debug Call Disconnection: Disconnection Reasons & Telephony Errors'
+sidebarTitle: 'Debug Call Disconnection'
+description: 'Diagnose why a Tavly call disconnected: look up disconnection_reason codes in Call History or the Get Call API, and apply proven telephony and system fixes.'
+seo:
+  title: 'Debug Call Disconnection | Disconnection Reasons & Fixes | Tavly AI'
+  description: 'Diagnose why a Tavly call disconnected: look up disconnection_reason codes in Call History or the Get Call API, and apply proven telephony and system fixes.'
+og:title: 'Debug Call Disconnection: Disconnection Reasons & Telephony Errors'
+og:description: 'Diagnose why a Tavly call disconnected: look up disconnection_reason codes in Call History or the Get Call API, and apply proven telephony and system fixes.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/disconnection.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-off'
+keywords: ['debug call disconnect', 'disconnection_reason', 'call status', 'SIP disconnect error', 'concurrency limit', 'custom LLM websocket error', 'dial failed', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the disconnection_reason field in Tavly AI?'
+    answer: 'The disconnection_reason is a telemetry attribute returned in the Call History dashboard and Get Call API that reveals exactly why a call stopped, categorizing events into ended, not_connected, or error.'
+  - question: 'Why does an outbound call show dial_failed or marked_as_spam?'
+    answer: 'Telecommunications carriers block numbers that place high-volume short calls without cryptographic STIR/SHAKEN verification, marking them as spam and causing dialing attempts to fail immediately.'
+  - question: 'How do you fix custom LLM WebSocket errors like error_llm_websocket_lost_connection?'
+    answer: 'Ensure your server returns expected ping_pong echo heartbeats, disable aggressive proxy idle timeouts, and verify that payloads transmit valid UTF-8 JSON text rather than binary data frames.'
+  - question: 'What happens when a call reaches the concurrency limit?'
+    answer: 'The call terminates with concurrency_limit_reached (error status) for outbound calls, or routes to a configured fallback telephone number with no_concurrency_fallback for inbound calls.'
+---
+
+## What is the disconnection reason in Tavly AI?
+
+The **`disconnection_reason`** is a standardized telemetry property assigned to every completed or failed voice session in Tavly AI. Captured in the **Call History dashboard** and returned via the **Get Call API**, it identifies whether a call concluded normally, failed during outbound dialing, encountered concurrency constraints, or suffered runtime errors.
+
+Every call recorded by Tavly maps to one of three overarching `call_status` states:
+* **`ended`**: The call connected successfully and concluded through expected conversational logic, user action, agent handoff, or silence timeouts.
+* **`not_connected`**: The outbound dialing attempt failed before connecting to the recipient due to network, carrier, or recipient unavailability.
+* **`error`**: The session aborted prematurely due to platform limits, payment delinquencies, custom LLM WebSocket drops, or audio transport failures.
+
+## Where do you locate disconnection reason codes?
+
+You can locate the `disconnection_reason` directly in the Tavly dashboard under **Call History** by inspecting the metadata panel of any session. Alternatively, query the **Get Call API** (`GET /v2/get-call/{call_id}`) to inspect the exact `disconnection_reason` and `call_status` fields programmatically for automated monitoring and alerting.
+
+Inspect the call record in [Call History](/features/session-history) or query the [Get Call API](/api-references/get-call) to examine session diagnostics:
+
+<Frame caption="Call detail page in the Tavly Dashboard showing the disconnection reason and call status.">
+  <img height="700" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/disconnection.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=fac6e762718e757f698acb8ec2ffdd43" alt="Call detail page in the Tavly Dashboard showing the disconnection reason for a call." data-path="reliability/images/disconnection.png" />
+</Frame>
+
+For deeper technical investigation of specific telephony or SIP-level events:
+* **Outbound Connection Failures (`not_connected`)**: For dialing errors, carrier spam flags, and SIP response codes, see [Debug outbound connection issues](/reliability/debug-outbound-call).
+* **SIP Signaling & Media Inspection**: For packet-level RTP jitter, audio gaps, and codec negotiation, inspect the call's PCAP file using our [Debug SIP calls with PCAP files guide](/reliability/debug-calls-pcap).
+
+<Note>When a phone number dials numerous short calls within a brief window, telecommunication carriers frequently flag it as spam. The number is subsequently blocked, causing subsequent calls to fail with `dial_failed` or `marked_as_spam`.</Note>
+
+## What are the expected call termination reasons?
+
+Expected terminations represent routine conversational completions where calls finish with an **`ended`** status. These include deliberate user or agent hang-ups (**`user_hangup`**, **`agent_hangup`**), transfers (**`call_transfer`**, **`transfer_bridged`**), human takeovers (**`call_take_over`**), automated voicemail or IVR screening (**`voicemail_reached`**, **`ivr_reached`**), long silence timeouts (**`inactivity`**), or boundary limits (**`max_duration_reached`**).
+
+| Disconnection Reason | Call Status | Description & Operational Context | Recommended Action |
+| :--- | :--- | :--- | :--- |
+| `user_hangup` | `ended` | **Expected behavior**: The end user hung up the call. | Normal completion. No action required. |
+| `agent_hangup` | `ended` | **Expected behavior**: The AI agent concluded the interaction and ended the call according to prompt logic or tool triggers. | Normal completion. Ensure agent completed all prompt objectives before ending. |
+| `call_transfer` | `ended` | **Expected behavior**: The AI agent successfully executed a call transfer to another phone number or SIP URI. | Normal completion. See [Call Transfer Setup](/build/setup/single-multi-prompt/transfer-call). |
+| `transfer_bridged` | `ended` | **Expected behavior**: On the transfer agent's call of an [agentic warm transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node), the transfer agent confirmed recipient availability and bridged the original caller to the transfer target. | Expected transfer flow. Telephony leg bridged successfully. |
+| `transfer_cancelled` | `ended` | On the transfer agent's call of an [agentic warm transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node), the caller was **not connected**. The transfer agent cancelled the transfer, or it timed out without a decision (e.g., target did not answer or went to voicemail). | Verify target agent availability or adjust warm transfer screening timeout. |
+| `call_take_over` | `ended` | **Expected behavior**: A human operator took over the live call from the AI agent, which permanently stopped the AI agent instance for that session. | Normal call-center handoff. |
+| `voicemail_reached` | `ended` | **Expected behavior**: The agent detected an automated voicemail greeting and hung up as configured in [voicemail settings](/build/telephony/handle-voicemail). | Normal automated screening. |
+| `ivr_reached` | `ended` | **Expected behavior**: The agent encountered an automated phone tree and executed an immediate hang-up according to [IVR hangup settings](/build/telephony/handle-voicemail#ivr-hangup). | Expected screening. Adjust settings if you wish the agent to navigate IVR menus using DTMF instead. |
+| `inactivity` | `ended` | **Expected behavior**: The call was terminated because prolonged silence exceeded the configured `end_call_after_silence_ms` threshold. | Tune silence detection thresholds in basic agent settings if callers require extended thinking pauses. |
+| `max_duration_reached` | `ended` | **Expected behavior**: The call reached the configured [maximum call duration](/deploy/concurrency#max-call-duration) safety boundary. | Increase max call duration limits in concurrency settings if complex calls require longer sessions. |
+| `no_concurrency_fallback` | `ended` | An inbound call could not secure an active concurrency slot and was automatically routed to your configured fallback phone number. | Increase account concurrency limits or deploy queuing fallbacks. |
+
+## Why do outbound calls fail with a not_connected status?
+
+Outbound calls fail with a **`not_connected`** status when telecom carriers or recipient devices reject the initial connection. Primary causes include line busy states (**`dial_busy`**), unassigned numbers (**`invalid_destination`**), carrier spam filtering (**`marked_as_spam`**, **`network_blocked`**), failed SIP trunk authentication (**`telephony_provider_permission_denied`**), or downstream carrier network loops (**`sip_routing_error`**).
+
+| Disconnection Reason | Call Status | Root Cause & Failure Mechanism | Recommended Remediation |
+| :--- | :--- | :--- | :--- |
+| `dial_busy` | `not_connected` | The dialed recipient line returned a busy signal (`486 Busy Here`). | Queue the contact for an automated retry after an appropriate backoff interval. |
+| `dial_failed` | `not_connected` | Dialing failed with an unknown or unspecified SIP error code. Frequently triggered by carrier spam blocks following high-frequency short calls. | Verify destination number validity, check carrier SIP logs, and ensure caller ID is allowlisted. |
+| `dial_no_answer` | `not_connected` | The dialed number rang until the carrier ringing timeout expired without the recipient answering. | Schedule callback attempts during alternate business hours. |
+| `invalid_destination` | `not_connected` | The dialed destination is malformed. Commonly caused by spaces, special characters, or missing standard E.164 country code formatting (`+1...`). | Sanitize phone number inputs and enforce strict E.164 validation before triggering outbound dials. |
+| `telephony_provider_permission_denied` | `not_connected` | The SIP trunk credentials failed authentication with your telecommunications carrier. | Check SIP trunk username, password, IP allowlist, and authentication headers. |
+| `telephony_provider_unavailable` | `not_connected` | The upstream telephony carrier or trunk gateway is temporarily offline or unreachable. | Check telecommunication carrier status; route traffic through backup SIP trunks. |
+| `sip_routing_error` | `not_connected` | Outbound SIP signaling exceeded maximum hop limits (`483 Too Many Hops`) or encountered a routing loop. | Audit PBX and SBC routing tables to eliminate cyclical forwarding rules. |
+| `marked_as_spam` | `not_connected` | The outbound caller ID number has been flagged as spam by telecommunication carrier databases. | Register a verified [Business Profile and Branded Caller ID](/build/telephony/call_efficiency_overview) to restore carrier trust. |
+| `network_blocked` | `not_connected` | The recipient carrier network's automated fraud or spam filter blocked the incoming call attempt. | Implement STIR/SHAKEN A-level attestation and register numbers with analytics registries. |
+| `user_declined` | `not_connected` | The recipient actively rejected or dismissed the incoming call on their device. | Log user declination and prevent aggressive immediate re-dials. |
+
+## How do you resolve runtime and infrastructure errors?
+
+Runtime failures assign an **`error`** status and require targeted infrastructure remediations. Resolve concurrency limits (**`concurrency_limit_reached`**) with exponential backoff retries, verify billing status (**`no_valid_payment`**), fix custom LLM WebSocket drops (**`error_llm_websocket_open`**, **`error_llm_websocket_lost_connection`**), or investigate audio pipeline stalls (**`error_no_audio_received`**, **`error_asr`**) using SIP PCAP diagnostics.
+
+| Disconnection Reason | Call Status | Failure Mechanism | Resolution Steps |
+| :--- | :--- | :--- | :--- |
+| `concurrency_limit_reached` | `error` | Outbound call could not be placed because account [concurrency limits](/deploy/concurrency) are fully saturated. | Implement exponential backoff retry queues or upgrade to an enterprise concurrency tier. |
+| `no_valid_payment` | `error` | No active credit card or billing payment method is registered on file, or service was suspended due to overdue invoices. | Update billing details in account settings to re-enable telephony and AI inference services. |
+| `scam_detected` | `error` | Platform safety algorithms detected high-risk scam or abusive conversational patterns for that agent instance. | Audit agent prompts and use cases against Tavly acceptable use policies; contact support. |
+| `error_llm_websocket_open` | `error` | The WebSocket handshake between Tavly servers and your custom LLM backend failed to open. | Verify that your Custom LLM URL is publicly reachable, uses `wss://`, and is online. See [custom LLM connection troubleshooting](/integrate-llm/troubleshooting#connection-failures). |
+| `error_llm_websocket_lost_connection` | `error` | The custom LLM WebSocket disconnected mid-call, typically due to a missing `ping_pong` echo or reverse-proxy idle timeout. | Implement bidirectional ping-pong heartbeats and increase proxy timeouts. See [WebSocket drop troubleshooting](/integrate-llm/troubleshooting#the-call-drops-after-a-few-seconds). |
+| `error_llm_websocket_runtime` | `error` | The custom LLM server sent an unexpected closing signal other than clean closure code `1000`. | Inspect your backend application logs for unhandled exceptions or memory crashes. |
+| `error_llm_websocket_corrupt_payload` | `error` | The LLM WebSocket received an invalid payload, such as a binary frame instead of UTF-8 JSON text. | Ensure all messages streamed from your custom LLM server are formatted as valid JSON strings. |
+| `error_no_audio_received` | `error` | No audio packets were received from Twilio, the SIP carrier, or the web frontend after the call connection was established. | Check carrier RTP media stream paths and verify client microphone permissions. |
+| `error_asr` | `error` | Tavly automated speech recognition (ASR) service encountered a transient processing error. | Retry the session. Check [Status Page](https://status.retellai.com/) for ongoing provider incidents. |
+| `error_tavly` | `error` | An unspecified internal error occurred within the Tavly platform. | Retry the call. If persistent across multiple calls, contact support with example call IDs. |
+| `error_unknown` | `error` | An unclassified session failure occurred. | Inspect the call's detailed logs and PCAP stream to diagnose anomalous SIP signaling. |
+| `error_user_not_joined` | `error` | The client user did not join the browser Web Call within 30 seconds after invoking `startWebCall`. | Ensure your frontend initializes WebRTC audio immediately upon generating the access token. |
+| `registered_call_timeout` | `error` | The inbound phone call was initiated 5 minutes or more after the initial call registration was created. | Dispatch phone calls immediately after obtaining registration tokens to prevent expiration. |
+
+## Related Resources
+
+* [Understand Reasons for Outbound Call Failure](/reliability/debug-outbound-call): Deep dive into SIP response codes and carrier blocks.
+* [Debug SIP Calls using PCAP Files](/reliability/debug-calls-pcap): Analyze Wireshark packet captures for media and signaling issues.
+* [Custom LLM Troubleshooting](/integrate-llm/troubleshooting): Resolve WebSocket handshakes, idle timeouts, and payload formatting.
+* [Call Efficiency & Spam Prevention](/build/telephony/call_efficiency_overview): Register verified numbers and branded caller ID to eliminate spam flags.

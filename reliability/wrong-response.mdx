@@ -1,0 +1,98 @@
+---
+title: 'Debug Wrong Response: Fix AI Agent Hallucinations & Logic Errors'
+sidebarTitle: 'Debug Wrong Response'
+description: 'Debug and fix incorrect agent responses in Tavly AI: upgrade LLM model capability, simplify complex prompt logic, provide finetune examples, and audit tools.'
+seo:
+  title: 'Debug Wrong Response | Fix Agent Logic & Prompt Errors | Tavly AI'
+  description: 'Debug and fix incorrect agent responses in Tavly AI: upgrade LLM model capability, simplify complex prompt logic, provide finetune examples, and audit tools.'
+og:title: 'Debug Wrong Response: Fix AI Agent Hallucinations & Logic Errors'
+og:description: 'Debug and fix incorrect agent responses in Tavly AI: upgrade LLM model capability, simplify complex prompt logic, provide finetune examples, and audit tools.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/llm_selector.png'
+twitter:card: 'summary_large_image'
+icon: 'bug'
+keywords: ['debug wrong response', 'fix agent hallucinations', 'LLM model capability', 'prompt engineering', 'finetune examples', 'agent instruction adherence', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is my voice agent failing to follow complex prompt instructions?'
+    answer: 'Agents typically fail complex instructions when deployed on lightweight models with limited reasoning capacity, or when single prompts attempt to manage too many competing conversational goals simultaneously.'
+  - question: 'How does upgrading from a mini model to GPT-4.1 improve accuracy?'
+    answer: 'Higher-tier models like GPT-4.1 feature substantially greater parameter capacity and reasoning depth, enabling strict adherence to multi-step logic, edge-case constraints, and dynamic parameter extractions.'
+  - question: 'What is the best way to restructure a prompt that produces incorrect replies?'
+    answer: 'Deconstruct monolithic instructions into sequential phases, clearly delineate transition triggers, and provide explicit few-shot conversational examples demonstrating exact expected responses.'
+  - question: 'How do finetune examples prevent erratic agent behavior?'
+    answer: 'Finetune examples provide concrete user-agent dialogue pairs directly to the model, reinforcing intended phrasing, tone, and state transitions without inflating main prompt complexity.'
+---
+
+## Why is your Tavly AI agent producing incorrect responses?
+
+Tavly AI agents produce incorrect responses when **lightweight LLMs lack sufficient reasoning depth**, **system prompts become overly complex**, or **few-shot conversational examples are missing**. Systematic debugging isolates whether errors stem from underlying model limitations, ambiguous prompt instructions, unhandled edge cases, or misconfigured tool and function call parameters.
+
+When an agent deviates from its intended persona, fails to invoke tools, or hallucinates inaccurate statements, work methodically through the primary diagnostic areas below:
+
+| Diagnostic Area | Failure Symptom | Recommended Action | Expected Impact |
+| :--- | :--- | :--- | :--- |
+| **Model Capability** | Agent ignores negative constraints or misinterprets multi-condition prompts | Upgrade from lightweight models (e.g., `4.1-mini`) to flagship models (e.g., `gpt-4.1`) | Significantly improves reasoning depth, instruction adherence, and edge-case handling |
+| **Prompt Architecture** | Conflicting answers, skipped questions, or conversational loops | Break monolithic prompts into sequential steps with explicit transition conditions | Enforces linear conversational progress and eliminates instruction competition |
+| **Few-Shot Guidance** | Agent phrases answers awkwardly or misidentifies intent in edge cases | Add **Fine-Tuning Examples** to ground expected input-output mappings | Teaches concrete response styles and state transitions by example |
+| **Tool & Function Schema** | Agent triggers wrong tools or outputs invalid argument payloads | Clarify function descriptions and constrain argument schemas strictly | Eliminates hallucinated parameters and ensures reliable backend execution |
+
+## How do you upgrade model capability to fix response errors?
+
+If your agent fails to follow complex instructions or hallucinates across lengthy multi-turn conversations, verify your selected model architecture. Lightweight models like **GPT-4.1-mini** prioritize speed over reasoning; switching to high-capability models such as **GPT-4.1** provides the contextual comprehension required to execute intricate, rule-heavy dialogue workflows accurately.
+
+<Steps>
+  <Step title="Check Model Capability">
+    If your agent isn't following instructions correctly, especially with longer or complex prompts:
+
+    1. **Check your current model**: Verify whether your agent is assigned to a lightweight or cost-optimized model (such as `4.1-mini`).
+    2. **Upgrade to a flagship model**: Switch to a more capable, reasoning-dense model such as `gpt-4.1` in your agent settings.
+
+    <Frame caption="Select high-capability models in the Tavly agent configuration dashboard.">
+      <img height="700" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/llm_selector.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=b9062afe00f089f0339f5cc4c1fd8ccd" alt="LLM selector interface in agent settings" data-path="reliability/images/llm_selector.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review Prompt Structure">
+    If instruction compliance issues persist even after upgrading model capability:
+
+    1. **Audit prompt complexity**: Determine whether your prompt attempts to handle too many simultaneous conversational goals within a single text block.
+    2. **Apply prompt engineering principles**: Follow foundational principles from the [prompt engineering guide](https://www.promptingguide.ai/) and our [voice prompt engineering guide](/build/response/prompt-engineering-guide).
+    3. **Decompose into sequential steps**: Break down complex conversational tasks into clear, chronological phases.
+    4. **Enforce transition conditions**: Define explicit rules for when the agent should advance from one dialogue stage to the next.
+  </Step>
+</Steps>
+
+## How do you restructure complex prompts for higher accuracy?
+
+To resolve persistent instruction-following errors, refactor monolithic prompts into **sequential, discrete conversational steps** with **explicit transition conditions**. Incorporate standardized [prompt engineering](https://www.promptingguide.ai/) techniques, prune redundant instructions, and enforce unambiguous behavioral constraints so the language model evaluates only one clear operational objective at a time.
+
+When prompts grow beyond manageable complexity, adhere to these structural best practices:
+
+* **Single Responsibility per Step**: Rather than commanding an agent to *"collect customer name, email, billing address, and issue description,"* partition data collection into sequential questions.
+* **Explicit Guardrails**: Frame instructions with explicit boundaries (e.g., *"Never confirm a booking without first receiving a validated confirmation number from the lookup tool"*).
+* **Separate Knowledge from Instructions**: Offload lengthy product catalogs, policy documents, and company FAQs into a dedicated [Knowledge Base](/build/knowledge-base) rather than overloading the primary prompt buffer.
+* **Transition Logic**: For multi-turn workflows, specify exact triggers for step progression (e.g., *"Once the user confirms their account number, transition to Step 2: Verification"*).
+
+## How do fine-tuning examples and tool audits resolve edge cases?
+
+When prompt adjustments alone cannot enforce compliance, inject **fine-tuning examples** to provide few-shot demonstration pairs directly anchoring intended phrasing and behavior. Additionally, review **custom function and tool call definitions**, ensuring parameters, JSON schemas, and error responses provide unambiguous guidance for the language model to parse.
+
+### 1. Add Few-Shot Fine-Tuning Examples
+Few-shot examples provide the model with concrete demonstrations of realistic caller inputs paired with exact expected agent responses:
+* **Teach Tone and Syntax**: Reinforce natural conversational phrasing without inflating system prompt instructions.
+* **Clarify Ambiguous Phrasing**: Supply examples showing how the agent should interpret uncommon regional slang, ambiguous affirmations, or multi-part questions.
+* **Guide State Transitions**: In conversation flows, use [Fine-Tune Examples](/build/setup/conversation-flow/advanced/finetune-examples) to demonstrate exact mapping between transcripts and node transitions.
+
+### 2. Review and Audit Function Calls
+If incorrect responses involve erroneous or hallucinated tool invocations:
+* **Validate Function Descriptions**: Ensure the description in your [Custom Function](/build/setup/single-multi-prompt/custom-function) explicitly clarifies *when* and *why* the tool must be invoked.
+* **Restrict Parameter Types**: Define strict JSON schemas with clear property descriptions and required fields.
+* **Mock and Test in Playground**: Use the [LLM Playground Debugger](/test/llm-playground-debug) to simulate tool responses and verify parameter payloads before pushing changes to live calls.
+
+## Related Resources
+
+* [LLM Playground Debugger](/test/llm-playground-debug): Replay conversation turns and test prompt revisions.
+* [Prompt Engineering Guide](/build/response/prompt-engineering-guide): Best practices for designing voice-first prompts.
+* [Fine-Tune Examples Guide](/build/setup/conversation-flow/advanced/finetune-examples): Train nodes on specific conversation edge cases.
+* [Function Calling Setup](/build/setup/single-multi-prompt/function-calling): Configure reliable tool invocations and schema validations.

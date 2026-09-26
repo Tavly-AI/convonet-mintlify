@@ -1,59 +1,190 @@
 ---
-title: 'Build a Tavly AI Agent: Overview'
+title: "Build a Tavly AI Agent: Architecture & Configuration Overview"
+sidebarTitle: "Overview"
+description: "Explore the complete Tavly AI agent architecture: choose agent types, configure speech recognition, shape LLM reasoning, customize voice, and set guardrails."
+seo:
+  title: "Tavly AI Voice Agent Architecture & Setup Overview"
+  description: "Comprehensive guide to Tavly AI agent configuration: agent types, speech recognition (ASR), response generation, custom voices, telephony, and guardrails."
+og:title: "Tavly AI Voice Agent Architecture & Setup Overview"
+og:description: "Comprehensive guide to Tavly AI agent configuration: agent types, speech recognition (ASR), response generation, custom voices, telephony, and guardrails."
+og:image: "https://mintcdn.com/retellai/wM4UcKxv3px1bKim/images/create-agent-dropdown.png?fit=max&auto=format&n=wM4UcKxv3px1bKim&q=85&s=06dddc89a70e150d4771e364d2ad9534"
+twitter:card: "summary_large_image"
+keywords:
+  - "voice agent architecture"
+  - "tavly ai agent setup"
+  - "conversation flow agent"
+  - "speech recognition asr"
+  - "text to speech synthesis"
+  - "telephony guardrails"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "What is the difference between a Voice Agent and a Chat Agent in Tavly?"
+    answer: "Voice Agents are built for real-time telephone and WebRTC calls with low-latency acoustic streaming and turn-taking, whereas Chat Agents handle text-based interactions across SMS, web widgets, and direct API endpoints."
+  - question: "When should I choose a Conversation Flow Agent over a Single Prompt Agent?"
+    answer: "Choose Conversation Flow for multi-step, deterministic, or compliance-critical workflows requiring strict graph branching. Choose Single Prompt for rapid prototyping, open-ended dialogues, or straightforward task execution."
+  - question: "How does Tavly maintain speech recognition accuracy in noisy environments?"
+    answer: "Tavly routes audio to specialized ASR engines tailored to the agent's target language, dynamic transcription modes, and machine-learning background noise filters that eliminate ambient sounds."
+  - question: "How does Tavly prevent agent hallucinations and protect against jailbreaks?"
+    answer: "Tavly grounds LLM responses using structured knowledge bases and dynamic variables, combined with automated guardrails that detect off-topic queries and jailbreak attempts in real time."
 ---
 
 > A map of everything that goes into a Tavly agent: agent type, speech understanding, response generation, voice, telephony edge cases, context, and guardrails.
 
-An agent's behavior comes down to a handful of layers: how it interprets what the caller says, how it decides on a reply, how that reply sounds out loud, and how it handles moments that aren't a normal back-and-forth — voicemail, transfers, keypad input, and similar cases. This page walks through each layer so you know where to configure it. Begin with [selecting an agent type](#pick-an-agent-type) — that choice determines which of the remaining settings actually apply to you.
+An agent's behavior comes down to a handful of layers: how it interprets what the caller says, how it decides on a reply, how that reply sounds out loud, and how it handles moments that aren't a normal back-and-forth like voicemail, transfers, keypad input, and similar cases. This page walks through each layer so you know where to configure it. Begin with selecting an agent type and this choice determines which of the remaining settings actually apply to your deployment.
 
 <Frame caption="Agent creation begins from the Agents page in your dashboard.">
   <img src="https://mintcdn.com/retellai/wM4UcKxv3px1bKim/images/create-agent-dropdown.png?fit=max&auto=format&n=wM4UcKxv3px1bKim&q=85&s=06dddc89a70e150d4771e364d2ad9534" alt="Create an Agent dropdown with Voice Agent and Chat Agent options" width="1303" height="733" data-path="images/create-agent-dropdown.png" />
 </Frame>
 
-## Pick an agent type
+## What core functional layers define a Tavly AI voice agent?
 
-An agent is built as either a **voice agent**, which handles live phone calls, or a [**chat agent**](/build/create-chat-agent), which is text-only and reachable through the API, an embeddable widget, or SMS. If you're building a voice agent, you'll then choose between two approaches:
+Tavly AI voice agents operate across six core modular layers: speech understanding (ASR), response generation (LLM prompts and workflows), voice synthesis (TTS), telephony integration, dynamic contextual knowledge, and safety guardrails. Each layer functions independently, allowing developers to customize acoustic models, reasoning logic, dynamic variables, and conversational guardrails for reliable production deployments.
+
+Understanding how these architectural layers interact allows development teams to build, optimize, and scale automated conversational voice pipelines:
+
+| Agent Architecture Layer | Core Functional Responsibility | Primary Configuration Options |
+| :--- | :--- | :--- |
+| **Agent Modality & Architecture** | Determines conversational structure (voice telephony vs. text chat) | Conversation Flow, Single Prompt, Legacy Multi-Prompt, Chat |
+| **Speech Understanding (ASR)** | Converts caller acoustic audio into real-time text tokens | Provider selection, language models, transcription mode, noise filters |
+| **Response Generation (LLM)** | Reasons, selects tools, and crafts conversational dialogue replies | Agent Handbook, Conversational Mode, prompts, LLM parameters |
+| **Speech Synthesis (TTS)** | Converts generated text responses into ultra-low-latency audio | Platform voices, custom voice clones, expressiveness, pauses |
+| **Telephony & Edge Cases** | Manages PSTN/SIP signaling, media stream routing, and IVRs | Voicemail/AMD detection, DTMF touch-tones, custom SIP headers |
+| **Context & Safety Guardrails** | Injects proprietary data and enforces compliance boundaries | Vector knowledge bases, runtime dynamic variables, safety guardrails |
+
+---
+
+## How do you choose between Voice Agent and Chat Agent architectures?
+
+Tavly supports two foundational agent types: Voice Agents for real-time telephone or WebRTC conversations with acoustic turn-taking, and Chat Agents for text messaging across SMS, web widgets, and APIs. Voice agents branch into deterministic Conversation Flow state machines or rapid Single Prompt configurations tailored to specific conversational complexity.
+
+An agent is built as either a **voice agent**, which handles live phone calls over PSTN or WebRTC, or a [**chat agent**](/build/create-chat-agent), which is text-only and reachable through the API, an embeddable website widget, or SMS. If you are building a voice agent, you will choose between two primary design approaches:
 
 <CardGroup cols={2}>
-  <Card title="Conversation Flow Agent" icon="diagram-project" href="/build/conversation-flow/overview">
+  <Card title="Conversation Flow Agent" icon="brain-cog" href="/build/setup/conversation-flow/conversation-flow-overview">
     Design your call as a series of connected nodes with explicit transition logic. Suited to multi-step or high-stakes calls where behavior needs to stay predictable.
   </Card>
 
-  <Card title="Single Prompt Agent" icon="file-lines" href="/build/single-multi-prompt/prompt-overview">
+  <Card title="Single Prompt Agent" icon="sparkles" href="/build/setup/single-multi-prompt/prompt-overview">
     Describe the entire agent in a single prompt. Quickest path to a working agent, and well suited to simple, linear conversations paired with a small number of functions.
   </Card>
 </CardGroup>
 
 <Note>
-  A **Multi-Prompt Agent** option also appears in the dashboard as a legacy path. It remains supported for agents already built this way, but new structured agents should be built on a conversation flow instead. If you're maintaining an existing multi-prompt agent, refer to the [single/multi-prompt overview](/build/single-multi-prompt/prompt-overview).
+  A **Multi-Prompt Agent** option also appears in the dashboard as a legacy path. It remains supported for agents already built this way, but new structured agents should be built on a conversation flow instead. If you're maintaining an existing multi-prompt agent, refer to the [single/multi-prompt overview](/build/setup/single-multi-prompt/prompt-overview).
 </Note>
 
-## Interpret what the caller says
+---
 
-Tavly automatically selects a speech recognition [provider](/build/asr-providers) based on the [languages](/build/language-support) your agent is set up for. From there, you can adjust [transcription behavior](/build/transcription-mode) while a call is in progress, and set up [background noise filtering](/build/handle-background-noise) so ambient sound isn't mistaken for speech.
+## How does Tavly interpret and transcribe caller speech?
 
-## Shape how the LLM responds
+Tavly automatically selects high-performance speech recognition ASR providers based on your configured languages. Developers can adjust dynamic transcription modes during live calls to balance latency against punctuation accuracy, while applying background noise filtering algorithms to suppress ambient acoustic interference and avoid mistaking background sounds for user speech.
 
-Beyond your core prompt, you can layer on [Agent Handbook](/build/agent-handbook) presets covering personality, accuracy, and safety, switch on [Conversational Mode](/build/conversational-mode) for more natural-sounding replies, and use the [prompt engineering guide](/build/prompt-engineering-guide) to handle structure and edge cases. [LLM options](/build/llm-options) expose model-level controls — temperature, fast-tier selection, and structured output among them.
+Speech recognition forms the sensory foundation of the voice agent runtime:
 
-## Choose and tune the voice
+- **Automated Engine Selection**: Tavly automatically provisions the optimal speech recognition [ASR provider](/build/understanding/asr-providers) based on the specific [languages](/build/language-support) configured for your agent.
+- **Dynamic Transcription Tuning**: Fine-tune [transcription behavior](/build/understanding/transcription-mode) during active calls to prioritize real-time turnaround speed or rich grammatical punctuation.
+- **Acoustic Noise Suppression**: Enable intelligent [background noise filtering](/build/understanding/handle-background-noise) to eliminate keyboard clicks, barking dogs, and ambient chatter so background noise is never misinterpreted as customer speech.
 
-Select from [built-in platform voices](/build/platform-voices) or bring a [custom voice](/build/voice), including a cloned one. From there you can adjust delivery: [expressiveness](/build/expressive-mode), [inserted pauses](/build/add-pause), [silent waiting when the caller needs a moment](/build/no-response), and a [backup TTS provider](/build/tts-fallback) to fall back on if the primary provider fails.
+---
 
-## Handle non-standard call moments
+## How do you shape conversational response generation and LLM behavior?
 
-Set up detection and handling for [voicemail boxes and IVR menus](/build/handle-voicemail), capture [DTMF touch-tone input](/build/user-dtmf) from callers, and pass data to other systems using [custom SIP headers](/build/telephony/sip-headers).
+Shape conversational reasoning by layering Agent Handbook policy presets over core prompts, configuring latency tiers and temperature in LLM options, and enabling Conversational Mode for natural vocal pacing. Follow prompt engineering guidelines to enforce strict turn-taking structure, dialogue flow boundaries, and speech-first output formats during calls.
 
-## Ground the agent in your data
+Once speech is converted to text, Tavly orchestrates response generation through flexible language models:
 
-Connect a [knowledge base](/build/knowledge-base) built from URLs, documents, or raw text so the agent can pull accurate information instead of depending solely on the prompt. Use [dynamic variables](/build/dynamic-variables) to feed in per-call details — a caller's name or account ID, for example.
+- **Agent Handbook Presets**: Layer comprehensive [Agent Handbook](/build/response/agent-handbook) configurations to govern agent persona, factual precision, and safety policies without cluttering your core instructions.
+- **Conversational Mode**: Activate [Conversational Mode](/build/response/conversational-mode) to encourage shorter, conversational phrasing, conversational fillers, and human-like backchanneling.
+- **Prompt Engineering**: Follow the [prompt engineering guide](/build/response/prompt-engineering-guide) to structure multi-turn conversational trees, define function calls, and handle conversational edge cases.
+- **Granular LLM Controls**: Configure [LLM options](/build/response/llm-options) to fine-tune model temperature, select ultra-low-latency fast-tier reasoning models, and enforce structured JSON output.
 
-## Add safety guardrails
+---
 
-Enabling [guardrails](/build/guardrails) lets the agent automatically detect off-limits topics in its own responses as well as jailbreak attempts coming from the caller, swapping in a safe response rather than hanging up or transferring the call.
+## How do you choose and tune synthetic speech voices?
 
-## Test, then go live
+Select from an extensive catalog of platform voices or integrate custom cloned voices. Fine-tune acoustic delivery by adjusting speech expressiveness, inserting natural breathing pauses, configuring patient silence waiting periods for hesitant callers, and assigning secondary TTS fallback providers to guarantee continuous voice synthesis during provider outages.
 
-Before launch, validate the agent's behavior using the [LLM Playground or simulation testing](/test/test-overview) tools. Once you're satisfied, [buy a phone number](/deploy/purchase-number) or [bring your own via SIP connection](/deploy/custom-telephony) to start taking calls.
+Vocal synthesis dictates how your agent connects emotionally with human callers:
 
-Prefer managing agents through code? The [TypeScript SDK guide for agent creation](/get-started/create-agent-with-sdk) walks through building the response engine and agent, testing a draft version, and publishing it live.
+- **Diverse Voice Libraries**: Select from curated [built-in platform voices](/build/speech/platform-voices) or integrate your own [custom voice](/build/speech/voice), including proprietary zero-shot cloned voices.
+- **Expressiveness Tuning**: Adjust [expressiveness levels](/build/speech/expressive-mode) to match the operational context, from cheerful customer onboarding to calm emergency dispatch.
+- **Speech Cadence & Pauses**: Inject natural timing using [inserted pauses](/build/speech/add-pause) for emphasis or number reading.
+- **Patient Silence Wait**: Configure [silent waiting periods](/build/speech/no-response) so the agent remains attentive when a caller pauses to find information without interrupting them prematurely.
+- **High-Availability TTS Fallback**: Designate an automated [backup TTS provider](/build/speech/tts-fallback) to ensure voice synthesis seamlessly switches over if an upstream voice vendor experiences degraded performance.
+
+---
+
+## How do you handle telephony edge cases like voicemails, transfers, and IVR menus?
+
+Handle non-standard telephony events using automated answering machine detection (AMD) to navigate voicemail boxes, capturing DTMF touch-tone inputs from IVR phone menus, and passing enterprise session metadata via custom SIP headers. These controls ensure voice agents handle cold transfers, queue waits, and external telephony signaling reliably.
+
+Production telephony environments present edge cases that standard chatbots never face:
+
+- **Voicemail & IVR Detection**: Implement automated answering machine detection (AMD) to recognize [voicemail greeting tones and automated IVR phone menus](/build/telephony/handle-voicemail), allowing the agent to leave a targeted message or terminate the call gracefully.
+- **Dual-Tone Keypad Input**: Capture [DTMF touch-tone input](/build/telephony/user-dtmf) directly from callers entering sensitive credit card details, extension numbers, or PINs.
+- **Custom SIP Headers**: Pass session identifiers, CRM account tokens, and routing metadata between Tavly and your existing telecom carriers using [custom SIP headers](/build/telephony/sip-headers).
+
+---
+
+## How do you ground agents in dynamic data and enforce safety guardrails?
+
+Ground voice agents in verifiable domain knowledge by connecting document, URL, or text-based knowledge bases, and pass personalized caller attributes at runtime using dynamic variables. Enforce automated safety guardrails to intercept jailbreak attempts, filter off-limits conversational topics, and substitute compliant fallback responses without dropping calls.
+
+Ensure voice agents remain accurate, contextual, and compliant:
+
+<Steps>
+  <Step title="Connect Searchable Knowledge Bases">
+    Link a managed [knowledge base](/build/context/knowledge-base) compiled from live website URLs, customer documentation PDFs, or raw text articles so the agent references factual answers rather than hallucinating.
+  </Step>
+
+  <Step title="Inject Per-Call Dynamic Variables">
+    Feed real-time session parameters — such as a caller's first name, outstanding invoice balance, or CRM account ID — into your agent using [dynamic variables](/build/context/dynamic-variables).
+  </Step>
+
+  <Step title="Enforce Content Safety Guardrails">
+    Enable automated [safety guardrails](/build/guardrails) to intercept unauthorized topics, adversarial prompt injections, and jailbreaks, seamlessly redirecting the dialogue to safe responses without terminating the call abruptly.
+  </Step>
+</Steps>
+
+---
+
+## Frequently asked questions about building Tavly AI agents
+
+Building Tavly AI agents combines low-latency speech pipelines, adaptable LLM intelligence, enterprise telephony routing, and contextual data grounding into autonomous conversational systems. Whether designing structured Conversation Flow state graphs or rapid Single Prompt agents, developers configure modular speech, reasoning, and safety layers to deploy reliable voice automation.
+
+<AccordionGroup>
+  <Accordion title="What is the difference between a Voice Agent and a Chat Agent in Tavly?">
+    **Voice Agents** are designed specifically for synchronous voice interactions over telephone networks (PSTN) and WebRTC. They include acoustic turn-taking, speech-to-text (ASR), and text-to-speech (TTS) pipelines. **Chat Agents** handle asynchronous or synchronous text messaging across SMS, embeddable web chat widgets, and direct API calls without audio processing overhead.
+  </Accordion>
+
+  <Accordion title="When should I choose a Conversation Flow Agent over a Single Prompt Agent?">
+    Choose a **Conversation Flow Agent** when your business logic requires deterministic step-by-step branching, strict validation rules, or complex multi-turn workflows (such as healthcare intake, reservation scheduling, or identity verification). Choose a **Single Prompt Agent** when your conversational workflow is straightforward, conversational, and can be driven effectively with standard function calling.
+  </Accordion>
+
+  <Accordion title="How does Tavly maintain speech recognition accuracy in noisy environments?">
+    Tavly pairs specialized ASR engines selected dynamically for your configured language with advanced background noise suppression algorithms. This ensures that environmental noise, such as office chatter, road sounds, or background music, is filtered out before audio reaches the language model.
+  </Accordion>
+
+  <Accordion title="How does Tavly prevent agent hallucinations and protect against jailbreaks?">
+    Tavly combines dynamic data grounding via vector **Knowledge Bases** with real-time **Guardrails**. Knowledge bases supply the LLM with verified facts to prevent hallucinations, while automated guardrail filters monitor incoming caller inputs and agent outputs for prompt injections and off-limits subjects.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## How do you test your agent and deploy to production?
+
+Validate conversational logic before launch using the [LLM Playground and simulation testing](/test/test-overview) tools. Once your agent performs reliably, [purchase a dedicated phone number](/deploy/purchase-number) directly in the Tavly dashboard or [connect your existing telephony carrier via SIP trunking](/deploy/custom-telephony) to begin handling live calls.
+
+Prefer deploying and managing agents programmatically? Explore our [agent creation API endpoint](/api-reference/endpoint/create) and follow the [10-minute agent quickstart guide](/get-started/build-agent-in-10) to configure your response engine, test draft configurations, and publish voice agents directly to production.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart: Build an Agent in 10 Minutes" icon="bolt" href="/get-started/build-agent-in-10">
+    Step-by-step walkthrough to assemble, prompt, and test your first voice agent.
+  </Card>
+
+  <Card title="Create Agent API Reference" icon="code" href="/api-reference/endpoint/create">
+    Detailed REST API documentation for creating, updating, and deploying agents via code.
+  </Card>
+</CardGroup>

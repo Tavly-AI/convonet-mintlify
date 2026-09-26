@@ -1,0 +1,521 @@
+---
+title: "Set Up a Custom LLM WebSocket Server"
+sidebarTitle: "Setup WebSocket Server"
+description: "Construct a custom LLM WebSocket server for Tavly AI voice agents: configure keepalives, stream begin messages, and reply to response_required speech events."
+seo:
+  title: "Set Up a Custom LLM WebSocket Server for Tavly Voice Agents"
+  description: "Construct a custom LLM WebSocket server for Tavly AI voice agents: configure keepalives, stream begin messages, and reply to response_required speech events."
+og:title: "Set Up a Custom LLM WebSocket Server for Tavly Voice Agents"
+og:description: "Construct a custom LLM WebSocket server for Tavly AI voice agents: configure keepalives, stream begin messages, and reply to response_required speech events."
+og:image: "https://mintcdn.com/retellai/P818NZjsPPgF1yY8/images/custom-llm-url-field.png?fit=max&auto=format&n=P818NZjsPPgF1yY8&q=85&s=10310100a0ff1ae6880eb8f18fff83c3"
+twitter:card: "summary_large_image"
+icon: "server"
+keywords:
+  - "custom LLM WebSocket server"
+  - "Tavly voice agent WebSocket"
+  - "response_required event"
+  - "auto_reconnect ping_pong"
+  - "voice agent WebSocket protocol"
+  - "FastAPI voice WebSocket"
+  - "Express WebSocket LLM"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How many times does Tavly retry if my custom LLM server is unreachable?"
+    answer: "On initial connection, Tavly makes up to 3 attempts with a 7-second timeout each and 3 seconds between retries. Mid-call, it attempts up to 2 reconnects for keepalive loss and 4 for abnormal socket closures (code 1006)."
+  - question: "Can I host the WebSocket server on serverless platforms like AWS Lambda or Vercel Edge?"
+    answer: "No. Serverless and edge platforms cannot maintain open WebSocket connections for the duration of a telephone call; deploy on persistent containers, VMs, or persistent application servers."
+  - question: "Why did the voice agent remain silent after receiving user speech?"
+    answer: "This occurs if your server fails to respond with the exact matching response_id requested by Tavly, or if the final response payload omits content_complete: true."
+  - question: "Can I test the custom LLM server without placing a telephone call?"
+    answer: "Yes, you can test connectivity locally using testing tools like Postman or websocat by transmitting a mock JSON payload matching the response_required event schema."
+---
+
+# Set up a custom LLM WebSocket server for your Tavly agent
+
+> Build the LLM WebSocket server that a Tavly custom LLM agent connects to: handle config and begin messages, respond to response_required events.
+
+By completing this guide, you will deploy a functional WebSocket server that accepts incoming call connections from Tavly, greets the caller with a customizable opening phrase, and replies to user speech with structured confirmation responses. This verifies that your transport layer and event handling function reliably before you introduce live model inference in the [connecting your LLM guide](/integrate-llm/integrate-llm).
+
+The code implementations below utilize **Node.js (Express with `express-ws`)** and **Python (FastAPI)**. Any backend runtime capable of maintaining full-duplex WebSocket connections is fully compatible.
+
+---
+
+## What infrastructure prerequisites are required before deploying a WebSocket server?
+
+Deploying an LLM WebSocket server requires a **persistent runtime** (such as Docker containers or cloud virtual machines) capable of maintaining long-lived TCP connections, as serverless edge runtimes drop sockets prematurely. Production deployments must enforce **TLS encryption** (`wss://`) and restrict access by allowlisting Tavly's outbound IP (`100.20.5.228`) or validating URL security tokens.
+
+Before starting development, verify your environment fulfills these structural prerequisites:
+
+* **Persistent process host**: Serverless functions (such as AWS Lambda, Vercel Edge Functions, or Cloudflare Workers) cannot maintain persistent stateful WebSockets over the duration of a multi-minute phone conversation. Deploy your server to containerized or VM environments (e.g., AWS ECS/EC2, GCP Cloud Run, DigitalOcean, or Render).
+* **Production TLS encryption**: Tavly requires secure WebSockets (`wss://` or `https://`) in production environments. Plain unencrypted sockets (`ws://` and `http://`) are supported exclusively for local development tunneling.
+* **Network security & authentication**: Tavly does not transmit custom HTTP authentication headers during the WebSocket handshake. Protect your public endpoint by allowlisting Tavly's outbound static IP address (`100.20.5.228`), or append a cryptographic secret directly to your URL path or query string (e.g., `wss://api.yourdomain.com/llm-websocket?token=secret_key`).
+
+### Project setup and dependency installation
+
+Initialize your project and install the necessary dependencies for WebSocket handling, server routing, and subsequent LLM integration:
+
+<CodeGroup>
+  ```bash Node.js theme={"dark"}
+  npm install express express-ws ws openai
+  npm install -D typescript tsx @types/express @types/express-ws @types/ws @types/node
+  ```
+
+  ```bash Python theme={"dark"}
+  pip install "fastapi[standard]" openai
+  ```
+</CodeGroup>
+
+---
+
+## How do you implement the WebSocket endpoint and capture the call identifier?
+
+To implement the endpoint, configure a WebSocket listener that extracts the **`call_id`** appended as the final URL path segment (e.g., `/llm-websocket/:call_id`). This unique identifier correlates streaming socket connections with specific telephone sessions. Ensure your handler strictly processes stringified text JSON frames and closes invalid binary frames with code `1007`.
+
+When Tavly connects to your configured `llm_websocket_url`, it automatically appends the unique call identifier as the terminal path segment. For example, if your configured URL is `wss://api.yourdomain.com/llm-websocket`, Tavly establishes a connection targeting `wss://api.yourdomain.com/llm-websocket/{call_id}`.
+
+<Steps>
+  <Step title="Implement the WebSocket server entrypoint">
+    Configure the base server file to listen for incoming connections and handle socket lifecycles:
+
+    <CodeGroup>
+      ```typescript server.ts theme={"dark"}
+      import express, { Request } from "express";
+      import expressWs from "express-ws";
+      import { RawData, WebSocket } from "ws";
+
+      const app = expressWs(express()).app;
+      const PORT = 3000;
+
+      app.ws("/llm-websocket/:call_id", (ws: WebSocket, req: Request) => {
+        const callId = req.params.call_id;
+        console.log("Tavly LLM WebSocket opened for call_id:", callId);
+
+        ws.on("error", (err) => console.error("WebSocket error on call:", callId, err));
+        ws.on("close", () => console.log("WebSocket connection closed for call:", callId));
+
+        ws.on("message", (data: RawData, isBinary: boolean) => {
+          if (isBinary) {
+            // Tavly strictly utilizes UTF-8 text JSON frames; reject binary payloads
+            ws.close(1007, "Expected a text frame.");
+            return;
+          }
+          console.log("Inbound payload:", JSON.parse(data.toString()));
+        });
+      });
+
+      app.listen(PORT, () => console.log(`WebSocket server listening on port ${PORT}`));
+      ```
+
+      ```python server.py theme={"dark"}
+      import json
+      from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+      app = FastAPI()
+
+      @app.websocket("/llm-websocket/{call_id}")
+      async def llm_websocket(websocket: WebSocket, call_id: str):
+          await websocket.accept()
+          print(f"Tavly LLM WebSocket opened for call_id: {call_id}")
+
+          try:
+              while True:
+                  raw_text = await websocket.receive_text()
+                  payload = json.loads(raw_text)
+                  print("Inbound payload:", payload)
+          except WebSocketDisconnect:
+              print(f"WebSocket connection closed for call_id: {call_id}")
+      ```
+    </CodeGroup>
+
+    Launch the local server using `npx tsx server.ts` or `uvicorn server:app --port 3000`.
+  </Step>
+</Steps>
+
+---
+
+## How do you transmit initial configuration and the opening agent greeting?
+
+Upon socket connection, the server speaks first by emitting a **`config`** event followed by a **`response`** event. The configuration payload activates keepalive heartbeats (`auto_reconnect: true`) and requests call metadata (`call_details: true`), while the initial response payload with `response_id: 0` delivers the agent's opening spoken greeting.
+
+Tavly's protocol expects your server to initiate communication as soon as the handshake succeeds:
+
+1. **`config` event**: Enables optional transport features. Setting `auto_reconnect: true` engages the keepalive ping-pong loop, while `call_details: true` instructs Tavly to deliver caller metadata immediately without manual API lookups.
+2. **`response` event with `response_id: 0`**: Represents the **begin message** vocalized by the agent when the call connects. Setting `content` to an empty string instructs the agent to remain silent until the caller speaks first.
+
+<CodeGroup>
+  ```typescript Node.js theme={"dark"}
+  const BEGIN_MESSAGE = "How may I help you today?";
+
+  // 1. Emit optional session configuration
+  ws.send(
+    JSON.stringify({
+      response_type: "config",
+      config: {
+        auto_reconnect: true,
+        call_details: true,
+      },
+    }),
+  );
+
+  // 2. Transmit the initial spoken greeting (response_id: 0)
+  ws.send(
+    JSON.stringify({
+      response_type: "response",
+      response_id: 0,
+      content: BEGIN_MESSAGE,
+      content_complete: true,
+    }),
+  );
+  ```
+
+  ```python Python theme={"dark"}
+  BEGIN_MESSAGE = "How may I help you today?"
+
+  # 1. Emit optional session configuration
+  await websocket.send_json(
+      {
+          "response_type": "config",
+          "config": {
+              "auto_reconnect": True,
+              "call_details": True,
+          },
+      }
+  )
+
+  # 2. Transmit the initial spoken greeting (response_id: 0)
+  await websocket.send_json(
+      {
+          "response_type": "response",
+          "response_id": 0,
+          "content": BEGIN_MESSAGE,
+          "content_complete": True,
+      }
+  )
+  ```
+</CodeGroup>
+
+<Warning>
+  Enabling `auto_reconnect: true` requires your server to echo inbound `ping_pong` events. If Tavly does not receive a heartbeat echo within 5 seconds, it terminates the connection and attempts reconnection. After two failed reconnect attempts, Tavly ends the call with `error_llm_websocket_lost_connection`.
+</Warning>
+
+---
+
+## How do you handle and respond to inbound Tavly interaction events?
+
+Your server must reply to **`response_required`** and **`reminder_required`** events using the identical `response_id` provided, appending **`content_complete: true`** on the final chunk to trigger voice vocalization. When `auto_reconnect` is active, echo timestamped **`ping_pong`** keepalive messages immediately while passively ingesting informational `call_details` and `update_only` transcript events.
+
+Tavly routes conversational turns and diagnostic telemetry through five distinct `interaction_type` frames:
+
+<CodeGroup>
+  ```typescript Node.js theme={"dark"}
+  ws.on("message", (data: RawData, isBinary: boolean) => {
+    if (isBinary) {
+      ws.close(1007, "Expected a text frame.");
+      return;
+    }
+    const request = JSON.parse(data.toString());
+
+    switch (request.interaction_type) {
+      case "ping_pong":
+        // Echo timestamp immediately to confirm socket liveness
+        ws.send(
+          JSON.stringify({
+            response_type: "ping_pong",
+            timestamp: request.timestamp,
+          }),
+        );
+        break;
+
+      case "response_required":
+      case "reminder_required":
+        // Reply with matching response_id and content_complete: true
+        ws.send(
+          JSON.stringify({
+            response_type: "response",
+            response_id: request.response_id,
+            content: "I am sorry, could you please repeat that?",
+            content_complete: true,
+          }),
+        );
+        break;
+
+      case "call_details":
+        console.log("Received call details metadata:", request.call);
+        break;
+
+      case "update_only":
+        // Informational: live transcript and turn-taking state updates
+        break;
+    }
+  });
+  ```
+
+  ```python Python theme={"dark"}
+  while True:
+      raw_text = await websocket.receive_text()
+      request = json.loads(raw_text)
+      interaction_type = request["interaction_type"]
+
+      if interaction_type == "ping_pong":
+          await websocket.send_json(
+              {
+                  "response_type": "ping_pong",
+                  "timestamp": request["timestamp"],
+              }
+          )
+
+      elif interaction_type in ("response_required", "reminder_required"):
+          await websocket.send_json(
+              {
+                  "response_type": "response",
+                  "response_id": request["response_id"],
+                  "content": "I am sorry, could you please repeat that?",
+                  "content_complete": True,
+              }
+          )
+
+      elif interaction_type == "call_details":
+          print("Received call details metadata:", request["call"])
+
+      # update_only carries live transcript stream; no response required
+  ```
+</CodeGroup>
+
+<Note>
+  Always ensure `content_complete: true` is sent on the final response frame. Tavly pauses turn-taking timeouts while waiting for completion; if this flag is omitted, the agent will freeze in silence until the caller speaks again.
+</Note>
+
+---
+
+## How do you expose local development servers and configure agent endpoints?
+
+Expose local development servers to the public internet using secure tunneling utilities like **ngrok** (`ngrok http 3000`), or deploy directly to production domains with valid SSL certificates. Copy your public endpoint URL into the **Custom LLM URL** field within your agent dashboard settings, optionally attaching dynamic query parameters for tenant routing.
+
+Tavly's cloud gateways reject connections targeting `localhost`, `127.0.0.1`, private IP subnets, and cloud instance metadata addresses.
+
+### Exposing your server and updating dashboard settings
+
+1. **For local development**: Run ngrok against your local port:
+   ```bash
+   ngrok http 3000
+   ```
+   Copy the assigned secure forwarding address (e.g., `wss://xxxx.ngrok-free.app/llm-websocket`).
+2. **For deployed servers**: Use your production domain equipped with an active SSL certificate (e.g., `wss://api.yourdomain.com/llm-websocket`).
+3. **Configure the agent**: In your Tavly dashboard, open your voice agent's settings, locate the **Custom LLM URL** configuration field, and paste your endpoint.
+
+<Frame caption="Configure your custom endpoint URL within the Tavly agent settings panel.">
+  <img src="https://mintcdn.com/retellai/P818NZjsPPgF1yY8/images/custom-llm-url-field.png?fit=max&auto=format&n=P818NZjsPPgF1yY8&q=85&s=10310100a0ff1ae6880eb8f18fff83c3" alt="Agent details panel for a Custom LLM agent, with the Custom LLM URL field outlined in blue and holding the default placeholder https://replace-with-your-llm-url.com" width="1600" height="425" data-path="images/custom-llm-url-field.png" />
+</Frame>
+
+<Note>
+  The Custom LLM URL supports [dynamic variables](/build/context/dynamic-variables) in the query string (e.g., `wss://api.yourdomain.com/llm-websocket?tenant={{tenant_id}}`). This allows multi-tenant platforms to route calls dynamically.
+</Note>
+
+---
+
+## How do you test the custom LLM server using simulated web calls?
+
+Test your custom WebSocket server by navigating to the agent's **Test Audio** panel in the Tavly dashboard and clicking **Run Test**. The browser initiates a WebRTC audio call, allowing you to hear the initial greeting, verify live transcript streaming in server console logs, and validate real-time conversational responses.
+
+Because custom LLM agents generate responses independently of Tavly's prompt builder, the visual **Test LLM** tab is disabled. Follow these testing steps:
+
+1. In the Tavly dashboard, open the agent and navigate to the **Test Audio** console.
+2. Click **Run Test** to launch an in-browser audio call.
+3. Verify that the agent immediately vocalizes your configured `BEGIN_MESSAGE` (*"How may I help you today?"*).
+4. Speak a phrase into your microphone.
+5. Inspect your server console logs to verify the event progression:
+   * `call_details` arriving on socket opening with caller metadata.
+   * `update_only` events streaming your speech transcript as you speak.
+   * `response_required` asking for reply tokens once you finish speaking.
+   * Your server dispatching the confirmation response (*"I am sorry, could you please repeat that?"*).
+
+---
+
+## What message types and Pydantic schemas define the WebSocket protocol?
+
+The Tavly custom LLM protocol is structured around deterministic, typed JSON schemas. Save the following interface definitions as `types.ts` or `custom_types.py` alongside your server entrypoint to ensure end-to-end type safety, runtime request validation, and frictionless event handling across all downstream model integration modules.
+
+<CodeGroup>
+  ```typescript types.ts theme={"dark"}
+  export interface Utterance {
+    role: "agent" | "user";
+    content: string;
+  }
+
+  // Inbound messages (Tavly -> Your Server)
+  export interface PingPongRequest {
+    interaction_type: "ping_pong";
+    timestamp: number;
+  }
+
+  export interface CallDetailsRequest {
+    interaction_type: "call_details";
+    call: Record<string, any>;
+  }
+
+  export interface UpdateOnlyRequest {
+    interaction_type: "update_only";
+    transcript: Utterance[];
+    turntaking?: "agent_turn" | "user_turn";
+  }
+
+  export interface ResponseRequiredRequest {
+    interaction_type: "response_required" | "reminder_required";
+    transcript: Utterance[];
+    response_id: number;
+  }
+
+  export type CustomLlmRequest =
+    | PingPongRequest
+    | CallDetailsRequest
+    | UpdateOnlyRequest
+    | ResponseRequiredRequest;
+
+  // Outbound messages (Your Server -> Tavly)
+  export interface ConfigResponse {
+    response_type: "config";
+    config: {
+      auto_reconnect?: boolean;
+      call_details?: boolean;
+      transcript_with_tool_calls?: boolean;
+    };
+  }
+
+  export interface PingPongResponse {
+    response_type: "ping_pong";
+    timestamp: number;
+  }
+
+  export interface ResponseResponse {
+    response_type: "response";
+    response_id: number;
+    content: string;
+    content_complete: boolean;
+    no_interruption_allowed?: boolean;
+    end_call?: boolean;
+    transfer_number?: string;
+    show_transferee_as_caller?: boolean;
+    digit_to_press?: string;
+  }
+
+  export type CustomLlmResponse =
+    | ConfigResponse
+    | PingPongResponse
+    | ResponseResponse;
+  ```
+
+  ```python custom_types.py theme={"dark"}
+  from typing import Any, Dict, List, Literal, Optional, Union
+  from pydantic import BaseModel
+
+
+  class Utterance(BaseModel):
+      role: Literal["agent", "user"]
+      content: str
+
+
+  # Inbound messages (Tavly -> Your Server)
+  class PingPongRequest(BaseModel):
+      interaction_type: Literal["ping_pong"]
+      timestamp: int
+
+
+  class CallDetailsRequest(BaseModel):
+      interaction_type: Literal["call_details"]
+      call: Dict[str, Any]
+
+
+  class UpdateOnlyRequest(BaseModel):
+      interaction_type: Literal["update_only"]
+      transcript: List[Utterance]
+      turntaking: Optional[Literal["agent_turn", "user_turn"]] = None
+
+
+  class ResponseRequiredRequest(BaseModel):
+      interaction_type: Literal["response_required", "reminder_required"]
+      transcript: List[Utterance]
+      response_id: int
+
+
+  CustomLlmRequest = Union[
+      PingPongRequest, CallDetailsRequest, UpdateOnlyRequest, ResponseRequiredRequest
+  ]
+
+
+  # Outbound messages (Your Server -> Tavly)
+  class ConfigResponse(BaseModel):
+      response_type: Literal["config"] = "config"
+      config: Dict[str, bool]
+
+
+  class PingPongResponse(BaseModel):
+      response_type: Literal["ping_pong"] = "ping_pong"
+      timestamp: int
+
+
+  class ResponseResponse(BaseModel):
+      response_type: Literal["response"] = "response"
+      response_id: int
+      content: str
+      content_complete: bool
+      no_interruption_allowed: Optional[bool] = None
+      end_call: Optional[bool] = None
+      transfer_number: Optional[str] = None
+      show_transferee_as_caller: Optional[bool] = None
+      digit_to_press: Optional[str] = None
+
+
+  CustomLlmResponse = Union[ConfigResponse, PingPongResponse, ResponseResponse]
+  ```
+</CodeGroup>
+
+---
+
+## Frequently asked questions about custom LLM WebSocket servers
+
+A custom LLM WebSocket server maintains a continuous full-duplex bridge with Tavly voice agents, managing connection lifecycles, configuration parameters, and speech events. By handling initial greetings, echoing keepalives, and delivering formatted response payloads, your server orchestrates responsive, low-latency conversational phone calls on top of enterprise telephony infrastructure.
+
+<AccordionGroup>
+  <Accordion title="How many times does Tavly retry if my server is unreachable?">
+    On initial socket opening, Tavly makes up to 3 connection attempts with a 7-second timeout per attempt and 3 seconds between retries. If all fail, the call terminates with `error_llm_websocket_open`. Mid-call, Tavly attempts up to 2 reconnects for lost keepalives and up to 4 reconnects for abnormal socket disconnects (code `1006`).
+  </Accordion>
+
+  <Accordion title="Do I have to transmit a config event?">
+    No. Omitting `config` applies default platform behavior: keepalives disabled, `call_details` omitted, and tool-call transcripts disabled. Transmitting the begin message (`response_id: 0`) is sufficient to start the call.
+  </Accordion>
+
+  <Accordion title="Can I deploy this server on Vercel Edge, AWS Lambda, or Cloudflare Workers?">
+    No. Serverless edge runtimes cannot maintain open TCP WebSockets for the multi-minute duration of a telephone call. Deploy to persistent environments (such as container services, VMs, or dedicated application instances).
+  </Accordion>
+
+  <Accordion title="Why did the voice agent fail to speak my response?">
+    The most common cause is a mismatched `response_id` that does not equal the identifier requested in `response_required`, or omitting `content_complete: true` on the final chunk. Additionally, Tavly discards responses if the caller resumes speaking before vocalization begins.
+  </Accordion>
+
+  <Accordion title="Can I test my WebSocket server without placing a phone call?">
+    Yes. You can connect directly using command-line WebSocket clients like `websocat` or Postman. Transmit a mock JSON frame shaped as a `response_required` event and verify that your server responds with a properly formatted `response` event.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect Your LLM" icon="plug" href="/integrate-llm/integrate-llm">
+    Replace static test responses with real-time streaming language model completions.
+  </Card>
+
+  <Card title="Add Function Calling" icon="code-branch" href="/integrate-llm/integrate-function-calling">
+    Equip your custom LLM agent with tools to book appointments, transfer calls, and press IVR digits.
+  </Card>
+
+  <Card title="LLM Best Practices" icon="lightbulb" href="/integrate-llm/llm-best-practice">
+    Optimize time to first sentence, engineer speech-first prompts, and build for resilience.
+  </Card>
+
+  <Card title="Custom LLM Overview" icon="sitemap" href="/integrate-llm/overview">
+    Review the full-duplex protocol architecture, message schemas, and operational tradeoffs.
+  </Card>
+</CardGroup>

@@ -1,0 +1,130 @@
+---
+title: 'Exceptions to Per-Minute Pricing: Minimums & Prompt Scaling'
+sidebarTitle: 'Pricing Exceptions'
+description: 'Guide to Tavly AI per-minute pricing exceptions: 10-second dynamic message minimums and proportional duration scaling for prompt lengths over 4,000 tokens.'
+seo:
+  title: 'Tavly AI Pricing Exceptions | Minimums & Token Scaling Guide'
+  description: 'Guide to Tavly AI per-minute pricing exceptions: 10-second dynamic message minimums and proportional duration scaling for prompt lengths over 4,000 tokens.'
+og:title: 'Exceptions to Per-Minute Pricing: Minimums & Prompt Scaling'
+og:description: 'Guide to Tavly AI per-minute pricing exceptions: 10-second dynamic message minimums and proportional duration scaling for prompt lengths over 4,000 tokens.'
+og:image: 'https://mintcdn.com/retellai/ms8MgORHC4-nrOtU/images/long-token-prompt-surcharge.png'
+twitter:card: 'summary_large_image'
+icon: 'calculator'
+keywords: ['pricing exceptions', 'voice AI call billing', 'dynamic opening message minimum', 'LLM prompt token surcharge', '4000 token scaling', 'Tavly billing adjustments', 'voice agent duration scaling']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why does Tavly apply a 10-second minimum duration for dynamic opening messages?'
+    answer: 'When AI speaks first using dynamic LLM-generated opening messages, upfront model generation and audio synthesis occur regardless of call length. A 10-second minimum covers these upfront compute costs.'
+  - question: 'How is the billed duration calculated when an agent exceeds 4,000 prompt tokens?'
+    answer: 'Prompt token lengths over 4,000 scale duration proportionally: Scaling Factor = Tokens ÷ 4,000. The billed call duration equals Original Duration × Scaling Factor, rounded up to the nearest second.'
+  - question: 'What components are included in the 4,000 LLM prompt token calculation?'
+    answer: 'Token counts include the global prompt, function tool definitions, state/node prompts, conversation history transcript, tool invocation outputs, and retrieved knowledge base context.'
+  - question: 'Why does Flex mode frequently trigger the token scaling surcharge?'
+    answer: 'Flex mode compiles all workflow nodes, transitions, and tool definitions into a single global LLM context, which frequently expands the active token count beyond the 4,000-token threshold.'
+---
+
+## What are the exceptions to Tavly AI per-minute pricing?
+
+While Tavly AI generally bills calls based on **exact connected duration**, two exceptions apply: a **10-second minimum duration** for calls using dynamic AI-first opening messages, and **proportional duration scaling** for agents whose prompt context exceeds **4,000 LLM tokens**. These adjustments reflect underlying model compute and generation costs.
+
+Tavly measures calls in 1-second increments without imposing coarse rounding blocks (such as 30-second or 60-second minimum connection charges) on standard voice calls. However, because certain agent configurations demand heavy upfront inference or unusually large context windows, the following two billing adjustment rules ensure fair compute cost alignment.
+
+### Overview of Billing Adjustment Rules
+
+| Rule Identifier | Trigger Condition | Applied Billing Adjustment | Core Rationale |
+| :--- | :--- | :--- | :--- |
+| **Rule 1: Dynamic Opening Message** | Call duration is under **10 seconds** and the agent uses a dynamic, generated opening greeting. | Minimum billed duration of **10 seconds**. | Offsets upfront LLM token generation and TTS audio synthesis executed prior to callee pickup. |
+| **Rule 2: Context Token Scaling** | Total active LLM prompt length exceeds **4,000 tokens** during a conversation. | Call duration scales proportionally: `Duration × (Tokens ÷ 4,000)`. | Aligns billing with upstream token pricing incurred from large foundation language model windows. |
+
+***
+
+## How does the 10-second minimum duration apply to dynamic opening messages?
+
+Calls shorter than **10 seconds** that use **dynamic opening messages** (where the AI speaks first with generated text rather than static audio) incur a minimum charge of **10 seconds**. Calls lasting 10 seconds or longer are billed normally at actual connected duration without any surcharge.
+
+When configured with dynamic opening messages, Tavly's orchestrator invokes the LLM and the text-to-speech (TTS) engine immediately when the call connects to synthesize a personalized greeting.
+
+<Frame caption="Tavly dashboard setting showing Dynamic Message enabled under 'AI speaks first'.">
+  <img height="400" src="https://mintcdn.com/retellai/GMaKJfwUkPxVK61f/images/dynamic-message-ai.png?fit=max&auto=format&n=GMaKJfwUkPxVK61f&q=85&s=f727e0810dcad2cc79bf4706e21f8e46" alt="Dynamic Message - AI Speaks first" data-path="images/dynamic-message-ai.png" />
+</Frame>
+
+### Practical Example
+
+Consider an outbound call that reaches a recipient who abruptly hangs up after a few words:
+
+* **Actual Connected Duration**: 6 seconds
+* **Dynamic Opening Message Setting**: Enabled
+* **Applied Minimum Duration**: 10 seconds
+* **Total Billed Duration**: 10 seconds (an adjustment of 4 seconds)
+
+### Technical Rationale
+
+Dynamic opening messages require upfront model generation, prompt assembly, and audio synthesis before conversational back-and-forth begins. Because these fixed compute and API costs are expended regardless of whether the call lasts 2 seconds or 20 minutes, the 10-second minimum establishes an equitable floor covering initialization overhead.
+
+***
+
+## How does LLM price scaling work for prompts over 4,000 tokens?
+
+When an agent's active LLM prompt length exceeds **4,000 tokens**, call duration is scaled proportionally by the ratio of **prompt tokens to 4,000**. The effective billed duration equals **`Original Duration × (Prompt Tokens ÷ 4,000)`**, rounded up to the nearest second to cover foundation model token consumption.
+
+Underlying LLM model providers (e.g., OpenAI, Anthropic) charge per million input and output tokens. When agents operate with massive system instructions, broad function schemas, or deep retrieval contexts, per-minute operational costs scale proportionally.
+
+### Mathematical Scaling Formula
+
+$$
+\text{Scaling Factor} = \frac{\text{Prompt LLM Tokens}}{4{,}000}
+$$
+
+$$
+\text{Billed Duration} = \left\lceil \text{Original Duration} \times \text{Scaling Factor} \right\rceil
+$$
+
+### Scaling Multiplier Reference Table
+
+| Active Prompt Tokens | Scaling Factor Calculation | Applied Duration Multiplier | Billed Duration for 60s Call |
+| :--- | :--- | :--- | :--- |
+| **0 – 4,000** | $\le 1.00$ | **1.0x (Standard)** | 60 seconds |
+| **4,800** | $4{,}800 \div 4{,}000$ | **1.2x** | 72 seconds (+12s) |
+| **6,000** | $6{,}000 \div 4{,}000$ | **1.5x** | 90 seconds (+30s) |
+| **8,000** | $8{,}000 \div 4{,}000$ | **2.0x** | 120 seconds (+60s) |
+| **12,000** | $12{,}000 \div 4{,}000$ | **3.0x** | 180 seconds (+120s) |
+
+### Practical Calculation Example
+
+* **Connected Call Duration**: 60 seconds
+* **Prompt LLM Tokens Used**: 4,800 tokens
+* **Scaling Factor**: $4{,}800 \div 4{,}000 = 1.2$
+* **Billed Duration**: $60 \times 1.2 = 72\text{ seconds}$ (12 seconds additional charge)
+
+<Frame caption="Tavly dashboard notice displaying the long token length surcharge explanation.">
+  <img height="400" src="https://mintcdn.com/retellai/ms8MgORHC4-nrOtU/images/long-token-prompt-surcharge.png?fit=max&auto=format&n=ms8MgORHC4-nrOtU&q=85&s=7f2be4fac3661a21181a24c7239136e7" alt="Long token prompts pricing in dashboard" data-path="images/long-token-prompt-surcharge.png" />
+</Frame>
+
+***
+
+## What elements are included in the prompt token calculation?
+
+The 4,000-token threshold evaluates the **complete context window** passed to the language model per conversational turn. This includes **system instructions**, **tool schemas**, **active node prompts**, the **cumulative conversation transcript**, **tool execution results**, and any retrieved **knowledge base chunks**.
+
+To calculate whether your agent exceeds 4,000 tokens, Tavly sums all components included in each model inference call:
+
+| Context Component | Description & Optimization Guidance |
+| :--- | :--- |
+| **Global Prompt** | System-level personality, role-play rules, behavioral constraints, and instructions. |
+| **Tool / Function Schemas** | JSON schema parameters and descriptions for all external APIs exposed to the agent. |
+| **State / Node Prompts** | Specific conversational flow instructions associated with the active conversational state. |
+| **Conversation History** | Accumulating turn-by-turn dialogue transcript between the AI agent and the human caller. |
+| **Tool Call History & Outputs** | Raw API responses, database lookup results, and payload data returned from tool executions. |
+| **Retrieved Knowledge Base** | Relevant semantic chunks retrieved from attached [knowledge base](/build/context/knowledge-base) documents. |
+
+<Note>
+  **Flex Mode Considerations**: [Flex mode](/build/setup/conversation-flow/flex-mode) is a frequent trigger for token scaling. Flex mode compiles all node prompts, transitions, and tool descriptions into a single unified LLM context, which can push cumulative token counts significantly above 4,000 tokens.
+</Note>
+
+### Best Practices to Maintain Prompts Below 4,000 Tokens
+
+1. **Prune Tool Descriptions**: Keep tool schema JSON descriptions concise. Provide only essential argument documentation without verbose examples.
+2. **Chunk Knowledge Base Context**: Set smaller retrieval chunk limits (e.g., 200–300 tokens per chunk) so injected RAG data does not overwhelm the context.
+3. **Partition Complex Agents**: Decompose massive monolithic agents into multi-state or multi-agent workflows using distinct nodes, loading instructions only when relevant.
+4. **Summarize Long Conversations**: Use summarization triggers on prolonged multi-turn calls to compact conversation history into high-level facts.

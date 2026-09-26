@@ -117,7 +117,7 @@ When invoked, Tavly AI dispatches an HTTP request to your configured endpoint wi
   </Step>
 
   <Step title="Set request headers (optional)">
-    Define static or dynamic HTTP headers sent with the request. Dynamic values can reference [dynamic variables](/build/dynamic-variables), such as an authorization bearer token passed as `{{token}}`.
+    Define static or dynamic HTTP headers sent with the request. Dynamic values can reference [dynamic variables](/build/context/dynamic-variables), such as an authorization bearer token passed as `{{token}}`.
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" alt="Request headers configuration with an Authorization header set to a dynamic variable" width="830" height="132" data-path="images/custom-function/headers.png" />
@@ -125,7 +125,7 @@ When invoked, Tavly AI dispatches an HTTP request to your configured endpoint wi
   </Step>
 
   <Step title="Set query parameters (optional)">
-    Specify key-value query parameters appended to the endpoint URL. Parameter values are applied directly and can contain [dynamic variables](/build/dynamic-variables). 
+    Specify key-value query parameters appended to the endpoint URL. Parameter values are applied directly and can contain [dynamic variables](/build/context/dynamic-variables). 
     
     *Note: Query parameters are never populated autonomously by the LLM. For LLM-extracted values, define request body parameters.*
   </Step>
@@ -179,7 +179,7 @@ When invoked, Tavly AI dispatches an HTTP request to your configured endpoint wi
   </Step>
 
   <Step title="Set response variables (optional)">
-    Extract specific values from the returned JSON response and save them into [dynamic variables](/build/dynamic-variables) for subsequent use across the call.
+    Extract specific values from the returned JSON response and save them into [dynamic variables](/build/context/dynamic-variables) for subsequent use across the call.
 
     Reference response fields using standard **dot notation** and **array indexing** (for example, `user.name` or `data.items[0].id`). This extraction mechanism requires your server to return a valid JSON object.
 

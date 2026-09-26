@@ -1,0 +1,154 @@
+---
+title: 'View and Interpret AI QA Results: Dashboards and Call Sheets'
+sidebarTitle: 'View QA Results'
+description: 'Inspect Tavly AI QA evaluation results: analyze aggregate cohort trend charts, top caller questions, detailed call tables, and transcript-level diagnostics.'
+seo:
+  title: 'Analyze Voice AI QA Results & Transcript Diagnostics | Tavly AI'
+  description: 'Inspect Tavly AI QA evaluation results: analyze aggregate cohort trend charts, top caller questions, detailed call tables, and transcript-level diagnostics.'
+og:title: 'View and Interpret AI QA Results: Dashboards and Call Sheets'
+og:description: 'Inspect Tavly AI QA evaluation results: analyze aggregate cohort trend charts, top caller questions, detailed call tables, and transcript-level diagnostics.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/charts.png'
+twitter:card: 'summary_large_image'
+icon: 'chart-pie'
+keywords: ['view QA results', 'call QA dashboard', 'top user questions', 'detailed calls table', 'call QA sheet', 'calibrate QA score', 'transcript error detection']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between Call QA Overview and Detailed Calls?'
+    answer: 'Call QA Overview visualizes macro trends, composite scores, and top question resolution rates across an entire cohort. Detailed Calls provides a granular, sortable table of each evaluated conversation with individual diagnostic breakdowns.'
+  - question: 'How does the Top Questions view group caller inquiries?'
+    answer: 'Tavly uses semantic clustering to aggregate disparate phrasing into unified intent categories (such as grouping "What are your hours?" with "When do you open?"), reporting volume counts and resolution percentages per topic.'
+  - question: 'What does calibrating a call in the Call QA Sheet do?'
+    answer: 'Calibration allows human supervisors to manually override an algorithmic pass or fail evaluation on individual metrics and append audit notes. It updates the specific call score without altering global criteria.'
+  - question: 'How are transcription errors displayed in the Call QA Sheet?'
+    answer: 'The transcript reader highlights mistranscribed terms inline and displays the corrected word alongside phonetic confidence scores, making it easy to identify acoustic or pronunciation errors.'
+---
+
+## What is the AI QA results console and what views are available?
+
+The **Tavly AI QA results console** delivers comprehensive evaluation analytics across your call cohorts, organized into two dedicated views: **Call QA Overview** for macro trends and **Detailed Calls** for granular session auditing. Operators can track aggregate quality metrics, isolate low-resolution customer inquiries, and drill down into transcript-level error diagnostics and calibrations.
+
+### Navigational Architecture
+
+* **Call QA Overview Tab**: Macro-level executive dashboard showcasing aggregate score cards, historical longitudinal trend graphs, and semantic clustering of frequent caller questions.
+* **Detailed Calls Tab**: Operational table listing every analyzed conversation with sortable telemetry columns, date filters, and direct links to call-level diagnostic sheets.
+* **Call-Level QA Sheet**: Granular inspection drawer displaying pass/fail indicators across every evaluated metric, transcript-aligned error citations, and human calibration overrides.
+
+---
+
+## How do you analyze aggregate trends and top user questions in Call QA Overview?
+
+To **analyze aggregate trends and user questions**, open the Call QA Overview tab to inspect a summary grid of seventeen operational metrics, including resolution rates, hallucinations, and acoustic sentiment. Interactive trend charts display performance over time, while the Top Questions table aggregates semantically similar customer queries to highlight intent-level resolution bottlenecks.
+
+### 1. Summary Metrics Grid
+
+The top grid aggregates 17 telemetry metrics across all evaluated calls in the active cohort:
+
+| Metric Category | Telemetry Tracked | Operational Focus |
+| :--- | :--- | :--- |
+| **Cohort Scale** | **Calls Analyzed** | Total call count evaluated in the cohort. |
+| **Quality Index** | **Average Score** | Composite quality score based on your resolution criteria. |
+| **Success Efficiency** | **Call Resolution Rate** | Percentage of calls meeting success benchmarks. |
+| **Telephony Transfers** | **Transfer Success Rate** & **Wait Time** | Transfer completion percentage and mean user hold duration. |
+| **Latency Performance** | **Average Latency** | Mean round-trip turn response time across calls. |
+| **Factual Accuracy** | **LLM Hallucination Rate** & **KB Recall** | Frequency of fabricated claims and knowledge base retrieval efficiency. |
+| **Customer Sentiment** | **Negative Sentiment Rate** | Proportion of interactions exhibiting negative caller emotion. |
+| **Audio & Speech** | **WER (Word Error Rate)** & **Avg. Overlapping Speech** | Transcription accuracy and speech interruption frequency. |
+| **Tool Execution** | **Tool Call Accuracy** & **Custom Tool Latency / Success** | Correctness, response speed, and success of backend tool invocations. |
+| **Agent Tone & Flow** | **Natural Tonality**, **Positive Sentiment**, **Transition Accuracy** | Vocal naturalness, proactive agent sentiment, and state machine flow adherence. |
+
+### 2. Longitudinal Trend Charts
+
+Visual line and bar charts depict how individual metrics evolve across your specified evaluation window:
+
+<Frame caption="Trend charts show how each metric moves over time.">
+  <img src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/charts.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=150ace9eac22601499bc40d0b73668c2" alt="Trend charts for average score, resolution rate, and other performance metrics over a date range" width="2872" height="1558" data-path="ai-qa/images/charts.png" />
+</Frame>
+
+### 3. Top Questions From Users
+
+Tavly clusters semantically equivalent caller inquiries into unified conversational topics, displaying resolved-over-total volume counts and resolution percentages:
+
+<Frame caption="Top user questions ranked with their resolution rates.">
+  <img src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/top-questions.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=56635bf4509e8001e8f94db9fdd64bc0" alt="Top questions from users table listing questions with resolution rate and resolved-over-total counts" width="2878" height="600" data-path="ai-qa/images/top-questions.png" />
+</Frame>
+
+> **Optimization Insight**: Reviewing topics with the lowest resolution rates highlights exactly where knowledge bases lack documentation or where system prompts require clearer instructions.
+
+---
+
+## How do you inspect and filter individual call records in Detailed Calls?
+
+To **inspect and filter individual call records**, navigate to the Detailed Calls tab, which presents a sortable directory of every evaluated conversation. Users can filter records by date, score, or failure flags, sort by specific telemetry metrics like latency or hallucination rate, and use row actions to rerun evaluations.
+
+<Frame caption="The Detailed Calls table, one row per analyzed call.">
+  <img src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/details-tab.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=46e60b2f866bd3b6aeabd31ed5d3b1cd" alt="Detailed calls table with sortable columns for score, hallucination rate, KB recall, latency, and more" width="2870" height="1832" data-path="ai-qa/images/details-tab.png" />
+</Frame>
+
+### Table Dimensions & Interactions
+
+* **Sortable Attributes**: Click any column header to sort ascending or descending by Call ID, Evaluation Result, Start Time, Duration, Hallucination Rate, KB Recall, Transition Accuracy, User Sentiment, Latency P50, Overlapping Speech, WER, or Tool Accuracy.
+* **Multifaceted Filtering**: Click **Filter** to isolate interactions by date range, minimum score thresholds, or specific failure codes.
+* **Action Menu (⋯)**: Open the row action menu to trigger an immediate re-evaluation for that interaction or delete the call record from the QA cohort.
+
+---
+
+## How do you audit diagnostics, calibrate scores, and review transcript errors in Call QA Sheets?
+
+To **audit diagnostics and calibrate scores**, click any interaction to open its dedicated Call QA Sheet. The drawer displays pass-fail metric breakdowns, inline transcript error corrections, acoustic annotations, and human calibration controls that allow quality supervisors to override algorithmic scores and append custom audit notes.
+
+<Frame caption="A call QA sheet listing passed and failed metrics with notes.">
+  <img src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/call-qa.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=8c59e7720114e405de1e67a5d17b9e9d" alt="Call QA sheet showing overall score, passed metrics with green checkmarks, failed metrics with warning triangles, and notes" width="1014" height="1750" data-path="ai-qa/images/call-qa.png" />
+</Frame>
+
+### 1. Diagnostic Overview
+* **Composite Score**: Displays overall score alongside a clear Pass or Fail status.
+* **Passed Metrics**: Visual green checkmarks indicating compliance with configured thresholds.
+* **Failed Metrics**: Orange warning indicators pinpointing the exact criteria that triggered failure. For remediation procedures, see [Address Metric Issues](/monitor/ai-qa/address-metric-issues).
+
+### 2. Call Calibration Overrides
+Human auditors can override automated scoring when nuance or context requires human intervention:
+* **Pass Override**: Mark a failed metric as passed if contextual circumstances justified the agent response.
+* **Fail Override**: Mark a passed metric as failed if an ungrounded nuance was missed by automated heuristics.
+* **Audit Notes**: Append supervisory commentary to explain adjustments. Calibration modifies the specific call record score without changing evaluation criteria for future calls.
+
+### 3. Transcript Error Analysis
+
+The interactive transcript reader highlights word-level transcription errors inline alongside AI-suggested corrections:
+
+<Frame caption="Transcript errors shown inline with their corrections.">
+  <img src="https://mintcdn.com/retellai/4PGGkmtoXvaHaFi1/ai-qa/images/transcript-error.png?fit=max&auto=format&n=4PGGkmtoXvaHaFi1&q=85&s=9c209695c3b92c5ffbdb2096ec00e005" alt="Transcript view highlighting mistranscribed words alongside their corrected text" width="1982" height="550" data-path="ai-qa/images/transcript-error.png" />
+</Frame>
+
+<Warning>
+  **Systemic Pattern Warning**: Low scores or repetitive failure clusters typically indicate systemic root causes—such as incomplete knowledge bases, ambiguous system prompts, or excessive tool latencies. Always evaluate multiple failed calls to identify patterns before modifying agent configurations.
+</Warning>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between Call QA Overview and Detailed Calls?">
+    Call QA Overview provides macro-level executive visibility into aggregate scores, historical trend charts, and clustered caller inquiry resolution rates. Detailed Calls provides a sortable, granular directory of individual calls with full telemetry.
+  </Accordion>
+
+  <Accordion title="How does the Top Questions view group caller inquiries?">
+    Tavly applies semantic clustering algorithms to group diverse conversational phrasings into unified intent topics (e.g., combining "When do you close?" with "What are your business hours?"), detailing volume and resolution rates.
+  </Accordion>
+
+  <Accordion title="What does calibrating a call in the Call QA Sheet do?">
+    Calibration allows human supervisors to manually override automated pass/fail determinations on individual metrics and record supervisory audit notes. It updates that specific call score without modifying global cohort criteria.
+  </Accordion>
+
+  <Accordion title="How are transcription errors displayed in the Call QA Sheet?">
+    The transcript interface highlights mistranscribed words inline and presents corrected text directly adjacent to the dialogue turns, accelerating root cause analysis of acoustic misunderstandings.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Address metric issues](/monitor/ai-qa/address-metric-issues): Practical remediation guide for fixing hallucinations, latency, and tone issues.
+* [AI QA metrics & terminology](/monitor/ai-qa/terminologies): Complete formula definitions for all seventeen QA metrics.
+* [Define a QA cohort](/monitor/ai-qa/create-cohort): Step-by-step cohort scoping, agent filtering, and sampling configurations.
+* [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria): Configure thresholds and AI conditions that govern call pass/fail status.

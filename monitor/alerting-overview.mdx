@@ -1,0 +1,275 @@
+---
+title: 'Alert Rules for Call, Chat, and API Metrics'
+sidebarTitle: 'Alerting Overview'
+description: 'Create Tavly AI alert rules that notify teams via email or webhook when voice and chat volumes, success rates, costs, or API errors cross key thresholds.'
+seo:
+  title: 'Automated Telephony & Voice AI Alerting System | Tavly AI'
+  description: 'Create Tavly AI alert rules that notify teams via email or webhook when voice and chat volumes, success rates, costs, or API errors cross key thresholds.'
+og:title: 'Alert Rules for Call, Chat, and API Metrics'
+og:description: 'Create Tavly AI alert rules that notify teams via email or webhook when voice and chat volumes, success rates, costs, or API errors cross key thresholds.'
+og:image: 'https://mintcdn.com/retellai/GWDpUspWhecmEo9X/images/alerting/rules-list.png'
+twitter:card: 'summary_large_image'
+icon: 'bell'
+keywords: ['alert rules', 'voice AI alerting', 'call metrics threshold', 'telephony webhooks', 'chat success rate alert', 'concurrency alert', 'Tavly AI monitoring']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How frequently does Tavly evaluate configured alert rules?'
+    answer: 'The alerting engine checks for scheduled rules every minute, executing each individual rule according to its specified frequency (ranging from 1 minute up to 24 hours). Rules do not continuously execute every minute unless configured with a 1-minute frequency.'
+  - question: 'Will my team receive repetitive alert notifications during an ongoing outage?'
+    answer: 'No. Tavly sends exactly one notification when an incident initially triggers, and a follow-up resolution notification when metrics return within threshold bounds. Continuous duplicate notifications are suppressed while an incident remains open.'
+  - question: 'What happens to active alert rules when an underlying agent is deleted?'
+    answer: 'When opening a rule in the dashboard, Tavly automatically detects deleted agents, removes them from the filter, and displays a warning prompt. The rule continues evaluating remaining agents, and transient network errors will not drop agents.'
+  - question: 'Can an alert rule monitor both voice calls and digital chats simultaneously?'
+    answer: 'No. Operational metrics are strictly scoped to either voice calls or digital chat sessions based on the selected metric type. To supervise both voice and chat channels, configure separate alert rules for each medium.'
+---
+
+## What is Tavly Alerting and when should you use it?
+
+**Tavly Alert Rules** continuously monitor conversational voice and chat metrics, dispatching automated email or webhook alerts whenever telemetry crosses predetermined performance thresholds. The system evaluates aggregate interaction data on scheduled frequencies, enabling engineering and operations teams to intercept outages, volume anomalies, budget overages, and QA degradations without active manual supervision.
+
+<Frame caption="The Alerting page lists your saved rules on the Alerts tab.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/GWDpUspWhecmEo9X/images/alerting/rules-list.png?fit=max&auto=format&n=GWDpUspWhecmEo9X&q=85&s=62670e9d951df73617d1fb86d019acb2" alt="Alerting page in the Tavly dashboard showing the Alerts tab with three saved alert rules, each listing its metric and filters, and a Create Alert button in the top right corner." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="2508" height="1327" data-path="images/alerting/rules-list.png" />
+  </div>
+</Frame>
+
+### Primary Operational Use Cases
+
+* **Proactive Outage Detection**: Detect sudden dips in call success rate or surges in upstream LLM API errors before customers report issues.
+* **Volume Anomaly Tracking**: Identify abrupt surges or unexpected drops in incoming telephony traffic, or receive warnings when active sessions approach your maximum [concurrency limit](/deploy/concurrency).
+* **Cost & Budget Governance**: Track aggregated call and chat expenditure across lookback windows to prevent unexpected financial overages.
+* **Quality Assurance Enforcement**: Monitor negative sentiment trajectories or spikes in calls failing [AI QA cohort](/ai-qa/create-cohort) evaluation benchmarks.
+
+### Operational Boundaries
+
+Alerting operates on **aggregated multi-session telemetry** over fixed time horizons. It is not intended for single-interaction transaction triggers; for real-time per-call webhooks, configure post-call [event webhooks](/features/webhook-overview). To inspect historical performance trends interactively, use the [Analytics Dashboard](/features/analytics-dashboard).
+
+<Note>
+  Alerting is managed directly within the Tavly dashboard console and is not configurable via the public REST API.
+</Note>
+
+### Production Example
+
+A customer support engineering team configures an alert on **Call success rate**, setting the rule to trigger whenever the metric drops **below 90%** over a **1-hour window**, checked every **5 minutes**. When an outage occurs, an alert webhook instantly notifies their PagerDuty or on-call Slack channel within minutes.
+
+---
+
+## How do you create and configure an alert rule?
+
+To **create an alert rule**, open the Alerting tab in your Tavly dashboard and click Create Alert. Define a rule name, choose an operational metric across Call, Chat, API, or QA categories, configure absolute or relative thresholds, set evaluation frequencies and lookback windows, apply filtering criteria, and register notification endpoints.
+
+<Frame caption="The Create Alert dialog, configuring a rule on call volume.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/ksPrWbndKPAvsxM-/images/alerting/create-rule.png?fit=max&auto=format&n=ksPrWbndKPAvsxM-&q=85&s=114aeb20d61e9feebdf61cf2166fbe52" alt="Create Alert dialog with an alert name field, a Time Configuration row reading 'Check every 5 min for the last 30 min', a metric-condition toggle between 'Compare to certain value' and 'Compare to last cycle', a metric dropdown set to Number of Calls with a 'when sum is above 2' condition, a Filter section with an agent picker defaulting to All Agents, and Notify via fields for email addresses and webhook URLs, each webhook URL having a Test button, with Cancel and Save buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1610" height="1520" data-path="images/alerting/create-rule.png" />
+  </div>
+</Frame>
+
+<Steps>
+  <Step title="Define rule identification">
+    Enter a clear, descriptive name (e.g., `Production Voice Success Dip`). This identifier appears in all email subject headers and webhook JSON payloads.
+  </Step>
+
+  <Step title="Select metric and threshold condition">
+    Select an operational metric from the **API**, **Call**, **Chat**, or **QA** groups. Designate the threshold comparison method:
+    * **Compare to certain value**: Absolute numerical boundary (e.g., latency > 1,200 ms).
+    * **Compare to last cycle**: Relative percentage deviation compared to the previous time bucket.
+  </Step>
+
+  <Step title="Set evaluation window and check frequency">
+    Under **Time Configuration**, specify the lookback window (**for the last**) and execution schedule (**Check every**). Review supported pairs in the evaluation matrix below.
+  </Step>
+
+  <Step title="Configure scoping filters (optional)">
+    Restrict evaluations by agent ID, environment tag (`prod`, `staging`), telephony disconnection reasons, specific HTTP API status codes, QA cohorts, or post-call extraction variables.
+  </Step>
+
+  <Step title="Add delivery channels and test endpoints">
+    Add one or more verified email addresses or secure HTTPS webhook URLs. Use the **Test** button alongside webhook URLs to dispatch a sample JSON payload and verify server ingestion.
+  </Step>
+
+  <Step title="Save and activate rule">
+    Click **Save**. The rule immediately schedules its initial evaluation cycle based on your chosen frequency.
+  </Step>
+</Steps>
+
+---
+
+## What voice, chat, and API metrics can you monitor?
+
+Tavly monitors **fourteen core operational metrics** spanning voice telephony, digital chat, custom webhooks, QA cohorts, and REST API health. Voice metrics track call counts, concurrency, success rates, sentiment, latency, and transfer failures; chat metrics track volume, sentiment, and cost; while API metrics monitor HTTP error status codes.
+
+### Metric Reference Table
+
+| Metric Label | `metric_type` Payload Key | Measurement Description |
+| :--- | :--- | :--- |
+| **Number of calls** | `call_count` | Total count of telephone or web voice calls completed within the window. |
+| **Concurrency used** | `concurrency_used` | Peak simultaneous active call channels utilized during the evaluation period. |
+| **Call success rate** | `call_success_rate` | Percentage of calls marked successful based on evaluation criteria (0–100%). |
+| **Negative sentiment rate** | `negative_sentiment_rate` | Percentage of calls exhibiting negative customer sentiment (0–100%). |
+| **Custom function latency** | `custom_function_latency` | Average round-trip response duration of agent tool/webhook executions in milliseconds. |
+| **Custom function failures** | `custom_function_failure_count` | Total quantity of custom backend tool or webhook invocation failures. |
+| **Transfer call failures** | `transfer_call_failure_count` | Total count of failed telephony call transfers or SIP forwarding attempts. |
+| **QA not passed** | `qa_not_passed_count` | Number of evaluated calls in a designated QA cohort failing grading criteria. |
+| **Total call cost** | `total_call_cost` | Aggregate monetary spend across evaluated voice calls in USD. |
+| **API error count** | `api_error_count` | Total quantity of REST API requests returning HTTP error status codes. |
+| **Number of chats** | `chat_count` | Total count of completed [chat agent](/build/create-chat-agent) sessions within the window. |
+| **Chat success rate** | `chat_success_rate` | Percentage of digital chat sessions marked successful (0–100%). |
+| **Chat negative sentiment rate** | `chat_negative_sentiment_rate` | Percentage of digital chat sessions exhibiting negative user sentiment (0–100%). |
+| **Total chat cost** | `total_chat_cost` | Aggregate monetary expenditure across chat sessions in USD. |
+
+---
+
+## How do you configure thresholds, windows, and evaluation frequencies?
+
+To **configure evaluation windows, frequencies, and threshold types**, choose between fixed numerical limits or percentage changes compared to preceding cycles. Evaluation windows define the lookback aggregation period from one minute to seven days, paired with evaluation frequencies from one minute to twenty-four hours to balance incident detection speed against momentary noise.
+
+### Threshold Comparison Models
+
+1. **Compare to Certain Value (Absolute Threshold)**:
+   Compares aggregate metric values against a fixed threshold number.
+   * *Example*: Trigger an alert when `Number of calls` **is above** `150` within the past 1 hour.
+2. **Compare to Last Cycle (Relative Percentage Threshold)**:
+   Measures relative variance between the current lookback window and the immediate preceding window:
+   $$	ext{Percentage Change} = \left( rac{	ext{currentValue} - 	ext{previousValue}}{	ext{previousValue}} ight) 	imes 100$$
+   * *Example*: Trigger an alert when `API error count` **increases by more than** `50%` compared to the prior cycle.
+
+<Note>
+  If the previous evaluation period logged zero events and the current period logs activity, the percentage change evaluates to positive infinity (`+∞%`). Any relative rule configured with an increase operator will trigger.
+</Note>
+
+### Supported Window and Frequency Pairings
+
+The lookback aggregation window determines the time scope of the query, while the evaluation frequency governs how often Tavly executes the check:
+
+| Lookback Window | Permitted Evaluation Frequencies |
+| :--- | :--- |
+| **1 minute** | 1 minute |
+| **5 minutes** | 1 minute, 5 minutes |
+| **30 minutes** | 5 minutes, 30 minutes |
+| **1 hour** | 5 minutes, 30 minutes, 1 hour |
+| **12 hours** | 30 minutes, 1 hour, 12 hours |
+| **24 hours** | 1 hour, 12 hours, 24 hours |
+| **3 days** | 12 hours, 24 hours |
+| **7 days** | 24 hours |
+
+<Tip>
+  Select shorter check frequencies (e.g., 1–5 minutes) for mission-critical metrics like API errors or call failure rates, and longer windows (e.g., 12–24 hours) for billing budgets and QA trend analysis.
+</Tip>
+
+### Metric Scoping Filters
+
+Narrow telemetry streams by applying specific dimension filters:
+
+| Dimension Filter | Applicable Metrics | Functional Behavior |
+| :--- | :--- | :--- |
+| **Agents** | All metrics except Concurrency, API errors, and QA failures | Restrict aggregation to specific voice or chat agents and assigned versions. |
+| **Environment Tags** | Same as Agents filter | Filter by deployment stage (e.g., `prod`, `staging`) using [environment tags](/deploy/agents/version#environment-tags). |
+| **Disconnection Reason** | Number of calls | Isolate calls terminating due to specific triggers (e.g., `user_hangup`, `dial_no_answer`). |
+| **API Error Code** | API error count | Filter by HTTP response codes: `400`, `401`, `402`, `403`, `404`, `409`, `422`, `429`, `500`. |
+| **QA Cohort** | QA not passed | Mandatory cohort selector designating which [AI QA cohort](/ai-qa/create-cohort) to audit. |
+| **Post-Call Extraction** | Same as Agents filter | Target custom structured analysis fields (e.g., `appointment_booked = false`). |
+
+---
+
+## How do you manage notifications, webhook payloads, and incident history?
+
+To **manage notifications, webhook payloads, and incident history**, register email recipients and HTTPS webhook endpoints with automated HMAC signature verification. When conditions breach thresholds, Tavly opens a single incident, dispatches a payload, logs the event under Alert History, and sends resolution notifications once telemetry returns to normal.
+
+### Email Incident Notifications
+
+* **Trigger Email**: Sent immediately upon incident creation with subject `[Tavly Alert] <rule name>`. The email body includes workspace details, breached threshold values, exact timestamps, and deep links into session history.
+* **Resolution Email**: Dispatched automatically when telemetry normalizes, using subject `[Tavly Alert Resolved] <rule name>`.
+
+### Webhook JSON Payload Schema
+
+Tavly dispatches an HTTP `POST` request to configured endpoints with an `alert` object:
+
+```json webhook_payload.json theme={"dark"}
+{
+  "event": "alert_triggered",
+  "alert": {
+    "alert_incident_id": "alert_incident_0b1c2d3e4f5g6h7i8j9k0l1m",
+    "org_id": "org_abc123",
+    "alert_rule_id": "alert_rule_xyz789abcdef012345678901",
+    "name": "High call volume spike",
+    "metric_type": "call_count",
+    "filter": {
+      "agent": [{ "agent_id": "agent_abc123", "version": [3] }]
+    },
+    "threshold_type": "absolute",
+    "threshold_value": 100,
+    "comparator": "gt",
+    "frequency": "5m",
+    "window": "1h",
+    "emails": ["oncall@yourcompany.com"],
+    "webhook_urls": ["https://yourcompany.com/hooks/tavly-alerts"],
+    "current_value": 148,
+    "previous_value": null,
+    "triggered_timestamp": 1714608475945,
+    "resolved_timestamp": null
+  }
+}
+```
+
+#### Key Payload Attributes
+* `event`: Populated with `alert_triggered` upon opening, and `alert_resolved` upon closure.
+* `filter`: Mirror of configured criteria. Environment tags are formatted under `agent_tag`.
+* `comparator`: Operator representation (`gt`, `lt`, `ge`, `le`).
+* `current_value` & `previous_value`: Triggering numerical metric. For `total_call_cost` and `total_chat_cost`, values are reported in **cents** (e.g., 500 = $5.00).
+* `triggered_timestamp` & `resolved_timestamp`: Epoch millisecond timestamps.
+
+<Warning>
+  **Webhook Security & Timeouts**: All webhook requests carry an `X-Tavly-Signature` header computed via HMAC-SHA256. Verify signatures following the [secure webhook documentation](/features/secure-webhook). Tavly imposes a strict **10-second request timeout** without automatic retries.
+</Warning>
+
+### Incident History & System Limits
+
+Track historical breaches under the **Alert History** tab:
+
+<Frame caption="The Alert History tab lists past incidents and the value that triggered each one.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/GWDpUspWhecmEo9X/images/alerting/incidents.png?fit=max&auto=format&n=GWDpUspWhecmEo9X&q=85&s=410cb741e4a2ed4bfa1557e6ad77caef" alt="Alert History tab listing past alert incidents in a table with columns for active period, alert name, condition, triggered value (for example '0 -> 2 (+Infinity%)'), and notification channel." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="2509" height="1328" data-path="images/alerting/incidents.png" />
+  </div>
+</Frame>
+
+* **Single Active Incident**: Only one active incident exists per rule at any time. Subsequent checks will not generate duplicate incidents until the existing breach resolves.
+* **Workspace Rule Cap**: Workspaces support up to **10 alert rules**. Attempting to add an 11th rule returns an HTTP `400` error.
+* **Agent Filter Cap**: A single alert rule can filter across up to **100 individual agents**.
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How often does Tavly evaluate alert rules?">
+    The background scheduler scans active rules every minute, executing checks according to each rule's defined frequency (1 minute to 24 hours). For instance, a rule set to 5-minute frequency evaluates approximately every five minutes.
+  </Accordion>
+
+  <Accordion title="Will our team receive duplicate notifications for an ongoing incident?">
+    No. Tavly issues a single alert notification when an incident opens, and a concluding notification once the condition resolves. Ongoing breaches do not produce repetitive notifications.
+  </Accordion>
+
+  <Accordion title="What happens when an alert rule is updated or edited?">
+    Modifying any property of an alert rule resets its scheduling timer and immediately closes any currently active incident. Evaluation starts completely fresh on the subsequent check.
+  </Accordion>
+
+  <Accordion title="What happens if an agent referenced by an alert rule is deleted?">
+    When editing the rule, the dashboard automatically detects the missing agent, removes it from the configuration filter, and issues a notice. The rule continues to monitor remaining agents.
+  </Accordion>
+
+  <Accordion title="Can an alert rule aggregate metrics across multiple agents?">
+    Yes. Select multiple agents within the filter picker to aggregate metrics across the entire cohort. Leaving the filter empty aggregates data across all agents in the workspace for that channel.
+  </Accordion>
+
+  <Accordion title="Can alert rules be configured for digital chat agents?">
+    Yes. Selecting any chat-specific metric (Chat counts, Chat success rate, Negative sentiment, or Chat cost) switches the rule's operational scope to evaluate digital chat sessions instead of voice calls.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Analytics dashboard guide](/monitor/analytics-dashboard): Build custom visualization charts and dashboards for call and chat metrics.
+* [Call and chat history](/features/session-history): Search, inspect, and analyze individual call recordings and transcripts.
+* [Secure webhook signature verification](/features/secure-webhook): Validate HMAC-SHA256 signatures on inbound alert payloads.
+* [Concurrency and capacity limits](/deploy/concurrency): Monitor peak channel utilization against plan allocations.

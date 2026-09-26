@@ -1,0 +1,186 @@
+---
+title: 'GoHighLevel Agent Functions: Live Contacts, Pipelines & Booking'
+sidebarTitle: 'Agent Functions'
+description: 'Equip Tavly AI voice agents with GoHighLevel tools: search contacts, apply workflow tags, manage opportunities, and book sub-account calendar appointments.'
+seo:
+  title: 'GoHighLevel Agent Functions & Calendar Booking | Tavly AI Docs'
+  description: 'Equip Tavly AI voice agents with GoHighLevel tools: search contacts, apply workflow tags, manage opportunities, and book sub-account calendar appointments.'
+og:title: 'GoHighLevel Agent Functions: Live Contacts, Pipelines & Booking'
+og:description: 'Equip Tavly AI voice agents with GoHighLevel tools: search contacts, apply workflow tags, manage opportunities, and book sub-account calendar appointments.'
+og:image: 'https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/integrations-available-tab.png'
+twitter:card: 'summary_large_image'
+icon: 'wrench'
+keywords: ['GoHighLevel agent functions', 'GoHighLevel calendar booking tool', 'Tavly AI GoHighLevel', 'GHL voice AI integration', 'GoHighLevel workflow tags', 'sub-account opportunity management', 'AI appointment scheduling']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can one conversational agent book appointments across multiple GoHighLevel calendars?'
+    answer: 'Yes. You can attach multiple Book Appointment tools configured with fixed calendar IDs, or configure a single booking tool whose calendar_id resolves dynamically from a dynamic variable selected during the conversation.'
+  - question: 'How does cancelling an appointment affect the customer timeline in GoHighLevel?'
+    answer: 'Cancelling an appointment transitions its status to "cancelled" rather than deleting the record. This preserves audit visibility on the contact timeline and ensures downstream GoHighLevel cancellation workflows fire properly.'
+  - question: 'Why did an agent tool call flag the connection with a "Connection error" tag?'
+    answer: 'GoHighLevel returns identical authorization error codes for omitted scopes and expired tokens. If a tool call fails due to omitted Private Integration scopes, Tavly flags the connection. Grant the scope in GoHighLevel and select Reconnect.'
+---
+
+## What are GoHighLevel agent functions and how do they empower AI agents?
+
+**GoHighLevel agent functions** are pre-built integration tools that allow Tavly voice and chat agents to interact directly with your GoHighLevel sub-account in real time. Agents identify callers, update contact properties, append tags to trigger external marketing automation workflows, manage pipeline opportunities, and schedule appointments on sub-account calendars.
+
+Connecting your sub-account enables conversational voice agents to execute complex revenue and scheduling workflows mid-call:
+
+* **Caller Identification & Contact Enrichment**: Identify callers by phone number, create profiles for new leads, and update contact properties spoken during calls.
+* **Workflow Automation Triggering**: Apply specific tags to contact records to fire automated GoHighLevel nurture, SMS, or onboarding sequences.
+* **Sales Pipeline Management**: Query active opportunities, advance deals through stages, and mark opportunities as Won or Lost.
+* **Direct Calendar Booking**: Check real-time calendar availability and book confirmed appointments without leaving the conversation.
+
+<Tip>
+  Integration tools operate on-demand via direct REST API calls. They function independently from [GoHighLevel contact sync](/integrations/crm/gohighlevel/contact-sync), allowing you to deploy live search and calendar booking tools without requiring background contact directory synchronization.
+</Tip>
+
+***
+
+## Which GoHighLevel function tools are available for conversational agents?
+
+Tavly provides fifteen native GoHighLevel tools spanning four operational domains: **contact operations** (Search, Get, Create, Update Contact, Add Contact Tags), **opportunity pipeline tracking** (List, Get, Create, Update Opportunity), **task and note generation** (List Contact Tasks, Create Task, Create Note), and **calendar scheduling** (Check Availability, Book, Get, Reschedule, Cancel Appointment).
+
+These tools appear in your agent configuration menu once a [GoHighLevel connection](/integrations/crm/gohighlevel/connect) is authenticated:
+
+### Complete Tool Directory
+
+| Tool Name | Core Functionality | Primary Operational Use Case |
+| :--- | :--- | :--- |
+| **Search Contact** | Look up a Contact record using caller ID phone numbers. | Identify incoming callers using phone search indexes. |
+| **Get Contact** / **Update Contact** | Fetch or modify properties on a specific Contact record by ID. | Retrieve profile details or correct addresses and emails. |
+| **Create Contact** | Generate a brand-new Contact in the GoHighLevel sub-account. | Register first-time callers during intake inquiries. |
+| **Add Contact Tags** | Append specific tags to a Contact record. | Trigger GoHighLevel automation workflows and campaign sequences. |
+| **List Contact Opportunities** | Retrieve up to 50 pipeline opportunities associated with a Contact. | Inspect open quotes, active proposals, and deal stages. |
+| **Get Opportunity** | Fetch properties and metadata for a specific Opportunity by ID. | Read monetary value, pipeline name, or stage assignment. |
+| **Create Opportunity** | Insert a new deal into a designated pipeline and stage. | Record newly qualified sales leads generated by voice agents. |
+| **Update Opportunity** | Move opportunities across stages or mark them Won/Lost. | Advance pipeline deals following successful discovery calls. |
+| **List Contact Tasks** / **Create Task** | Query or schedule follow-up Tasks for account team members. | Assign callback reminders or rep follow-up items. |
+| **Create Note** | Append conversation takeaways to the contact's Notes panel. | Persist free-form memos and qualitative session takeaways. |
+| **List Contact Appointments** | Retrieve up to 50 active or past appointments for a Contact. | Review existing bookings when callers inquire about schedules. |
+| **Check Availability** | Inspect free appointment slots within a specified date window. | Find mutually available meeting times during live calls. |
+| **Book Appointment** | Book a slot on a configured sub-account calendar for a Contact. | Lock in appointments with automatic confirmation status. |
+| **Get Appointment** | Fetch detailed parameters for an appointment by ID. | Inspect scheduled start/end times and calendar details. |
+| **Reschedule Appointment** | Move an existing booking to a new confirmed start and end time. | Reschedule customer appointments following verbal agreements. |
+| **Cancel Appointment** | Cancel an active appointment, updating its status to `cancelled`. | Release calendar slots while retaining audit history. |
+
+<Tip>
+  **Chaining Booking Functions**: To reschedule an existing meeting, first call **List Contact Appointments** to retrieve booking IDs, verify new slots with **Check Availability**, and pass the target ID to **Reschedule Appointment** using [dynamic variables](/build/context/dynamic-variables).
+</Tip>
+
+***
+
+<a id="book-the-sub-accounts-calendars" />
+
+## How do conversational agents book and manage sub-account calendars?
+
+Agents book appointments on the sub-account's native calendars using local ISO-8601 datetimes and IANA timezones without manual UTC conversion. The **Check Availability** tool inspects free slots within windows up to **31 days**, while **Book Appointment** locks the slot, creates the booking with **confirmed** status, and associates it with the Contact.
+
+If your organization manages scheduling through external platforms, you can connect dedicated [Cal.com](/integrations/calendar/caldotcom/agent-functions) or [Calendly](/integrations/calendar/calendly/agent-functions) tools instead.
+
+### Calendar Parameter Formatting
+
+* **Check Availability & Reschedule Appointment**: Require an explicit `start_time` and `end_time` formatted as ISO-8601 strings along with the caller's IANA timezone.
+* **Book Appointment**: Requires only the single agreed-upon `start_time` plus the `contact_id` (retrieved from an earlier *Search Contact* call) and an optional appointment title. GoHighLevel automatically calculates the duration based on the calendar's configured slot length.
+* **Static vs. Dynamic Calendar Selection**: You can fix the `calendar_id` directly in the tool configuration, or bind it to a [dynamic variable](/build/context/dynamic-variables) to route appointments dynamically to specific service calendars.
+
+### Scheduling Operational Rules
+
+* **31-Day Availability Limit**: GoHighLevel caps individual availability queries at **31 days** (as of August 2026). If an agent queries a wider range, Tavly constrains the query to 31 days from the start time.
+* **Non-Destructive Cancellation**: Cancelling an appointment marks its status as `cancelled` rather than deleting the record, preserving visibility on the contact timeline and triggering cancellation workflows.
+* **Validation Rules**: Rescheduled appointments must conform to calendar buffer times, minimum notices, and daily booking limits.
+
+***
+
+<a id="required-scopes" />
+
+## What API scopes are required to execute GoHighLevel agent functions?
+
+Tools require explicit scopes granted on your sub-account's Private Integration: `contacts.readonly/write` for contact, task, and note endpoints; `opportunities.readonly/write` for pipeline management; `locations/customFields.readonly` for custom fields; `calendars.readonly` for checking availability; and `calendars/events.readonly/write` for booking, rescheduling, and cancellations. Missing scopes trigger authorization rejections that flag connection errors.
+
+Configure these permissions when creating your Private Integration token in GoHighLevel:
+
+### Scope Permission Matrix
+
+| Scope Identifier | Required Functionality |
+| :--- | :--- |
+| `contacts.readonly` | Enables **Search Contact**, **Get Contact**, **List Contact Tasks**, and **List Contact Appointments**. |
+| `contacts.write` | Enables **Create Contact**, **Update Contact**, **Add Contact Tags**, **Create Task**, and **Create Note**. |
+| `opportunities.readonly` | Enables **List Contact Opportunities**, **Get Opportunity**, and reading pipeline lists during configuration. |
+| `opportunities.write` | Enables **Create Opportunity** and **Update Opportunity**. |
+| `locations/customFields.readonly` | Reads custom field definitions when rendering tool argument forms. |
+| `calendars.readonly` | Enables **Check Availability** and populates calendar picker dropdowns during tool setup. |
+| `calendars/events.readonly` | Enables **Get Appointment**. |
+| `calendars/events.write` | Enables **Book Appointment**, **Reschedule Appointment**, and **Cancel Appointment**. |
+
+<Warning>
+  **Configuration-Time Scopes**: The scopes `opportunities.readonly`, `calendars.readonly`, and `locations/customFields.readonly` must be active before opening the tool configuration modal in Tavly. Without them, pipeline and calendar selection dropdowns will fail to populate.
+</Warning>
+
+***
+
+## How do you troubleshoot GoHighLevel tools and calendar scheduling?
+
+If tool configuration dialogs fail to load, ensure `opportunities.readonly`, `calendars.readonly`, and `locations/customFields.readonly` are granted. If calendar availability returns empty, check date-specific overrides in GoHighLevel; if workflows fail to fire on tag additions, confirm the tool's tag value matches your workflow automation trigger letter-for-letter.
+
+### Diagnostic Checklist
+
+<AccordionGroup>
+  <Accordion title="Tool configuration dialog displays empty dropdowns or fails to load">
+    This error indicates missing metadata read scopes on your Private Integration. Ensure `opportunities.readonly`, `calendars.readonly`, and `locations/customFields.readonly` are granted in GoHighLevel. Scope additions take effect immediately without regenerating tokens. If the error flagged the connection, select **Reconnect** in Tavly.
+  </Accordion>
+
+  <Accordion title="Check Availability returns no available slots">
+    Verify that the tool's `calendar_id` points to the active calendar with assigned team members. Check the calendar's working hours, minimum scheduling notice, slot buffers, and date-specific blackout overrides in GoHighLevel.
+  </Accordion>
+
+  <Accordion title="Book Appointment fails after availability was confirmed">
+    Between availability checking and booking confirmation, the slot may have been reserved by another client, or the booking may have violated daily appointment caps. Prompt the agent to re-check availability and propose alternative times.
+  </Accordion>
+
+  <Accordion title="Tags are added successfully but workflows do not trigger">
+    GoHighLevel automation triggers evaluate tags with case-sensitive exact matching. Verify that the tag string configured in the tool matches your workflow trigger condition character-for-character.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can one conversational agent book appointments across multiple GoHighLevel calendars?">
+    Yes. You can attach multiple **Book Appointment** tools configured with fixed calendar IDs, or configure a single booking tool whose `calendar_id` resolves dynamically from a dynamic variable selected during the conversation.
+  </Accordion>
+
+  <Accordion title="How does cancelling an appointment affect the customer timeline in GoHighLevel?">
+    Cancelling an appointment transitions its status to `cancelled` rather than deleting the record. This preserves audit visibility on the contact timeline and ensures downstream GoHighLevel cancellation workflows fire properly.
+  </Accordion>
+
+  <Accordion title="Why did an agent tool call flag the connection with a 'Connection error' tag?">
+    GoHighLevel returns identical authorization error codes for omitted scopes and expired tokens. If a tool call fails due to omitted Private Integration scopes, Tavly flags the connection. Grant the scope in GoHighLevel and select **Reconnect**.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Integration Tools for Prompt Agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Configure tool schemas and execute live test requests in single- or multi-prompt agents.
+  </Card>
+
+  <Card title="Integration Tools in Conversation Flows" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Add GoHighLevel tool calls to visual function nodes and branch conditionally on API results.
+  </Card>
+
+  <Card title="GoHighLevel Contact Sync" icon="rotate" href="/integrations/crm/gohighlevel/contact-sync">
+    Import sub-account contacts, write analysis results back, and log timeline notes automatically.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Map tool output fields to dynamic runtime variables referenced across conversational prompts.
+  </Card>
+</CardGroup>

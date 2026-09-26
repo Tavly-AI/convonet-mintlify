@@ -1,0 +1,146 @@
+---
+title: 'Receive Inbound Calls: Agent Binding & SIP Routing'
+sidebarTitle: 'Receive Calls'
+description: 'Receive inbound phone calls with Tavly voice agents: bind agents to numbers, route SIP endpoints, manage concurrency overflow, and extract custom SIP headers.'
+seo:
+  title: 'Receive Inbound Calls | Voice Agent Binding & SIP Setup | Tavly AI'
+  description: 'Receive inbound phone calls with Tavly voice agents: bind agents to numbers, route SIP endpoints, manage concurrency overflow, and extract custom SIP headers.'
+og:title: 'Receive Inbound Calls: Agent Binding & SIP Routing'
+og:description: 'Receive inbound phone calls with Tavly voice agents: bind agents to numbers, route SIP endpoints, manage concurrency overflow, and extract custom SIP headers.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-incoming'
+keywords: ['receive inbound calls', 'inbound voice agent', 'SIP endpoint routing', 'inbound concurrency overflow', 'fallback phone number', 'custom SIP headers', 'Tavly AI telephony']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can you assign different agents for inbound and outbound calls on the same number?'
+    answer: 'Yes. Tavly allows you to bind separate agents for inbound and outbound traffic on the same number, or leave inbound unassigned to prevent incoming callbacks on outbound notification lines.'
+  - question: 'What happens when all concurrency slots are full during an incoming call?'
+    answer: 'Tavly queues the call and waits approximately 40 seconds for a concurrency slot to become available. If none opens, the call forwards automatically to your configured fallback number, or ends with concurrency_limit_reached.'
+  - question: 'Which transport protocols and codecs are supported for direct SIP inbound routing?'
+    answer: 'Tavly supports TCP (recommended), UDP, TLS, and mutual TLS (mTLS) on sip:sip.tavlyai.com, with SRTP media encryption, PCMU (G.711 µ-law), PCMA (G.711 A-law), and G.722 HD audio codecs.'
+  - question: 'How are custom SIP headers converted into agent dynamic variables?'
+    answer: 'Tavly extracts SIP headers prefixed with sip.h.x- along with User-to-User, Diversion, History-Info, and P-Asserted-Identity, stripping the sip.h. prefix and passing them directly into the agent prompt context.'
+---
+
+## What is the Tavly inbound call handling system?
+
+The **Tavly inbound call handling system** allows conversational AI agents to answer incoming phone calls placed to provisioned or imported telephone numbers. By binding an agent to a number, teams automate customer support inquiries, intake workflows, and after-hours answering with ultra-low voice latency and natural conversation flow.
+
+Inbound call answering functions seamlessly across multiple telecommunications architectures:
+
+* **Tavly-Purchased Numbers**: Instantly provisioned telephone numbers with immediate inbound routing.
+* **Imported Carrier Numbers**: Numbers ported or linked via [purchase or import numbers](/deploy/purchase-number).
+* **Direct SIP & BYOC Trunks**: Enterprise PBX or carrier interconnects configured through [custom telephony](/deploy/custom-telephony).
+
+---
+
+## How do you bind voice agents to phone numbers?
+
+To **bind voice agents to phone numbers**, navigate to the Phone Numbers page in your Tavly console, select your target phone number, and assign a conversational agent to the Inbound Agent field. You can assign different agents for inbound and outbound calls or leave inbound unset for outbound-only lines.
+
+### Agent Binding Configurations
+
+A provisioned or imported phone number handles traffic according to its assigned agent configuration:
+
+| Configuration Setting | Operational Role | Typical Implementation |
+| :--- | :--- | :--- |
+| **Inbound Agent** | Answers and processes incoming calls to this line | Tier-1 support, inbound intake, after-hours triage |
+| **Outbound Agent** | Invoked when placing calls from this line | Sales follow-ups, dispatch notifications, reminders |
+
+### Flexible Routing Policies
+
+* **Decoupled Agent Roles**: Assign specialized agents to inbound vs. outbound traffic on the same number.
+* **Outbound-Only Lines**: Leave `inbound_agent_id` unassigned to prevent incoming callbacks on broadcast numbers.
+* **Receive-Only Support Lines**: Configure solely `inbound_agent_id` for dedicated inbound contact lines.
+* **A/B Performance Testing**: Split inbound traffic across distinct agent versions using [A/B Testing](/deploy/ab-testing).
+* **Dynamic Per-Call Overrides**: Dynamically select agents or inject runtime variables using the [Inbound Call Webhook](/deploy/inbound-call-webhook).
+
+<Frame caption="Bind inbound and outbound agents to your number in the Tavly dashboard">
+  <img src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/phone-call/bind-agent.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=e65cbf9714ec24c493ffc4fa914d8772" alt="Phone number configuration showing agent binding for inbound and outbound" width="504" height="296" data-path="images/deploy/phone-call/bind-agent.jpeg" />
+</Frame>
+
+Once an inbound agent is assigned, the phone number is active and ready to accept live calls immediately.
+
+---
+
+## How do you manage inbound concurrency and call overflow?
+
+To **manage inbound concurrency and call overflow**, reserve dedicated concurrency slots within your workspace to prevent outbound campaigns from exhausting channel capacity. If capacity saturates, Tavly waits up to 40 seconds for an open slot before automatically routing callers to your configured fallback destination number.
+
+Inbound calls share the overall simultaneous channel capacity of your workspace. To safeguard critical customer lines during high-volume outbound campaigns, deploy the following capacity controls:
+
+### Reserved Inbound Concurrency
+
+Guarantee available line capacity by partitioning your workspace limit. Setting [Reserved Inbound Concurrency](/deploy/concurrency#reserved-inbound-concurrency) ensures outbound campaigns cannot consume your dedicated inbound answering capacity.
+
+### Fallback Number Overflow Handling
+
+When all available concurrency slots are actively occupied:
+
+1. **Queueing Window**: Tavly holds incoming calls in a ringing state for approximately **40 seconds** while waiting for an active call to conclude.
+2. **Fallback Forwarding**: If no slot frees up within 40 seconds, Tavly forwards the call to the number's configured `fallback_number` (such as a backup PBX or human support center).
+3. **Capacity Rejection**: If no `fallback_number` is configured, the call terminates with status `concurrency_limit_reached`.
+
+| Overflow Condition | Action Taken | Result |
+| :--- | :--- | :--- |
+| **Slot opens within 40s** | Connects call to bound Tavly voice agent | AI agent answers and handles conversation |
+| **No slot opens + Fallback set** | Forwards call to external `fallback_number` | Transferred to human queue or external answering service |
+| **No slot opens + No Fallback** | Terminates session immediately | Disconnected with `concurrency_limit_reached` |
+
+---
+
+## How do you route calls to Tavly SIP endpoints directly?
+
+To **route calls to Tavly SIP endpoints directly**, point your enterprise PBX or carrier SIP trunk toward Tavly gateway at Tavly SIP URI. The platform supports TCP, UDP, and secure TLS/mTLS signaling transports with SRTP encryption, standard PCMU/PCMA/G.722 codecs, and full SIP re-INVITE in-dialog negotiation.
+
+If routing calls directly from your own carrier, SBC, or cloud contact center, configure your SIP trunk with these specifications:
+
+### SIP Endpoint Specifications
+
+| Parameter | Configuration Detail | Description |
+| :--- | :--- | :--- |
+| **SIP Server URI** | `sip:sip.tavlyai.com` | Primary gateway URI for inbound signaling |
+| **Transport Protocols** | `TCP` (Recommended), `UDP`, `TLS`, `mTLS` | Append `;transport=tcp`, `;transport=udp`, or `;transport=tls` |
+| **Media Encryption** | `SRTP` | Mandates TLS signaling transport |
+| **Supported Codecs** | `PCMU` (G.711 µ-law), `PCMA` (G.711 A-law), `G.722` | Standard and wideband HD voice codecs |
+| **In-Dialog Re-INVITE** | Fully supported | Handles codec shifts, media re-anchoring, SRTP re-keying, and hold/unhold |
+| **Allowlisted IP CIDRs** | `18.98.16.120/30`, `3.42.144.0/23`, `153.57.128.0/18` | Global gateway and signaling subnets |
+| **US Regional CIDRs** | `143.223.88.0/21`, `161.115.160.0/19` | High-volume United States media endpoints |
+
+For comprehensive provider setups (including Twilio, Telnyx, Vonage, Avaya, Genesys, Five9, and Amazon Connect), refer to the [custom telephony overview](/deploy/custom-telephony).
+
+---
+
+## How do you extract inbound custom SIP headers?
+
+To **extract inbound custom SIP headers**, transmit parameters prefixed with special prefixes or allowlisted headers such as Diversion, User-To-User, History-Info, and P-Asserted-Identity in the SIP INVITE. Tavly strips the prefix automatically and exposes the values as dynamic prompt variables accessible by your conversational agent.
+
+When receiving calls over SIP trunks, your PBX or carrier can pass context directly into the agent prompt via [custom SIP headers](/build/telephony/sip-headers):
+
+### Header Parsing Rules
+
+* **Custom Vendor Headers**: Any header formatted with `sip.h.x-` is automatically stripped of `sip.h.` and passed into the agent session as a dynamic variable.
+* **Standard Telephony Headers**: Recognized carrier headers (`Diversion`, `History-Info`, `User-To-User`, and `P-Asserted-Identity`) are also parsed into dynamic variables.
+
+```
+Incoming SIP Header: sip.h.x-caller-tier: platinum
+Extracted Prompt Variable: {{x-caller-tier}} = "platinum"
+
+Incoming SIP Header: sip.h.diversion: <sip:2000@192.168.1.1>;reason=no-answer
+Extracted Prompt Variable: {{diversion}} = "<sip:2000@192.168.1.1>;reason=no-answer"
+```
+
+### Call Telemetry and Monitoring
+
+* **REST API Polling**: Query the [Get Call API](/api-references/get-call) to fetch complete call transcripts, audio recordings, latency tracking, and execution metadata.
+* **Real-Time Webhooks**: Subscribe to automated webhook event notifications when calls initiate, conclude, or finish post-call analysis via the [Call Webhooks guide](/features/webhook-overview#event-types).
+
+## Related Resources
+
+* [Purchase and import numbers](/deploy/purchase-number): Acquire native phone numbers or import existing carrier lines.
+* [Inbound call webhook](/deploy/inbound-call-webhook): Dynamically override agents and inject caller context via HTTP.
+* [Custom telephony overview](/deploy/custom-telephony): Comprehensive guide to SIP trunking and direct URI dialing.
+* [Concurrency management](/deploy/concurrency): Configure capacity limits and reserved inbound concurrency.
+* [Custom SIP headers](/build/telephony/sip-headers): Format and pass telemetry tokens across SIP carriers.

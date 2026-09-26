@@ -1,0 +1,127 @@
+---
+title: 'Automatically Evaluate Call Quality with AI QA'
+sidebarTitle: 'Overview'
+description: 'Automatically evaluate voice call quality with Tavly AI QA: score hallucinations, knowledge base accuracy, latency, sentiment, and resolution rates at scale.'
+seo:
+  title: 'Automated Voice Call Quality Assurance & Evaluation | Tavly AI QA'
+  description: 'Automatically evaluate voice call quality with Tavly AI QA: score hallucinations, knowledge base accuracy, latency, sentiment, and resolution rates at scale.'
+og:title: 'Automatically Evaluate Call Quality with AI QA'
+og:description: 'Automatically evaluate voice call quality with Tavly AI QA: score hallucinations, knowledge base accuracy, latency, sentiment, and resolution rates at scale.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/template.png'
+twitter:card: 'summary_large_image'
+icon: 'clipboard-check'
+keywords: ['AI quality assurance', 'voice AI call QA', 'hallucination detection', 'knowledge base accuracy', 'speech latency evaluation', 'Tavly AI QA', 'call resolution rate']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How is AI QA different from standard Post Call Extraction?'
+    answer: 'Post Call Extraction evaluates conversational text transcripts via LLM for CRM data mapping. AI QA performs deep audit evaluations across acoustic audio signals and text, scoring hallucinations, knowledge base fidelity, latency, and conversational resolution.'
+  - question: 'What is the pricing model for Tavly AI QA?'
+    answer: 'Every workspace receives a complimentary allowance of 100 analyzed call minutes. Any volume beyond the initial 100 minutes is billed at $0.10 per analyzed call minute.'
+  - question: 'Can AI QA evaluate a sample rather than 100% of calls?'
+    answer: 'Yes. When configuring a QA cohort, you can specify exact sampling percentages or fixed call quantities to audit representative cross-sections of traffic cost-effectively.'
+  - question: 'How does AI QA detect model hallucinations?'
+    answer: 'AI QA compares conversational assertions made by the agent against your connected knowledge bases and verified tool responses, flagging discrepancies with direct transcript citations.'
+---
+
+## What is AI Quality Assurance (AI QA) and how does it evaluate calls?
+
+**Tavly AI Quality Assurance (AI QA)** is an automated supervisory framework that evaluates sampled voice conversations against objective quality standards. It benchmarks critical conversational performance indicators—including factual hallucinations, knowledge base accuracy, acoustic sentiment, speech interruptions, and custom tool invocations—providing engineering and operations teams with transcript-level evidence and actionable diagnostic analytics.
+
+<Frame caption="The Call QA Overview shows summary metrics and trends across a cohort of analyzed calls.">
+  <img src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/template.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=6734875f09f5ea8461668b42fd663055" alt="Call QA Overview dashboard showing calls analyzed, average score of 87, call resolution rate of 75%, transfer success rate, transfer wait time, and a top questions from users table with resolution rates." width="1483" height="1168" data-path="ai-qa/images/template.png" />
+</Frame>
+
+### Key Supervisory Capabilities
+
+* **Longitudinal Quality Auditing**: Track conversational resolution trends, overall quality scores, and latency benchmarks over days and weeks.
+* **Failure Pattern Isolation**: Identify systematic operational failure modes and their root causes across specific caller intents or agent versions.
+* **Transcript-Backed Evidence**: Review individual flagged calls with direct conversational citations, tool execution logs, and acoustic turn timing.
+* **Intent-Level Optimization**: Inspect the [top questions from users](/monitor/ai-qa/view-qa-results#top-questions-from-users) table to isolate specific caller inquiries that suffer from lower resolution rates.
+
+> **Production Scenario**: A healthcare clinic deploys AI QA on its patient scheduling agent. The system flags interactions where the agent provided incorrect facility hours or misrecognized patient spellings, enabling developers to update knowledge base documents and prompt guardrails before patient satisfaction is impacted.
+
+---
+
+## What core metrics and diagnostic signals does AI QA track?
+
+AI QA tracks **five primary diagnostic dimensions** alongside high-level operational trends like overall quality scores and resolution rates. Key evaluated metrics include model hallucinations, factual retrieval accuracy against knowledge bases, conversational turn-taking latency, caller sentiment factoring in acoustic vocal tone, and successful tool execution parameters across complex workflows.
+
+### Diagnostic Evaluation Matrix
+
+| Diagnostic Metric | Evaluation Method | Operational Significance |
+| :--- | :--- | :--- |
+| **Hallucination Detection** | Transcript vs. Ground Truth | Identifies ungrounded or fabricated claims unsupported by system prompts or tool outputs. |
+| **Knowledge Base Accuracy** | Semantic Cross-Validation | Verifies that responses strictly align with designated knowledge base reference articles. |
+| **Conversational Latency** | Network & Speech Timing | Measures turn-taking delays and highlights conversational friction or excessive silence. |
+| **Acoustic Sentiment** | Vocal Audio + Transcript | Analyzes vocal pitch, volume, and speech tone alongside text to measure emotional sentiment. |
+| **Tool & Function Usage** | Execution Payload Audit | Verifies whether external functions and APIs were invoked with valid arguments and handled cleanly. |
+| **Call Resolution Rate** | Objective Success Logic | Quantifies the percentage of interactions meeting custom defined business resolution criteria. |
+
+---
+
+## How does the AI QA evaluation workflow operate?
+
+The **AI QA evaluation workflow** operates across three systematic stages: defining a cohort of calls filtered by agent, dates, or metadata; setting resolution criteria and metric thresholds that govern success; and reviewing aggregate trends alongside transcript-backed diagnostics to pinpoint root causes of failed customer interactions.
+
+<Steps>
+  <Step title="Define a QA cohort">
+    Group target conversations by selecting specific agents, date ranges, duration thresholds, and sampling rates (e.g., sample 20% of inbound calls). Review [Define a QA cohort](/monitor/ai-qa/create-cohort).
+  </Step>
+
+  <Step title="Configure resolution criteria">
+    Establish custom evaluation conditions, acceptable latency thresholds, and success benchmarks that decide whether a call is marked resolved. Review [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria).
+  </Step>
+
+  <Step title="Analyze results and remediate issues">
+    Inspect aggregate trend graphs, explore failure categories, drill down into transcript evidence, and apply fixes to prompt instructions. Review [View QA results](/monitor/ai-qa/view-qa-results) and [Address metric issues](/monitor/ai-qa/address-metric-issues).
+  </Step>
+</Steps>
+
+<Tip>
+  Getting started for the first time? Review [Access AI QA](/monitor/ai-qa/get-started) for step-by-step console onboarding, or consult [AI QA Metrics & Terminology](/monitor/ai-qa/terminologies) for formal metric definitions.
+</Tip>
+
+---
+
+## What is the pricing and quota structure for AI QA?
+
+AI QA pricing includes a **complimentary tier of 100 analyzed minutes** per workspace. Usage exceeding this initial allocation is billed at a flat rate of **$0.10 per minute** of analyzed conversational audio, allowing teams to audit critical customer interactions with predictable operational expenses.
+
+### Pricing Breakdown
+
+| Plan Component | Pricing Rate | Quota & Billing Details |
+| :--- | :--- | :--- |
+| **Free Workspace Tier** | **$0.00** | Includes first **100 minutes** of analyzed call audio per workspace. |
+| **Metered Audio Evaluation** | **$0.10 / minute** | Applied per minute of conversational audio analyzed beyond the free quota. |
+| **Sampling Control** | Configurable | Adjust sampling percentages per cohort to govern monthly QA expenditures. |
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How is AI QA different from standard Post Call Extraction?">
+    Post Call Extraction runs on every completed call to extract structured key-value parameters (such as CRM properties) from text transcripts. AI QA performs comprehensive quality auditing over sampled cohorts, evaluating acoustic vocal emotion, hallucination rates, and knowledge base fidelity.
+  </Accordion>
+
+  <Accordion title="What is the pricing model for Tavly AI QA?">
+    Each workspace receives an initial free allocation of **100 analyzed minutes**. Additional analysis is metered at a transparent rate of **$0.10 per minute** of evaluated call audio.
+  </Accordion>
+
+  <Accordion title="Can AI QA evaluate a sample rather than 100% of calls?">
+    Yes. Cohort configurations allow you to define exact sampling percentages or fixed call counts, ensuring representative statistical sampling while keeping costs predictable.
+  </Accordion>
+
+  <Accordion title="How does AI QA detect model hallucinations?">
+    The evaluation pipeline cross-checks agent conversational claims against system prompts, connected knowledge base documents, and tool responses, highlighting discrepancies with direct transcript citations.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Define a QA cohort](/monitor/ai-qa/create-cohort): Configure sampling filters and agent cohorts for evaluation.
+* [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria): Set custom thresholds and rules for conversational success.
+* [View QA results](/monitor/ai-qa/view-qa-results): Explore diagnostic trend charts and transcript-level evidence.
+* [Address metric issues](/monitor/ai-qa/address-metric-issues): Step-by-step guidance for resolving hallucinations and latency issues.
+* [AI QA metrics & terminology](/monitor/ai-qa/terminologies): Complete reference guide for all scoring formulas and diagnostic terms.

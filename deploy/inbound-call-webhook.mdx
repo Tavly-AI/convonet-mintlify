@@ -1,0 +1,234 @@
+---
+title: 'Inbound Call and SMS Webhook: Dynamic Routing'
+sidebarTitle: 'Inbound Webhook'
+description: 'Configure the Tavly inbound call and SMS webhook: dynamically override agent IDs, inject dynamic variables, reject unwanted traffic, and pass per-call context.'
+seo:
+  title: 'Inbound Call & SMS Webhook | Dynamic Routing Setup | Tavly AI'
+  description: 'Configure the Tavly inbound call and SMS webhook: dynamically override agent IDs, inject dynamic variables, reject unwanted traffic, and pass per-call context.'
+og:title: 'Inbound Call and SMS Webhook: Dynamic Routing'
+og:description: 'Configure the Tavly inbound call and SMS webhook: dynamically override agent IDs, inject dynamic variables, reject unwanted traffic, and pass per-call context.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'webhook'
+keywords: ['inbound webhook', 'dynamic agent routing', 'inbound call webhook', 'inbound SMS webhook', 'reject inbound call', 'custom SIP headers', 'Tavly AI webhook']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What happens to an inbound call while the webhook response is pending?'
+    answer: 'The incoming phone call remains in a ringing state for the caller while Tavly awaits the HTTP response from your webhook endpoint, up to a 10-second timeout threshold.'
+  - question: 'What happens if your inbound webhook endpoint fails or times out?'
+    answer: 'Tavly retries up to 2 times with exponential backoff (3 attempts total). If all attempts fail, Tavly checks if the phone number has a default inbound agent configured—connecting to that agent if available or disconnecting the call.'
+  - question: 'How can you decline an inbound call or SMS using the webhook?'
+    answer: 'Return JSON containing "reject": true in your webhook response. Tavly terminates the call before agent initialization or drops the SMS silently without generating a session object.'
+  - question: 'Can you override agent settings dynamically per inbound call?'
+    answer: 'Yes. Return an agent_override object specifying partial voice settings (such as voice_id, temperature, or speed), LLM configurations, or prompt dynamic variables tailored to the caller.'
+---
+
+## What is the Tavly inbound call and SMS webhook?
+
+The **Tavly inbound call and SMS webhook** is an event-driven HTTP integration triggered immediately when an incoming telephone call or SMS arrives at your number. It allows your backend to intercept the session prior to answering, dynamically select target voice agents, inject caller-specific variables, pass metadata, or reject unwanted callers.
+
+Organizations frequently need to route different callers to distinct voice agents under the same phone number or inject database records into agent prompts. While outbound calls pass parameters directly in API requests, inbound traffic arrives unprompted. The inbound webhook bridges this gap by notifying your server before call media connects.
+
+This webhook forms part of your [number configuration](/deploy/inbound-call) across both Tavly-managed and imported carrier numbers, supporting inbound [phone calls](/deploy/inbound-call) and inbound [SMS messaging](/deploy/enable-sms).
+
+<Note>
+  The inbound webhook does not apply to [dial to SIP URI calls](/deploy/custom-telephony#method-2-dial-to-sip-uri), as call-specific parameters are supplied when registering the SIP call.
+</Note>
+
+---
+
+## Where do you configure the inbound webhook URL?
+
+To configure the **inbound webhook URL**, navigate to the Phone Numbers page in your Tavly dashboard, select your specific phone number, enter your secure HTTPS endpoint in the Inbound Webhook URL field, and save changes. This setting operates strictly on a per-number basis rather than globally across your organization.
+
+Because different phone numbers serve different contact center workflows, inbound webhook URLs are managed individually per telephone line rather than at the global account or agent level (which govern [call event webhooks](/features/register-webhook)):
+
+1. Open the Tavly dashboard and navigate to the **Phone Numbers** page.
+2. Select the specific telephone number you wish to configure.
+3. In the number settings modal, locate the **Inbound Webhook URL** field and input your server's secure endpoint (e.g. `https://api.yourdomain.com/webhooks/tavly-inbound`).
+4. Click **Save** to activate real-time event dispatching.
+
+Tavly immediately dispatches an HTTP `POST` request containing caller metadata to this URL whenever a call or SMS reaches this number.
+
+---
+
+## What are the key use cases for inbound webhooks?
+
+Key **use cases for inbound webhooks** include querying CRM databases using caller ID numbers, injecting personalized customer variables into prompt templates, dynamically routing VIP callers to specialized agent models, enforcing business-hour call acceptance, recording inbound call telemetry, and rejecting spam or blocked phone numbers before media connects.
+
+Implementing an inbound webhook allows your system to execute programmatic routing logic before conversational turns commence:
+
+* **Caller ID Lookup and Personalization**: Retrieve customer records matching `from_number` to inject account balances, ticket IDs, or names via dynamic prompt variables.
+* **Dynamic Agent and Version Routing**: Route callers to specialized agents (e.g. English vs. Spanish support, tier-1 triage vs. escalation agents) based on caller history or time of day.
+* **Automated Call Filtering and Rejection**: Screen incoming numbers against fraud lists and immediately reject unwanted robocalls or spam.
+* **Controlled Handoff Latency**: Insert slight processing delays or database lookups before initiating live agent conversations.
+* **Telemetry and Record Keeping**: Log incoming call attempts in data warehouses before session creation.
+
+---
+
+## How does the inbound webhook request and response cycle work?
+
+The **inbound webhook request and response cycle** operates over HTTP POST with a 10-second timeout per attempt and up to two automatic retries. Tavly dispatches session identifiers, origin numbers, and SIP headers, expecting a 2xx JSON response containing optional agent overrides, dynamic variables, metadata, or explicit call rejection directives.
+
+### Webhook Request Specifications
+
+Tavly executes an HTTP `POST` request with a default timeout of **10 seconds** per attempt. If your endpoint times out or returns a non-2xx status code, Tavly retries up to **2 times** using exponential backoff (for a total of **3 attempts**). Verify incoming signatures using your API key as detailed in [Secure the webhook](/features/secure-webhook).
+
+#### Request Payload Fields
+
+| Field | Type | Availability | Description |
+| :--- | :--- | :--- | :--- |
+| `call_inbound.call_id` | string | Inbound Call only | Preallocated unique call identifier; constant across HTTP retries for idempotency. |
+| `chat_inbound.chat_id` | string | Inbound SMS only | Preallocated chat identifier; constant across HTTP retries for idempotency. |
+| `from_number` | string (E.164) | Always present | Canonical telephone number of the calling or sending party. |
+| `to_number` | string (E.164) | Always present | Inbound dialed number assigned to your Tavly account. |
+| `agent_id` | string | Optional | Default agent ID bound to the phone number (if assigned). |
+| `agent_version` | integer | Optional | Version number of the assigned default agent. |
+| `custom_sip_headers` | object | Inbound Call only | Extracted SIP headers starting with `X-`, plus `User-to-User`, `Diversion`, `History-Info`, and `P-Asserted-Identity`. |
+
+<Note>
+  When the webhook fires, the call is still ringing and no billable call or chat session object exists yet. If your server rejects the call, no call record is created. The preallocated `call_id` or `chat_id` persists if the session proceeds.
+</Note>
+
+#### Sample Inbound Payloads
+
+<CodeGroup>
+  ```json Inbound Call Request theme={"dark"}
+  {
+    "event": "call_inbound",
+    "event_timestamp": 1780012672105,
+    "call_inbound": {
+      "call_id": "call_12345",
+      "agent_id": "agent_12345",
+      "agent_version": 1,
+      "from_number": "+12137771234",
+      "to_number": "+12137771235",
+      "custom_sip_headers": {
+        "x-account-id": "acc_98765",
+        "user-to-user": "616263;encoding=hex"
+      }
+    }
+  }
+  ```
+
+  ```json Inbound SMS Request theme={"dark"}
+  {
+    "event": "chat_inbound",
+    "event_timestamp": 1780012672105,
+    "chat_inbound": {
+      "chat_id": "chat_12345",
+      "agent_id": "agent_12345",
+      "agent_version": 1,
+      "from_number": "+12137771234",
+      "to_number": "+12137771235"
+    }
+  }
+  ```
+</CodeGroup>
+
+### Webhook Response Specifications
+
+Your server must return a `2xx` HTTP response with a JSON payload structured under `call_inbound` (for phone calls) or `chat_inbound` (for SMS). All response fields are optional:
+
+| Response Field | Type | Description |
+| :--- | :--- | :--- |
+| `reject` | boolean | Set to `true` to decline the incoming call or SMS session immediately. |
+| `override_agent_id` | string | ID of the specific voice agent to handle this incoming session. |
+| `override_agent_version` | integer | Specific agent release version to invoke for this session. |
+| `dynamic_variables` | object | String key-value pairs injected directly into prompt variables (e.g. `{{customer_name}}`). |
+| `metadata` | object | Arbitrary JSON metadata attached permanently to the call record. |
+| `agent_override` | object | Granular runtime overrides for voice, LLM, or conversation flow settings. |
+
+#### Agent Runtime Overrides
+
+Return an `agent_override` object to adjust per-call behavior without modifying your saved agent template:
+
+* **`agent`**: Partial voice agent settings, including `voice_id`, `voice_temperature`, `voice_speed`, `interruption_sensitivity`, `enable_backchannel`, `max_call_duration_ms`, `allow_user_dtmf`, `ambient_sound`, and `reminder_trigger_ms`.
+* **`retell_llm`**: Partial LLM engine settings, including `model`, `model_temperature`, `knowledge_base_ids`, `start_speaker`, and `begin_message`.
+* **`conversation_flow`**: Partial Conversation Flow settings, including `model_choice`, `knowledge_base_ids`, and `begin_message`.
+
+#### Sample Inbound Response
+
+```json theme={"dark"}
+{
+  "call_inbound": {
+    "override_agent_id": "agent_support_spanish",
+    "override_agent_version": 2,
+    "agent_override": {
+      "agent": {
+        "voice_id": "11labs-Adrian",
+        "voice_temperature": 0.6,
+        "interruption_sensitivity": 0.8,
+        "max_call_duration_ms": 1800000
+      },
+      "retell_llm": {
+        "model": "gpt-4o-mini",
+        "model_temperature": 0.2,
+        "knowledge_base_ids": ["kb_enterprise_faq"],
+        "start_speaker": "agent",
+        "begin_message": "Hola {{customer_name}}, ¿en qué puedo ayudarte hoy?"
+      }
+    },
+    "dynamic_variables": {
+      "customer_name": "Carlos Gomez",
+      "membership_tier": "Platinum"
+    },
+    "metadata": {
+      "crm_account_id": "CRM-88491"
+    }
+  }
+}
+```
+
+---
+
+## How do you reject an inbound call or SMS?
+
+To **reject an inbound call or SMS**, return a JSON payload containing the boolean field reject set to true within the call_inbound or chat_inbound response object. Tavly immediately terminates the call before media channels open or drops the SMS silently, ensuring no billable conversational session object is created.
+
+To reject an inbound session, return an HTTP 200 OK response with the following JSON body:
+
+```json theme={"dark"}
+{
+  "call_inbound": {
+    "reject": true
+  }
+}
+```
+
+### Operational Behavior
+
+* **Strict Boolean Validation**: Only literal boolean `true` triggers rejection. Omitting the field or returning string values (`"true"`, `"false"`, or `1`) will be ignored, allowing the call to proceed.
+* **Precedence Over Routing**: When `reject: true` is returned, any accompanying `override_agent_id` or `agent_override` fields are discarded. We recommend returning `{ "reject": true }` exclusively, as invalid auxiliary fields could invalidate the response.
+* **Zero Overhead**: For phone calls, Tavly terminates the SIP leg immediately without allocating agent resources or billing usage. For SMS, Tavly drops the incoming text silently.
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What happens to the inbound call while the webhook response is pending?">
+    The incoming call remains in a ringing state for the caller while Tavly awaits your webhook response, adhering to the configured 10-second timeout.
+  </Accordion>
+
+  <Accordion title="What happens to an inbound SMS while the webhook response is pending?">
+    The incoming SMS remains queued without an immediate automated reply until your server returns the processing directives.
+  </Accordion>
+
+  <Accordion title="What happens if the inbound webhook request fails?">
+    Tavly attempts up to 3 total deliveries (1 initial request plus 2 retries with exponential backoff). If all attempts fail, Tavly checks if a default inbound agent is bound to the number. If found, Tavly connects the call to that default agent; otherwise, the call is disconnected.
+  </Accordion>
+
+  <Accordion title="Can I decline inbound calls or SMS based on the incoming phone number?">
+    Yes. Inspect the `from_number` field in the inbound webhook request payload. If the caller matches a blocklist, respond with `{ "reject": true }` to turn away the caller without connecting.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Inbound call routing](/deploy/inbound-call): Core guide to provisioning numbers and binding default agents.
+* [Enable SMS messaging](/deploy/enable-sms): Configure two-way conversational SMS for your phone numbers.
+* [Secure webhooks](/features/secure-webhook): Authenticate Tavly webhook signatures using HMAC headers.
+* [Custom SIP headers](/build/telephony/sip-headers): Extract and inject custom SIP metadata across carrier trunks.
+* [Call event webhooks](/features/register-webhook): Track post-call transcripts, recordings, and analysis events.

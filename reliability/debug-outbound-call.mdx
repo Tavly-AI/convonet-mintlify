@@ -1,0 +1,104 @@
+---
+title: 'Debug Outbound Connection Issues: Resolve not_connected Call Failures'
+sidebarTitle: 'Debug Outbound Calls'
+description: 'Diagnose not_connected outbound Tavly calls: troubleshoot invalid destination numbers, SIP trunk errors, carrier spam filters, and PCAP signaling logs.'
+seo:
+  title: 'Debug Outbound Connection Issues | Telephony Diagnostics | Tavly AI'
+  description: 'Diagnose not_connected outbound Tavly calls: troubleshoot invalid destination numbers, SIP trunk errors, carrier spam filters, and PCAP signaling logs.'
+og:title: 'Debug Outbound Connection Issues: Resolve not_connected Call Failures'
+og:description: 'Diagnose not_connected outbound Tavly calls: troubleshoot invalid destination numbers, SIP trunk errors, carrier spam filters, and PCAP signaling logs.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/pcap_download.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-missed'
+keywords: ['debug outbound calls', 'not_connected status', 'invalid destination phone', 'marked_as_spam', 'carrier network blocked', 'SIP trunk error', 'PCAP debugging', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What does not_connected mean in Tavly outbound calling?'
+    answer: 'A not_connected status indicates that an outbound call attempt terminated before establishing media with the callee, caused by invalid phone formatting, callee line unresponsiveness, carrier spam blocking, or SIP trunk failures.'
+  - question: 'Why are PCAP files unavailable for some failed calls?'
+    answer: 'PCAP packet capture files are generated only when the agent data retention policy is set to "Everything" and the telephony transport is configured as UDP or TCP. Calls utilizing TLS encryption or restricted retention do not generate PCAP logs.'
+  - question: 'Why do numbers purchased from Tavly fail when calling international destinations?'
+    answer: 'Phone numbers purchased directly through the Tavly dashboard are provisioned exclusively for domestic outbound calling within the United States. International outbound calls require an imported custom SIP trunk configured with global dialing permissions.'
+  - question: 'How can you prevent outbound numbers from being flagged as marked_as_spam?'
+    answer: 'Warm up new outbound numbers by ramping call volumes gradually, maintain high pickup rates by targeting engaged leads, and enroll numbers in Tavly Verified Phone Number service to register cryptographic STIR/SHAKEN carrier attestation.'
+---
+
+## What does a not_connected status mean for outbound calls?
+
+An outbound call receives a **`not_connected`** status when Tavly is unable to establish an end-to-end media and signaling session with the recipient carrier. The corresponding **`disconnection_reason`** metadata attribute isolates whether dialing failed due to malformed phone numbers, carrier spam filtering, unauthenticated SIP trunks, or recipient busy states.
+
+When placing calls via the [Outbound Call API](/deploy/outbound-calls), a `not_connected` state confirms that the call terminated before conversational audio could begin. For the comprehensive list covering normal completions and system exceptions, consult our [Debug Call Disconnection guide](/reliability/debug-call-disconnect).
+
+## What are the primary disconnection reasons for unestablished calls?
+
+The primary disconnection reasons for unestablished calls include **`invalid_destination`** (formatting or unallocated numbers), **`dial_failed`** (unspecified SIP errors), **`dial_busy`** and **`dial_no_answer`** (callee line states), **`marked_as_spam`** and **`network_blocked`** (carrier reputation filtering), and **`telephony_provider_permission_denied`** or **`sip_routing_error`** (trunk authorization failures, gateway outages, or network routing loops).
+
+| Disconnection Reason | Failure Category | Root Cause & Failure Mechanism | Recommended Action |
+| :--- | :--- | :--- | :--- |
+| `invalid_destination` | Destination Syntax | Phone number contains spaces, invalid symbols, or missing E.164 country code (`+1...`) | Format all numbers strictly to standard E.164 format prior to API dispatch |
+| `telephony_provider_permission_denied` | Trunk Authentication | SIP trunk credentials rejected by provider; IP allowlist or header mismatch | Re-verify SIP trunk username, password, IP authorization, and authentication headers |
+| `telephony_provider_unavailable` | Carrier Outage | Telephony gateway or carrier trunk is offline, returning server errors | Check upstream carrier service status; configure redundant failover SIP routes |
+| `sip_routing_error` | Network Routing | SIP signaling detected cyclical loops or exceeded hop boundaries (`483 Too Many Hops`) | Review PBX / SBC routing rules to prevent recursive call-forwarding loops |
+| `marked_as_spam` | Reputation Filtering | Number flagged by carrier reputation algorithms due to volume spikes or low pickup rate | Warm up numbers gradually; register lines with [Verified Phone Number](/build/telephony/verified-phone) |
+| `network_blocked` | Carrier Firewall | Callee's carrier spam filter actively dropped the connection attempt | Implement STIR/SHAKEN A-attestation and review [Call Efficiency Guide](/build/telephony/call_efficiency_overview) |
+| `user_declined` | Recipient Action | The callee manually declined or dismissed the incoming call | Log user refusal; suppress immediate re-dials to respect caller preferences |
+| `dial_failed` | Generic SIP Failure | Outbound dialing failed without an explicit SIP status code or unknown network drop | Inspect the call's PCAP packet stream in Wireshark to diagnose carrier disconnects |
+| `dial_busy` | Callee Line State | Recipient line is engaged in another active call (`486 Busy Here`) | Queue contact for an automated retry after an appropriate backoff interval |
+| `dial_no_answer` | Callee Line State | Recipient phone rang until carrier timeout expired without an answer | Schedule follow-up dials during alternative daytime hours |
+
+## How do you troubleshoot failed outbound calls using call logs and PCAP files?
+
+To troubleshoot unestablished calls, inspect the call log in **Call History** to identify the explicit disconnection reason, error message, and associated **SIP response code**. For packet-level diagnostics, download and analyze the session's **PCAP file** in Wireshark to inspect SIP signaling headers (`INVITE`, `TRYING`, `RINGING`, `BYE`) and RTP media transmission.
+
+<Steps>
+  <Step title="Inspect Call History and SIP Response Codes">
+    Open the call detail record in your Tavly workspace. The overview displays the exact `disconnection_reason`, textual error descriptions, and standard **[SIP response codes](/reliability/debug-calls-pcap#common-sip-response-code-reference)** (such as `404 Not Found`, `486 Busy Here`, or `503 Service Unavailable`).
+
+    <Frame caption="Call log detail displaying the PCAP download link for a not_connected session.">
+      <img src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/pcap_download.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=9419cf630d085b11a262ef73d1f293c7" alt="Call log detail with the PCAP file download link for a not_connected call." width="608" height="692" data-path="reliability/images/pcap_download.png" />
+    </Frame>
+
+    <Note>
+      PCAP capture files are available exclusively when the agent's data retention policy is configured to **Everything** and the SIP transport protocol is set to **UDP/TCP**. Calls routed over TLS transport or stored under restricted retention tiers will not generate downloadable PCAP traces.
+    </Note>
+  </Step>
+
+  <Step title="Analyze SIP Signaling in Wireshark">
+    If error messages in the dashboard do not reveal the root cause, download the PCAP file and open it in Wireshark. Trace the SIP ladder diagram to determine whether your carrier trunk rejected the `INVITE` or whether downstream carrier gateways timed out. Follow complete workflows in our guide to [Debug calls with PCAP](/reliability/debug-calls-pcap).
+  </Step>
+</Steps>
+
+## How do you resolve custom telephony and number-type failures?
+
+For custom SIP trunks, verify credentials, domain hostnames, and IP allowlists; re-import the number if configuration drifts, or escalate to your telephony provider. For numbers purchased directly from Tavly, confirm the recipient is a **valid US domestic number**, as Tavly-provisioned lines currently support outbound dialing exclusively to US destinations.
+
+Resolve configuration mismatches based on your telephony provisioning model:
+
+### When Using Custom Telephony (Bring Your Own Carrier)
+1. **Audit Trunk Parameters**: Verify that all credentials, SIP URI domains, port numbers, and authentication headers imported into Tavly match your carrier settings. See our [Custom Telephony FAQ](/deploy/custom-telephony#faq).
+2. **Re-Import Trunk Line**: If settings were misconfigured during initial setup, delete the imported phone number from your inventory and execute a fresh import.
+3. **Escalate to Carrier**: If credentials are valid but calls return `telephony_provider_permission_denied` or `telephony_provider_unavailable`, contact your carrier support with the SIP call ID to verify their firewall allowlists and outbound routing status.
+
+### When Using Numbers Purchased from Tavly
+* **Domestic Destination Restriction**: Phone numbers acquired directly through the Tavly dashboard can **only dial US domestic telephone numbers**.
+* **International Workflows**: To place outbound calls to international destinations outside the United States, connect a custom SIP trunk with international dialing enabled via [Custom Telephony](/deploy/custom-telephony).
+
+## How do you remediate numbers marked as spam or blocked by carriers?
+
+Carriers block numbers that suffer sudden outbound traffic spikes without warmup or maintain low call pickup rates. To remediate spam flags, **warm up new numbers gradually**, implement [call efficiency best practices](/build/telephony/call_efficiency_overview) to increase pickup rates, and register your phone lines with our [Verified Phone Number](/build/telephony/verified-phone) STIR/SHAKEN trust service.
+
+Both `marked_as_spam` and `network_blocked` indicate that telecom carriers intercepted and dropped your call before reaching the callee. Specifically, `network_blocked` denotes that the recipient carrier's automated spam firewall actively rejected the inbound attempt.
+
+To rehabilitate flagged lines and protect outbound delivery rates:
+
+* **Gradual Number Warmup**: Avoid deploying unconditioned numbers into high-volume outbound campaigns immediately. Gradually ramp call volume over several weeks to build legitimate caller reputation.
+* **Increase Call Pickup Rates**: Low pickup rates signal telemarketing or spam patterns to carrier algorithms. Implement caller ID optimization, time-zone targeting, and local presence dialing as outlined in our [Increase Pickup Rate Guide](/build/telephony/call_efficiency_overview).
+* **Cryptographic Attestation & Registration**: Register your numbers through our verified telephony feature. Visit our [Verified Phone Number documentation](/build/telephony/verified-phone) to secure STIR/SHAKEN A-level attestation and register your brand identity directly with telecommunications analytics registries.
+
+## Related Resources
+
+* [Debug Call Disconnection](/reliability/debug-call-disconnect): Comprehensive reference for all call statuses and disconnection reasons.
+* [Debug Calls with PCAP](/reliability/debug-calls-pcap): Step-by-step Wireshark packet capture analysis for SIP and RTP streams.
+* [Call Efficiency Overview](/build/telephony/call_efficiency_overview): Strategies to increase pickup rates and eliminate carrier spam flags.
+* [Custom Telephony Setup](/deploy/custom-telephony): Configure and authenticate external SIP trunks and Twilio numbers.

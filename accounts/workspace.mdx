@@ -1,0 +1,209 @@
+---
+title: "Create and Manage Tavly Workspaces"
+sidebarTitle: "Workspace Management"
+description: "Create and manage Tavly workspaces, locate your workspace ID, configure team permissions, isolate multi-tenant environments, and manage workspace deletion."
+seo:
+  title: "Tavly Workspaces Guide: Multi-Tenancy & Access Control"
+  description: "Create and manage Tavly workspaces, locate your workspace ID, configure team permissions, isolate multi-tenant environments, and manage workspace deletion."
+og:title: "Tavly Workspaces Guide: Multi-Tenancy & Access Control"
+og:description: "Create and manage Tavly workspaces, locate your workspace ID, configure team permissions, isolate multi-tenant environments, and manage workspace deletion."
+og:image: "https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/workspace_settings.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=dd94d96e39c40cd4e08fbe13e784345e"
+twitter:card: "summary_large_image"
+icon: "briefcase"
+keywords:
+  - "Tavly workspaces"
+  - "workspace ID org ID"
+  - "multi-tenant voice AI"
+  - "team member invitations"
+  - "role based access control"
+  - "delete workspace"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Can an API key from one workspace access agents in another workspace?"
+    answer: "No. API keys are strictly scoped to the specific workspace that generated them. They cannot access, inspect, or modify resources belonging to any other workspace."
+  - question: "Is there an API to programmatically create or manage Tavly workspaces?"
+    answer: "No. Tavly does not expose an API for workspace CRUD operations. Multi-tenant SaaS applications should use a single workspace and model customer tenancy within their own database using dynamic variables."
+  - question: "What happens if the last Admin attempts to leave a workspace?"
+    answer: "The platform blocks the last Admin from leaving if other members remain. You must first promote another member to the Admin role or delete the workspace entirely."
+  - question: "Can I delete my workspace if it is the only one in my account?"
+    answer: "No. Deletion of your sole workspace is blocked in workspace settings. To remove your account and all associated data, initiate account deletion through Account Settings."
+---
+
+> Create and manage Tavly workspaces, find your workspace ID, invite teammates to collaborate, switch between workspaces, and safely delete a workspace.
+
+Learn how to create and manage workspaces, structure multi-tenant voice applications, and collaborate with team members across isolated project environments.
+
+---
+
+## What is a Tavly workspace and how is it structured?
+
+A Tavly workspace is a dedicated administrative boundary that completely isolates voice agents, knowledge bases, phone numbers, team roles, API keys, and billing accounts. When you sign up, Tavly provisions a default workspace automatically, providing a sandboxed environment to construct, test, and deploy conversational voice applications safely.
+
+Every workspace acts as an independent organizational container. Resources configured in one workspace are never shared with or exposed to another workspace:
+
+| Workspace Resource Boundary | Isolation Scope & Behavioral Rules |
+| :--- | :--- |
+| **Agents & Logic Engines** | Conversation flows, single-prompt agents, custom LLMs, and prompt rules remain private to the host workspace. |
+| **Context & Knowledge Bases** | Document uploads, crawled website data, vector embeddings, and dynamic variables are segregated. |
+| **Speech & Telephony** | Voice clones, platform voice styles, provisioned phone numbers, SIP trunks, and webhooks operate independently. |
+| **API Keys & Credentials** | [API keys](/accounts/keys/api-key-overview) are strictly scoped; a key from one workspace cannot query another workspace's API endpoints. |
+| **Billing & Payments** | Each workspace maintains its own [payment methods, credit balances, and invoices](/accounts/billing). Cards do not transfer. |
+| **User Roles & Access** | Invitations and [role assignments](/accounts/access-control) (Admin, Developer, Member) apply strictly per workspace. |
+
+---
+
+## How do you locate your workspace ID or organization ID?
+
+You locate your workspace ID by opening Settings from the main sidebar, navigating to the Workspace tab, and selecting General. The unique alphanumeric identifier appears under the Workspace ID field, which Tavly engineers require to identify and troubleshoot account-specific configurations, telephony issues, or custom integration bugs.
+
+Follow these steps to find your unique identifier:
+
+<Steps>
+  <Step title="Open Settings in the Dashboard">
+    Log into your dashboard and click **Settings** at the bottom of the navigation sidebar under the System section.
+
+    <Frame caption="Settings in the sidebar">
+      <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/settings.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=86ede48642d2e58e65cf59f1b322ac36" alt="Tavly sidebar with Settings highlighted under System" data-path="accounts/images/settings.png" />
+    </Frame>
+  </Step>
+
+  <Step title="View General Workspace Settings">
+    Navigate to **Workspace** → **General**. Your identifier is listed in the **Workspace ID** field. You can click to copy the ID directly to your clipboard when filing support tickets.
+
+    <Frame caption="Workspace ID in General settings">
+      <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/workspace_settings.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=dd94d96e39c40cd4e08fbe13e784345e" alt="Workspace General settings showing Workspace Name and Workspace ID" data-path="accounts/images/workspace_settings.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you create additional workspaces and isolate environments?
+
+To create a workspace, open the workspace dropdown selector in the top-left dashboard corner, click Add another workspace, provide a name, and save. Additional workspaces isolate production deployments from development environments, separate agency client billing, and partition resources, allowing teams to switch between isolated client contexts instantly.
+
+<Frame caption="Workspace selector with Add another workspace">
+  <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/add_workspace.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=59b9ab9cc7e708f30f2e0d0cb2b82e71" alt="Workspace dropdown with Add another workspace highlighted" data-path="accounts/images/add_workspace.png" />
+</Frame>
+
+### Common Multi-Workspace Architecture Patterns
+
+Organizations implement workspaces to align with several proven architectural patterns:
+
+- **Agencies and Solution Resellers**: Create dedicated workspaces for each corporate client. This keeps client phone numbers, custom voice agents, API keys, and Stripe billing invoices strictly segregated. Client team members can be granted access exclusively to their own workspace without exposing other accounts.
+- **Multi-Tenant SaaS Applications**: If your application resells voice capabilities to end customers, maintain all Tavly resources within a single production workspace. Model tenant isolation inside your own application database, and utilize metadata and per-call dynamic variables to attribute usage back to individual end users. Tavly does not provide an external API to provision or delete workspaces programmatically.
+- **Environment Staging & Separation**: Separate staging, testing, and production environments into dedicated workspaces (e.g., `Acme-Dev`, `Acme-Staging`, and `Acme-Prod`). This prevents automated integration tests and draft agent updates from disrupting live customer telephony traffic.
+
+### Switching Between Workspaces
+
+Use the workspace selector at the top-left of the Tavly dashboard to switch contexts. Every workspace associated with your authenticated email appears in the list. Each workspace automatically restores its own active configuration, billing balance, and security controls upon selection.
+
+---
+
+## How do you invite and manage team members within a workspace?
+
+To invite team members, navigate to Settings, choose Workspace, open the Users panel, and click Invite a member. Enter your teammate's email address and assign a role—Admin, Developer, or Member. Invited collaborators receive an automated email link granting immediate access once they register or log into Tavly.
+
+<Steps>
+  <Step title="Navigate to the Users Panel">
+    From the dashboard, open **Settings** → **Workspace** → **Users**. This panel displays your active team roster, pending invites, and assigned permission levels.
+
+    <Frame caption="Users list">
+      <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/users.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=0487749d1aa49bb07b6ddf8e9b4ceb7b" alt="Workspace Users page with Invite a member button and member list" data-path="accounts/images/users.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Send the Member Invitation">
+    Click **Invite a member**, enter the collaborator's corporate email address, and assign their permission tier:
+    - **Admin**: Full administrative authority over billing, payment methods, workspace deletion, and member management.
+    - **Developer**: Can create and configure agents, knowledge bases, phone numbers, and view call analytics, but cannot modify billing or workspace ownership.
+    - **Member**: Restricted view permissions suitable for reviewing call logs and test recordings.
+
+    <Frame caption="Invite a member dialog">
+      <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/invite_members.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=b159a88710cea935d92e3890f0aac977" alt="Invite a member dialog with email field and role options Admin, Developer, and Member" data-path="accounts/images/invite_members.png" />
+    </Frame>
+
+    If a team member does not receive the automated invitation email, resend it at any time by inviting them again using the identical email address.
+  </Step>
+
+  <Step title="Accepting Workspace Access">
+    Invited team members receive an email with a secure onboarding link. They can sign up for a new Tavly account or log into an existing account to accept access immediately.
+
+    <Frame caption="Invitation email">
+      <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/invite_email.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=c7670b93d5dc9ce8012a17b1ed1dbe2d" alt="Email invitation to join a Tavly AI workspace with Accept Invitation button" data-path="accounts/images/invite_email.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you leave or transfer ownership of a workspace?
+
+To leave a workspace, navigate to Settings, click Workspace, open Users, and select Leave Workspace. If other members remain, you must promote another user to Admin before leaving. If you are the sole member, leaving permanently deletes the workspace and generates a final invoice for accrued usage.
+
+<Frame caption="Leave Workspace on the Users page">
+  <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/leave_workspace_settings.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=ee216c375ca1d0a9ba885204656a1baa" alt="Users page with Leave Workspace button" data-path="accounts/images/leave_workspace_settings.png" />
+</Frame>
+
+### Critical Operational Rules Before Leaving
+
+Review these operational safeguards before initiating departure from a workspace:
+
+- **Sole Member Departure**: If you are the only user in the workspace, clicking **Leave Workspace** triggers automatic and permanent deletion of the workspace and all underlying resources. A final settlement invoice is charged for unbilled telephony usage. Your user profile remains active, and you retain access to all other workspaces.
+- **Last Admin Transfer**: If multiple team members belong to the workspace and you are currently the only user with the **Admin** role, Tavly blocks you from leaving. You must assign the Admin role to another member first, or execute a formal workspace deletion.
+- **Rejoining Workspaces**: Once you leave a workspace, your permissions and credentials are immediately revoked. You can only regain access if an active workspace Admin issues you a new invitation.
+
+---
+
+## How do you safely delete a Tavly workspace?
+
+Only workspace Admins can delete a workspace by navigating to Settings, opening Workspace General, clicking the options menu, selecting Delete, and entering the workspace name. Deletion permanently erases all agents, invalidates API keys, revokes team access, and settles final billing usage charges against your active payment method.
+
+<Frame caption="Delete option in General settings">
+  <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/delete_workspace.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=d295896513b4da9eeb90aa3dbe70f884" alt="Workspace General settings with Delete option in the options menu" data-path="accounts/images/delete_workspace.png" />
+</Frame>
+
+<Frame caption="Delete workspace confirmation">
+  <img height="700" src="https://mintcdn.com/retellai/BOVC_TBrgLAZfOvP/accounts/images/delete_workspace_popup.png?fit=max&auto=format&n=BOVC_TBrgLAZfOvP&q=85&s=a2c7b43ff50bca86dbac47cc4cbbdad1" alt="Confirmation dialog requiring the workspace name before deleting" data-path="accounts/images/delete_workspace_popup.png" />
+</Frame>
+
+### Deletion Consequences and Safeguards
+
+Before confirming workspace deletion, verify the following prerequisites:
+
+- **Permanent Data Erasure**: All voice agents, conversation flow graphs, telephony phone numbers, recordings, transcripts, and custom voices are purged immediately and cannot be recovered.
+- **Immediate Credential Invalidation**: All issued API keys are revoked, and ongoing live calls are terminated.
+- **Billing Settlement**: A final invoice is automatically computed and charged for any voice minutes or telephone line rentals accrued up to the exact deletion timestamp.
+
+<Warning>
+  You cannot delete your only workspace on its own. If this is the sole workspace associated with your user account, workspace deletion is blocked. To close your entire account, perform an [account deletion](/accounts/account#delete-your-account) from Account Settings.
+</Warning>
+
+<Note>
+  If there is no active payment method on file when you delete a workspace, the final invoice is still generated for accrued usage and remains due. Ensure you [add a payment method](/accounts/add-payment) prior to deletion so the final balance clears automatically. If a payment fails, review [handling failed payments](/accounts/fail-payment) or contact [Tavly support](mailto:support@tavly.it).
+</Note>
+
+---
+
+## Frequently asked questions about Tavly workspaces
+
+Tavly workspaces provide enterprise-grade multi-tenancy, access control, and resource segregation for voice automation projects. By isolating telephony assets, billing records, and API credentials across dedicated environments, organizations scale client management, collaborate securely across teams, and safeguard production voice pipelines from staging and test configurations.
+
+<AccordionGroup>
+  <Accordion title="Can an API key from one workspace access agents in another workspace?">
+    No. API keys are strictly scoped to the specific workspace that generated them. They cannot access, inspect, or modify resources belonging to any other workspace.
+  </Accordion>
+
+  <Accordion title="Is there an API to programmatically create or manage Tavly workspaces?">
+    No. Tavly does not expose an API for workspace CRUD operations. Multi-tenant SaaS applications should use a single workspace and model customer tenancy within their own database using dynamic variables.
+  </Accordion>
+
+  <Accordion title="What happens if the last Admin attempts to leave a workspace?">
+    The platform blocks the last Admin from leaving if other members remain. You must first promote another member to the Admin role or delete the workspace entirely.
+  </Accordion>
+
+  <Accordion title="Can I delete my workspace if it is the only one in my account?">
+    No. Deletion of your sole workspace is blocked in workspace settings. To remove your account and all associated data, initiate account deletion through Account Settings.
+  </Accordion>
+</AccordionGroup>

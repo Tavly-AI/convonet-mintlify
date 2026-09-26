@@ -1,0 +1,96 @@
+---
+title: 'Secure URLs: 24-Hour Signed Link Expiration for Recordings & Logs'
+sidebarTitle: 'Secure URLs'
+description: 'Enable Tavly AI secure URLs: automatically expire call recording and log links after 24 hours, preventing unauthorized data access if links ever leak.'
+seo:
+  title: 'Secure URLs for Recordings & Logs | Signed Link Expiration | Tavly AI'
+  description: 'Enable Tavly AI secure URLs: automatically expire call recording and log links after 24 hours, preventing unauthorized data access if links ever leak.'
+og:title: 'Secure URLs: 24-Hour Signed Link Expiration for Recordings & Logs'
+og:description: 'Enable Tavly AI secure URLs: automatically expire call recording and log links after 24 hours, preventing unauthorized data access if links ever leak.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/opt_in_secure_url.png'
+twitter:card: 'summary_large_image'
+icon: 'lock'
+keywords: ['secure URLs', 'signed call recording URLs', 'log expiration voice AI', 'audio recording privacy', '24 hour URL expiration', 'Tavly secure URLs', 'HIPAA compliant audio links']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a secure URL in Tavly AI?'
+    answer: 'A secure URL is a cryptographically signed link for call audio recordings and execution logs that automatically expires 24 hours after generation to prevent unauthorized data access.'
+  - question: 'What happens when someone opens a secure URL after the 24-hour expiration window?'
+    answer: 'Any HTTP request to access the recording or log file after 24 hours receives an immediate access denied error (403 Forbidden). A fresh signed URL must be generated via the API or dashboard.'
+  - question: 'Are existing call recordings converted to secure URLs retroactively when opted in?'
+    answer: 'No. Files created before enabling secure URLs remain accessible via non-expiring URLs. Secure signed URLs apply to all new calls created while the setting is active.'
+  - question: 'What happens to call files if you opt out of secure URLs later?'
+    answer: 'Files created while secure URLs were active will permanently require 24-hour signed URLs. Only files recorded after opting out will generate non-expiring static links.'
+---
+
+## What are secure URLs and why should you enable them?
+
+**Tavly secure URLs** are time-limited, cryptographically signed web addresses generated for call audio recordings and execution logs. By default, resource URLs do not expire to facilitate frictionless sharing; opting into secure URLs enforces **automatic 24-hour link expiration**, preventing unauthorized third-party access if links are leaked or intercepted.
+
+In default configurations, Tavly generates static, non-expiring cloud storage URLs for call audio recordings and execution logs. While convenient for internal collaboration, static links present an ongoing security risk if an internal email is forwarded or a dashboard URL is inadvertently exposed.
+
+### Default URLs vs. Secure URLs
+
+| Security Property | Default Static URLs | Secure Signed URLs (Opt-In) |
+| :--- | :--- | :--- |
+| **Link Expiration** | Never expires | **Expires after 24 hours** |
+| **Authentication Mechanism** | Publicly accessible static token | Cryptographic HMAC signature token |
+| **Unauthorized Leak Impact** | Permanent unauthorized media access | Access revoked automatically upon 24-hour expiry |
+| **Regulatory Fit** | General internal QA and development | **HIPAA, SOC 2, and enterprise data privacy** |
+
+***
+
+## How do you opt in to secure URLs in the dashboard?
+
+To enable secure URLs, navigate to your agent in the Tavly dashboard, open **Security & Fallback Settings**, and toggle on **Opt In Secure URL**. The setting activates immediately for all new calls processed by that agent, signing all subsequent recording and log requests with 24-hour expiration tokens.
+
+Follow these simple configuration steps:
+
+1. Navigate to the **Agents** tab in your Tavly dashboard and select your agent.
+2. Select **Security & Fallback Settings** from the agent settings panel.
+3. Locate the **Opt In Secure URL** toggle and switch it to enabled.
+4. Save your agent configuration.
+
+<Frame caption="Toggle on 'Opt In Secure URL' within agent privacy settings.">
+  <img height="700" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/opt_in_secure_url.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=ffb9fb13081c5e9217e242fca334ca61" alt="Privacy settings showing the Opt In Secure URL toggle" data-path="images/opt_in_secure_url.png" />
+</Frame>
+
+***
+
+## What happens to call recordings and logs when you opt in?
+
+Upon opting in, every API query or dashboard request for a call recording or log returns a **time-stamped cryptographic signature**. Accessing the resource within 24 hours succeeds normally, whereas requests submitted after 24 hours are **strictly denied with a 403 Forbidden error**.
+
+When secure URLs are active, the media retrieval lifecycle operates under the following rules:
+
+* **Dynamic Signature Generation**: Each time your backend calls `GET /v2/get-call/{call_id}` or accesses a recording in the dashboard, Tavly generates a fresh, signed link with a new 24-hour expiration window.
+* **Strict Expiration Enforcement**: When the 24-hour validity window elapses, the signed token becomes invalid, and cloud storage gateways immediately reject requests.
+* **No Retroactive Conversion**: Calls and logs created *prior* to enabling secure URLs remain static and will not have signed expiration tokens attached.
+
+<Note>
+  **Refreshing Expired Links**: If an authorized team member attempts to open an expired recording link, simply retrieve the call object again via the Tavly dashboard or the `GET /v2/get-call/{call_id}` API endpoint to generate a fresh 24-hour signed URL.
+</Note>
+
+***
+
+## What happens if you disable secure URLs after opting in?
+
+Disabling secure URLs applies only to **future sessions**. Any call files or logs generated while secure URLs were enabled **permanently retain the 24-hour signed requirement** and will always generate expiring links upon query. Only sessions recorded after disabling the toggle will produce static, non-expiring URLs.
+
+Tavly immutably tags call artifacts at creation time based on the active security profile of the agent:
+
+### State Transition & Ingestion Matrix
+
+| Call Recording Phase | Active Setting at Time of Call | Resulting URL Behavior on Retrieval |
+| :--- | :--- | :--- |
+| **Phase 1: Pre-Opt-In** | Opt In Secure URL: **Off** | Always returns a non-expiring static link. |
+| **Phase 2: Secure Window** | Opt In Secure URL: **On** | **Permanently returns 24-hour expiring signed URLs.** |
+| **Phase 3: Post-Opt-Out** | Opt In Secure URL: **Off** | New calls generate non-expiring links; Phase 2 calls retain signed URLs. |
+
+***
+
+## Related Privacy & Compliance Guides
+
+* [Data Storage Settings](/accounts/privacy/data-storage): Select storage tiers and configure automated PII redaction.
+* [Data Retention Policy](/accounts/privacy/data-retention): Define automatic deletion schedules from 1 to 730 days.

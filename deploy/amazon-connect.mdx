@@ -1,0 +1,88 @@
+---
+title: 'Amazon Connect Integration: Architecture and Setup'
+sidebarTitle: 'Amazon Connect'
+description: 'Connect Amazon Connect to Tavly conversational voice agents: evaluate SIP interconnect patterns, configure contact flows, and route inbound and outbound calls.'
+seo:
+  title: 'Amazon Connect Integration | AWS Contact Center Setup | Tavly AI'
+  description: 'Connect Amazon Connect to Tavly conversational voice agents: evaluate SIP interconnect patterns, configure contact flows, and route inbound and outbound calls.'
+og:title: 'Amazon Connect Integration: Architecture and Setup'
+og:description: 'Connect Amazon Connect to Tavly conversational voice agents: evaluate SIP interconnect patterns, configure contact flows, and route inbound and outbound calls.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'aws'
+keywords: ['Amazon Connect integration', 'AWS contact center', 'Amazon Connect SIP', 'contact flow transfer', 'voice AI Amazon Connect', 'Tavly AI AWS', 'cloud contact center']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is Amazon Connect and how does it integrate with Tavly?'
+    answer: 'Amazon Connect is an AWS cloud contact center service. Tavly integrates with Amazon Connect using multiple architecture patterns—including direct SIP interconnects, carrier BYOC, and contact flow transfers—to route calls between AWS contact centers and Tavly voice agents.'
+  - question: 'Do connected Amazon Connect numbers support bidirectional calling?'
+    answer: 'Yes. Once connected to Tavly, your numbers support both inbound call routing to conversational AI agents and outbound automated dialing through the Tavly dashboard or programmatic APIs.'
+  - question: 'Why does Tavly recommend contacting support before deploying Amazon Connect?'
+    answer: 'Because Amazon Connect environments vary significantly based on AWS region, carrier setups, and SBC deployments, Tavly enterprise support provides tailored architectural guidance to ensure optimal audio latency and call routing.'
+  - question: 'How does Tavly handle SIP trunking connectivity in general?'
+    answer: 'Tavly connects to third-party providers using elastic SIP trunking and direct SIP URI routing with support for TCP/TLS transports, G.711/G.722 codecs, and custom SIP headers.'
+---
+
+<Note>
+  Customers with an enterprise or paid support plan can contact us via the <a href="https://support.tavly.com/">Customer Support Portal</a> or [support@tavly.com](mailto:support@tavly.com) for step-by-step guidance to connect with your Amazon Connect infrastructure.
+</Note>
+
+## What is the Amazon Connect and Tavly integration?
+
+The **Amazon Connect and Tavly integration** connects AWS cloud contact center infrastructure with Tavly conversational AI voice agents. By establishing bidirectional telephony routing through AWS telecommunications services or perimeter session border controllers, organizations maintain existing Amazon Connect queues and contact flows while transferring customer conversations to autonomous AI agents.
+
+Amazon Connect provides a cloud-based contact center service from AWS that enables organizations to set up, operate, and scale customer support centers quickly. Integrating Tavly voice agents allows teams to automate customer inquiries, triage complex support tickets, and perform warm or cold handoffs directly to Amazon Connect human agent queues.
+
+For the baseline technical model of how Tavly connects to third-party providers over SIP, consult the [custom telephony overview](/deploy/custom-telephony).
+
+---
+
+## What integration patterns connect Amazon Connect with Tavly?
+
+The primary **integration patterns connecting Amazon Connect with Tavly** include direct SIP interconnects, carrier-level BYOC SIP trunking, and contact flow transfers via external PSTN forwarding. Because enterprise topologies differ across AWS regions, organizations collaborate with Tavly solution architects to determine the optimal media path and latency profile.
+
+Tavly supports multiple architectural patterns to accommodate varied enterprise network topologies:
+
+| Integration Pattern | Routing Mechanism | Infrastructure Requirements | Best Suited For |
+| :--- | :--- | :--- | :--- |
+| **SBC / Direct SIP Interconnect** | SIP Trunking over TLS/TCP | Enterprise SBC (e.g. AudioCodes, Ribbon) | High-volume contact centers requiring on-premise or cloud hybrid routing |
+| **Carrier BYOC Trunking** | Carrier-level SIP interconnect | Carrier trunking (e.g. Twilio, Telnyx) | Organizations with existing carrier contracts and ported corporate numbers |
+| **Contact Flow PSTN Forwarding** | E.164 Transfer Block | Standard Amazon Connect Contact Flow | Rapid deployment without requiring custom SBC or private SIP infrastructure |
+
+Because every enterprise AWS deployment possesses distinct networking constraints, organizations should evaluate security policies, geographic AWS regions, and audio transcoding parameters prior to production rollout.
+
+---
+
+## How do you route inbound and outbound calls with Amazon Connect?
+
+To **route inbound and outbound calls with Amazon Connect**, bind your provisioned telephone number within Tavly, configure an Amazon Connect contact flow with transfer blocks, and establish destination routing. Once integrated, numbers handle bidirectional calls identically to native endpoints via the Tavly console or telephony REST APIs.
+
+Once your Amazon Connect telecommunications connection is established, your provisioned numbers operate seamlessly across both traffic directions:
+
+* **Inbound Call Flows**: Incoming customer calls arriving at your Amazon Connect contact center are routed via contact flows to a Tavly voice agent. Review the [Receive inbound calls](/deploy/inbound-call) guide to assign conversational agents and configure prompt instructions.
+* **Outbound Call Campaigns**: Agents dispatch automated calls using the [Create Phone Call API](/api-references/create-phone-call) or Tavly dashboard, preserving your verified caller ID. Learn more in the [Make outbound calls](/deploy/outbound-call) documentation.
+* **Custom Telephony Metadata**: Pass account IDs, customer verification status, and IVR context across transfers using [custom SIP headers](/build/telephony/sip-headers).
+
+---
+
+## How do you engage Tavly support for Amazon Connect deployment?
+
+To **engage Tavly support for Amazon Connect deployment**, submit an architecture consultation request through the Tavly Customer Support Portal or email support. Tavly enterprise telephony engineers evaluate your AWS instance settings, call center routing policies, and codec requirements to deliver tailored, step-by-step infrastructure provisioning guidance.
+
+Follow these steps to initiate your deployment with the Tavly engineering team:
+
+1. **Submit a Request**: Contact Tavly support via the [Customer Support Portal](https://support.tavly.com/) or by emailing [support@tavly.com](mailto:support@tavly.com).
+2. **Provide Infrastructure Context**:
+   * Specify your AWS deployment region (e.g., `us-east-1`, `eu-west-1`).
+   * Outline your current carrier architecture (AWS native telephony vs. BYOC/SBC).
+   * Define expected [concurrency requirements](/deploy/concurrency) and peak call volume.
+3. **Architecture Review**: Tavly voice engineers will schedule a technical review to validate your contact flow design, SIP signaling transport, and end-to-end media encryption.
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Core architecture for SIP trunking and direct SIP URI routing.
+* [Inbound call routing](/deploy/inbound-call): Route telephone calls directly to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and tokens across contact center handoffs.
+* [Concurrency scaling](/deploy/concurrency): Manage simultaneous call capacity across enterprise contact centers.

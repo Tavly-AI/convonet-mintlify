@@ -1,0 +1,90 @@
+---
+title: 'Add Payment Methods: Stripe Setup for Tavly AI'
+sidebarTitle: 'Add Payment Methods'
+description: 'Add a secure Stripe payment method to your Tavly AI workspace to purchase credits, configure auto recharge, buy phone numbers, and prevent call interruptions.'
+seo:
+  title: 'Add Payment Methods to Tavly AI | Secure Stripe Billing Setup'
+  description: 'Add a secure Stripe payment method to your Tavly AI workspace to purchase credits, configure auto recharge, buy phone numbers, and prevent call interruptions.'
+og:title: 'Add Payment Methods: Stripe Setup for Tavly AI'
+og:description: 'Add a secure Stripe payment method to your Tavly AI workspace to purchase credits, configure auto recharge, buy phone numbers, and prevent call interruptions.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b1.png'
+twitter:card: 'summary_large_image'
+icon: 'credit-card'
+keywords: ['add payment method', 'Tavly AI billing setup', 'Stripe payment voice AI', 'Tavly workspace payment', 'auto recharge credit card', 'buy Tavly credits', 'phone number billing']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is adding a payment method required in Tavly AI?'
+    answer: 'A payment method is required to purchase prepaid credits, configure auto recharge, buy dedicated phone numbers, and continue running conversational agents after exhausting free trial credits.'
+  - question: 'How are payment methods managed across different workspaces?'
+    answer: 'Payment methods are isolated per workspace. Adding a credit card in one workspace does not carry over to other workspaces under the same user login; each workspace requires its own card.'
+  - question: 'How does Tavly process and protect payment method details?'
+    answer: 'All payment information is processed and stored securely via Stripe PCI-DSS Level 1 compliant infrastructure. Tavly does not store raw credit card numbers or CVVs on its servers.'
+  - question: 'What charges are billed to the payment method on file?'
+    answer: 'For credit-based workspaces, cards are used for manual credit purchases, auto-recharge top-ups, and monthly subscription items. For legacy workspaces, cards cover monthly post-usage invoices.'
+---
+
+## Why is adding a payment method required in Tavly AI?
+
+Adding a **Stripe payment method** is required to purchase prepaid credits, unlock auto recharge, acquire dedicated phone numbers, and maintain active calling after exhausting the **\$10 free trial credit**. All transactions are processed through Stripe's certified **PCI-DSS Level 1 infrastructure** to guarantee payment security.
+
+Adding a valid payment method ensures uninterrupted production availability for your conversational agents. Depending on your workspace configuration, the card on file serves specific transactional functions.
+
+<Note>
+  **Workspace-Level Payment Isolation**: Payment methods are scoped **per workspace**. Adding a credit card in one workspace does not carry it over to other workspaces under the same user login. Every workspace maintains its own independent billing setup, credit balance, usage totals, and invoice history. If you create a second workspace, switch into it and attach a payment method before running calls. See [Create and manage Tavly workspaces](/accounts/workspace) for multi-workspace switching.
+</Note>
+
+### How Payment Methods are Utilized by Account Type
+
+| Billing Structure | Payment Method Role & Trigger | Associated Charges |
+| :--- | :--- | :--- |
+| **Credit-Based Workspaces** (Standard / New) | On-demand and automated balance top-ups, plus end-of-month subscription settlement. | • Manual credit purchases<br />• Automated auto-recharge top-ups<br />• Monthly phone numbers, knowledge bases, CPS, and concurrency |
+| **Monthly Billing Workspaces** (Legacy) | Post-usage calendar settlement at the end of each billing cycle. | • Accumulated per-minute call usage<br />• Monthly recurring phone numbers and subscription add-ons |
+
+For an in-depth breakdown of how charges settle across account versions, review the [Billing overview](/accounts/billing).
+
+***
+
+## How do you add or update a payment method in your workspace?
+
+To add or update a payment method, open the **Billing tab** in the Tavly dashboard, click **Change payment methods** to launch the secure **Stripe Customer Portal**, and click **Add payment method**. Enter your card details and save; the card becomes active immediately for workspace charges.
+
+Follow these step-by-step instructions in your dashboard:
+
+<Steps>
+  <Step title="Navigate to Billing">
+    Log in to your Tavly dashboard and select the **Billing** tab from the left-hand navigation sidebar.
+
+    <Frame caption="Access the Billing settings tab from the Tavly dashboard navigation.">
+      <img height="700" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b1.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=2abd92af92600ecf0bbf8d4fff1f04e3" alt="Billing tab in the dashboard" data-path="images/b1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Access Payment Settings">
+    Click the **Change payment methods** button located in the billing interface to redirect to the secure Stripe portal.
+
+    <Frame caption="Select 'Change payment methods' to open the secure Stripe billing portal.">
+      <img height="700" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b2.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=2a59e5d7d4d78bc8b53508c76aa29d46" alt="Change payment methods button" data-path="images/b2.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Add New Payment Method in Stripe">
+    Within the Stripe billing management screen, click **Add payment method**. Enter your credit card or debit card credentials, billing address, and confirm. All card data is vaulted securely by Stripe.
+
+    <Frame caption="Enter card credentials and billing address within Stripe's encrypted interface.">
+      <img height="700" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b3.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=af4154efef98bddd76e5103938fdb6e7" alt="Stripe payment details form" data-path="images/b3.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+***
+
+## How is payment data isolated across multiple workspaces?
+
+Payment methods are strictly isolated **per workspace**. Adding or modifying a credit card in one workspace does not link or apply it to any other workspaces under the same user credentials. Each project or enterprise workspace manages independent **payment cards**, **billing histories**, **prepaid balances**, and **monthly invoices**.
+
+This isolation provides enterprise security and cost-center accounting separation:
+
+* **Departmental Billing**: Development, Staging, and Production workspaces can be linked to separate corporate cards or accounting cost centers.
+* **Client Account Segregation**: Agencies managing client voice agents can attach client-owned cards directly to dedicated client workspaces without cross-contamination.
+* **Service Resiliency**: A payment dispute or card expiration in one workspace does not disrupt telephony routing or agents in sibling workspaces.

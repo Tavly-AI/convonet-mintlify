@@ -1,0 +1,271 @@
+---
+title: 'Genesys Cloud Integration: Connect SIP Phone Trunking'
+sidebarTitle: 'Genesys'
+description: 'Connect Genesys Cloud to Tavly using SIP phone trunks: configure ports 8060/8061, number plans, Architect call routing, TLS/SRTP, and outbound trunking.'
+seo:
+  title: 'Genesys Cloud Integration | SIP Phone Trunk Setup | Tavly AI'
+  description: 'Connect Genesys Cloud to Tavly using SIP phone trunks: configure ports 8060/8061, number plans, Architect call routing, TLS/SRTP, and outbound trunking.'
+og:title: 'Genesys Cloud Integration: Connect SIP Phone Trunking'
+og:description: 'Connect Genesys Cloud to Tavly using SIP phone trunks: configure ports 8060/8061, number plans, Architect call routing, TLS/SRTP, and outbound trunking.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'headset'
+keywords: ['Genesys Cloud integration', 'Genesys SIP trunk', 'SIP phone trunk 8060', 'Architect SIP transfer', 'Genesys outbound routes', 'Tavly AI Genesys', 'contact center voice AI']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you connect Genesys Cloud to Tavly AI agents?'
+    answer: 'Create a SIP Phone Trunk in Genesys Cloud using TCP port 8060, configure SIP Access Control with Tavly''s IP CIDRs, set up codecs (PCMU/PCMA/G.722), and route inbound calls using Genesys Architect or outbound calls using Site number plans.'
+  - question: 'Why does Genesys Cloud use port 8060 instead of standard SIP port 5060?'
+    answer: 'Genesys Cloud designates ports 8060 (UDP/TCP) and 8061 (TLS) specifically for SIP phone trunks to isolate telephony traffic from core services. Perimeter firewalls and SBCs must permit these ports bidirectionally.'
+  - question: 'How are outbound transfers routed from Genesys to Tavly trunks?'
+    answer: 'In Genesys Cloud Sites, create an E.164 Number Plan matching the destination dial pattern, assign it to an Outbound Route pointing to the Tavly SIP phone trunk, and order the plan above competing routes.'
+  - question: 'What causes one-way audio on a Genesys Cloud SIP trunk?'
+    answer: 'One-way audio is almost always caused by firewall or NAT blocks on dynamic UDP RTP ports 16384–32766 or SDP media IP mismatches between Genesys AWS regional media servers and Tavly.'
+---
+
+<Note>
+  Customers with an enterprise or paid support plan can contact us via the <a href="https://support.tavly.com/">Customer Support Portal</a> or [support@tavly.com](mailto:support@tavly.com) for step-by-step guidance to connect with your Genesys infrastructure.
+</Note>
+
+## What is Genesys Cloud SIP trunking integration?
+
+**Genesys Cloud SIP trunking integration** connects Genesys Cloud contact center infrastructure to Tavly conversational voice agents using dedicated SIP phone trunks. This configuration allows Genesys to route incoming customer interactions directly to AI voice agents while enabling Tavly to initiate outbound calling campaigns through verified enterprise phone numbers and telephony carriers.
+
+Through this integration, Tavly functions as a SIP endpoint registered within Genesys Cloud:
+
+```
+PSTN Caller ↔ Genesys Cloud (Edge / Core) ↔ [SIP Trunk Port 8060] ↔ Tavly Voice Agent Gateway
+```
+
+For the baseline architectural framework of connecting Tavly to third-party telecommunications providers over SIP, see the [custom telephony overview](/deploy/custom-telephony).
+
+### Tavly SIP Endpoint Specifications
+
+Review the technical parameters required for integrating with Tavly SIP gateways:
+
+| Parameter | Specification | Description |
+| :--- | :--- | :--- |
+| **SIP Server URI** | `sip.tavlyai.com` | Primary inbound and outbound SIP gateway domain |
+| **Global IP CIDR** | `18.98.16.120/30` | Covers all global regions and routing nodes |
+| **US Regional CIDRs** | `143.223.88.0/21`, `161.115.160.0/19` | Covers select United States regional traffic |
+| **Signaling Transports** | `TCP` (Recommended), `UDP`, `TLS` | TCP provides resilient, connection-oriented packet transport |
+| **Supported Codecs** | `PCMU` (G.711 µ-law), `PCMA` (G.711 A-law), `G.722` | Negotiated dynamically during SDP handshakes |
+| **Media Security** | `SRTP` (`AES_CM_128_HMAC_SHA1_80`) | Enabled when SIP transport is configured with TLS |
+
+---
+
+## What are the firewall and network requirements for Genesys Cloud?
+
+The **firewall and network requirements** for Genesys Cloud require opening bidirectional SIP signaling ports—specifically port 8060 for UDP/TCP or port 8061 for TLS—and dynamic UDP RTP media ports 16384–32766. Network administrators must also whitelist Tavly IP subnets across perimeter firewalls and session border controllers.
+
+Before establishing the trunk, ensure your network security devices allow SIP signaling and RTP media between Genesys Cloud and Tavly. In alignment with Genesys security standards (see [About Trunks](https://help.genesys.cloud/articles/about-trunks/)), specify explicit CIDRs rather than allowing open traffic.
+
+### Whitelist Tavly Inbound IP Ranges
+
+Allow inbound traffic from Tavly IP ranges to your Genesys Cloud deployment:
+
+| CIDR Block | Coverage | Purpose |
+| :--- | :--- | :--- |
+| `18.98.16.120/30` | All regions | Primary global signaling and media gateway block |
+| `143.223.88.0/21` | Certain US traffic | High-volume US regional media and signaling servers |
+| `161.115.160.0/19` | Certain US traffic | Secondary US regional media and signaling servers |
+
+### Ports to Open Bidirectionally
+
+| Protocol | Port / Port Range | Purpose |
+| :--- | :--- | :--- |
+| **TCP / UDP** | `8060` | SIP signaling (Genesys SIP phone trunk default port) |
+| **TCP** | `8061` | SIP over TLS signaling (enforced when using TLS transport) |
+| **UDP** | `16384–32766` | RTP / SRTP dynamic audio media streams |
+
+<Note>
+  Genesys Cloud utilizes ports **8060** (UDP/TCP) and **8061** (TLS) for SIP phone trunks—deviating from the traditional SIP ports 5060/5061. Confirm that your perimeter firewall and SBC rules reference these Genesys-specific ports.
+</Note>
+
+### Genesys Cloud Media Server IPs
+
+Genesys Cloud media traffic originates from underlying AWS regions. Whitelist the IP ranges for your specific [AWS region](https://help.mypurecloud.com/articles/aws-regions-for-genesys-cloud-deployment/) so Tavly gateways can receive RTP packets from Genesys. Your Genesys Cloud login URL indicates your deployed region (for example, `login.mypurecloud.com` corresponds to US East, while `login.mypurecloud.de` denotes Frankfurt). If you route calls through an on-premises SBC, apply these access policies at the SBC.
+
+---
+
+## How do you create and configure a SIP phone trunk in Genesys Cloud?
+
+To configure a **SIP phone trunk in Genesys Cloud**, navigate to Telephony Trunks, create a new SIP phone trunk set to In-Service, select TCP port 8060 (or TLS 8061), configure audio codecs (PCMU/PCMA/G.722), and enforce SIP Access Control by whitelisting Tavly public IP CIDR ranges.
+
+Follow these step-by-step procedures in the Genesys Cloud administration console, referencing the official [Create a SIP Phone Trunk](https://help.genesys.cloud/articles/create-sip-phone-trunk/) guide:
+
+<Steps>
+  <Step title="Create the SIP Phone Trunk">
+    1. In Genesys Cloud, open **Admin** > **Telephony** > **Trunks** (or **Menu** > **Digital and Telephony** > **Telephony** > **Trunks**).
+    2. Select the **Phone Trunks** tab and click **Create New**.
+    3. Enter a descriptive identifier in the **Phone Trunk Name** field (e.g. `Tavly-SIP-Trunk`).
+    4. Set **Type** to **SIP** and ensure **Trunk State** is set to **In-Service**.
+  </Step>
+
+  <Step title="Configure Protocol, Transport, and Rate Limits">
+    1. Under **Protocol and Listen Port**, select your transport method and port:
+       * **TCP** or **UDP**: Port `8060` (TCP is recommended for reliability).
+       * **TLS**: Port `8061` (select this if your architecture mandates SRTP media encryption).
+    2. Under **Registrations**, set the **Max Registration Rate** to throttle REGISTER request frequencies if required by your network policy.
+  </Step>
+
+  <Step title="Configure SIP Access Control (Source IP Whitelist)">
+    1. Under **SIP Access Control**, set **Use Source Address** to **Yes**.
+    2. Add each of Tavly's IP CIDR subnets:
+       * `18.98.16.120/30`
+       * `143.223.88.0/21`
+       * `161.115.160.0/19`
+    3. Leave **Always Deny** blank.
+
+    <Note>
+      Genesys best practice mandates specifying explicit IP subnets here rather than allowing all traffic. This prevents unauthorized SIP INVITE attacks.
+    </Note>
+  </Step>
+
+  <Step title="Configure Audio Codecs">
+    Under [SIP Phone Trunk Settings](https://help.genesys.cloud/articles/sip-phone-trunk-settings/), configure the active codecs to match Tavly's supported formats:
+
+    | Codec | Genesys Audio Format | Characteristics |
+    | :--- | :--- | :--- |
+    | **PCMU (G.711 µ-law)** | `audio/PCMU` | **Recommended** — standard telephony format across North America |
+    | **PCMA (G.711 A-law)** | `audio/PCMA` | Standard telephony format across Europe and international regions |
+    | **G.722** | `audio/G722` | Wideband high-definition (HD) audio format |
+
+    Click **Save Phone Trunk** to finalize your trunk profile.
+  </Step>
+</Steps>
+
+---
+
+## How do you route inbound calls to Tavly using Genesys Architect?
+
+To route **inbound calls to Tavly using Genesys Architect**, create an Inbound Call Flow containing a Transfer to SIP action targeting your provisioned Tavly SIP endpoint. Then, link your inbound DID numbers to the Architect flow under Call Routing, ensuring incoming calls transfer directly to active conversational agents.
+
+Follow these configuration steps to manage inbound traffic flows:
+
+### 1. Assign Numbers to the Trunk in Genesys
+
+1. In Genesys Cloud, navigate to **Admin** > **Telephony** > **Phone Numbers**.
+2. Select the DID number you wish to use with Tavly.
+3. Edit the number configuration and assign it to the `Tavly-SIP-Trunk`.
+
+### 2. Build the Architect Inbound Flow
+
+1. Navigate to **Admin** > **Routing** > **Architect** and open or create an **Inbound Call Flow**.
+2. Add a **Transfer to SIP** action to the call logic:
+   * Specify the destination SIP URI: `sip:{call_id}@sip.tavlyai.com`, where `{call_id}` is obtained from a prior execution of the [Register Phone Call API](/api-references/register-phone-call).
+   * *Alternative Direct Routing*: If you imported the number directly into Tavly with the corresponding termination URI, Genesys forwards the SIP INVITE automatically to `sip.tavlyai.com` over the trunk.
+3. Under **Admin** > **Routing** > **Call Routing**, establish a **DID Route** linking your inbound phone number to this Architect flow.
+4. **Publish** the flow to activate real-time routing.
+
+---
+
+## How do you configure outbound calling routes and site number plans?
+
+To configure **outbound calling routes and site number plans**, open your Genesys Site settings, create an E.164 number plan matching target dial prefixes, and build an outbound route referencing the Tavly SIP phone trunk. Position the plan at top evaluation priority so outbound traffic routes through Tavly.
+
+When a Tavly agent transfers a call back to Genesys or initiates an outbound session, Genesys evaluates the caller's assigned **Site** to select the correct external trunk. Follow these steps (referencing [Manage sites](https://help.genesys.cloud/articles/manage-sites/) and [About number plans](https://help.genesys.cloud/articles/about-number-plans/)):
+
+### 1. Create a Number Plan
+
+1. Navigate to **Admin** > **Telephony** > **Sites** and select the active Site.
+2. In the **Number Plans** tab, click **Add**:
+   * **Name**: `Tavly-Outbound-Plan`
+   * **Classification**: Define or select a classification (e.g. `US-Domestic`).
+   * **Match Type**: Choose `E.164 Number List`, `Number List`, or `Regular Expression`.
+   * **Numbers / Regex**: Define matching destinations (e.g. `^\+1\d{10}$` for US E.164 format).
+   * **Normalization**: Ensure format normalizes to standard E.164 (`+1XXXXXXXXXX`).
+3. Save the number plan and move it to the top of the evaluation list (plans evaluate top-to-bottom).
+
+### 2. Create an Outbound Route
+
+1. On the **Outbound Routes** tab, click **Add**:
+   * **Name**: `Tavly-Outbound-Route`
+   * **Classifications**: Select the classification configured in your number plan (`US-Domestic`).
+   * **External Trunks**: Select `Tavly-SIP-Trunk`. If multiple trunks exist, prioritize the Tavly trunk first.
+   * **Distribution**: Set to `Sequential` (failover in order) or `Random` (load balance).
+2. Save the route and republish any Architect flows associated with the Site.
+
+<Note>
+  If outbound calls route through the wrong carrier trunk, verify that the classification on the number plan exactly matches the outbound route classification, ensure no higher-priority number plan matched first, and confirm the initiating user/flow belongs to the edited Site.
+</Note>
+
+### 3. Place Outbound Calls from Tavly
+
+Dispatch outbound calls via the Tavly dashboard or the [Create Phone Call API](/api-references/create-phone-call). Tavly transmits a SIP INVITE to your Genesys termination URI, and Genesys bridges the call out to the PSTN displaying your verified caller ID.
+
+---
+
+## How do you configure TLS encryption and SRTP media security?
+
+To configure **TLS encryption and SRTP media security**, update the Genesys trunk protocol to TLS on port 8061, enable TLS v1.2 with AES cipher suites, activate SRTP audio encryption, and install Amazon Trust Services Root CA certificates on any on-premises SBC or Edge appliances in the media path.
+
+When security policies mandate end-to-end encryption for signaling and RTP streams, configure the following settings:
+
+### Technical Mechanics
+
+* **TLS**: Encrypts the SIP signaling handshake (INVITE, BYE, ACK).
+* **SRTP**: Encrypts the bidirectional RTP audio media. Tavly mandates TLS transport to activate SRTP.
+* **Termination SIP URI**: Append the explicit transport parameter when importing your number into Tavly:
+  ```
+  sip:sip.tavlyai.com;transport=tls
+  ```
+
+### Genesys Trunk Settings for TLS
+
+1. In trunk configuration (**Admin** > **Telephony** > **Trunks** > **Phone Trunks** > your trunk), set **Protocol** to **TLS** and **Listen Port** to `8061`.
+2. Under [SIP Phone Trunk Settings](https://help.genesys.cloud/articles/sip-phone-trunk-settings/), set:
+   * **TLS Version**: `TLS v1.2`.
+   * **Cipher Suite**: Select `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384` or `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`.
+   * **Mutual TLS**: Keep disabled unless explicit client certificates are coordinated with Tavly support.
+3. Enable **SRTP** under media security. Recommended SRTP cipher suites:
+   * `AES_CM_128_HMAC_SHA1_80` (Recommended)
+   * `AES_CM_256_HMAC_SHA1_80`
+
+### Certificate Authority Management
+
+Tavly's SIP gateway presents certificates signed by **Amazon Trust Services**. While Genesys Cloud cloud instances validate this automatically, on-premises Genesys Edge appliances or SBCs may require installing the CA chain locally from the [Amazon Trust Services repository](https://www.amazontrust.com/repository/):
+
+* **Root CA**: Amazon Root CA 1 (`AmazonRootCA1.pem`)
+* **Intermediate CA**: `C=US, O=Amazon, CN=Amazon RSA 2048 M01`
+
+---
+
+## How do you troubleshoot common Genesys Cloud SIP issues?
+
+To troubleshoot **common Genesys Cloud SIP issues**, inspect Interaction Detail Records for SIP status codes, verify that trunk operational status displays In-Service, and run diagnostic protocol captures. Resolve 403 Forbidden errors by checking SIP Access Control, and fix one-way audio by opening bidirectional UDP RTP media ports.
+
+Utilize the following diagnostic tools and reference matrix to isolate failures:
+
+### Diagnostic Tooling
+
+* **Interaction Detail Records**: Go to **Performance** > **Workspace** > **Interactions**, search by ANI/DNIS, and inspect the chronological SIP timeline.
+* **Trunk Operational Status**: Go to **Admin** > **Telephony** > **Trunks** > **Phone Trunks**. A state of **Down** or **Degraded** signals firewall blocks or source IP mismatches.
+* **Protocol Captures**: Enable protocol capture under [Advanced SIP Phone Trunk Settings](https://help.genesys.cloud/articles/configure-advanced-sip-phone-trunk-settings/) to inspect raw SIP headers, SDP negotiation, and Far-End NAT Traversal (FENT).
+* **Platform Diagnostics**: Consult [Debug outbound connection issues](/reliability/debug-outbound-call) for status codes and [Debug SIP calls using PCAP files](/reliability/debug-calls-pcap) to review packet signaling in Wireshark.
+
+### Troubleshooting Matrix
+
+| Symptom | Probable Cause | Corrective Action |
+| :--- | :--- | :--- |
+| **Calls Fail to Reach Tavly** | Firewall blocking or routing misconfiguration | Verify SIP Access Control CIDRs and inspect perimeter firewall rules on port 8060/8061. |
+| **403 Forbidden** | Source IP not whitelisted on trunk | Add Tavly CIDR ranges (`18.98.16.120/30`, `143.223.88.0/21`, `161.115.160.0/19`) to SIP Access Control. |
+| **503 Service Unavailable** | DNS resolution failure or network block | Verify external DNS resolution for `sip.tavlyai.com` and verify outbound port 8060 egress. |
+| **One-Way Audio** | RTP media ports blocked or NAT mismatch | Open UDP `16384–32766` bidirectionally; verify SDP `c=` media IPs in SIP trace. |
+| **No Audio (Codec Error)** | No shared codec in SDP offer/answer | Add `audio/PCMU` and `audio/PCMA` to the Genesys phone trunk codec priority list. |
+| **Calls Drop at ~30s** | Mid-call SIP re-INVITE blocked | Allow mid-call SIP signaling through firewalls to permit session refresh handshakes. |
+| **Registration Drops** | Registration rate limit exceeded | Increase the **Max Registration Rate** threshold in trunk settings. |
+
+<Note>
+  If an issue persists, capture the Genesys Interaction ID and the Tavly Call ID from your dashboard, and submit them through the <a href="https://support.tavly.com/">Customer Support Portal</a> or via [support@tavly.com](mailto:support@tavly.com).
+</Note>
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Architecture for elastic SIP trunking vs. direct SIP URI routing.
+* [Twilio integration guide](/deploy/twilio): Connect external trunks using Twilio Elastic SIP Trunking.
+* [Avaya Aura integration](/deploy/avaya): Connect enterprise Avaya Aura systems via Avaya SBCE.
+* [Inbound call routing](/deploy/inbound-call): Route enterprise calls directly to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass contextual metadata and tokens between Genesys and Tavly.

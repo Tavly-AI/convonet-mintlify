@@ -1,0 +1,131 @@
+---
+title: 'Define Resolution Criteria: AI Conditions and Performance Metrics'
+sidebarTitle: 'Resolution Criteria'
+description: 'Define Tavly AI QA resolution criteria: configure qualitative AI-evaluated conditions, latency thresholds, and weighted scores to measure call success rates.'
+seo:
+  title: 'Define AI QA Resolution Criteria & Success Metrics | Tavly AI'
+  description: 'Define Tavly AI QA resolution criteria: configure qualitative AI-evaluated conditions, latency thresholds, and weighted scores to measure call success rates.'
+og:title: 'Define Resolution Criteria: AI Conditions and Performance Metrics'
+og:description: 'Define Tavly AI QA resolution criteria: configure qualitative AI-evaluated conditions, latency thresholds, and weighted scores to measure call success rates.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-cohort.png'
+twitter:card: 'summary_large_image'
+icon: 'bullseye-arrow'
+keywords: ['resolution criteria', 'AI QA call success', 'AI evaluated conditions', 'call resolution rate', 'weighted scoring QA', 'Tavly AI QA criteria', 'call quality evaluation']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between AI-evaluated conditions and performance metrics?'
+    answer: 'AI-evaluated conditions use LLMs to assess qualitative conversational context from transcripts (such as customer satisfaction or issue resolution). Performance metrics measure quantitative telemetry data (such as turnaround latency, speech interruptions, and hallucination scores).'
+  - question: 'How is the overall Call Resolution Rate calculated?'
+    answer: 'A call is classified as resolved if it satisfies all mandatory AI-evaluated conditions and performance metric thresholds, or meets the minimum weighted score threshold configured in your cohort resolution criteria.'
+  - question: 'Can different criteria have unequal weights in the quality score?'
+    answer: 'Yes. Weighted scoring lets you assign proportional importance across criteria (e.g., 60% for issue resolution, 20% for knowledge base fidelity, and 20% for latency compliance).'
+  - question: 'Where are prompt descriptions defined for custom resolution criteria?'
+    answer: 'Prompt descriptions are defined directly within the AI-evaluated condition modal, instructing the LLM on specific textual evidence and logical criteria needed to satisfy that condition.'
+---
+
+## What are resolution criteria and how do they evaluate call success?
+
+**Resolution criteria** in Tavly AI QA establish the formal benchmark rules that determine whether a conversation was successful. Moving beyond binary connection statuses, resolution criteria combine qualitative AI-evaluated prompt conditions, quantitative performance metric thresholds, and customizable weighted scoring models to calculate an objective **Call Resolution Rate** and **Average Score** across your cohort.
+
+<Frame caption="Configuring resolution criteria following cohort selection in the Create QA wizard.">
+  <img height="700" src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-cohort.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=b9bea42f1fd99e208d4ca79ae7eec9d9" alt="QA cohort creation form with fields for cohort name, agent and call filters, and sampling percentage" data-path="ai-qa/images/create-cohort.png" />
+</Frame>
+
+### Strategic Role of Resolution Criteria
+
+* **Objective Success Benchmarking**: Replace subjective manual spot-checks with deterministic, automated scoring applied consistently across thousands of conversations.
+* **Granular Failure Identification**: Pinpoint the precise reason why an interaction failed—whether due to an unresolved customer inquiry, slow turn latency, or an ungrounded hallucination.
+* **Executive Performance Tracking**: Powers the **Call Resolution Rate** percentage and composite quality scores displayed in your [AI QA Results](/monitor/ai-qa/view-qa-results) dashboard.
+
+---
+
+## How do you configure qualitative AI-evaluated conditions?
+
+To **configure AI-evaluated conditions**, define qualitative criteria evaluated by large language models directly against conversation transcripts. Provide an explicit condition name (such as *Customer issue resolved* or *Appointment confirmed*) and a detailed prompt description instructing the LLM on exact textual evidence required to deem the condition satisfied.
+
+<Steps>
+  <Step title="Add an AI-evaluated condition">
+    In the resolution criteria panel of the Create QA flow, click **+ Add Condition**.
+  </Step>
+
+  <Step title="Define condition name">
+    Assign a concise, descriptive title (e.g., `Issue Fully Resolved`, `Proper Identification Collected`, or `Polite Professional Closing`).
+  </Step>
+
+  <Step title="Write prompt instructions">
+    Formulate explicit prompt guidelines instructing the LLM how to grade the transcript. Detail both qualifying and disqualifying behaviors:
+    * *Example*: "Did the agent address the customer's core inquiry? Set to true if the caller explicitly acknowledges the resolution or confirms next steps. Set to false if the caller states they will need to call back or expresses unresolved confusion."
+  </Step>
+
+  <Step title="Designate condition requirement">
+    Mark the condition as **Required** if failure should automatically fail the entire call, or assign a relative weight for composite scoring.
+  </Step>
+</Steps>
+
+---
+
+## How do you integrate quantitative performance metric thresholds?
+
+To **integrate quantitative performance metric thresholds**, incorporate hard telemetry constraints into your evaluation rubric alongside qualitative conditions. Specify acceptable thresholds for end-to-end voice latency, maximum allowable hallucination rates, and knowledge base retrieval recall, ensuring that slow responses or ungrounded factual errors disqualify interactions from achieving successful resolution.
+
+### Supported Quantitative Evaluation Metrics
+
+| Metric Dimension | Telemetry Measured | Recommended Threshold Configuration |
+| :--- | :--- | :--- |
+| **Hallucination Detection** | Ungrounded model assertions | Trigger failure if hallucination count is $> 0$ in the interaction. |
+| **Knowledge Base Recall** | Fact verification against sources | Require $\ge 90\%$ semantic alignment against connected documentation. |
+| **Turn-Taking Latency** | Speech-to-speech delay (p50/p90) | Flag calls where average turn latency exceeds $1,500	ext{ ms}$. |
+| **Acoustic Sentiment** | Customer vocal prosody and emotion | Disqualify calls with prolonged negative emotional inflection. |
+| **Tool Execution Integrity** | Function parameters and HTTP responses | Require $100\%$ success rate on transactional function calls. |
+
+---
+
+## How do you configure weighted scoring and calculate resolution rates?
+
+To **configure weighted scoring**, assign relative percentage weights to each condition and metric based on operational importance. For instance, assign a sixty-percent weight to issue resolution and forty-percent to polite customer sentiment. Tavly computes a composite quality score from zero to one hundred for every audited call.
+
+### Weighted Scoring Model Example
+
+When multiple criteria contribute to overall evaluation, weights total $100\%$ across your rubric:
+
+| Evaluated Criterion | Criterion Type | Assigned Weight | Pass / Fail Impact |
+| :--- | :--- | :--- | :--- |
+| **Core Inquiry Resolved** | AI Condition | **$50\%$** | Primary operational objective. |
+| **Zero Hallucinations** | Performance Metric | **$25\%$** | Essential compliance gate. |
+| **Positive / Neutral Sentiment** | Acoustic Metric | **$15\%$** | Customer experience benchmark. |
+| **Latency Under 1.5s** | Performance Metric | **$10\%$** | Conversational flow benchmark. |
+
+### Call Resolution Logic
+1. **Hard Requirements**: If any single criterion marked as **Required** fails, the call is automatically categorized as **Unresolved** (`0%`), regardless of performance on other metrics.
+2. **Score Threshold**: For flexible rubrics, calls with a composite weighted score exceeding the configured threshold (e.g., $\ge 80 / 100$) are categorized as **Resolved**.
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between AI-evaluated conditions and performance metrics?">
+    AI-evaluated conditions use LLMs to evaluate qualitative conversational nuance from transcripts (such as customer sentiment or inquiry resolution). Performance metrics track quantitative telemetry (such as turnaround latency, speech interruptions, and factual hallucination scores).
+  </Accordion>
+
+  <Accordion title="How is the overall Call Resolution Rate calculated?">
+    A call is classified as resolved if it satisfies all mandatory AI-evaluated conditions and performance metric thresholds, or meets the minimum weighted score threshold configured in your cohort resolution criteria.
+  </Accordion>
+
+  <Accordion title="Can different criteria have unequal weights in the quality score?">
+    Yes. Weighted scoring lets you assign proportional importance across criteria (e.g., 50% for issue resolution, 25% for hallucination prevention, and 25% for latency compliance).
+  </Accordion>
+
+  <Accordion title="Where are prompt descriptions defined for custom resolution criteria?">
+    Prompt descriptions are defined directly within the AI-evaluated condition modal, instructing the LLM on specific textual evidence and logical criteria needed to satisfy that condition.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [AI Quality Assurance overview](/monitor/ai-qa/overview): High-level system architecture, supported metrics, and pricing.
+* [Define a QA cohort](/monitor/ai-qa/create-cohort): Select agents, date horizons, and sampling rates before setting criteria.
+* [View QA results](/monitor/ai-qa/view-qa-results): Inspect aggregate cohort trends, failure modes, and transcript citations.
+* [AI QA metrics & terminology](/monitor/ai-qa/terminologies): Comprehensive glossary of quality assurance scoring formulas.
+* [Address metric issues](/monitor/ai-qa/address-metric-issues): Step-by-step guidance for resolving hallucinations and latency bottlenecks.

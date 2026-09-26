@@ -1,0 +1,227 @@
+---
+title: "Troubleshooting Custom LLM Integrations"
+sidebarTitle: "Troubleshooting"
+description: "Troubleshoot Tavly custom LLM integrations: resolve WebSocket connection errors, diagnose silent agents, fix dropped calls, and inspect session Detail Logs."
+seo:
+  title: "Troubleshooting Custom LLM Voice Agents: Errors, Disconnects & Logs"
+  description: "Troubleshoot Tavly custom LLM integrations: resolve WebSocket connection errors, diagnose silent agents, fix dropped calls, and inspect session Detail Logs."
+og:title: "Troubleshooting Custom LLM Voice Agents: Errors, Disconnects & Logs"
+og:description: "Troubleshoot Tavly custom LLM integrations: resolve WebSocket connection errors, diagnose silent agents, fix dropped calls, and inspect session Detail Logs."
+twitter:card: "summary_large_image"
+icon: "triangle-exclamation"
+keywords:
+  - "troubleshoot custom LLM"
+  - "error_llm_websocket disconnection"
+  - "silent voice agent fix"
+  - "WebSocket 1006 reconnect"
+  - "ping_pong keepalive timeout"
+  - "Tavly detail logs debug"
+  - "dropped phone call troubleshooting"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why does the voice agent remain completely silent after the call starts?"
+    answer: "Check that your server transmitted an initial begin message with response_id: 0, that content_complete: true was provided on the final response chunk, and that the socket opened successfully."
+  - question: "What does error_llm_websocket_open mean and how do you resolve it?"
+    answer: "This error indicates Tavly attempted 3 times with a 7-second timeout to connect to your endpoint and failed. Verify your server is running, the URL has valid TLS, and Tavly's IP 100.20.5.228 is allowlisted."
+  - question: "Why does my phone call drop automatically after exactly 5 minutes?"
+    answer: "Exact minute drops indicate an idle or hard connection lifetime timeout enforced by your host, load balancer, or reverse proxy. Enable auto_reconnect keepalives or increase proxy timeout settings."
+  - question: "How can I secure my custom LLM WebSocket endpoint if Tavly sends no auth headers?"
+    answer: "Allowlist Tavly's static outbound IP (100.20.5.228) at your network firewall, or append a unique secret token as a query parameter in your configured Custom LLM URL."
+---
+
+# Troubleshooting
+
+> Debug a Tavly custom LLM integration: map error_llm_websocket disconnection reasons to fixes for silent agents, dropped calls, and WebSocket errors.
+
+When diagnosing custom LLM integration issues, always begin by inspecting the call record. Navigate to [Session History](/features/session-history) in your Tavly dashboard to review two critical diagnostic elements: the primary **disconnection reason** and the chronological **Detail Logs**, which record the complete full-duplex WebSocket lifecycle for that session.
+
+---
+
+## How do you inspect custom LLM WebSocket lifecycle events and error logs?
+
+Inspect custom LLM WebSocket activity by opening the session in **Session History** to review the official **disconnection reason** and chronological **Detail Logs**. Diagnostic markers like `LLM ws open`, `LLM Ws init timeout`, and `Error in parsing LLM websocket message` indicate whether failures stem from transport handshakes, missing keepalives, or malformed JSON payloads.
+
+Tavly logs every transport event, handshake attempt, and payload parsing error. Use the table below to interpret key log signatures during debugging:
+
+| Log Signature | Technical Meaning & Diagnostic Implication |
+| :--- | :--- |
+| **`LLM Ws init attempt 0`** | Tavly is initiating the initial TCP/TLS handshake to your configured endpoint. |
+| **`LLM ws open`** | The WebSocket upgrade succeeded and the connection is active. |
+| **`LLM Ws init timeout on attempt N`** | Your backend server did not complete the WebSocket upgrade within the 7-second timeout window. |
+| **`Ws max retry attempt reached`** | Tavly exhausted its three initial connection attempts and terminated the call. |
+| **`LLM ws closed: <code>`** | The WebSocket connection closed, annotated with the specific numeric close code. |
+| **`Got 1006 and reconnecting`** | An abnormal socket disconnection occurred; Tavly is attempting an automatic reconnect. |
+| **`Error in parsing LLM websocket message`** | Your server transmitted an invalid JSON string, malformed schema, or non-text frame. |
+
+---
+
+## What do the four error_llm_websocket disconnection reasons mean?
+
+Four specific codes pinpoint LLM WebSocket failures: **`error_llm_websocket_open`** (handshake unreachable after three 7-second attempts), **`error_llm_websocket_lost_connection`** (unanswered keepalives), **`error_llm_websocket_runtime`** (unhandled server exceptions or abnormal `1006` closures), and **`error_llm_websocket_corrupt_payload`** (binary frames received instead of stringified text JSON). Closing with code `1000` registers as a deliberate user hangup.
+
+The table below maps each error code to its root cause and immediate corrective action:
+
+| Error Disconnection Reason | Root Cause Scenario | Recommended Investigation & Fix |
+| :--- | :--- | :--- |
+| **`error_llm_websocket_open`** | Tavly failed to establish the initial connection. Tavly performs 3 attempts (7s timeout each, spaced 3s apart). Also triggered mid-call if your server closes the socket without a status code (`1005`). | Verify public DNS, TLS certificates (`wss://`), server port binding, and route path matching. For mid-call drops, ensure server-initiated close events specify a valid code. |
+| **`error_llm_websocket_lost_connection`** | Inbound `ping_pong` keepalives went unanswered beyond the 5-second threshold, or reconnection attempts exhausted retry quotas. | Verify that your server echoes `ping_pong` events immediately. Ensure your reverse proxy or load balancer does not enforce aggressive idle timeouts. |
+| **`error_llm_websocket_runtime`** | An unhandled exception crashed your socket handler, your server closed the socket unexpectedly, or abnormal disconnects (`1006`) repeated beyond retry limits. | Inspect server application exception logs, catch unhandled errors in async handlers, and inspect the specific close code reported in `LLM ws closed`. |
+| **`error_llm_websocket_corrupt_payload`** | Tavly received a binary frame or malformed bytes instead of a valid UTF-8 stringified text JSON frame (Close Code `1007`). | Ensure all socket transmissions emit serialized string JSON (`JSON.stringify()` or `json.dumps()`), never raw binary buffers or bytearrays. |
+
+<Note>
+  Closing the WebSocket from your server using standard code `1000` is interpreted as an intentional graceful completion, categorizing the call as `agent_hangup` rather than an error. Never send close code `1000` to indicate an error condition.
+</Note>
+
+---
+
+## Why does the voice agent remain silent after receiving user speech?
+
+A silent voice agent typically indicates an unclosed response turn missing **`content_complete: true`**, an unhandled initial greeting on **`response_id: 0`**, or a mismatched `response_id` that Tavly discards silently. Validate that stringified JSON frames pass schema validation and verify the server received an initial `LLM ws open` log event.
+
+Work systematically through this ordered diagnostic checklist:
+
+<Steps>
+  <Step title="Confirm the WebSocket connection opens successfully">
+    Check the Detail Logs in Session History for the `LLM ws open` confirmation. If the log displays only init attempts and timeouts, the issue is transport-related. Proceed directly to the [connection failures section](#how-do-you-diagnose-and-resolve-initial-websocket-connection-failures).
+  </Step>
+
+  <Step title="Verify delivery of the initial begin message">
+    Tavly expects your server to emit a `response` payload with `response_id: 0` immediately upon connection. If your server transmits an empty string (`content: ""`) by design, the agent remains silent until the human caller initiates speech.
+  </Step>
+
+  <Step title="Ensure content_complete: true is transmitted">
+    Tavly holds a response turn open until it receives `content_complete: true`. If this flag is omitted, the speech engine pauses indefinitely waiting for additional text deltas: the agent stops speaking, no error is thrown, and recovery only occurs when the caller speaks again. Always emit this flag inside a defensive `finally` block.
+  </Step>
+
+  <Step title="Verify matching response_id values">
+    Tavly validates incoming tokens strictly against the most recent `response_id` it requested. If Tavly requests response `5` and your server replies with `4`, all content chunks are discarded silently. Always echo back the exact integer received in `response_required`.
+  </Step>
+
+  <Step title="Validate payload schema and field data types">
+    Tavly rejects payloads containing type mismatches: `content_complete` must be a literal boolean (`true`, not `"true"`), `content` must be a string, and `response_id` must be an integer. Type violations are logged in Detail Logs and the malformed frame is discarded.
+  </Step>
+
+  <Step title="Check for JSON serialization and parsing errors">
+    `Error in parsing LLM websocket message` indicates malformed JSON formatting. Tavly ignores the invalid frame, causing the agent to stall in silence.
+  </Step>
+</Steps>
+
+---
+
+## How do you diagnose and resolve initial WebSocket connection failures?
+
+Resolve initial connection failures by ensuring your endpoint uses valid **`wss://` TLS protocols**, routes accept the dynamic `/:call_id` path suffix, and your server runtime includes native WebSocket libraries. Verify network firewalls allowlist Tavly's static IP (**`100.20.5.228`**), and validate endpoint reachability using command-line testing tools like `websocat`.
+
+Examine these five common configuration pitfalls:
+
+1. **Protocol and TLS mismatch**: Use `wss://` (or `https://`) for production endpoints and `ws://` (or `http://`) for local development. Pointing `wss://` at an unencrypted HTTP/WS server causes the TLS handshake to hang until timeout.
+2. **Do not hardcode call IDs in the dashboard URL**: Configure the base path only in your agent settings: `wss://api.yourdomain.com/llm-websocket`. Tavly automatically appends `/{call_id}` to the URL path during connection dispatch.
+3. **Ensure route handlers accept the dynamic call ID segment**: Your server router must register a parameterized route that captures the terminal segment (e.g., `/llm-websocket/:call_id` in Express or `/llm-websocket/{call_id}` in FastAPI). Static routes defined at `/llm-websocket` reject incoming calls with 404 Not Found errors.
+4. **Verify WebSocket library installation in Python**: Running `pip install fastapi uvicorn` installs basic HTTP support without WebSocket dependencies. Uvicorn responds to upgrade requests with a `404 Not Found` and logs `No supported WebSocket library detected`. Install `fastapi[standard]`, `uvicorn[standard]`, or `websockets`.
+5. **Firewall and IP allowlisting**: If your network infrastructure restricts inbound ingress traffic, allowlist Tavly's outbound IP address: `100.20.5.228`.
+
+### Testing server reachability from the command line
+
+Test endpoint reachability independently of telephony using `websocat` by establishing a direct connection and transmitting a synthetic `response_required` frame:
+
+```bash theme={"dark"}
+websocat wss://api.yourdomain.com/llm-websocket/test-call-id
+```
+
+```json theme={"dark"}
+{ "interaction_type": "response_required", "response_id": 1, "transcript": [] }
+```
+
+If your server fails to reply with a valid `response` frame, the defect resides in your application logic. If it replies successfully but Tavly cannot connect, inspect DNS resolution, TLS certificates, and edge firewall rules.
+
+---
+
+## Why do phone calls drop prematurely after a few seconds or minutes?
+
+Calls dropping within seconds usually result from accidental **`end_call: true`** flags, unsupported serverless execution runtimes, or un-echoed keepalive heartbeats when blocking generation delays `ping_pong` responses beyond the 5-second deadline. Drops at exact minute marks typically stem from upstream reverse proxy, load balancer, or hosting provider idle timeout caps.
+
+Identify the drop timeframe to isolate the root cause:
+
+### Calls dropping within 5 to 15 seconds
+
+* **Accidental hangup flag**: Verify your server does not inadvertently attach `end_call: true` to early responses.
+* **Serverless runtime termination**: Serverless platforms (AWS Lambda, Vercel Edge, Cloudflare Workers) terminate executions after returning an initial response. Deploy on persistent virtual machines or container clusters.
+* **Missed keepalive deadline**: If `auto_reconnect: true` is enabled, your server must echo `ping_pong` events within 5 seconds. If synchronous, blocking code (such as unstreamed LLM generation or slow database lookups) blocks the event loop, keepalives queue up and Tavly drops the socket. Always process WebSocket messages concurrently.
+
+### Calls dropping at exact round minute marks (e.g., 5m, 10m, 15m)
+
+* **Proxy and load balancer idle timeouts**: Reverse proxies (NGINX, Cloudflare, AWS ALB) frequently enforce 60-second or 300-second idle connection timeouts. Enabling `auto_reconnect` ensures periodic 2-second ping-pong frames keep proxies active.
+* **Hard connection lifetime limits**: Some cloud platforms enforce absolute connection lifespan limits regardless of activity. Configure your reverse proxy to permit extended WebSocket timeouts (e.g., `proxy_read_timeout 3600s;`).
+
+---
+
+## Why are LLM responses generated on your server but never spoken aloud?
+
+When responses generate on your server but never vocalize, the caller likely continued speaking, causing Tavly to supersede the turn with an incremented **`response_id`**. This represents expected turn-taking behavior: Tavly automatically drops superseded content to prevent talking over the caller, requiring servers to abort stale generation cycles promptly.
+
+Tavly's acoustic speech endpointing evaluates conversational cadence in real time. If a caller pauses briefly and then resumes their thought, Tavly discards the pending response and issues a new `response_required` event with a higher identifier. 
+
+To avoid paying for tokens that are never vocalized, implement an `isStale` check inside your generation loop that monitors whether a newer `response_id` has been received, aborting active model streams immediately (see [handling discarded responses](/integrate-llm/integrate-llm#how-do-you-detect-and-cancel-discarded-responses-when-callers-interrupt)).
+
+---
+
+## Why do tool call invocations fail to appear in call transcripts?
+
+Tool calls fail to appear in call transcripts because Tavly cannot observe internal server function execution automatically. To record tool events into the official call timeline and post-call analytics, your backend must explicitly emit paired **`tool_call_invocation`** and **`tool_call_result`** WebSocket messages sharing matching `tool_call_id` identifiers.
+
+Tavly automatically records carrier-level telephony actions (`end_call`, `transfer_number`, `digit_to_press`). However, external API operations—such as querying a CRM or booking an appointment—run privately on your server. Emitting telemetry events ensures complete observability:
+
+* Transmit `tool_call_invocation` containing stringified JSON arguments when tool execution commences.
+* Transmit `tool_call_result` containing the operation output and a `successful` boolean flag once completed.
+* Review our detailed guide on [recording tool calls in transcripts](/integrate-llm/integrate-function-calling#how-do-you-record-and-weave-tool-call-events-into-the-call-transcript).
+
+---
+
+## Frequently asked questions about troubleshooting custom LLM voice agents
+
+Troubleshooting custom LLM voice agents involves systematically analyzing WebSocket connection lifecycles, validating JSON schema payloads, and resolving network timeouts. By inspecting Session History detail logs, ensuring prompt keepalive responses, and handling speech endpointing gracefully, developers eliminate silent agent stalls and maintain resilient, carrier-grade conversational telephone experiences.
+
+<AccordionGroup>
+  <Accordion title="Tavly sends no auth headers. How do I secure my WebSocket endpoint?">
+    Protect your custom endpoint using two complementary strategies: allowlist Tavly's outbound static IP address (`100.20.5.228`) at your firewall, and append a secure authorization token to your configured Custom LLM URL query parameters (e.g., `wss://api.yourdomain.com/llm-websocket?token=secret_key`), rejecting incoming handshakes that omit it.
+  </Accordion>
+
+  <Accordion title="What does the (unintelligible audio) transcript utterance mean?">
+    When Tavly detects vocal acoustic energy but cannot resolve decipherable phonemes (e.g., quiet murmurs, coughing, or heavy background noise), it emits an utterance containing `(unintelligible audio)`. Your system prompt should instruct the model to handle this gracefully by conversationally asking the caller to repeat themselves.
+  </Accordion>
+
+  <Accordion title="Why does my agent function properly on web calls but fail on phone calls?">
+    The custom LLM WebSocket protocol operates identically across web and telephony calls. If phone calls fail, the issue is telephony-specific. Check Session History for `dial_*` or `sip_*` disconnection reasons, verify carrier trunk status, and consult our [outbound call debugging guide](/reliability/debug-outbound-call).
+  </Accordion>
+
+  <Accordion title="Can I inspect the raw WebSocket payloads exchanged during a specific call?">
+    Yes. Tavly records bidirectional messages in the Detail Logs accessible via Session History. For complete end-to-end reconciliation, persist raw timestamped JSON frames on your application server keyed by the WebSocket `call_id`.
+  </Accordion>
+
+  <Accordion title="The voice agent responds accurately but latency feels sluggish. Where do I start?">
+    Consult the [latency breakdown](/reliability/latency/check-actual-latency) in Session History. The `llm` metric measures total generation duration including the WebSocket transit, while `llm_websocket_network_rtt` isolates network round-trip time. Subtracting network RTT isolates your server's generation compute time. Review our [LLM best practices](/integrate-llm/llm-best-practice) to optimize time to first sentence.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Set Up WebSocket Server" icon="server" href="/integrate-llm/setup-websocket-server">
+    Review foundational connection protocols, keepalives, and event schemas.
+  </Card>
+
+  <Card title="Connect Your LLM" icon="plug" href="/integrate-llm/integrate-llm">
+    Implement streaming token handlers, cancellation routines, and prompt builders.
+  </Card>
+
+  <Card title="Add Function Calling" icon="code-branch" href="/integrate-llm/integrate-function-calling">
+    Enable your custom LLM agent to book appointments, transfer calls, and press IVR digits.
+  </Card>
+
+  <Card title="LLM Best Practices" icon="lightbulb" href="/integrate-llm/llm-best-practice">
+    Optimize time to first sentence, engineer speech-first prompts, and build for resilience.
+  </Card>
+</CardGroup>

@@ -1,0 +1,245 @@
+---
+title: "Address AI QA Metric Issues: Troubleshooting & Fixes"
+sidebarTitle: "Address Metric Issues"
+description: "Diagnose and resolve Tavly AI QA metric issues with actionable fixes for agent hallucinations, latency, low KB recall, tool failures, and transcription WER."
+seo:
+  title: "Address AI QA Metric Issues | Tavly Voice AI Troubleshooting"
+  description: "Diagnose and resolve Tavly AI QA metric issues with actionable fixes for agent hallucinations, latency, low KB recall, tool failures, and transcription WER."
+og:
+  title: "Troubleshooting Tavly AI QA Metric Issues: Step-by-Step Fixes"
+  description: "Diagnose and resolve Tavly AI QA metric issues with actionable fixes for agent hallucinations, latency, low KB recall, tool failures, and transcription WER."
+  image: "https://mintcdn.com/retellai/logo.png"
+twitter:
+  card: "summary_large_image"
+icon: "wrench"
+keywords:
+  - "AI QA metric issues"
+  - "voice agent hallucination fix"
+  - "knowledge base recall"
+  - "node transition inaccuracy"
+  - "tool call inaccuracy"
+  - "word error rate WER"
+  - "voice agent latency"
+  - "overlapping speech fix"
+  - "Tavly AI QA calibration"
+date: "2026-09-24"
+author: "Tavly AI Team"
+faq:
+  - question: "How do you distinguish between tool call inaccuracy and custom tool execution failure?"
+    answer: "Tool Call Inaccuracy measures whether the LLM made the correct decision regarding which tool to invoke and which arguments to pass, whereas Custom Tool Failures measure technical execution failures such as network timeouts, schema mismatches, or 5xx server errors on your API endpoints."
+  - question: "What is the best way to resolve high overlapping speech during calls?"
+    answer: "Check end-to-end latency first; if p50 latency exceeds 2.5 seconds, reduce model inference and TTS delay so users do not talk over slow responses. If latency is normal, increase response wait time and fine-tune interruption sensitivity."
+  - question: "When should you use QA calibration instead of modifying system prompts?"
+    answer: "Use calibration to manually override evaluations on edge cases where automated scoring penalized acceptable conversational behavior. If multiple calls require identical manual overrides, update global resolution criteria or metric thresholds instead of relying on manual intervention."
+  - question: "How do you eliminate transcription word error rate (WER) on specialized vocabulary?"
+    answer: "Review mistranscribed entities flagged in AI QA reports, add those terms to boosted keywords in your speech-to-text configuration, verify correct audio language settings, and activate background noise removal."
+---
+
+# Address Metric Issues
+
+> Step-by-step diagnostic and remediation protocols for common AI QA metric failures—including hallucinations, knowledge base omissions, overlapping speech, latency, sentiment divergence, and custom tool errors.
+
+## What is the AI QA troubleshooting framework and how should you interpret metric results?
+
+The **AI QA troubleshooting framework** isolates voice agent deficiencies across accuracy, speech delivery, transcription fidelity, and execution. Instead of evaluating isolated calls, teams diagnose systemic trends across cohorts, identify root failure causes in call QA sheets, and apply **targeted configuration updates** to system prompts, knowledge bases, telephony endpoints, or speech recognition engines.
+
+When Tavly AI QA evaluates your production call cohorts, it flags specific metrics that deviate from expected quality thresholds or fail custom resolution criteria. Addressing these issues systematically requires distinguishing between algorithmic configuration gaps, model latency constraints, and external network conditions. For comprehensive metric definitions and baseline thresholds, consult the [AI QA metrics guide](/ai-qa/terminologies).
+
+### Contextual Interpretation Best Practices
+
+Evaluating voice metrics in isolation often leads to misdiagnosed root causes. Follow these operational guidelines when reviewing automated quality scores:
+
+* **Benchmark Across Cohorts**: Compare metric distributions across similar caller cohorts, agent versions, or deployment time periods to detect performance regressions immediately following configuration releases.
+* **Identify Systemic Trends**: Focus engineering resources on statistically significant error patterns across call cohorts rather than reacting to one-off conversational anomalies.
+* **Analyze Interrelated Indicators**: Evaluate metrics in clusters. For instance, high overlapping speech combined with elevated latency points to transport delays, whereas high overlapping speech with normal latency indicates improper turn-taking sensitivity.
+
+<Tip>
+  When interpreting metrics, consider them in context:
+  * Compare metrics across similar cohorts or time periods.
+  * Look for trends rather than focusing on individual data points.
+  * Use multiple metrics together to get a complete picture of call quality.
+</Tip>
+
+---
+
+## How do you resolve AI accuracy issues like agent hallucinations and low KB recall?
+
+Resolve **agent hallucinations** by categorizing failures into fabrication, contradiction, or confusion, then updating knowledge bases or simplifying prompt instructions. For **low KB recall**, reduce retrieval similarity thresholds and increase chunk retrieval limits in your knowledge base settings, preventing false negatives where the agent fails to extract relevant grounding context during live dialogues.
+
+AI accuracy metrics measure how reliably your voice agent provides factually correct, grounded information aligned with your operational documentation.
+
+### High Agent Hallucination Rate
+
+A high agent hallucination rate occurs when the agent delivers incorrect, ungrounded, or fabricated information unsupported by the conversation context or connected knowledge sources. 
+
+Inspect your call QA sheet to identify which specific hallucination category triggered the failure:
+
+| Hallucination Category | Failure Manifestation | Targeted Remediation |
+| :--- | :--- | :--- |
+| **Fabrication** | The agent invents facts, policies, or numbers absent from context. | Add missing authoritative information directly to your [Knowledge Base](/build/knowledge-base) or declare strict system prompt boundaries so the agent declines unknown queries rather than guessing. |
+| **Contradiction** | The agent provides statements directly contradicting prompt rules. | Clarify, consolidate, or remove conflicting directives across system prompts and scenario instructions. |
+| **Confusion** | The agent conflates user intentions with disparate workflows. | Deconstruct complex multi-step prompts into distinct conversational nodes, or utilize conversation flow architectures with focused state prompts. |
+
+### Low KB (Knowledge Base) Recall
+
+Low Knowledge Base Recall occurs when relevant document chunks exist within your repository but are not retrieved by the semantic search engine during dialogue turns, causing the agent to miss essential grounding context.
+
+Follow these remediation steps:
+
+1. **Lower Retrieval Thresholds**: Reduce the minimum similarity confidence score required for chunk retrieval to capture relevant chunks that may use phrasing variations.
+2. **Increase Retrieved Chunks**: Expand the top-$k$ retrieved chunk count to supply broader context to the language model and eliminate false negatives.
+3. **Iterate Incrementally**: Modify retrieval parameters within your agent's [Knowledge Base](/build/knowledge-base) settings in small increments, validating the impact across subsequent QA cohort runs.
+
+---
+
+## How do you fix conversation flow node transition inaccuracies and tool call errors?
+
+Fix **node transition inaccuracy** by clarifying state conditions and adding edge-case examples in node prompts to prevent invalid state jumps. For **tool call inaccuracy**, explicitly specify invoking rules and parameter schemas in prompts, distinguishing between agent decision errors and endpoint execution failures to ensure reliable autonomous function execution.
+
+Response-engine metrics evaluate whether conversational state machines and autonomous reasoning agents execute transitions and external capabilities reliably.
+
+### High Node Transition Inaccuracy
+
+Node transition inaccuracy occurs when an agent traverses to an incorrect conversational state or fails to transition when user input fulfills branch criteria. This metric specifically impacts **conversation flow agents**, as only flow engines utilize explicit state nodes and transition triggers.
+
+To resolve transition inaccuracies:
+
+* **Unambiguous Transition Conditions**: Express transition triggers in explicit, deterministic language within node prompts, avoiding vague phrases like "transition when appropriate."
+* **Edge-Case Examples**: Embed concrete dialogue examples in transition definitions showing both positive triggers and negative non-matching phrases.
+* **Eliminate Overlapping Rules**: Ensure adjacent branch conditions from a single node are mutually exclusive. Consult the [conversation flow debug guide](/build/conversation-flow/debug-guide) for systematic transition tracing.
+
+### High Tool Call Inaccuracy
+
+Tool call inaccuracy measures whether single-prompt or multi-prompt agents make correct decisions regarding when to invoke external tools and which argument parameters to supply.
+
+To remediate tool call inaccuracy:
+
+* **Explicit Calling Boundaries**: Detail precisely under what conversational conditions each tool must be invoked—and explicitly specify scenarios where invocation is prohibited.
+* **Refined Tool Definitions**: In your [tool definitions](/build/add-function-calling), configure self-documenting function names, comprehensive parameter descriptions, and concrete examples for required schema fields.
+
+<Info>
+  **Tool Call Inaccuracy** measures whether the agent made the right **decision** about which tools to call and with what arguments. For issues where the agent made the correct call decision but the tool **execution** failed (such as API 500 errors or network timeouts), see [Custom Tool Failures](#custom-tool-failures) below.
+</Info>
+
+---
+
+## How do you improve speech naturalness, conversational sentiment, and transcription WER?
+
+Improve **speech naturalness** by switching to premium platform voices, adjusting voice temperature, or selecting specialized regional TTS providers. Counter **negative agent sentiment** by enforcing empathetic prompt guidelines and rewriting dismissive phrases. For **high word error rate (WER)**, configure boosted keywords, match spoken language settings, and enable audio background noise removal.
+
+Acoustic delivery and speech perception dictate how natural and frictionless an automated conversation feels to human callers.
+
+### Poor Agent Naturalness
+
+An agent sounds unnatural when synthesis exhibits robotic pacing, mispronunciation, unnatural cadence, or acoustic artifacts.
+
+* **Switch Voice Selection**: Custom cloned voices frequently suffer from acoustic instability or distortion. Switching to a standard platform voice typically delivers immediate stability and superior prosody.
+* **Calibrate Voice Temperature**: Adjust the voice temperature setting within your agent voice configuration to tune vocal expressiveness and natural cadence.
+* **Evaluate Voice Providers**: Test alternative text-to-speech providers that specialize in your target language, regional accent, or conversational domain.
+
+### Poor Agent Sentiment
+
+Poor agent sentiment occurs when generated speech carries a cold, aggressive, dismissive, or inappropriately blunt emotional tone.
+
+* **System Prompt Tone Guidelines**: Inject explicit persona directives into your agent's system prompt (e.g., *"Respond warmly, patiently, and empathetically while maintaining professional boundaries"*).
+* **Review Node-Specific Responses**: In conversation flow setups, inspect individual node prompts to ensure short responses do not sound clipped or robotic.
+* **Transform Dismissive Language**: Replace rigid rejections with constructive phrasing:
+  * *Dismissive*: "I can't help with that."
+  * *Constructive*: "Let me explore another way to assist you with that request."
+
+### High Word Error Rate (WER)
+
+High Word Error Rate (WER) signifies that the speech-to-text (STT) model misinterprets caller utterances, causing cascading comprehension and reasoning errors in downstream agent responses.
+
+```
+WER = (Substitutions + Insertions + Deletions) / Total Spoken Words
+```
+
+Implement these targeted transcription fixes:
+
+* **Switch STT Providers**: Benchmark higher-accuracy transcription engines tailored for telephony bandwidth (8 kHz) or specific acoustic profiles.
+* **Verify Spoken Language Configuration**: Confirm that the configured STT language matches the exact language and locale spoken by callers; mismatched regional locales dramatically elevate WER.
+* **Incorporate Boosted Keywords**: Add specialized terminology, product names, acronyms, and proper nouns as [boosted keywords](/reliability/wrong-transcript) in your STT configuration.
+* **Leverage Mistranscribed Entities Feedback**: Extract the mistranscribed entities flagged in your Tavly AI QA reports and add those exact terms directly to custom vocabulary lists.
+* **Activate Background Noise Removal**: If calls occur in noisy acoustic environments, enable background noise removal to isolate caller voice frequencies before STT processing.
+
+### High User Negative Sentiment
+
+When multiple customer turns exhibit frustration or negative sentiment, conversational friction is preventing successful goal completion.
+
+* **Inject Empathetic Acknowledgment**: Direct the agent to validate customer concerns before presenting technical solutions (e.g., *"I understand how inconvenient that must be; let us resolve this right now"*).
+* **Provide De-escalation Pathways**: Equip your agent with explicit protocols to de-escalate tension or offer immediate agent transfers when frustration persists.
+
+---
+
+## How do you eliminate overlapping speech, high latency, and telephony transfer failures?
+
+Eliminate **overlapping speech** by resolving underlying end-to-end latency exceeding 2.5 seconds or adjusting interruption sensitivity and response wait times. For **telephony transfer failures**, verify destination routing, staff availability, and telephony carrier configurations, or deploy **Agentic Warm Transfer** to qualify human recipients before bridging caller conversations.
+
+Conversational pacing and telephony execution determine whether live voice sessions feel fluid and responsive or disjointed and frustrating.
+
+### High Overlapping Speech Count
+
+Frequent speech overlap occurs when the agent and caller speak simultaneously, degrading intelligibility. The appropriate fix depends directly on system latency:
+
+| Operational Scenario | Underlying Root Cause | Actionable Remediation |
+| :--- | :--- | :--- |
+| **High Latency (e2e p50 > 2.5s)** | Turn-taking lag forces callers to assume the agent stopped listening, causing them to speak just as the agent responds. | **Resolve latency first**. Deploy faster LLMs and low-latency voice models. Fixing response lag eliminates the root cause of overlapping speech. |
+| **Normal Latency (e2e p50 ≤ 2.5s)** | The agent begins speaking prematurely or misinterprets brief pauses as completed turns. | **Increase response wait time** or calibrate interruption sensitivity so the agent waits for caller completion before generating speech. |
+
+### High Latency Troubleshooting
+
+When conversational end-to-end latency exceeds 2.5 seconds ($p_{50} > 2.5\text{s}$), natural dialogue rhythm collapses.
+
+1. **Locate Bottlenecks**: Open the [latency breakdown](/reliability/troubleshoot-latency) in your call dashboard to isolate delays across LLM inference, TTS audio synthesis, network transport, or tool execution.
+2. **Optimize LLM Inference**: If the model constitutes the bottleneck, transition to low-latency reasoning models or trim prompt token counts.
+3. **Select High-Throughput TTS**: If speech synthesis introduces delay, select streaming voice models with low time-to-first-byte (TTFB).
+4. **Accelerate Tool Execution**: Optimize external endpoint response times and compress returned JSON payloads.
+
+### Custom Tool Failures
+
+Custom tool failures indicate that your external API endpoints failed during call execution.
+
+* **Audit Endpoint Error Logs**: Review server logs for failed calls to pinpoint HTTP status codes, exceptions, and validation failures.
+* **Validate Payload Schemas**: Ensure API responses conform strictly to schemas registered in your [function calling](/build/add-function-calling) configuration.
+* **Implement Resiliency Guards**: Add timeouts, circuit breakers, and automatic retries to prevent third-party service latency from terminating call flows.
+
+<Info>
+  This metric measures whether your tool endpoints executed successfully. For issues with the agent choosing the wrong tools to call, see [High Tool Call Inaccuracy](#high-tool-call-inaccuracy) above.
+</Info>
+
+### Transfer Call Issues
+
+When live call transfers fail to connect, customers experience abrupt drops or silent disconnects.
+
+* **Telephony Interconnects**: Check SIP logs for connection drops, incorrect codecs, or carrier configuration mismatches with your telephony provider.
+* **Destination Staffing & Availability**: Audit contact center staffing levels during peak call windows and verify that destination numbers are active and receiving traffic.
+* **Upgrade to Agentic Warm Transfer**: If human detection fails during standard [Warm Transfer](/build/conversation-flow/call-transfer-node) and drops calls into voicemail, switch to [Agentic Warm Transfer](/build/conversation-flow/call-transfer-node). This deploys a dedicated transfer agent to converse with the human recipient, verify availability, and summarize context before bridging the caller.
+
+---
+
+## How do you handle failed custom evaluation criteria and calibrate QA assessments?
+
+Address **failed custom evaluation criteria** by inspecting failure logs in call QA sheets to determine whether deficiencies stem from prompt omissions or external user behavior. Apply **QA calibration** to override false-positive evaluations, and update global resolution criteria or threshold parameters when recurring overrides signal systemic alignment divergence across cohorts.
+
+Custom evaluation criteria verify whether calls achieve domain-specific business goals, regulatory compliance standards, and mandatory conversational milestones.
+
+### Handling Failed Custom Evaluation Criteria
+
+When an AI Evaluated Condition fails, inspect the structured failure explanation in the call QA sheet to identify the root cause:
+
+* **Actionable Failures**: The agent failed to deliver required disclosures, verify user credentials, or collect required parameters due to ambiguous prompts or incomplete knowledge base data. Resolve these by updating agent prompts and documentation.
+* **Non-Actionable Failures**: Failures triggered by external factors beyond agent control—such as callers hanging up abruptly or declining to cooperate.
+* **Calibration Overrides**: When an evaluation penalizes behavior that was intentional by design or technically compliant, utilize [QA calibration](/ai-qa/terminologies#calibration) to override the automated score for that call.
+
+<Info>
+  Not all failures are actionable—some may be caused by external factors (e.g., the user hanging up early) or intentional design decisions (e.g., transferring when a user requests a human). Focus on failures where the agent's behavior or configuration can be improved.
+</Info>
+
+### Calibration Operational Best Practices
+
+QA calibration ensures your automated evaluation engine aligns with human evaluators over time:
+
+* **Override Edge Cases**: Use manual calibration for nuanced edge cases where automated LLM evaluation fails to capture contextual intent.
+* **Update Criteria for Recurring Overrides**: If your team repeatedly applies identical manual calibrations across a cohort, update your resolution criteria definitions or threshold parameters instead. Updating global criteria permanently fixes future automated evaluations without manual overhead.
+* **Document Calibration Rationale**: Always include detailed notes when overriding evaluation outcomes to maintain auditability and team consensus across evaluation cycles.

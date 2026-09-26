@@ -35,7 +35,7 @@ For example, your PBX can pass a caller account token or support ticket ID direc
 
 On incoming telephony calls, Tavly automatically extracts any custom headers featuring an `X-` or `x-` prefix and injects them directly into the `call.custom_sip_headers` payload. 
 
-Tavly strips the leading `X-` prefix and seamlessly maps each key directly into the session's [dynamic variables](/build/dynamic-variables) without requiring you to configure manual mapping rules.
+Tavly strips the leading `X-` prefix and seamlessly maps each key directly into the session's [dynamic variables](/build/context/dynamic-variables) without requiring you to configure manual mapping rules.
 
 ### Header Extraction Example
 

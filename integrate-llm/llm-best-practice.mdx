@@ -1,0 +1,170 @@
+---
+title: "Custom LLM Voice Agent Engineering Best Practices"
+sidebarTitle: "LLM Best Practices"
+description: "Master custom LLM voice agent best practices: minimize time to first sentence, craft prompts for speech, maintain server state, and handle telephony failures."
+seo:
+  title: "Custom LLM Voice Agent Best Practices: Latency, Prompts & Tools"
+  description: "Master custom LLM voice agent best practices: minimize time to first sentence, craft prompts for speech, maintain server state, and handle telephony failures."
+og:title: "Custom LLM Voice Agent Best Practices: Latency, Prompts & Tools"
+og:description: "Master custom LLM voice agent best practices: minimize time to first sentence, craft prompts for speech, maintain server state, and handle telephony failures."
+twitter:card: "summary_large_image"
+icon: "lightbulb"
+keywords:
+  - "custom LLM best practices"
+  - "voice agent latency optimization"
+  - "time to first sentence"
+  - "speech prompt engineering"
+  - "voice agent tool accuracy"
+  - "voice agent state machine"
+  - "telephony error handling"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why should developers optimize for time to first sentence instead of total response time?"
+    answer: "Voice synthesis engines begin vocalizing the moment a complete sentence is generated. Callers experience responsiveness based on this first sentence, making early token emission and short opening clauses paramount."
+  - question: "How does server location impact conversational voice latency?"
+    answer: "Tavly's core infrastructure is hosted in the US. Hosting custom LLM servers and model inference endpoints across different continents adds substantial cross-region network round-trip latency to every turn."
+  - question: "Why is a finite state machine recommended over relying on prompt instructions for tools?"
+    answer: "As tool complexity scales, models struggle to reliably deduce execution state from raw transcripts. Constraining active tools to state machine nodes prevents hallucinated or out-of-sequence side effects."
+  - question: "How does enabling auto_reconnect prevent stalled calls?"
+    answer: "Tavly's auto_reconnect feature uses ping-pong keepalives to detect half-open sockets that close abnormally without sending close frames, preventing the agent from freezing indefinitely."
+---
+
+# Best practices
+
+> Keep a Tavly custom LLM agent fast and reliable: cut time to first sentence, write prompts for speech, control tool accuracy, and survive dropped connections.
+
+How an autonomous voice agent sounds and performs during a live telephone call depends less on raw model parameter size than on engineering discipline: how rapidly the first spoken sentence lands, how prompts are tailored for verbal delivery, and how gracefully your backend recovers from mid-call telephony anomalies.
+
+---
+
+## How do you optimize time to first sentence for conversational voice agents?
+
+Optimize time to first sentence by **streaming token deltas** rather than buffering complete responses, co-locating servers in the United States near Tavly infrastructure, and disabling synchronous provider content filtering. Ensuring sufficient concurrency quotas prevents queue throttling, allowing the voice synthesizer to start vocalizing the opening clause within 500 to 800 milliseconds.
+
+Tavly's speech synthesis pipeline begins playing audio the moment it receives your first complete grammatical clause. Therefore, the metric that governs conversational fluency is:
+
+$$\text{Latency} = \text{Time to First Token (TTFT)} + \text{Time to Complete First Sentence}$$
+
+### Key latency optimization strategies
+
+* **Stream immediately; never buffer**: Transmitting a complete response in a single payload forces the caller to wait through the entire generation cycle in dead silence. Stream each token delta immediately with `content_complete: false`.
+* **Co-locate infrastructure geographically**: Tavly's primary telephony and media processing clusters reside in the United States. Deploy your custom WebSocket servers and select LLM provider regions (such as `us-east-1` or `us-central1`) in close geographic proximity. Cross-oceanic network transit adds 150 to 300 milliseconds of latency to every conversational turn.
+* **Bypass synchronous provider-side preprocessing**: Pre-generation guardrails and content filters can add hundreds of milliseconds before the first token is emitted. For example, on Azure OpenAI, [content filtering](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter) operates synchronously by default; configuring asynchronous moderation or optimized safety filters dramatically accelerates first-token generation.
+* **Audit concurrency and rate limits**: Upstream provider throttling often manifests as creeping response latency rather than outright HTTP 429 errors. Maintain high Tokens-Per-Minute (TPM) and Requests-Per-Minute (RPM) headroom to prevent model queuing during traffic spikes.
+
+| Latency Bottleneck | Root Cause | Engineering Solution |
+| :--- | :--- | :--- |
+| **Response Buffering** | Server waits for completion before sending | Stream chunks immediately via WebSocket deltas |
+| **Cross-Region Transit** | Server/model hosted far from US clusters | Deploy in US cloud regions (`us-east` or `us-central`) |
+| **Synchronous Content Filtering** | Guardrails block stream before token generation | Utilize asynchronous content moderation pipelines |
+| **Provider Queuing** | Approaching RPM/TPM concurrency ceilings | Provision dedicated throughput or multi-key pools |
+
+---
+
+## How should you engineer prompts specifically for spoken voice conversations?
+
+Voice prompts require speech-first formatting constraints: explicitly forbid markdown syntax, lists, and emoji, while enforcing succinct responses under 30 words per turn. Direct models to infer meaning over noisy speech-to-text transcripts, embrace conversational contractions, and retrieve targeted knowledge chunks dynamically rather than bloating static prompt context.
+
+Spoken language follows fundamentally different cognitive and acoustic principles than written text. A well-engineered voice prompt implements five foundational rules:
+
+1. **Strictly prohibit visual formatting**: Text-to-speech engines attempt to read markdown formatting, asterisks, bullet points, headers, and emoji literally. Add explicit negative instructions: *"Never use markdown, lists, bullet points, emoji, or special characters."*
+2. **Cap turn length**: Long, uninterrupted monologue turns alienate callers and make barge-in painful. Constrain responses: *"Keep replies under 30 words and communicate one idea per turn unless the caller explicitly asks for a detailed breakdown."*
+3. **Compensate for speech recognition noise**: Automated speech recognition (ASR) transcripts inevitably contain phonetic typos and missing punctuation. Instruct the model to infer semantic intent contextually. When clarification is necessary, demand conversational phrasing (*"Sorry, you cut out for a second"*) instead of mentioning transcription.
+4. **Embrace natural verbal imperfections**: Spoken dialogue relies on natural contractions (*"I'm"*, *"we'll"*, *"don't"*) and occasional conversational discourse markers (*"Certainly"*, *"Got it"*). Perfectly clinical prose sounds robotic.
+5. **Keep prompt context lean**: Massive system prompts degrade first-token latency and reduce strict instruction-following. Rather than stuffing an entire manual into the system prompt, perform dynamic retrieval-augmented generation (RAG) to inject only the two or three most relevant text snippets per turn.
+
+<Note>
+  For an extensive exploration of voice prompt strategies, review our dedicated [prompt engineering guide](/build/response/prompt-engineering-guide).
+</Note>
+
+---
+
+## How do you improve LLM tool calling accuracy during live phone calls?
+
+Improve tool calling accuracy by framing negative constraints that describe **when not to invoke** functions, such as reserving call termination strictly for explicit farewells. Always equip tools with a **`message`** parameter for bridging dialogue, and restrict the active function array to only tools relevant to the current conversational turn.
+
+In telephone conversations, hallucinated or misfired tool executions (such as premature hangups or unprompted transfers) destroy customer trust. Apply these three structural techniques:
+
+* **Specify negative boundary conditions**: Language models frequently over-index on trigger descriptions. Augment tool docstrings with explicit negative constraints: *"End the call only when the caller has clearly and unambiguously said goodbye. Never invoke during pauses or simple acknowledgments."*
+* **Provide conversational bridge parameters**: Frontier LLMs return either tool call payloads or text deltas, not both. Without a dedicated `message` argument within the tool schema (e.g., *"What to say before executing"*), the agent goes completely silent while the tool runs.
+* **Dynamically filter exposed tools**: Presenting ten tools simultaneously invites misrouting. Inspect conversation context on your server and expose only the subset of functions valid for the current dialogue step.
+
+---
+
+## Why should you maintain explicit conversation state on your server?
+
+Maintain an explicit **finite state machine** on your server keyed by the WebSocket `call_id` rather than forcing the model to deduce conversational state from raw transcripts. At each state node, expose only permissible tools, inject contextual prompt fragments, and govern valid transitions, eliminating hallucinated out-of-sequence side effects.
+
+Relying entirely on a large language model to parse an unstructured multi-turn transcript to determine business state (such as whether authentication has completed) leads to edge-case failures. Structuring your server as an IVR-style state machine powered by an LLM at each node ensures deterministic execution:
+
+```
+[State: Collect Phone] ---> [State: Verify OTP] ---> [State: Account Service]
+   Tools: lookup_phone         Tools: verify_code        Tools: get_balance, transfer
+```
+
+### Benefits of server-side state architecture
+
+* **Dynamic prompt injection**: Instead of a massive 2,000-token prompt attempting to cover all edge cases, inject small, highly specific 200-token instructions tailored strictly to the current state.
+* **Strict tool isolation**: In the `Collect Phone` state, the `transfer_to_agent` or `execute_refund` tools are physically withheld from the model's schema, making accidental invocation impossible.
+* **Deterministic idempotency**: Your server strictly verifies whether a required transition has been logged before permitting downstream transactional writes.
+
+---
+
+## How do you architect custom LLM servers to survive telephony failures?
+
+Architect resilient voice servers by enabling **`auto_reconnect`** keepalives, wrapping response streams in `finally` blocks to guarantee `content_complete: true` dispatch, and enforcing **idempotency keys** on side-effecting operations. Implement secondary fallback models for provider outages, and log raw WebSocket frames for comprehensive post-call diagnostics.
+
+Telephony connections introduce complex distributed systems failure modes. Build resilience across five key failure surfaces:
+
+1. **Activate auto-reconnect and echo keepalives**: Enable `auto_reconnect` in your initialization config. While Tavly automatically reconnects sockets that terminate abruptly, handling the bidirectional `ping_pong` heartbeat is vital to detect "half-open" TCP connections that fail silently without issuing TCP close frames.
+2. **Never leave a response turn unclosed**: If an upstream model errors or network timeouts occur, the agent stalls indefinitely waiting for completion. Always emit an empty closing frame (`content: ""`, `content_complete: true`) inside a defensive `try...finally` block.
+3. **Establish automated model fallbacks**: If your primary frontier provider encounters an outage or rate limit exhaustion, route the request to a secondary provider (e.g., falling back from GPT-4o to Claude 3.5 Sonnet or an on-premise vLLM instance). If all providers fail, emit a graceful apology line and cold-transfer the call to a human queue.
+4. **Enforce idempotency across tool side effects**: Because Tavly discards pending responses when callers speak and immediately re-prompts with a new `response_id`, external write tools frequently receive duplicate invocations. Always derive an idempotency key from `call_id + tool_name + tool_arguments`. (See our guidance on [safeguarding production voice agents](/integrate-llm/integrate-function-calling#how-do-you-safeguard-production-voice-agents-against-double-booking-and-concurrency-bugs)).
+5. **Persist raw WebSocket frames**: Log all inbound requests and outbound payloads keyed by `call_id`. Comparing local timestamped logs against Tavly's [Session History](/features/session-history) isolates whether anomalies originated from carrier dropouts, LLM token stalls, or application server exceptions.
+
+---
+
+## Frequently asked questions about custom LLM voice agent best practices
+
+Executing high-performance voice agents requires optimizing first-sentence latency, enforcing spoken prompt constraints, and tracking explicit server state. Combining streaming token generation with idempotent tool execution and automated keepalive reconnections ensures that custom LLM voice agents maintain natural conversational timing, reliable tool precision, and high operational uptime.
+
+<AccordionGroup>
+  <Accordion title="Why does time to first sentence matter more than total response time?">
+    Tavly's speech synthesis engine starts vocalizing the moment the first grammatically complete sentence chunk arrives. Callers perceive responsiveness from this initial utterance; optimizing first-token delivery and short opening phrases ensures the call feels instant even if full multi-sentence generation continues in the background.
+  </Accordion>
+
+  <Accordion title="How does server location impact conversational voice latency?">
+    Tavly's primary voice infrastructure is situated in the United States. Deploying your custom WebSocket server or LLM provider in European or Asian regions introduces 150 to 300 milliseconds of transit overhead to every speech turn. Co-locating in US cloud regions keeps round-trip times minimal.
+  </Accordion>
+
+  <Accordion title="Why is a finite state machine recommended over relying on prompt instructions for tools?">
+    Large language models can misinterpret long transcripts and invoke tools out of order. A server-side state machine physically restricts the active tools array and system prompt to only what is permissible at that stage of the conversation, eliminating out-of-sequence errors.
+  </Accordion>
+
+  <Accordion title="How does enabling auto_reconnect prevent stalled calls?">
+    Network anomalies occasionally cause TCP connections to drop silently without sending close frames. Tavly's `auto_reconnect` mechanism uses ping-pong keepalive heartbeats to identify dead sockets, establishing a fresh WebSocket connection to resume the call without dropping the line.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect Custom LLM" icon="plug" href="/integrate-llm/integrate-llm">
+    Implement streaming token handlers, cancellation routines, and prompt builders.
+  </Card>
+
+  <Card title="Add Function Calling" icon="code-branch" href="/integrate-llm/integrate-function-calling">
+    Equip your custom LLM agent with tools to book appointments, transfer calls, and press IVR digits.
+  </Card>
+
+  <Card title="Setup WebSocket Server" icon="server" href="/integrate-llm/setup-websocket-server">
+    Build a persistent WebSocket server capable of holding low-latency voice connections.
+  </Card>
+
+  <Card title="Troubleshooting Custom LLMs" icon="triangle-exclamation" href="/integrate-llm/troubleshooting">
+    Diagnose silence traps, disconnection reasons, and streaming error conditions.
+  </Card>
+</CardGroup>

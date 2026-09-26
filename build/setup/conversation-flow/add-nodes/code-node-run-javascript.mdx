@@ -102,7 +102,7 @@ Configuring the node involves dropping it onto the canvas, writing the required 
 Code aggressively runs inside an isolated, secure QuickJS sandbox environment that fully supports top-level `await`, comprehensive HTTP request capabilities via `fetch()`, and distinct variable scoping. 
 
 ### `dv` — Dynamic Variables
-[Dynamic variables](/build/dynamic-variables) explicitly surface as properties attached directly to the `dv` object. Every value housed under `dv` structurally comes through as a string literal.
+[Dynamic variables](/build/context/dynamic-variables) explicitly surface as properties attached directly to the `dv` object. Every value housed under `dv` structurally comes through as a string literal.
 
 ```javascript theme={"dark"}
 const customerName = dv.customer_name;

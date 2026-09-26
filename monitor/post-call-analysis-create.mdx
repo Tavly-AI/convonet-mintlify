@@ -1,0 +1,157 @@
+---
+title: 'Define Custom Post Call Extraction Fields and Categories'
+sidebarTitle: 'Define Custom Fields'
+description: 'Define custom Tavly Post Call Extraction schemas: configure boolean, text, number, and selector fields to automatically extract structured CRM data from calls.'
+seo:
+  title: 'Define Custom Post Call Extraction Fields & Schemas | Tavly AI'
+  description: 'Define custom Tavly Post Call Extraction schemas: configure boolean, text, number, and selector fields to automatically extract structured CRM data from calls.'
+og:title: 'Define Custom Post Call Extraction Fields and Categories'
+og:description: 'Define custom Tavly Post Call Extraction schemas: configure boolean, text, number, and selector fields to automatically extract structured CRM data from calls.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-dashboard.png'
+twitter:card: 'summary_large_image'
+icon: 'brackets-curly'
+keywords: ['custom post call extraction', 'define extraction fields', 'boolean call analysis', 'selector field extraction', 'extract CRM data from calls', 'Tavly AI analytics', 'structured call extraction']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Where should explanation guidelines for selector choices be placed?'
+    answer: 'Always include descriptions and classification criteria for selector choices inside the field description prompt. The selector choice inputs themselves should contain strictly the raw categorical string labels.'
+  - question: 'What happens if a caller discusses multiple topics relevant to a selector field?'
+    answer: 'The LLM selects the single most dominant choice that matches your prompt guidelines. For multifaceted conversations, consider defining separate boolean flags or using a text extraction field to capture secondary topics.'
+  - question: 'Can custom extraction fields be added to agents via API?'
+    answer: 'Yes. Custom extraction schemas can be defined either visually in the Tavly dashboard under the Post Call Extraction tab or programmatically via the Agent Update and Create API endpoints.'
+  - question: 'Do custom extraction schemas execute on past historical calls?'
+    answer: 'Newly created or modified extraction fields apply automatically to future completed calls. To extract new fields from past conversations, execute a batch re-analysis job using the Rerun Call Analysis tool.'
+---
+
+## What is custom Post Call Extraction and how do you configure it?
+
+**Custom Post Call Extraction** allows development teams to build tailored schema extraction models that run immediately when voice calls finish. Navigating to the agent detail page and opening Post Call Extraction enables you to specify custom field names, data types, and natural language prompt instructions that automatically populate structured values directly onto the call object.
+
+<Frame caption="Post Call Extraction configuration panel on the agent detail page">
+  <img height="200" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-dashboard.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=c5ba16aa27f7b48edff11d06e6928d31" alt="Post Call Extraction dashboard showing various analytics categories and metrics" data-path="images/post-call-analysis-dashboard.png" />
+</Frame>
+
+### Navigation and Setup Steps
+
+<Steps>
+  <Step title="Navigate to agent extraction settings">
+    Open your desired voice or chat agent from the Tavly dashboard, select the agent details view, and click on the **Post Call Extraction** tab.
+  </Step>
+
+  <Step title="Select analysis category type">
+    Choose from one of four supported extraction primitive types: **Boolean**, **Text**, **Number**, or **Selector**.
+  </Step>
+
+  <Step title="Define field identifier and prompt instructions">
+    Assign a concise field identifier (e.g., `user_reached`, `purchase_intent_amount`) and enter a detailed natural language prompt describing exact extraction logic.
+  </Step>
+
+  <Step title="Save and deploy configuration">
+    Click **Save**. The agent automatically begins extracting your custom fields on all subsequent completed calls.
+  </Step>
+</Steps>
+
+---
+
+## How do you configure Boolean analysis fields?
+
+To **configure Boolean analysis fields**, choose the Boolean type when setting up custom extraction rules for binary yes-or-no determinations. Supply a clear field name and a detailed natural language prompt instructing the LLM on specific criteria. For example, evaluate whether a human was reached versus an automated voicemail machine.
+
+### Boolean Field Configuration Example
+
+Use Boolean extraction whenever downstream systems require unambiguous binary flags (`true` or `false`) to trigger automated routing, qualification tagging, or follow-up tasks.
+
+| Configuration Property | Recommended Value | Implementation Notes |
+| :--- | :--- | :--- |
+| **Field Name** | `user_reached` | Unique snake_case identifier used in the JSON payload. |
+| **Data Type** | **Boolean** | Returns boolean `true` or `false`. |
+| **Description Prompt** | "Was the user reached or not? Set to false if voicemail is detected, if you are only asked for the reason of the call, or if you are only asked to leave a message. Otherwise, set to true." | Provide explicit edge-case negative triggers to ensure deterministic LLM scoring. |
+
+```json boolean_output.json theme={"dark"}
+{
+  "user_reached": true
+}
+```
+
+---
+
+## How do you configure Text and Number analysis fields?
+
+To **configure Text and Number analysis fields**, select the corresponding data type to extract free-form strings or quantitative numeric values from conversation transcripts. Text fields extract comprehensive qualitative summaries, customer objections, or next steps, while Number fields parse numerical metrics such as transaction amounts, budget ranges, or numeric feedback ratings.
+
+### 1. Text Analysis Configuration
+
+Use Text analysis to extract unstructured qualitative details and format them into readable notes for human operators or CRM records:
+
+* **Name**: `detailed_call_summary`
+* **Description Prompt**: "Provide a detailed summary of the call so that when the call is transferred, the new human agent has the full context."
+* **Example Output**: `"Customer called about billing issue. Resolved by explaining the recent price changes. Follow-up needed in 2 weeks."`
+
+### 2. Number Analysis Configuration
+
+Use Number analysis to parse quantitative figures, converting conversational references into clean integer or floating-point values:
+
+* **Name**: `purchase_intent_amount`
+* **Description Prompt**: "Extract the dollar amount the customer is interested in spending. Return only the numeric value without currency symbols."
+* **Example Output**: `1500`
+
+---
+
+## How do you configure Selector analysis fields with discrete choices?
+
+To **configure Selector analysis fields**, select the Selector category to classify customer conversations into a fixed list of predefined enumerated options. Enter the allowed options as clean strings and provide detailed classification instructions inside the field description, guiding the LLM on how to map ambiguous conversation patterns into discrete categories.
+
+### Selector Field Configuration Example
+
+* **Name**: `issue_category`
+* **Description Prompt**: "Categorize the main reason for the call based on the primary customer objective."
+* **Predefined Choices**: `["Technical Support", "Billing Question", "Sales Inquiry", "Product Information"]`
+
+```json selector_output.json theme={"dark"}
+{
+  "issue_category": "Billing Question"
+}
+```
+
+<Note>
+  **Prompt Engineering Best Practice**: Write all explanations, boundary definitions, and classification logic directly inside the **Description** field. Keep the **Choices** list strictly clean and limited to the individual choice string labels.
+</Note>
+
+### Extraction Primitives Comparison
+
+| Category Type | Output Format | Ideal Production Application |
+| :--- | :--- | :--- |
+| **Boolean** | `true` / `false` | Gatekeeping criteria, lead qualification, voicemail detection. |
+| **Text** | `string` | Agent handoff context, customer feedback, customized action summaries. |
+| **Number** | `number` | Budget sizing, satisfaction scores, quote quantities. |
+| **Selector** | `string` (enum) | Ticket routing, department categorization, call disposition codes. |
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Where should explanation guidelines for selector choices be placed?">
+    Always include descriptions and classification criteria for selector choices inside the field description prompt. The selector choice inputs themselves should contain strictly the raw categorical string labels.
+  </Accordion>
+
+  <Accordion title="What happens if a caller discusses multiple topics relevant to a selector field?">
+    The LLM selects the single most dominant choice that matches your prompt guidelines. For multifaceted conversations, consider defining separate boolean flags or using a text extraction field to capture secondary topics.
+  </Accordion>
+
+  <Accordion title="Can custom extraction fields be added to agents via API?">
+    Yes. Custom extraction schemas can be defined either visually in the Tavly dashboard under the Post Call Extraction tab or programmatically via the Agent Update and Create API endpoints.
+  </Accordion>
+
+  <Accordion title="Do custom extraction schemas execute on past historical calls?">
+    Newly created or modified extraction fields apply automatically to future completed calls. To extract new fields from past conversations, execute a batch re-analysis job using the Rerun Call Analysis tool.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Post Call Extraction overview](/monitor/post-call-analysis-overview): Understand built-in metrics and asynchronous execution lifecycles.
+* [Consume analysis data](/monitor/post-call-analysis-consumption): Learn how to ingest custom fields via webhooks and REST APIs.
+* [Rerun call analysis](/monitor/rerun-call-analysis): Reprocess historical call archives with newly configured extraction schemas.
+* [Session history](/features/session-history): Filter and inspect past calls using custom extraction properties.

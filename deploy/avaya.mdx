@@ -1,0 +1,340 @@
+---
+title: 'Avaya Aura Integration: Connect SBCE SIP Trunking'
+sidebarTitle: 'Avaya'
+description: 'Connect Avaya Aura to Tavly via Avaya SBCE: configure Session Manager, Communication Manager trunk groups, topology hiding, TLS/SRTP, and number routing.'
+seo:
+  title: 'Avaya Aura Integration | SBCE SIP Trunking Setup | Tavly AI'
+  description: 'Connect Avaya Aura to Tavly via Avaya SBCE: configure Session Manager, Communication Manager trunk groups, topology hiding, TLS/SRTP, and number routing.'
+og:title: 'Avaya Aura Integration: Connect SBCE SIP Trunking'
+og:description: 'Connect Avaya Aura to Tavly via Avaya SBCE: configure Session Manager, Communication Manager trunk groups, topology hiding, TLS/SRTP, and number routing.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'server'
+keywords: ['Avaya Aura integration', 'Avaya SBCE', 'Session Manager SIP', 'Communication Manager trunk', 'Avaya SIP trunking', 'Tavly AI Avaya', 'enterprise telephony']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How does Avaya Aura connect to Tavly conversational AI?'
+    answer: 'Avaya Aura connects to Tavly using the Avaya Session Border Controller for Enterprise (SBCE) as a perimeter demarcation gateway. The SBCE routes SIP signaling and RTP media between internal Session Manager/Communication Manager and Tavly''s external SIP server (sip.tavlyai.com).'
+  - question: 'What network ports and IP CIDR blocks must be whitelisted for Tavly?'
+    answer: 'Administrators must whitelist Tavly CIDRs (18.98.16.120/30, 143.223.88.0/21, and 161.115.160.0/19) on the SBCE external interface, allowing TCP/UDP port 5060 for SIP signaling (or port 5061 for TLS) and dynamic UDP ports for RTP/SRTP media.'
+  - question: 'How are TLS signaling and SRTP media encryption configured on Avaya SBCE?'
+    answer: 'Import Amazon Root CA 1 and intermediate certificates into the SBCE certificate repository, set the server transport to TLS on port 5061, configure SRTP with the AES_CM_128_HMAC_SHA1_80 cipher suite, and specify transport=tls in the termination SIP URI.'
+  - question: 'What causes one-way audio or dropped calls on an Avaya SBCE trunk?'
+    answer: 'One-way audio typically stems from perimeter firewall blocks on dynamic UDP RTP ports or misconfigured topology hiding profiles exposing internal private IPs in the SDP c= connection line. Dropped calls at ~30s usually indicate blocked mid-call SIP re-INVITE requests.'
+---
+
+<Note>
+  Customers with an enterprise or paid support plan can contact us via the <a href="https://support.tavly.com/">Customer Support Portal</a> or [support@tavly.com](mailto:support@tavly.com) for step-by-step guidance to connect with your Avaya infrastructure.
+</Note>
+
+## What is Avaya Aura and SBCE integration?
+
+**Avaya Aura and SBCE integration** connects enterprise Avaya unified communications infrastructure—including Communication Manager and Session Manager—to Tavly voice agents through the Avaya Session Border Controller for Enterprise. The SBCE acts as a secure perimeter demarcation point, performing topology hiding, codec transcoding, and firewall traversal while routing bidirectional SIP calls.
+
+The following architectural model illustrates how SIP signaling and media traffic flow between Tavly and your internal Avaya Aura infrastructure:
+
+```
+Tavly ↔ Avaya SBCE (B1 external) | (A1 internal) ↔ Session Manager ↔ Communication Manager
+```
+
+The SBCE handles topology hiding, codec interworking, and security policies between the external Tavly SIP trunk and your internal Aura infrastructure. All centralized routing and administration flows through **Avaya System Manager (SMGR)**.
+
+For the baseline architectural model of how Tavly connects to third-party telecommunications providers over SIP, consult the [custom telephony overview](/deploy/custom-telephony).
+
+### Tavly SIP Endpoint Specifications
+
+Review the technical parameters required to integrate with Tavly SIP gateways:
+
+| Parameter | Specification | Notes |
+| :--- | :--- | :--- |
+| **SIP Server URI** | `sip.tavlyai.com` | Primary inbound and outbound gateway domain |
+| **Global IP CIDR** | `18.98.16.120/30` | Covers all international and regional traffic |
+| **US Regional CIDRs** | `143.223.88.0/21`, `161.115.160.0/19` | Covers select United States regional traffic |
+| **Signaling Protocols** | `TCP` (Recommended), `UDP`, `TLS` | TCP provides resilient connection-oriented transport |
+| **Supported Codecs** | `PCMU` (G.711 µ-law), `PCMA` (G.711 A-law), `G.722` | Negotiated dynamically during SDP exchange |
+| **Media Encryption** | `SRTP` (`AES_CM_128_HMAC_SHA1_80`) | Enforced when signaling is transported via TLS |
+
+### Official Avaya Documentation References
+
+* [Administering Avaya SBCE](https://documentation.avaya.com/bundle/AdministeringAvayaSBCERelease8/)
+* [Administering Avaya Aura Session Manager](https://documentation.avaya.com/bundle/AdministeringSMRelease10/)
+* [Administering Avaya Aura Communication Manager](https://documentation.avaya.com/bundle/AdministeringAuraCommunicationManager/)
+
+---
+
+## What are the network and firewall requirements for Avaya SBCE?
+
+The **network and firewall requirements** for Avaya SBCE require opening inbound ports on the untrusted A-side for Tavly signaling and media, alongside routing B-side interfaces toward Session Manager. Administrators must allow Tavly IP CIDRs, configure SIP ports 5060 or 5061, and permit dynamic UDP RTP media port ranges.
+
+The SBCE employs dual distinct network interfaces for security isolation:
+
+* **A-side (external / untrusted)**: Faces the public internet and Tavly SIP infrastructure.
+* **B-side (internal / trusted)**: Faces internal Avaya Session Manager and Communication Manager elements.
+
+Apply the following access control policies across your perimeter firewall and the SBCE packet filter:
+
+### Allow Inbound Traffic to SBCE A-side from Tavly IP Ranges
+
+| CIDR Block | Coverage | Description |
+| :--- | :--- | :--- |
+| `18.98.16.120/30` | All regions | Primary global signaling and media gateway block |
+| `143.223.88.0/21` | Certain US traffic | High-volume regional US media and signaling servers |
+| `161.115.160.0/19` | Certain US traffic | Secondary regional US media and signaling servers |
+
+### Ports to Open on SBCE A-side (External Leg to/from Tavly)
+
+| Protocol | Port Range | Purpose |
+| :--- | :--- | :--- |
+| **TCP / UDP** | `5060` | SIP cleartext signaling |
+| **TCP** | `5061` | SIP over TLS signaling (when TLS transport is enabled) |
+| **UDP** | `1024–65535` | RTP / SRTP dynamic audio media (configurable in SBCE profile) |
+
+### Ports to Open on SBCE B-side (Internal Leg toward Session Manager)
+
+| Protocol | Port Range | Purpose |
+| :--- | :--- | :--- |
+| **TCP / UDP** | `5060` | SIP signaling toward Session Manager |
+| **TCP** | `5061` | SIP over TLS signaling toward Session Manager (internal TLS) |
+| **UDP** | `1024–65535` | RTP audio media toward Communication Manager media processors |
+
+<Note>
+  The SBCE's dynamic media port range is configurable in the SBCE EMS under **Global Profiles** > **Media Interface**. Match your external firewall rules to the exact port boundary defined there.
+</Note>
+
+### Verify System-Wide SIP Capabilities
+
+Before configuring trunks, confirm that SIP capabilities are licensed and operational:
+
+* **Communication Manager**: Log in to Avaya System Manager (`https://<smgr-ip>/SMGR`), open **Elements** > **Communication Manager** > select instance > **System Parameters** > **Customer Options**, and verify that **SIP Trunking** is set to `y`. Confirm **Maximum Administered SIP Trunks** accommodates your expected [concurrent calls](/deploy/concurrency).
+* **Session Manager**: Navigate to **Elements** > **Session Manager** > **System Status** > **Security Module Status** and verify the signaling service status displays **Registered**.
+
+---
+
+## How do you configure Avaya SBCE for Tavly SIP trunking?
+
+To configure **Avaya SBCE for Tavly SIP trunking**, create Server Interworking Profiles for Avaya and service provider legs, configure Tavly as a trunk server at Tavly SIP gateway, establish bidirectional Routing Profiles, implement topology hiding rules, bind signaling and media interfaces, and join these components into inbound and outbound Server Flows.
+
+Execute the following sequential configuration procedures within the **Avaya SBCE EMS (Element Management System)** web portal (`https://<sbce-ip>/`):
+
+<Steps>
+  <Step title="Create Server Interworking Profiles">
+    Server Interworking Profiles adapt SIP behavior for internal and external legs:
+
+    **1. Internal Avaya Profile:**
+    * Navigate to **Configuration Profiles** > **Server Interworking** > **Add**.
+    * Set profile name to `Avaya`.
+    * Uncheck **SIPS Required**, set **Hold Support** to `None`, and set **Record Route** to `Both Sides`.
+    * Check **Include Endpoint IP for Context Lookup**, set **Extensions** to `Avaya`, check **Has Remote SBC**, and set **DTMF Support** to `None`. Click **Finish**.
+
+    **2. External Tavly (Service Provider) Profile:**
+    * Click **Add** and set profile name to `Service-Provider`.
+    * Uncheck **SIPS Required**, check **Delayed SDP Handling**, and set **Record Route** to `Both Sides`.
+    * Check **Include Endpoint IP for Context Lookup**, set **Extensions** to `Avaya`, and set **DTMF Support** to `None` (or `RFC 2833` / `Inband` depending on your carrier requirements). Click **Finish**.
+  </Step>
+
+  <Step title="Add SIP Servers">
+    Provision endpoint server definitions for Tavly and Session Manager:
+
+    **1. Tavly External SIP Server:**
+    * Navigate to **Configuration Profiles** > **Server Configuration** > **Add** and name it `Service-Provider`.
+    * Set **Server Type** to `Trunk Server`, **IP Address / FQDN** to `sip.tavlyai.com`, and **Port** to `5060` (or `5061` if TLS).
+    * Set **Transport** to `TCP` (recommended), `UDP`, or `TLS`. Leave authentication credentials blank.
+    * On the **Heartbeat** tab, enable **SIP OPTIONS** ping with an interval of `30` seconds. Set **From URI** to `sip@<sbce-b1-public-ip>` and **To URI** to `sip@sip.tavlyai.com`.
+    * Ensure **Enable Grooming** is unchecked, assign **Interworking Profile** to `Service-Provider`, and click **Finish**.
+
+    **2. Avaya Session Manager Server:**
+    * Click **Add** and name it `Avaya`. Set **Server Type** to `Call Server`, specify your primary Session Manager IP (e.g. `10.x.x.x`), set **Port** to `5061`, and select `TLS`.
+    * Add secondary Session Manager instances if high availability is required, select your SBCE A1 **TLS Client Profile**, assign **Interworking Profile** to `Avaya`, and click **Finish**.
+  </Step>
+
+  <Step title="Create Routing Profiles">
+    Direct traffic paths between endpoints:
+
+    * **Outbound Route to Tavly**: Go to **Configuration Profiles** > **Routing** > **Add**, name it `Route-to-Tavly`, add server `Service-Provider` with priority/weight `1`, and click **Finish**.
+    * **Inbound Route to Session Manager**: Click **Add**, name it `Route-to-SessionManager`, add your primary Session Manager server with priority `1` and secondary with priority `2`, and click **Finish**.
+  </Step>
+
+  <Step title="Configure Topology Hiding">
+    Prevent exposure of internal IP topologies and enforce correct SIP domains:
+
+    * **Service Provider Profile**: Go to **Configuration Profiles** > **Topology Hiding** > **Add**, name it `Service-Provider`, set all header fields to `IP Domain`, leave values as `Auto`, and save.
+    * **Avaya Internal Profile**: Click **Add**, name it `Avaya`, set header fields to `IP Domain`, and overwrite the **To**, **From**, and **Request Line** fields with your internal SIP domain (e.g. `avaya.example.com` found in **System Manager** > **Routing** > **Domains**). Click **Finish**.
+  </Step>
+
+  <Step title="Configure Signaling and Media Interfaces">
+    Bind IP addresses and port ranges for SIP signaling and RTP audio:
+
+    **1. Signaling Interfaces:**
+    * Navigate to **Network & Flows** > **Network Management** > **Signaling Interface** > **Add**.
+    * Create `Service-Provider-External` on the SBCE B1 external IP, enabling only your active transport port (TCP `5060`, UDP `5060`, or TLS `5061`).
+    * Create `Avaya-Internal` on the SBCE A1 internal IP, enabling TLS port `5061` with your internal TLS client profile.
+
+    **2. Media Interfaces:**
+    * Navigate to **Network & Flows** > **Network Management** > **Media Interface** > **Add**.
+    * Create `Service-Provider-External` bound to your SBCE B1 external IP and define your RTP port range (e.g. `35000–40000`).
+    * Create `Avaya-Internal` bound to your SBCE A1 internal IP with your internal media port range.
+  </Step>
+
+  <Step title="Create Inbound and Outbound Server Flows">
+    Bind signaling, media, routing, and topology rules into executable endpoint flows:
+
+    Go to **Network & Flows** > **End-Point Flows** > **Server Flows**:
+
+    * **Inbound Trunk Server Flow (Tavly → Session Manager)**:
+      * **Name**: `Trunk-Server`
+      * **Server Configuration**: `Service-Provider`
+      * **Received Interface**: `Service-Provider-External`
+      * **Signaling Interface**: `Avaya-Internal`
+      * **Media Interface**: `Service-Provider-External`
+      * **Routing Profile**: `Route-to-SessionManager`
+      * **Topology Hiding Profile**: `Service-Provider`
+
+    * **Outbound Call Server Flow (Session Manager → Tavly)**:
+      * **Name**: `Call-Server`
+      * **Server Configuration**: `Avaya`
+      * **Received Interface**: `Avaya-Internal`
+      * **Signaling Interface**: `Service-Provider-External`
+      * **Media Interface**: `Avaya-Internal`
+      * **Routing Profile**: `Route-to-Tavly`
+      * **Topology Hiding Profile**: `Avaya`
+  </Step>
+</Steps>
+
+---
+
+## How do you configure Session Manager and Communication Manager routing?
+
+To configure **Session Manager and Communication Manager routing**, add a SIP Entity and TLS Entity Link for the SBCE in System Manager, build routing policies with dial patterns, create a SIP signaling group and trunk group in Communication Manager, and assign incoming call handling and ARS outbound patterns.
+
+Follow these configuration steps across System Manager and Communication Manager:
+
+### 1. Session Manager Configuration (via System Manager)
+
+Access System Manager at `https://<smgr-ip>/SMGR` and navigate to **Elements** > **Routing**:
+
+* **Add SBCE SIP Entity**: Open **SIP Entities** > **New**. Set **Name** to `SBCE-Tavly-Trunk`, **FQDN or IP** to the SBCE A1 internal IP address, **Type** to `SIP Trunk`, and add listen port `5061` with protocol `TLS`.
+* **Create Entity Link**: Go to **Entity Links** > **New**. Set **SIP Entity 1** to your Session Manager, **Protocol** to `TLS`, **Port** to `5061`, **SIP Entity 2** to `SBCE-Tavly-Trunk`, and **Connection Policy** to `Trusted`.
+* **Define Routing Policy**: Open **Routing Policies** > **New**. Name it `Route-via-Tavly`, assign SIP entity `SBCE-Tavly-Trunk`, and set retries to `1`.
+* **Configure Dial Patterns**: Open **Dial Patterns** > **New**. Define your inbound/outbound DID prefixes or full E.164 patterns (e.g. `+12125551234`), match digit lengths, specify your internal SIP domain, and link to `Route-via-Tavly`. Commit your routing changes.
+
+### 2. Communication Manager Configuration (Element Manager or SAT)
+
+Access Communication Manager through **System Manager** > **Elements** > **Communication Manager** > **Launch Element Manager**, or via SAT terminal:
+
+* **Create SIP Signaling Group**:
+  * Open **Telephony** > **Trunks** > **Signaling Groups** > **Add**.
+  * Set **Group Type** to `sip`, **Transport Method** to `tcp` (or `tls`), and listen ports to `5060`.
+  * Set **Near-end Node Name** to the CM processor interface and **Far-end Node Name** to Session Manager.
+  * Set **Direct IP-IP Audio Connections** to `y` and **DTMF over IP** to `rtp-payload` (RFC 2833).
+* **Create SIP Trunk Group**:
+  * Open **Telephony** > **Trunks** > **Trunk Groups** > **Add**. Set **Group Type** to `sip`, **Group Name** to `Tavly-Trunk`, assign your signaling group, and set member capacity.
+  * Verify that `PCMU` and `PCMA` codecs are permitted under the audio codec profile.
+* **Configure Incoming Call Handling**:
+  * Open trunk group properties > **Incoming Call Handling**. Map arriving DIDs to destination extensions, VDNs, or hunt groups, configuring digit truncation or insertion as needed.
+* **Configure Outbound Routing (AAR / ARS)**:
+  * In **Routing** > **ARS Analysis**, create route patterns pointing to the `Tavly-Trunk` group number with format set to `public` (E.164) and update your dial plan to direct outbound traffic to this route pattern.
+
+---
+
+## How do you configure TLS encryption and SRTP media security?
+
+To configure **TLS encryption and SRTP media security**, import Amazon Root CA 1 and intermediate certificates into the SBCE TLS store, set the service provider trunk transport to TLS on port 5061, enable SRTP with standard AES cipher suites, and append transport parameters to your Tavly termination SIP URI.
+
+When end-to-end signaling and audio encryption is mandated across enterprise perimeter boundaries, implement the following security parameters:
+
+### Architecture of Encrypted Sessions
+
+* **Signaling**: TLS encrypts SIP signaling on the external leg between Tavly and the SBCE A-side.
+* **Media**: SRTP encrypts audio streams using negotiated crypto keys (Tavly mandates TLS transport to activate SRTP).
+* **Internal Leg**: The SBCE terminates TLS/SRTP on the external interface and can either bridge secure TLS internally to Session Manager or transcode to RTP based on internal network policy.
+
+```
+Tavly (TLS/SRTP) ↔ (B1 Ext Port 5061) SBCE (A1 Int Port 5061) ↔ (TLS/SRTP) Session Manager
+```
+
+### Configuration Steps for SBCE TLS & SRTP
+
+1. **Import Certificate Authority Chains**:
+   * Navigate to **SBCE EMS** > **TLS Management** > **Certificates**.
+   * Import **Root CA**: Download `AmazonRootCA1.pem` from the [Amazon Trust Services repository](https://www.amazontrust.com/repository/).
+   * Import **Intermediate CA**: Install `C=US, O=Amazon, CN=Amazon RSA 2048 M01` if your SBCE requires full chain validation.
+2. **Update Signaling and Server Configuration**:
+   * In **Signaling Interface** (`Service-Provider-External`), ensure **TLS Port** `5061` is enabled.
+   * In **Server Configuration** (`Service-Provider`), set **Transport** to `TLS` and **Port** to `5061`.
+3. **Configure Security Rules**:
+   * In your SBCE End Point Policy Group, verify that the active Security Rule enforces **TLS Enabled**, **SRTP Enabled**, and specifies cipher `AES_CM_128_HMAC_SHA1_80`.
+4. **Configure SIP URI**:
+   * Format your termination SIP URI with the explicit TLS transport parameter:
+   ```
+   sip:sip.tavlyai.com;transport=tls
+   ```
+
+---
+
+## How do you import numbers and test Tavly integration?
+
+To **import numbers and test Tavly integration**, navigate to the Tavly console, input your E.164 phone number, assign your SBCE public FQDN or IP address as the termination SIP URI, attach your conversational voice agent, and initiate inbound and outbound validation calls.
+
+### 1. Import Phone Number into Tavly
+
+Import your Avaya DID into Tavly so the routing gateway associates incoming calls with your agent and directs outbound calls to your SBCE:
+
+1. Open the Tavly dashboard and navigate to **Phone Numbers** > **Import Number**.
+2. Supply the following connection parameters:
+   * **Phone Number**: International E.164 format (e.g. `+12137771234`).
+   * **Termination SIP URI**: The SBCE A-side IP or public FQDN with port (e.g. `<sbce-public-ip>:5060` or `<sbce-fqdn>:5061;transport=tls`).
+   * **SIP Username / Password**: Specify authentication credentials only if you enabled inbound digest challenge on your SBCE policy.
+3. Bind your desired Tavly conversational AI voice agent to the imported number.
+
+You can also import numbers programmatically via the [Import Number API](/api-references/import-phone-number).
+
+### 2. Verify and Test Connectivity
+
+Validate call routing through both inbound and outbound testing cycles:
+
+* **Inbound Call Validation**: Dial the provisioned DID from an external telephone network. Verify that the call traverses PSTN → CM → SM → SBCE → Tavly, the live call appears in the Tavly dashboard, and two-way audio streams cleanly.
+* **Outbound Call Validation**: Dispatch an outbound call from the Tavly dashboard or via the [Create Phone Call API](/api-references/create-phone-call). Ensure the recipient receives the call with the expected E.164 caller ID and audio latency remains nominal.
+* **SIP OPTIONS Heartbeat**: Check **SBCE EMS** > **Monitoring** > **Server Status** to verify that the trunk status displays **Active** in response to periodic OPTIONS pings from `sip.tavlyai.com`.
+* **Metadata Passing**: Pass custom account or caller IDs between Avaya and your agent using [custom SIP headers](/build/telephony/sip-headers).
+
+---
+
+## How do you troubleshoot common Avaya SBCE and Aura SIP issues?
+
+To troubleshoot **Avaya SBCE and Aura SIP issues**, capture packet traces within the SBCE EMS, examine Session Manager routing logs, and run Communication Manager SAT trace commands. Address 403 Forbidden errors by updating ACLs, resolve 488 errors with standard codec rules, and investigate one-way audio via topology hiding.
+
+Review the following systematic diagnostics to isolate and resolve operational faults:
+
+### Troubleshooting Matrix
+
+| Symptom | Probable Root Cause | Resolution Procedure |
+| :--- | :--- | :--- |
+| **403 Forbidden on Inbound** | SBCE rejects Tavly source IP | Add Tavly CIDR ranges (`18.98.16.120/30`, `143.223.88.0/21`, `161.115.160.0/19`) to SBCE trusted source lists and Server Flow. |
+| **503 Service Unavailable** | DNS failure or egress firewall block | Verify external DNS resolution for `sip.tavlyai.com` and confirm outbound port 5060/5061 is open on firewall. |
+| **Dead Air / No Audio** | RTP media ports blocked by firewall | Open dynamic UDP RTP ports (`1024–65535`) on perimeter firewall matching SBCE Media Interface definitions. |
+| **One-Way Audio** | NAT or topology hiding leak | Verify SBCE A-side IP is in SDP `c=` line; confirm topology hiding profile does not leak internal private IP addresses. |
+| **488 Not Acceptable Here** | Codec mismatch during SDP offer | Ensure `PCMU` (G.711 µ-law) and `PCMA` (G.711 A-law) are enabled in SBCE Media Rules and CM IP Codec Sets. |
+| **TLS Handshake Failure** | Missing or untrusted CA certificate | Download and import Amazon Root CA 1 and intermediate CA into SBCE TLS certificate repository. |
+| **Trunk Status Down** | Failed SIP OPTIONS heartbeat | Verify firewall allows bi-directional SIP OPTIONS traffic between SBCE and Tavly gateways. |
+| **Calls Drop at ~30s** | Mid-call SIP re-INVITE blocked | Configure perimeter firewall to permit mid-call signaling state transitions and session refreshes. |
+
+### Diagnostic Utilities
+
+* **SBCE Packet Capture**: In SBCE EMS, open **Monitoring** > **Tracing** > **Packet Capture** to capture raw `.pcap` files on the external B1 interface.
+* **Session Manager Call Routing Test**: In System Manager, navigate to **Elements** > **Session Manager** > **System Status** > **Call Routing Test** to simulate digit parsing and routing policy selection.
+* **Communication Manager SAT Tracing**: Execute `list trace tac <tac>` to view real-time signaling on specific trunk access codes, and `status trunk <group>/<member>` to verify trunk member states.
+* **Platform Diagnostics**: Refer to [Debug outbound connection issues](/reliability/debug-outbound-call) for status codes and [Debug SIP calls using PCAP files](/reliability/debug-calls-pcap) to inspect signaling in Wireshark.
+
+<Note>
+  If you cannot resolve an integration issue, collect the SBCE packet trace, the Session Manager routing test log, the Communication Manager trace, and the Tavly Call ID from your dashboard, and submit them through the <a href="https://support.tavly.com/">Customer Support Portal</a> or via [support@tavly.com](mailto:support@tavly.com).
+</Note>
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Core architecture for SIP trunking and direct SIP URI routing.
+* [Twilio integration guide](/deploy/twilio): Connect external trunks using Twilio Elastic SIP Trunking.
+* [Telnyx integration guide](/deploy/telnyx): Configure FQDN routing and SIP trunks with Telnyx.
+* [Inbound call routing](/deploy/inbound-call): Route enterprise telephone calls directly to voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated outbound calls from your phone numbers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and telephony tokens between Avaya and Tavly.

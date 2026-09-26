@@ -31,7 +31,7 @@ Reach for a custom function whenever the agent needs to read live data from your
 * **Triggering actions:** Automatically opening support tickets, securely updating a database record, or sending out a confirmation email.
 * **Logic branching:** Hitting an endpoint that determines the agent's exact next conversational move based on backend business rules.
 
-If the logic does not require your server (e.g., standard calculations, reading a [dynamic variable](/build/dynamic-variables), or hitting a simple public API), utilize a [code tool](/build/single-multi-prompt/code-tool) instead. For common integrations like CRM and calendars, utilize our native [integration tools](/build/single-multi-prompt/integration-tools).
+If the logic does not require your server (e.g., standard calculations, reading a [dynamic variable](/build/context/dynamic-variables), or hitting a simple public API), utilize a [code tool](/build/single-multi-prompt/code-tool) instead. For common integrations like CRM and calendars, utilize our native [integration tools](/build/setup/single-multi-prompt/integration-tools).
 
 ### Example: Checking an Order's Status
 
@@ -68,7 +68,7 @@ Setting up a custom function involves explicitly defining the endpoint URL, sele
 
   <Step title="Set a timeout and headers (optional)">
     * **Timeout:** Valid values range from `1000` (1 second) to `600000` (10 minutes), defaulting to 120 seconds. If the call times out, the agent is handed an error state to respond to.
-    * **Headers:** Add custom authentication headers. Values can be hardcoded or injected securely via [dynamic variables](/build/dynamic-variables) (e.g., `{{token}}`).
+    * **Headers:** Add custom authentication headers. Values can be hardcoded or injected securely via [dynamic variables](/build/context/dynamic-variables) (e.g., `{{token}}`).
 
     <Frame>
       <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-function/headers.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=44295c732912fcb1c3f29259e3f59609" alt="Request headers configuration" width="830" height="132" data-path="images/custom-function/headers.png" />
@@ -120,7 +120,7 @@ Setting up a custom function involves explicitly defining the endpoint URL, sele
   </Step>
 
   <Step title="Map response values to variables (optional)">
-    Under **Store Fields as Variables**, pull specific values out of your JSON response and save them as [dynamic variables](/build/dynamic-variables) for later use in the conversation.
+    Under **Store Fields as Variables**, pull specific values out of your JSON response and save them as [dynamic variables](/build/context/dynamic-variables) for later use in the conversation.
 
     Reference each field with dot notation, adding array indices as needed — `user.name` or `data.items[0].id`, for example. This only works when your endpoint's response is a JSON object.
 

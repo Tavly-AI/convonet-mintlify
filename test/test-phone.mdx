@@ -1,6 +1,27 @@
 ---
-title: "Phone call testing"
-description: "Test a Tavly voice agent on a real phone call: attach a number, place an outbound test call or dial in, and validate audio, latency, DTMF, and transfers."
+title: 'Phone Call Testing: Validate PSTN Audio, DTMF & Transfers'
+sidebarTitle: 'Phone Call Testing'
+description: 'Test Tavly voice agents on real phone lines: audit carrier audio quality, mobile network latency, DTMF keypad inputs, voicemail detection, and live transfers.'
+seo:
+  title: 'Phone Call Testing | Real Telephony Validation | Tavly AI'
+  description: 'Test Tavly voice agents on real phone lines: audit carrier audio quality, mobile network latency, DTMF keypad inputs, voicemail detection, and live transfers.'
+og:title: 'Phone Call Testing: Validate PSTN Audio, DTMF & Transfers'
+og:description: 'Test Tavly voice agents on real phone lines: audit carrier audio quality, mobile network latency, DTMF keypad inputs, voicemail detection, and live transfers.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone'
+keywords: ['phone call testing', 'telephony testing', 'PSTN voice testing', 'DTMF testing', 'call transfer testing', 'answering machine detection', 'Tavly AI phone test']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is phone call testing in Tavly AI?'
+    answer: 'Phone call testing connects conversational voice agents to public telephony networks (PSTN), enabling pre-flight validation of carrier-grade audio compression, mobile latency, DTMF tone detection, voicemail detection, and live phone transfers.'
+  - question: 'How do you test unpublished draft agents on phone calls?'
+    answer: 'Assign your agent to an owned phone number and set the execution target to Latest Created, which dynamically routes incoming or outbound calls to your most recent draft configuration without requiring a formal deployment publish.'
+  - question: 'Why is identity verification (KYC) required for outbound test calls?'
+    answer: 'To prevent toll fraud and regulatory telecommunication violations, newer workspace accounts must complete identity verification (KYC) before Tavly enables outbound calling capabilities, including outbound test dials.'
+  - question: 'What telecommunication features can only be verified on phone calls?'
+    answer: 'Public PSTN transfers (cold, warm, and agentic warm), DTMF touch-tone keypad navigation, answering machine detection (AMD), and carrier cellular audio quality can only be validated over live phone calls, not in browser WebRTC tests.'
 ---
 
 Phone call testing connects your voice agent directly to public telephony networks (PSTN), allowing you to audit features that [web call](/test/test-web) sessions cannot evaluate: carrier-grade audio compression, mobile network latency, dual-tone multi-frequency (DTMF) keypad inputs, and live line transfers. Conduct a phone test as your final pre-flight verification before routing live customer calls.
@@ -9,13 +30,29 @@ Phone call testing connects your voice agent directly to public telephony networ
   Telephony testing requires assigning an active [phone number](/deploy/purchase-number) to your agent. When placing or receiving a test call, the platform executes whichever [agent version](/agent/version) is linked to that number: an explicit version number, an environment tag, <code className="ui-btn">Latest Published</code>, or <code className="ui-btn">Latest Created</code>. Because <code className="ui-btn">Latest Created</code> dynamically resolves to your most recent draft, you can test work-in-progress agents without publishing them first.
 </Note>
 
-## Initiating an Outbound Test Call
+## What is phone call testing?
 
-Trigger an automated outbound dial from Tavly directly to your personal phone.
+**Phone call testing** connects your Tavly voice agent directly to public switched telephone networks (PSTN) for pre-production validation. This testing environment audits telecommunication capabilities that browser WebRTC sessions cannot evaluate, including carrier-grade audio codec compression, cellular network latency, dual-tone multi-frequency (**DTMF**) touch-tone keypad inputs, voicemail detection, and live call transfers.
+
+Performing live phone testing ensures your agent performs reliably in noisy, low-bandwidth, and carrier-constrained mobile environments:
+
+| Telecom Capability | Phone Call Testing (PSTN) | Web Call Testing (Browser WebRTC) |
+| :--- | :--- | :--- |
+| **Carrier Codecs & Latency** | Evaluates cellular jitter, packet loss & narrowband/wideband codecs | Uncompressed low-latency browser audio stream |
+| **DTMF Keypad Input** | Native touch-tone digit detection for IVRs and PINs | Not supported (no telephone dialpad interface) |
+| **External PSTN Transfers** | Validates live cold, warm, and agentic warm transfers | Fails (only agent-to-agent internal handoffs work) |
+| **Answering Machine (AMD)** | Analyzes voicemail greetings and machine audio | Inactive |
+| **Outbound SMS Dispatch** | Transmits SMS from assigned caller ID | Fails (lacks telephone number association) |
+
+## How do you initiate an outbound test call?
+
+To initiate an **outbound test call**, assign your agent as the designated Outbound Agent on an owned phone number, configure the target version, and trigger a dial to your personal phone. Ensure your workspace has completed **KYC identity verification**, then supply sample values for dynamic variables in the launch dialog.
 
 <Note>
   To prevent toll fraud and regulatory violations, newer workspace accounts must complete [identity verification](/accounts/kyc) before Tavly enables outbound calling capabilities, including test calls. If your workspace has not satisfied KYC requirements, the telephone number drawer presents a verification banner rather than the call trigger button.
 </Note>
+
+Follow these structured steps to place an outbound test call:
 
 <Steps>
   <Step title="Assign the outbound agent to a number">
@@ -23,11 +60,15 @@ Trigger an automated outbound dial from Tavly directly to your personal phone.
   </Step>
 
   <Step title="Place the test call">
-    Within the number settings panel, click <code className="ui-btn">Make an outbound call</code>, enter your destination phone number, and start dialing. Supply test values for any [dynamic variables](/build/dynamic-variables) in the launch dialog so session placeholders resolve accurately.
+    Within the number settings panel, click <code className="ui-btn">Make an outbound call</code>, enter your destination phone number, and start dialing. Supply test values for any [dynamic variables](/build/context/dynamic-variables) in the launch dialog so session placeholders resolve accurately.
   </Step>
 </Steps>
 
-## Testing via Inbound Dialing
+## How do you test via inbound dialing?
+
+To test via **inbound dialing**, bind your agent as the designated Inbound Agent on an owned phone number in the Tavly console and dial that number directly from a telephone. The telephony gateway immediately connects your call to the assigned agent version, allowing you to converse naturally and audit real-world acoustic performance.
+
+Execute an inbound telephone test using the following steps:
 
 <Steps>
   <Step title="Assign the inbound agent to a number">
@@ -39,9 +80,11 @@ Trigger an automated outbound dial from Tavly directly to your personal phone.
   </Step>
 </Steps>
 
-## Telephony Validation Checklist
+## What should you verify in your telephony validation checklist?
 
-Testing over live carrier lines validates capabilities specific to telecom infrastructure:
+A complete **telephony validation checklist** verifies telecommunication features that operate exclusively across carrier networks. Test DTMF touch-tone collection, confirm cold or warm line transfers, audit answering machine detection (**AMD**) for voicemails, ensure outbound SMS notifications deliver to real mobile devices, and evaluate speech clarity and conversational turn-taking under mobile network latency.
+
+Audit the following capabilities during live phone verification:
 
 * **DTMF digit collection**: Confirm that the agent detects touch-tone keypad presses and navigates menu trees accurately.
 * **Telephony transfers**: Verify that cold transfers, warm handoffs, or agentic warm transfers complete successfully. External phone transfers cannot be simulated in browser audio.

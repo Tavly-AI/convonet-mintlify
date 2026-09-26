@@ -1,0 +1,207 @@
+---
+title: "Manage Your Tavly Account: Status, Security & Billing"
+sidebarTitle: "Account Settings"
+description: "Manage your Tavly account: check operational statuses, reset passwords, switch between email and Google SSO, update account emails, and stop billing charges."
+seo:
+  title: "Manage Your Tavly Account: Status, Security & Billing"
+  description: "Manage your Tavly account: check operational statuses, reset passwords, switch between email and Google SSO, update account emails, and stop billing charges."
+og:title: "Manage Your Tavly Account: Status, Security & Billing"
+og:description: "Manage your Tavly account: check operational statuses, reset passwords, switch between email and Google SSO, update account emails, and stop billing charges."
+og:image: "https://mintcdn.com/retellai/g0auWTdSjy__YRNf/images/account_delete_workspace_button.png?fit=max&auto=format&n=g0auWTdSjy__YRNf&q=85&s=28a78e8058829387416e416f7b5eb3ad"
+twitter:card: "summary_large_image"
+icon: "user-gear"
+keywords:
+  - "manage Tavly account"
+  - "account verification status"
+  - "Auth0 password reset"
+  - "switch Google SSO"
+  - "change account email"
+  - "stop billing charges"
+  - "delete Tavly account"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why are Google SSO and email-password logins treated as separate accounts?"
+    answer: "Tavly uses Auth0 for authentication security. In Auth0, identity providers create distinct user identifiers. Email-password logins and Google SSO profiles are not linked automatically and must be transitioned via workspace invitations."
+  - question: "What happens when an account status is set to Verification Needed?"
+    answer: "Tavly places high-volume accounts on a temporary compliance hold. Outbound traffic is paused until you provide company verification and use-case details to our compliance team."
+  - question: "How can I stop billing charges without deleting my Tavly account?"
+    answer: "Because Tavly uses pay-as-you-go billing, halt active charges by terminating running agents, releasing provisioned telephone numbers, deleting extra knowledge bases, and settling pending usage invoices."
+  - question: "What happens to my workspaces if I delete my account?"
+    answer: "If you are the sole member of any workspace, those workspaces and their underlying phone numbers, agents, and data are permanently deleted. If other members remain, workspaces persist under remaining administrators."
+---
+
+> Check account status, reset your password, change your email address, switch to Google SSO, stop charges, and delete your Tavly account.
+
+To keep your credentials, telephony configurations, and billing profiles secure, Tavly utilizes **Auth0** as its identity and access management system.
+
+---
+
+## What account statuses exist in Tavly and what do they indicate?
+
+Tavly accounts display four operational statuses: Active, Verification Needed, Invoice Past Due, and Invoice Overdue. Active accounts have full service access, while Verification Needed indicates a temporary compliance hold for high-volume call traffic. Invoice Past Due provides a seven-day grace period, whereas Invoice Overdue deactivates outbound calling until balances are settled.
+
+Understanding your workspace and account status ensures uninterrupted voice telephony operations:
+
+| Account Status | Operational Impact | Required Resolution Action |
+| :--- | :--- | :--- |
+| **Active** | Full access to all voice agents, telephony carriers, APIs, and dashboard tools. | Normal operation; no action required. |
+| **Verification Needed** | Outbound calling is temporarily paused due to compliance screening or sudden call volume spikes. | Email [support@tavly.it](mailto:support@tavly.it) with your legal company name, production use case, and corporate verification. |
+| **Invoice Past Due** | Platform remains operational under a **7-day grace period** before automated shutdown. | Settle outstanding invoice balance immediately on the [Billing page](/accounts/billing). |
+| **Invoice Overdue** | Telephony services, phone routing, and API execution are deactivated. | Pay overdue balance on the [Billing page](/accounts/billing) to immediately restore service. |
+
+---
+
+## How do you reset your password and switch between SSO and email login?
+
+To reset your password, click Dont remember your password on the login page and follow the email verification link. Because Auth0 treats Google SSO and email-password logins as separate accounts, you switch authentication methods by inviting your email address from your current workspace and registering with your preferred alternative sign-in method.
+
+### Resetting Forgotten Passwords
+
+If you access Tavly using standard email and password authentication, follow these steps to reset your credentials:
+
+1. Navigate to the Tavly login portal.
+2. Click the **"Don’t remember your password?"** link below the credential inputs.
+3. Enter your registered email address and submit the form.
+4. Open the password reset email sent to your inbox and complete the security prompt to create a new password.
+
+For enhanced account security and reduced credential friction, Tavly recommends **Sign in with Google**.
+
+### Switching Between Google SSO and Email-Password Authentication
+
+In Auth0, **Google SSO** and **email-password credentials** represent distinct authentication providers and are treated as separate account entities. They are not merged automatically.
+
+If you currently authenticate with one method (e.g., email-password) and wish to transition to another (e.g., Google SSO), execute this migration workflow:
+
+<Steps>
+  <Step title="Send an Invite from Your Workspace">
+    Log in to Tavly using your current sign-in method. Click your profile photo at the bottom-left corner of the dashboard, navigate to **Workspace**, and send a new workspace invitation to your email address.
+  </Step>
+
+  <Step title="Log Out of the Active Session">
+    Log out completely from your current dashboard session.
+  </Step>
+
+  <Step title="Accept Invitation with the New Authentication Method">
+    Open the invitation link received in your inbox. On the registration screen, choose the **alternative sign-in method** (e.g., click **Continue with Google** if switching to SSO, or enter an email and new password if moving away from SSO).
+  </Step>
+</Steps>
+
+This creates a new login profile linked to your chosen authentication provider while maintaining seamless access, role permissions, and configurations within your existing workspace.
+
+---
+
+## How do you update or change your account email address?
+
+To change your account email, submit your new address in Account Settings and click the confirmation link sent to your new inbox. Tavly preserves your active email until confirmation succeeds, allowing you to cancel pending requests anytime. Accounts authenticated via Google SSO must update email addresses directly through Google.
+
+Tavly requires two-step confirmation before modifying your primary email address to safeguard against unauthorized account takeovers:
+
+<Steps>
+  <Step title="Submit Email Change Request">
+    Navigate to your **Account Settings** in the Tavly dashboard. Enter your desired new email address and click submit. Tavly generates a secure verification link and dispatches it to the new inbox.
+  </Step>
+
+  <Step title="Confirm Verification Link">
+    Log into your new email account, locate the confirmation message from Tavly, and open the verification link. Your account email updates immediately upon confirmation. Until you click this link, your original email address remains active.
+  </Step>
+</Steps>
+
+<Note>
+  While an email change is pending, you can cancel the request at any time from your account settings. Canceling immediately invalidates the confirmation link and keeps your original email address active.
+</Note>
+
+<Warning>
+  Email address modification is supported exclusively for accounts that authenticate with email and password. If your account authenticates through Google SSO or an enterprise social identity provider, your email identity is managed by that external provider. Update your corporate email through your SSO administrator or follow the [sign-in migration process](#how-do-you-reset-your-password-and-switch-between-sso-and-email-login).
+</Warning>
+
+---
+
+## How do you pause usage and stop recurring charges on Tavly?
+
+To stop charges on Tavly's pay-as-you-go billing model, terminate active voice agent calls, release provisioned phone numbers, delete extra knowledge base indexes, and settle any outstanding usage invoices. Because Tavly bills post-usage without recurring seat fees, halting active telephony consumption immediately drops new billing charges to zero.
+
+Tavly operates on a transparent **post-usage, pay-as-you-go** model. There are no mandatory monthly recurring software subscription fees or seat licenses on standard developer tiers. You incur costs solely based on active consumption:
+
+- Voice call duration (billed by the minute)
+- Rented telephone numbers (monthly carrier lease fees)
+- Knowledge base storage (additional vectorized documents)
+- Telephony add-ons (concurrency scaling or SIP trunk interconnects)
+
+### Step-by-Step Checklist to Halt All Charges
+
+To ensure your account stops generating charges without deleting your configurations:
+
+1. **Stop Voice Ingestion**: Pause inbound telephone routing and discontinue outbound API call dispatches.
+2. **Release Leased Numbers**: Release any active virtual telephone numbers rented through the Tavly dashboard.
+3. **Remove Auxiliary Knowledge Bases**: Delete unused or auxiliary knowledge base indexes that exceed free tier thresholds.
+4. **Settle Final Usage**: Check the [Billing page](/accounts/billing) and clear any unbilled usage to bring your outstanding balance to zero. For complete billing procedures, review the [guide to closing an account](/accounts/billing#how-do-you-stop-charges-or-close-a-credit-based-account).
+
+For enterprise commitments or custom contract inquiries, reach out directly to [Tavly Support](mailto:support@tavly.it).
+
+---
+
+## How do you permanently delete your Tavly account and workspaces?
+
+To permanently delete your account, navigate to Workspace Settings, open the General panel, and click Delete Workspace. If you are the sole member, confirming deletion purges your account, terminates active phone numbers, invalidates API keys, and settles outstanding charges. For full subprocessor erasure, submit a GDPR deletion request to support.
+
+Account deletion is irreversible. When you delete your account, all associated conversation history, prompts, voice clones, and API configurations are permanently erased.
+
+### Pre-Deletion Checklist
+
+Complete the following operational steps before triggering account termination:
+
+- **Export Critical Data**: Download call logs, call recordings, performance metrics, and prompt configurations.
+- **Settle Invoices**: Clear all pending balances on the [Billing page](/accounts/billing).
+- **Release Telephony Assets**: Relinquish leased telephone numbers and disconnect active carrier SIP trunks.
+- **Disconnect External Integrations**: Unlink third-party CRMs (HubSpot, Salesforce, Zoho) and custom webhook listeners.
+
+### Account & Workspace Deletion Flow
+
+If you belong to multiple workspaces, delete individual workspaces or leave them first. If this is the only workspace associated with your account, deleting it triggers full account removal:
+
+<Steps>
+  <Step title="Access Workspace General Settings">
+    Navigate to **Settings** → **Workspace** → **General**. Scroll to the deletion section.
+
+    <Frame caption="Accessing workspace settings">
+      <img height="700" src="https://mintcdn.com/retellai/g0auWTdSjy__YRNf/images/account_delete_workspace_button.png?fit=max&auto=format&n=g0auWTdSjy__YRNf&q=85&s=28a78e8058829387416e416f7b5eb3ad" alt="Workspace settings page with the delete workspace button" data-path="images/account_delete_workspace_button.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Confirm Workspace and Account Removal">
+    Click **Delete Workspace**. In the confirmation dialog, enter your workspace name to verify your intent. If this is your sole workspace, the platform informs you that your user account will be permanently closed.
+
+    <Frame caption="Delete the only workspace and delete account">
+      <img height="700" src="https://mintcdn.com/retellai/azFCVnyPyilw8-Y7/images/account_delete_workspace_confirmation.png?fit=max&auto=format&n=azFCVnyPyilw8-Y7&q=85&s=679c6b52ae0ddf5a8e76e30f5cc9b1a3" alt="Delete account" data-path="images/account_delete_workspace_confirmation.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+<Note>
+  Deleting your account removes records from Tavly's direct operational databases. To ensure your personal data is purged across all integrated subprocessors (such as customer support, billing gateways, and identity verification partners), submit a formal [GDPR personal data erasure request](/accounts/privacy/security-compliance#how-do-you-submit-a-gdpr-personal-data-erasure-request).
+</Note>
+
+---
+
+## Frequently asked questions about Tavly account management
+
+Managing your Tavly account involves maintaining authentication credentials, monitoring billing health, and configuring workspace memberships securely. By understanding Auth0 sign-in separation, verifying email updates, and following systematic checklists to pause usage or delete accounts, developers and enterprises maintain strict administrative control over voice telephony operations.
+
+<AccordionGroup>
+  <Accordion title="Why are Google SSO and email-password logins treated as separate accounts?">
+    Tavly uses Auth0 for authentication security. In Auth0, identity providers create distinct user identifiers. Email-password logins and Google SSO profiles are not linked automatically and must be transitioned via workspace invitations.
+  </Accordion>
+
+  <Accordion title="What happens when an account status is set to Verification Needed?">
+    Tavly places high-volume accounts on a temporary compliance hold. Outbound traffic is paused until you provide company verification and use-case details to our compliance team.
+  </Accordion>
+
+  <Accordion title="How can I stop billing charges without deleting my Tavly account?">
+    Because Tavly uses pay-as-you-go billing, halt active charges by terminating running agents, releasing provisioned telephone numbers, deleting extra knowledge bases, and settling pending usage invoices.
+  </Accordion>
+
+  <Accordion title="What happens to my workspaces if I delete my account?">
+    If you are the sole member of any workspace, those workspaces and their underlying phone numbers, agents, and data are permanently deleted. If other members remain, workspaces persist under remaining administrators.
+  </Accordion>
+</AccordionGroup>

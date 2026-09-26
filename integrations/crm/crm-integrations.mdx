@@ -1,0 +1,257 @@
+---
+title: 'CRM Integrations: Salesforce, HubSpot, Dynamics, GHL & Zoho'
+sidebarTitle: 'CRM Integrations'
+description: 'Connect Salesforce, HubSpot, Dynamics 365, GoHighLevel, and Zoho CRM to Tavly AI: bidirectional contact sync, dynamic variable injection, and activity logging.'
+seo:
+  title: 'Tavly AI CRM Integrations | Salesforce, HubSpot & Dynamics Sync'
+  description: 'Connect Salesforce, HubSpot, Dynamics 365, GoHighLevel, and Zoho CRM to Tavly AI: bidirectional contact sync, dynamic variable injection, and activity logging.'
+og:title: 'CRM Integrations: Salesforce, HubSpot, Dynamics, GHL & Zoho'
+og:description: 'Connect Salesforce, HubSpot, Dynamics 365, GoHighLevel, and Zoho CRM to Tavly AI: bidirectional contact sync, dynamic variable injection, and activity logging.'
+og:image: 'https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/integrations-available-tab.png'
+twitter:card: 'summary_large_image'
+icon: 'arrows-rotate'
+keywords: ['Tavly CRM integrations', 'Salesforce voice agent', 'HubSpot contact sync', 'Dynamics 365 AI caller', 'GoHighLevel voice AI', 'Zoho CRM integration', 'two-way contact sync']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can I connect multiple CRM accounts at once to a Tavly workspace?'
+    answer: 'Yes. You can establish multiple distinct CRM connections. However, only one CRM connection can drive automated two-way contact synchronization for your workspace at any given time.'
+  - question: 'Does setting "do_not_call" to true automatically block outbound agent dials?'
+    answer: 'No. The "do_not_call" flag is designed exclusively for list filtering and metadata querying. It does not automatically restrict or block outbound agent call attempts.'
+  - question: 'Why do some CRM contacts fail to appear in Tavly after synchronization?'
+    answer: 'Inbound sync skips records where the mapped phone property is null or cannot be parsed into a valid international E.164 phone number. Contacts lacking mapped names will still sync.'
+  - question: 'Do I need two-way contact sync enabled to use CRM agent tools?'
+    answer: 'No. Agent function tools—such as contact search, record creation, or appointment scheduling—execute independently via live API requests without requiring background contact sync.'
+---
+
+## What are Tavly AI CRM integrations and when should you use them?
+
+**Tavly AI CRM integrations** synchronize customer records bidirectionally between external databases (Salesforce, HubSpot, Dynamics 365, GoHighLevel, Zoho) and your voice agents. Use CRM integrations when you need agents to greet callers by name, access historical context via **dynamic variables**, auto-update CRM fields via **Post Call Extraction**, and log complete call activities.
+
+Establishing a unified sync pipeline prevents manual data entry and bridges real-time conversational telephony with your primary system of record.
+
+### Key Operational Use Cases
+
+* **Instant Caller Recognition**: Automatically match incoming calls against CRM phone numbers and inject contact attributes as [dynamic variables](/build/context/dynamic-variables), empowering agents to greet callers personally without identity discovery questions.
+* **Automated CRM Record Updates**: Map structured conversation summaries and extracted metrics ([Post Call Extraction](/monitor/post-call-analysis-overview)) back to contact properties automatically after every call.
+* **Complete Interaction Audit Trails**: Automatically write call durations, recordings, transcripts, and summaries to native CRM timeline activities.
+
+For example, a high-volume qualification team syncs contacts from GoHighLevel into Tavly and maps an extracted `qualified` boolean back to the CRM. Follow-up automated nurture sequences trigger immediately upon call completion without agent intervention.
+
+<Tip>
+  If your agent only needs to search, read, or update specific CRM records on demand during a call, [integration tools](/integrations/integrations-overview#use-integration-tools-in-an-agent) perform those actions via API calls without requiring persistent contact sync.
+</Tip>
+
+***
+
+## Which CRM platforms are supported by Tavly AI?
+
+Tavly provides native, enterprise-grade connectors for **Salesforce**, **HubSpot**, **Microsoft Dynamics 365**, **GoHighLevel**, and **Zoho CRM**. Each platform connector supports automated bi-directional contact synchronization, custom property mapping, and automatic interaction logging into native timeline objects—such as Salesforce Tasks, HubSpot Engagements, or Dynamics Phone Call activities.
+
+Select a supported provider below to access dedicated setup instructions:
+
+<CardGroup cols={2}>
+  <Card title="Salesforce" icon="salesforce" href="/integrations/crm/salesforce/connect">
+    Sync Contacts and log call and chat interactions as native Salesforce Tasks with duration and transcripts.
+  </Card>
+
+  <Card title="HubSpot" icon="hubspot" href="/integrations/crm/hubspot/connect">
+    Sync contacts and log call and chat activities directly onto the primary HubSpot engagement timeline.
+  </Card>
+
+  <Card title="Microsoft Dynamics 365" icon="microsoft" href="/integrations/crm/dynamics/connect">
+    Sync customer contacts and log completed Phone Call activities using OAuth credentials and environment URLs.
+  </Card>
+
+  <Card title="GoHighLevel" icon="arrow-trend-up" href="/integrations/crm/gohighlevel/connect">
+    Sync sub-account contacts and log activity notes via an API key and Location ID.
+  </Card>
+
+  <Card title="Zoho CRM" icon="database" href="/integrations/crm/zoho/connect">
+    Sync Contacts and record call details as Call entries across any global Zoho regional data center.
+  </Card>
+</CardGroup>
+
+***
+
+## How does the CRM integration work across its core components?
+
+The integration operates through four distinct architectural layers: recurring **inbound contact sync** every **5 minutes**, post-conversation **analysis data mapping** to contact attributes, real-time **outbound field sync** back to external CRM records, and automated **conversation activity logging** linking summaries, durations, and audio metadata to customer timelines.
+
+Each subsystem can be independently configured in your workspace:
+
+### 1. Inbound Contact Synchronization (CRM → Tavly)
+
+Tavly automatically ingests contact records from your connected CRM, displaying them in the [Contacts](/features/contacts) table:
+
+* **Primary Key Indexing**: The contact's **phone number** serves as the unique identifier across systems. This property is hardcoded and cannot be unmapped.
+* **Polling Cadence**: Inbound sync executes automatically every **5 minutes** (as of August 2026), incrementally fetching records modified since the prior sync cursor.
+* **Manual Full Rescan**: Triggering a manual sync forces a complete scan of all CRM records from scratch, bypassing cursors. Use this after changing schema mappings.
+
+<Note>
+  Contacts are skipped when the mapped phone field is empty or cannot be parsed into an international **E.164 phone number**. If an imported contact appears with no name or custom attributes, verify that those fields are explicitly mapped in the sync settings.
+</Note>
+
+### 2. Post Call Extraction Mapping (Analysis → Contacts)
+
+Following call or chat completion, Tavly maps structured outputs from [Post Call Extraction](/monitor/post-call-analysis-overview) directly onto contact attributes to enrich customer context.
+
+Mappings are defined at the **workspace level** and govern all agent conversations using three deterministic update modes:
+
+| Update Mode | Dashboard UI Label | Functional Behavior |
+| :--- | :--- | :--- |
+| **Overwrite** | Overwrite | Replaces the existing contact property with the newest analysis output. |
+| **Fill if empty** | Fill only if empty | Writes analysis data only if the contact property is currently null. |
+| **Merge** | Accumulate & summarize | Synthesizes prior data and new findings via an LLM (**$0.005 per merge** as of August 2026). |
+
+Review the comprehensive [CRM data mappings](/integrations/crm/crm-data-mappings) guide for prompt engineering strategies and token limits on LLM merges.
+
+### 3. Outbound Field Synchronization (Tavly → CRM)
+
+When contact attributes update in Tavly—either via manual agent dashboard adjustments or post-call analysis mappings—outbound sync pushes those changes back to corresponding CRM properties.
+
+* **Immediate Push**: Outbound updates trigger in real time immediately after call analysis completes or when an administrative dashboard edit is saved.
+* **Record Protection**: By default, outbound sync **updates existing CRM records only** and never deletes records.
+* **New Record Creation**: Enabling **Create new contacts in CRM** on the Sync tab allows Tavly to insert new CRM contact records when a call concludes with an unmatched number.
+
+### 4. Conversation Activity Logging (Tavly → CRM)
+
+Enabling **Log activities automatically** publishes structured interaction records directly to the customer's CRM profile:
+
+* **Salesforce**: Generates a completed **Task** containing call duration, summary, conversation ID, source/destination numbers, and disconnection reasons.
+* **HubSpot**: Creates a **Call engagement** (for phone calls) or a **Communication object** (for web chats) on the contact timeline.
+* **Microsoft Dynamics 365**: Posts a completed **Phone Call activity** (with direction and duration) or a **Task** for chat logs.
+* **GoHighLevel**: Appends a structured **Contact Note** containing session identifiers, numbers, and extracted conversation summaries.
+* **Zoho CRM**: Inserts a native **Call record** with call direction and duration, or a **Task** for chat transcripts.
+
+<Note>
+  Activity logging functions exclusively for contacts linked to the currently active CRM connection. Unmatched calls from unregistered numbers do not generate activity logs.
+</Note>
+
+***
+
+## How do you configure and connect a CRM integration?
+
+To set up a CRM integration, navigate to **Integrations → Available** in the Tavly dashboard, select your platform, authenticate credentials, and enable **Contact Sync**. Map required properties, configure optional post-call analysis mappings, toggle activity logging, and trigger an initial full-scan manual sync to ingest your contact directory.
+
+Follow this configuration sequence:
+
+<Steps>
+  <Step title="Connect and authenticate your CRM">
+    Open **Integrations → Available** in the Tavly Dashboard and select your CRM provider. Enter your authentication credentials (API key, OAuth client ID/secret, or tenant URL). Administrative or Developer permissions are required.
+  </Step>
+
+  <Step title="Configure inbound and outbound field mappings">
+    Once the connection validation succeeds, click **Set up contact sync**. Use the **Import contacts** tab to define CRM-to-Tavly mappings, and the **Sync to [provider]** tab to configure Tavly-to-CRM outbound rules.
+  </Step>
+
+  <Step title="Create custom fields for unmapped properties">
+    If your CRM contains custom business properties that do not match built-in Tavly fields, create custom contact attributes inline directly from the mapping interface.
+  </Step>
+
+  <Step title="Configure post-call extraction rules (optional)">
+    Under the analysis mappings section, map structured outputs from your [Post Call Extraction](/monitor/post-call-analysis-overview) pipelines to contact properties, assigning appropriate update modes.
+  </Step>
+
+  <Step title="Activate automatic activity logging (optional)">
+    Enable **Log activities automatically** under the provider sync tab to publish call durations, summaries, and recordings to your CRM's activity feed.
+  </Step>
+
+  <Step title="Enable creation of new contacts (optional)">
+    Turn on **Create new contacts in CRM** if you want conversations with new callers to automatically insert brand-new contact records into your CRM.
+  </Step>
+
+  <Step title="Execute the initial contact sync">
+    Initiate a manual sync to import existing CRM records. The initial full scan processes your entire database and automatically resumes if interrupted.
+  </Step>
+</Steps>
+
+<Note>
+  While you can authenticate multiple CRM accounts, **only one connection drives contact synchronization per workspace at a time**. Toggling contact sync on for a new connection automatically supersedes the previous connection.
+</Note>
+
+***
+
+<a id="contact-fields" />
+
+## What default and custom contact fields are available in Tavly?
+
+Every Tavly contact includes four core system fields: `phone_number` (**primary matching key** in **E.164** format), `first_name`, `last_name`, and `do_not_call` (used for filtering). Workspaces can extend profiles with typed **custom fields**—including `string`, `number`, `boolean`, `date`, `datetime`, and `enum`—to mirror proprietary CRM properties.
+
+### Built-in Contact Attributes
+
+| System Field | Data Type | Operational Functionality |
+| :--- | :--- | :--- |
+| `phone_number` | `string` | Unique immutable indexing key used for contact matching across systems. |
+| `first_name` | `string` | Contact's primary given name. |
+| `last_name` | `string` | Contact's family or surname. |
+| `do_not_call` | `boolean` | Informational status flag used for filtering. **Does not automatically block dials.** |
+
+<Note>
+  The `do_not_call` attribute is not mapped by default. You must explicitly configure mappings on both import and export tabs if you require this flag to synchronize with CRM suppression lists.
+</Note>
+
+### Supported Custom Field Data Types
+
+You can extend contacts with custom schema fields adhering to standard data definitions:
+
+* **`string`**: Free-form text, addresses, notes, or external alphanumeric IDs.
+* **`number`**: Integer or floating-point values (e.g., credit scores, balance amounts).
+* **`boolean`**: True or false evaluation flags.
+* **`date`**: Standard calendar dates (`YYYY-MM-DD`).
+* **`datetime`**: Full ISO-8601 calendar date and timestamp strings.
+* **`enum`**: Predefined categorical lists matching CRM picklist values.
+
+***
+
+## How do voice agents utilize CRM contact data during live calls?
+
+When an inbound or outbound call connects, Tavly resolves the customer identity by phone number and immediately injects mapped contact properties as **dynamic variables** into the agent's LLM context. This allows voice agents to immediately greet callers by name, verify account tiers, and tailor conversation logic without manual lookups.
+
+To reference contact properties in your prompt instructions or conversation flow logic, use double curly bracket syntax:
+
+```markdown
+You are an account manager assistant for Tavly Financial.
+The caller's name is {{first_name}} {{last_name}}.
+Their account status is {{qualification_status}} and their plan tier is {{customer_tier}}.
+Greet them warmly by their first name and acknowledge their current membership tier.
+```
+
+Review the complete guide to [dynamic variables](/build/context/dynamic-variables) for runtime resolution rules and conditional branching patterns.
+
+***
+
+## How do you troubleshoot CRM connection and synchronization issues?
+
+Tavly flags connections with a red **Connection error** tag when credentials expire or authentication handshakes fail. If a specific field or activity stops updating while the connection appears healthy, inspect CRM-side OAuth scopes and object-level permissions, verify international **E.164 phone formats**, or review integration user permissions.
+
+### Common Troubleshooting Diagnostics
+
+* **Connection Status Error**: Displays when CRM credentials expire, tokens are revoked, or instance URLs change. Re-authenticate via the connection settings card.
+* **Missing Field Synchronizations**: When individual fields fail to update while the overall connection is green, check CRM-side API field-level security (FLS) to confirm the integration user has Read/Write access.
+* **Unsynced Contacts**: Confirm customer phone numbers in your CRM include country codes and conform to the standard international E.164 specification (e.g., `+14155552671`).
+* **GoHighLevel Scope Mismatches**: On GoHighLevel, missing OAuth permissions present as authentication failures that flag the entire connection; verify all required sub-account scopes are granted.
+
+Consult the [Integrations Overview FAQ](/integrations/integrations-overview#frequently-asked-questions) for full architectural health specifications.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can I connect multiple CRM accounts at once to a Tavly workspace?">
+    Yes. You can establish multiple distinct CRM connections. However, only one CRM connection can drive automated two-way contact synchronization for your workspace at any given time.
+  </Accordion>
+
+  <Accordion title="Does setting 'do_not_call' to true automatically block outbound agent dials?">
+    No. The `do_not_call` flag is designed exclusively for list filtering and metadata querying. It does not automatically restrict or block outbound agent call attempts.
+  </Accordion>
+
+  <Accordion title="Why are some CRM contacts fail to appear in Tavly after synchronization?">
+    Inbound sync skips records where the mapped phone property is null or cannot be parsed into a valid international E.164 phone number. Contacts lacking mapped names will still sync.
+  </Accordion>
+
+  <Accordion title="Do I need two-way contact sync enabled to use CRM agent tools?">
+    No. Agent function tools—such as contact search, record creation, or appointment scheduling—execute independently via live API requests without requiring background contact sync.
+  </Accordion>
+</AccordionGroup>

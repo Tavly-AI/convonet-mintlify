@@ -1,0 +1,200 @@
+---
+title: 'Monitor Live Calls: Streaming Transcripts, Audio, and Takeover'
+sidebarTitle: 'Live Monitoring'
+description: 'Monitor active Tavly voice calls in real time: stream live transcripts, listen in silently, execute human takeover, and terminate sessions from the dashboard.'
+seo:
+  title: 'Live Call Monitoring & Intervention | Real-Time Agent Supervision | Tavly AI'
+  description: 'Monitor active Tavly voice calls in real time: stream live transcripts, listen in silently, execute human takeover, and terminate sessions from the dashboard.'
+og:title: 'Monitor Live Calls: Streaming Transcripts, Audio, and Takeover'
+og:description: 'Monitor active Tavly voice calls in real time: stream live transcripts, listen in silently, execute human takeover, and terminate sessions from the dashboard.'
+og:image: 'https://mintcdn.com/retellai/YBzyAZoiSdrGmSwJ/images/live-monitoring/call-details.png'
+twitter:card: 'summary_large_image'
+icon: 'tower-broadcast'
+keywords: ['live call monitoring', 'stream live transcript', 'silent call listening', 'agent takeover', 'real-time voice supervision', 'Tavly AI live calls', 'WebRTC supervisor audio']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can the caller or the AI voice agent tell when a supervisor is listening live?'
+    answer: 'No. Live Listen is completely silent and invisible to all call participants. The supervisor audio stream is unidirectional, meaning your microphone is never broadcast until you explicitly initiate a takeover.'
+  - question: 'What happens to the AI voice agent when a human supervisor initiates a Take Over?'
+    answer: 'Executing a Take Over permanently terminates the AI voice agent for that specific call session. The agent cannot resume handling the conversation, live transcription pauses, and the call persists strictly between human participants.'
+  - question: 'How many concurrent supervisors can monitor a single live call?'
+    answer: 'A single live call supports up to 5 concurrent WebSocket transcript watchers across the dashboard and API. An unlimited number of supervisors can connect to the WebRTC audio stream via Live Listen, but only one supervisor can Take Over.'
+  - question: 'Can supervisors whisper coaching guidance to the AI agent during a live call?'
+    answer: 'Direct audio whispering is not supported. However, supervisors can inject contextual text guidance programmatically using the Update Live Call API with trigger_response, prompting the agent to adjust without speaking over the caller.'
+---
+
+## What is Live Monitoring and when should you use it?
+
+**Live Monitoring** is a real-time supervision dashboard that provides instant operational visibility into active Tavly AI voice calls. It allows supervisors and quality assurance leads to stream live transcripts, silently monitor audio streams, inject steering context, execute human takeovers, or disconnect problematic calls before a session concludes.
+
+While [Call and Chat History](/features/session-history) and [Post-Call Extraction](monitor/post-call-analysis-overview) process conversations after they finish, Live Monitoring provides immediate situational awareness for active telephony and web voice streams.
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/cMRIpkP3C3A?si=5BWwzpWR2iKJ0t8K" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+### Core Supervision Capabilities
+
+* **Real-Time Quality Assurance**: Silently observe agent responses, pronunciation, and latency during peak dialing campaigns without callee detection.
+* **Emergency Human Escalation**: Seamlessly take over conversation control when an AI agent encounters complex inquiries or when callers request human operators.
+* **Compliance Auditing**: Spot-check high-value transactions and sensitive disclosures as they occur in real time.
+* **Programmatic Steering**: Inject live conversational hints to guide the AI agent without taking over voice control.
+
+---
+
+## How do you access Live Monitoring and manage role permissions?
+
+To **access Live Monitoring**, select Live Monitoring from the dashboard navigation panel. Workspace access is restricted by role-based permissions, requiring Admin, Developer, or custom call management write privileges. If PII scrubbing is enabled on an agent, supervisors must also hold raw-data viewing permissions to access mid-call unredacted streams.
+
+Navigate to the supervision console directly from the primary navigation bar:
+
+<Frame caption="Finding Live Monitoring in the dashboard navigation">
+  <div style={{ aspectRatio: "16 / 9", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f7" }}>
+    <img src="https://mintcdn.com/retellai/YBzyAZoiSdrGmSwJ/images/live-monitoring/nav.png?fit=max&auto=format&n=YBzyAZoiSdrGmSwJ&q=85&s=2f4b67b84c3d249c30a0a57d6af34913" alt="Live Monitoring in the dashboard navigation" style={{ maxHeight: "100%", maxWidth: "100%" }} width="540" height="1474" data-path="images/live-monitoring/nav.png" />
+  </div>
+</Frame>
+
+### Security and Role Governance
+
+* **Required Roles**: Live Monitoring is accessible exclusively to users with **Admin** or **Developer** roles, or custom roles granted explicit call write permissions. Users assigned the standard **Member** role cannot access active sessions. See [Access Control](/accounts/access-control).
+* **PII Redaction Constraint**: Because [PII scrubbing](/accounts/privacy-disable) runs asynchronously post-call, live streaming transcripts display raw customer text. Supervisors must possess **Raw Data View** privileges to inspect calls handled by PII-scrubbed agents.
+
+---
+
+## How do you follow real-time streaming transcripts and call events?
+
+To **follow real-time streaming transcripts and call events**, select any in-progress call from the live directory. The view automatically scrolls through incoming dialogue, color-coded agent turns, caller keypad DTMF inputs, mid-call SMS messages, and expandable tool execution records indicating function parameters and execution status.
+
+### Active Directory Overview
+
+The main console aggregates all active sessions across inbound lines, outbound campaigns, and browser web calls, refreshing automatically every **4 seconds**:
+
+<Frame caption="The list of calls currently in progress">
+  <div style={{ aspectRatio: "16 / 9", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f7" }}>
+    <img src="https://mintcdn.com/retellai/YBzyAZoiSdrGmSwJ/images/live-monitoring/call-list.png?fit=max&auto=format&n=YBzyAZoiSdrGmSwJ&q=85&s=1e8300bde27a35cd34d08b94b5d90519" alt="Live Monitoring call list with Time, Call Duration, Type, From, To, and Call ID columns" style={{ maxHeight: "100%", maxWidth: "100%" }} width="2842" height="406" data-path="images/live-monitoring/call-list.png" />
+  </div>
+</Frame>
+
+Selecting an active call opens the live transcription drawer:
+
+<Frame caption="A call's streaming transcript, with the live actions below it">
+  <div style={{ aspectRatio: "16 / 9", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f7" }}>
+    <img src="https://mintcdn.com/retellai/YBzyAZoiSdrGmSwJ/images/live-monitoring/call-details.png?fit=max&auto=format&n=YBzyAZoiSdrGmSwJ&q=85&s=7480a3f3dce6d06a0c62df92d245ef24" alt="Live call view with the header details, streaming transcript, tool-call and node-transition events, and the Live Listen, Take Over, and End Call actions" style={{ maxHeight: "100%", maxWidth: "100%" }} width="1208" height="1980" data-path="images/live-monitoring/call-details.png" />
+  </div>
+</Frame>
+
+### Rendered Stream Components
+
+* **Conversational Turns**: Real-time speech-to-text bubbles distinguishing agent utterances from caller speech.
+* **Tool & Webhook Invocations**: Expandable cards displaying backend function parameters and execution status (`Tool call succeeded` or `Tool call failed`).
+* **Conversation Flow Nodes**: Real-time indicators showing state machine transitions between dialogue stages.
+* **Telephony Signaling**: Displays caller DTMF keypad presses and carrier SMS messages delivered mid-call.
+
+---
+
+## How do you execute Live Listen, human Take Over, and call termination?
+
+To **execute Live Listen, human Take Over, and call termination**, select your desired action button below the active transcript. Click Live Listen to monitor WebRTC audio silently, click Take Over to permanently disconnect the AI agent and bridge your browser microphone to the caller, or select End Call.
+
+Supervisors have three primary operational actions located at the bottom of the session drawer:
+
+<Frame caption="The Live Listen, Take Over, and End Call actions">
+  <div style={{ aspectRatio: "16 / 9", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f7" }}>
+    <img src="https://mintcdn.com/retellai/EZtLsNXn6ZsF7jNb/images/live-monitoring/action-buttons.png?fit=max&auto=format&n=EZtLsNXn6ZsF7jNb&q=85&s=6fa579ca2eec36932a4ad4f650bf978b" alt="Live Listen, Take Over, and End Call actions below the live transcript" style={{ maxHeight: "100%", maxWidth: "100%" }} width="1176" height="222" data-path="images/live-monitoring/action-buttons.png" />
+  </div>
+</Frame>
+
+### 1. Live Listen (Silent Monitoring)
+* **Zero Audio Bleed**: Transmits caller and agent audio to your speakers over WebRTC without broadcasting your microphone.
+* **Invisible Monitoring**: Neither the caller nor the AI agent receives audible alerts or indicators that audio is being monitored.
+* **Multi-User Auditing**: Multiple supervisors can listen to the exact same audio stream concurrently.
+
+### 2. Take Over (Human Intervention)
+* **Permanent Agent Detachment**: Disconnects the AI model from the call session entirely.
+* **Browser Microphone Bridging**: Prompts for browser microphone access before deactivating the AI agent. If permission is denied, the takeover is cancelled and the agent continues speaking safely.
+* **Exclusive Control**: Only one human supervisor can take over a call at any time.
+
+<Warning>
+  Taking over an active call **permanently deactivates the AI agent** for that session. The AI agent cannot resume control, live transcription pauses, and the call terminates when either human party hangs up.
+</Warning>
+
+<Frame caption="After you take over: the transcript pauses and only End Call remains">
+  <div style={{ aspectRatio: "16 / 9", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f5f5f7" }}>
+    <img src="https://mintcdn.com/retellai/EZtLsNXn6ZsF7jNb/images/live-monitoring/footer-after-taken-over.png?fit=max&auto=format&n=EZtLsNXn6ZsF7jNb&q=85&s=eb291e1d52d743e26e2570e9577c2ef9" alt="Taken-over state showing the paused-transcript notice, the You've taken over the call banner, and the End Call button" style={{ maxHeight: "100%", maxWidth: "100%" }} width="1182" height="354" data-path="images/live-monitoring/footer-after-taken-over.png" />
+  </div>
+</Frame>
+
+### 3. End Call
+Disconnects the carrier trunk immediately, terminating the session for both the agent and the callee.
+
+---
+
+## How do you integrate live monitoring and intervention in custom applications?
+
+To **integrate live monitoring in custom applications**, initialize the Tavly Web SDK using a secure public key and connect to the monitor call WebSocket. Use client methods like listen, takeOver, and updateLiveCall to build custom supervisor consoles, stream real-time transcripts, and steer ongoing conversations programmatically.
+
+Every supervision capability available in the dashboard can be integrated into custom enterprise contact center portals:
+
+| Operational Action | REST / WebSocket API Endpoint | Tavly Web SDK Method |
+| :--- | :--- | :--- |
+| **Stream Live Transcript** | [Monitor Call WebSocket](/api-references/monitor-call-websocket) | `client.monitorCall({ transcript: true })` |
+| **Listen to Live Audio** | WebRTC Media Gateway | `watch.listen()` |
+| **Human Takeover** | WebRTC Media Bridging | `watch.takeOver()` |
+| **Steer Agent in Text** | [Update Live Call API](/api-references/update-live-call) | `watch.updateLiveCall()` |
+| **Terminate Session** | [Stop Call API](/api-references/stop-call) | `watch.end()` |
+
+### JavaScript Web SDK Integration
+
+```javascript monitor_call.js theme={"dark"}
+import { RetellClient } from "retell-client-js-sdk";
+
+// Initialize client with public key restricted to your domain
+const client = new RetellClient({ key: "public_key_YOUR_PUBLIC_KEY" });
+
+const watch = client.monitorCall({
+  call_id: "call_119c3f8e47135a29e65947eeb34cf12d",
+  hooks: {
+    // connecting -> monitoring -> listening -> taken_over -> ended
+    onStatus: (status) => console.log("Monitor status:", status),
+    onTranscript: (transcript) => console.log("Live turn:", transcript),
+    onError: (error) => console.error("Monitoring error:", error),
+  },
+});
+
+// Trigger audio actions via explicit user gestures (required by browsers)
+document.getElementById("btn-listen").onclick = () => watch.listen();
+document.getElementById("btn-takeover").onclick = () => watch.takeOver();
+document.getElementById("btn-disconnect").onclick = () => watch.end();
+```
+
+<Warning>
+  **Security & Permission Isolation**: The ability to monitor and take over ongoing phone calls is a highly privileged operation. An API key possessing **Call → Edit** permissions can take over any active call across your entire workspace. Always isolate administrative credentials behind your secure application backend.
+</Warning>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why is the Live Monitoring tab not visible in my dashboard?">
+    Live Monitoring is restricted to workspace **Admin** and **Developer** roles, as well as custom roles assigned call management write permissions. Standard Members cannot view live calls. Contact your administrator to upgrade your role via [Access Control](/accounts/access-control).
+  </Accordion>
+
+  <Accordion title="Can callers or agents detect when a supervisor is listening in?">
+    No. Live Listen operates purely as a receive-only WebRTC audio feed. Neither the caller nor the AI voice agent receives any audio cues or notifications while you monitor.
+  </Accordion>
+
+  <Accordion title="How many simultaneous viewers can monitor a single call?">
+    Each active call supports up to **5 concurrent WebSocket transcript streams** (shared across dashboard users and API consumers). In contrast, an unlimited number of supervisors can connect to the live audio feed via Live Listen. Only **one supervisor** can execute a Take Over.
+  </Accordion>
+
+  <Accordion title="Can a supervisor coach or whisper to an AI agent during a live call?">
+    Audio whispering is not supported. However, supervisors can inject private textual guidance using the [Update Live Call API](/api-references/update-live-call) with `call_control.additional_context`. Setting `trigger_response: true` instructs the agent to incorporate the advice naturally on its next turn.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Monitor call WebSocket specification](/api-references/monitor-call-websocket): Stream real-time dialogue turns and tool events.
+* [Update live call API reference](/api-references/update-live-call): Inject context or trigger immediate agent responses mid-call.
+* [Session history and analytics](/features/session-history): Browse past call transcripts, recordings, and diagnostic metrics.
+* [Post-call analysis overview](monitor/post-call-analysis-overview): Configure automated post-call summary and entity extraction.

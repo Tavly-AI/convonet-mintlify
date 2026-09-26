@@ -1,0 +1,194 @@
+---
+title: "Connect Zendesk"
+sidebarTitle: "Connect"
+description: "Connect Zendesk to Tavly AI via OAuth: link your subdomain, authenticate agent permissions, and equip voice agents with live ticket and user management tools."
+seo:
+  title: "Connect Zendesk to Tavly AI | Helpdesk Setup Guide"
+  description: "Connect Zendesk to Tavly AI via OAuth: link your subdomain, authenticate agent permissions, and equip voice agents with live ticket and user management tools."
+og:title: "Connect Zendesk to Tavly AI | Helpdesk Setup Guide"
+og:description: "Connect Zendesk to Tavly AI via OAuth: link your subdomain, authenticate agent permissions, and equip voice agents with live ticket and user management tools."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/zendesk-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=beee89cabab7cd1a5ec1934348bf302b"
+twitter:card: "summary_large_image"
+icon: "arrow-trend-up"
+keywords:
+  - "Zendesk integration"
+  - "Tavly AI Zendesk connect"
+  - "Zendesk OAuth"
+  - "helpdesk voice agent"
+  - "live ticket tools"
+  - "Zendesk tenant URL"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "What Zendesk user role is required to connect Tavly AI?"
+    answer: "Connecting requires an account with an Agent or Admin role. End-user accounts lack API permissions to query tickets or look up user profiles across the helpdesk."
+  - question: "Can I use a custom vanity domain or host-mapped URL for the Zendesk tenant URL?"
+    answer: "No. You must enter your original Zendesk subdomain URL in the format https://your-subdomain.zendesk.com. Host-mapped vanity domains and subpaths are not supported."
+  - question: "How do I revoke or manage Tavly AI's OAuth permissions in Zendesk?"
+    answer: "Zendesk administrators can inspect or revoke Tavly's OAuth authorization anytime under Admin Center > Apps and integrations > APIs > External OAuth clients."
+---
+
+# Connect Zendesk
+
+> Connect Zendesk to Tavly AI with OAuth so agents can identify callers, look up their tickets, file new ones, and add comments or private notes.
+
+## What is the Tavly AI Zendesk integration and when should you use it?
+
+**Tavly AI Zendesk integration** connects your Zendesk customer support workspace to Tavly using OAuth authentication and your Zendesk tenant URL. Connect Zendesk when you want conversational voice agents operating at the front of your support queue to identify callers, retrieve open tickets, file new support requests, and append conversation summaries.
+
+Connecting Zendesk requires your Zendesk subdomain URL and an OAuth sign-in. A single connection activates live [agent functions](/integrations/helpdesk/zendesk/agent-functions): conversational agents identify callers, manage ticket statuses, and record call outcomes as public customer replies or private internal notes.
+
+### Architecture: Helpdesk OAuth & real-time tool bridge
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│            Tavly AI             │                 │        Zendesk Helpdesk         │
+│                                 │                 │                                 │
+│ 1. Initiate OAuth Handshake ────┼── Subdomain ───►│ `https://acme.zendesk.com`      │
+│ 2. Authorize Permissions ───────┼── OAuth Grant ─►│ Read/Write Scopes Authenticated │
+│ 3. Secure Token Storage ────────┼◄── Refresh Token┤ Continuous API Session Bound    │
+│                                 │                 │                                 │
+│ 4. Caller Identification ───────┼── Phone Lookup ─►│ Match Caller via `Search User`  │
+│ 5. Real-Time Ticket Actions ────┼── Live REST ───►│ Create / Update / Comment       │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+### When to connect Zendesk
+
+Deploy Tavly with Zendesk when your customer operations run on Zendesk and you want conversational AI handling tier-1 support interactions:
+
+* **Identify callers without requesting ticket numbers**: The agent automatically searches Zendesk using incoming caller ID, matches the customer profile, and retrieves active tickets before the caller finishes explaining their issue.
+* **Automate ticket creation from calls**: When callers report new incidents or inquiries, the agent creates a ticket with structured subject lines and detailed descriptions summarized directly from the conversation.
+* **Maintain the ticket as the definitive system of record**: Conversation outcomes, transcripts, and resolution notes append to tickets as public replies visible to customers or internal notes reserved for support staff.
+
+> **Real-World Implementation:** A SaaS company's inbound support line utilizes a Tavly conversational agent. The agent resolves caller identities via phone number, reads the status of open engineering tickets, and appends a private note summarizing the call. A human agent only intervenes if the issue requires manual escalation.
+
+---
+
+## What prerequisites are required to connect Zendesk?
+
+Connecting Zendesk requires an active Zendesk account with an **Agent or Admin role**, your primary **subdomain tenant URL**, and a dedicated integration service user. End-user accounts cannot query tickets or search customer profiles via API. Dedicated service users guarantee that ticket ownership remains persistent regardless of personnel turnover.
+
+* **Zendesk Agent or Admin Role**: Tavly executes API operations under the identity of the account that completes OAuth consent. End-user accounts lack permissions to search other profiles or work the ticket queue.
+* **Standard Tenant Subdomain URL**: Your official Zendesk origin URL in the format `https://your-subdomain.zendesk.com`. Host-mapped vanity domains (e.g., `support.yourcompany.com`) or URLs containing path parameters are not supported.
+* **Dedicated Integration Service User**: We strongly advise authorizing with a dedicated service account (e.g., `tavly-integration@yourcompany.com`). This ensures tickets and notes are clearly attributed to the integration and prevents automated workflows from breaking if an employee leaves the company.
+
+---
+
+## How do you authenticate and connect Zendesk in Tavly?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, locate **Zendesk**, and click **Connect**. Provide a connection name, input your Zendesk tenant URL, and complete the OAuth authorization popup using your integration user credentials. Tavly validates the connection by fetching the user's profile and immediately activates live agent tools.
+
+<Steps>
+  <Step title="Add the connection">
+    In the Tavly Dashboard, navigate to **Integrations**, open the **Available** tab, find **Zendesk**, and click **Connect** (or click **Add Account** if an existing connection is present).
+  </Step>
+
+  <Step title="Enter your Zendesk tenant URL and sign in">
+    Configure the connection modal fields:
+
+    | Form Field | Parameter Requirement | Example Value |
+    | :--- | :--- | :--- |
+    | **Connection name** | Descriptive alias for this connection in Tavly; prefilled with `Zendesk - OAuth`. | `Acme Support - Zendesk` |
+    | **Zendesk tenant URL** | Your standard Zendesk subdomain origin URL. | `https://acme.zendesk.com` |
+
+    <Frame caption="The Zendesk connection dialog: your Zendesk URL, then an OAuth sign-in.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/zendesk-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=beee89cabab7cd1a5ec1934348bf302b" alt="Retell's Zendesk connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Zendesk - OAuth and a Zendesk tenant URL field with the placeholder https://your-subdomain.zendesk.com, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1202" height="1006" data-path="images/integration/zendesk-connect-dialog.png" />
+      </div>
+    </Frame>
+
+    Click **Connect** (or **Add Account**). A secure Zendesk OAuth window opens. Sign in with your dedicated integration account and approve the permission request. Tavly requests standard `read` and `write` API scopes. Tavly securely stores the returned OAuth refresh token, ensuring uninterrupted access without periodic re-authentication.
+
+    <Frame caption="Zendesk's consent screen for the Tavly AI app — click Allow to finish connecting.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/zendesk-oauth-consent.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=cb7402d90b0764421b33ae2257d83c59" alt="Zendesk's OAuth consent screen asking Allow Retell AI to access your Zendesk account. It lists what the application would be able to do: read all data and write all data. The Allow button is highlighted with a blue ring next to Deny, and the signed-in username below is redacted." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1152" height="648" data-path="images/integration/zendesk-oauth-consent.png" />
+      </div>
+    </Frame>
+
+    Admins can review, modify, or revoke this authorization anytime in Zendesk under **Admin Center > Apps and integrations > APIs > External OAuth clients**.
+  </Step>
+
+  <Step title="Confirm connection health">
+    Tavly tests the connection immediately by retrieving the signed-in user's profile. Upon success, the connection appears on the **Connected** tab, and Zendesk tools appear inside your conversational agent's function menu. See [Zendesk agent functions](/integrations/helpdesk/zendesk/agent-functions) for details on attaching tools.
+  </Step>
+</Steps>
+
+---
+
+## What OAuth access scopes does Tavly require in Zendesk?
+
+During OAuth authorization, Tavly requests Zendesk's global `read` and `write` API scopes, which provide permissions to read customer profiles and tickets and write ticket updates, comments, and notes. The actual operations an agent can execute remain strictly constrained by the Zendesk role assigned to the connected user account.
+
+Zendesk bundles API capabilities into broad OAuth scopes:
+
+| Requested Scope | Operational Scope Coverage |
+| :--- | :--- |
+| `read` | Grants read access to search users, inspect customer profile attributes, and retrieve active tickets. |
+| `write` | Grants permission to create support tickets, modify ticket fields, and append public comments or internal notes. |
+
+<Note>
+  OAuth scopes define application access limits, but the authorizing account's **Zendesk role** controls execution authority. See [required user roles](/integrations/helpdesk/zendesk/agent-functions#what-zendesk-user-roles-and-permissions-are-required-for-agent-tools) for details on how Full Agent, Light Agent, and End User permissions impact tool behavior.
+</Note>
+
+---
+
+## How do you troubleshoot common Zendesk connection errors?
+
+Troubleshoot connection failures by verifying the tenant URL structure and token validity. If connecting fails during sign-in, confirm you entered a clean subdomain URL without trailing paths or vanity host-mapping. If an existing connection errors, the token was likely revoked or the account suspended in Zendesk Admin Center.
+
+<AccordionGroup>
+  <Accordion title="Connecting fails or the OAuth popup displays an error">
+    Validate your Zendesk tenant URL format. It must follow the exact origin structure `https://your-subdomain.zendesk.com` with no trailing slashes or subpaths. Custom host-mapped vanity domains (e.g., `https://support.acme.com`) will cause OAuth validation to fail.
+  </Accordion>
+
+  <Accordion title="The connection card displays an error badge after operating successfully">
+    Tavly flags a connection with an error state when Zendesk rejects the stored OAuth token. This typically occurs if the authorizing account was suspended, deactivated, or if authorization was revoked in Zendesk under **Admin Center > Apps and integrations > APIs > External OAuth clients**. Open the connection settings in Tavly and click **Reconnect** to re-authenticate with an active agent account.
+  </Accordion>
+
+  <Accordion title="Tool executions fail while the connection card remains connected">
+    A role modification does not invalidate the OAuth connection, but it directly limits tool execution capabilities. For example, downgrading an account from Agent to Light Agent prevents the agent from posting public replies or editing external tickets. Reconnect the integration using an account holding a full **Agent** or **Admin** role.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about connecting Zendesk
+
+Connecting Zendesk to Tavly creates a direct, live API bridge for real-time ticket operations without persistent data synchronization. Custom vanity domains are not supported during OAuth setup and must use standard `zendesk.com` subdomains. Authorizations can be reviewed or revoked anytime in the Zendesk Admin Center.
+
+<AccordionGroup>
+  <Accordion title="What Zendesk user role is required to connect Tavly?">
+    Connecting requires an account with an **Agent** or **Admin** role. End-user accounts cannot search users or work tickets through the API. While Light Agents can connect, their comments are restricted to internal private notes and cannot create public replies.
+  </Accordion>
+
+  <Accordion title="Can I use a custom vanity domain or host-mapped URL?">
+    No. Zendesk's OAuth service requires the native Zendesk subdomain URL (e.g., `https://acme.zendesk.com`). Host-mapped domains (e.g., `https://help.acme.com`) will result in an authorization failure during sign-in.
+  </Accordion>
+
+  <Accordion title="How do I revoke Tavly AI's access to Zendesk?">
+    Administrators can revoke Tavly's OAuth authorization at any time inside Zendesk by navigating to **Admin Center > Apps and integrations > APIs > External OAuth clients**, locating the Tavly AI integration, and revoking client access.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Zendesk agent functions" icon="wrench" href="/integrations/helpdesk/zendesk/agent-functions">
+    Identify callers by phone, read and update tickets, and record call outcomes as comments or notes.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of external CRM and helpdesk integrations supported by Tavly.
+  </Card>
+
+  <Card title="Knowledge base" icon="book" href="/build/context/knowledge-base">
+    Equip your support agent to resolve common inquiries directly using help center articles.
+  </Card>
+
+  <Card title="Call transfer" icon="phone" href="/build/setup/conversation-flow/add-nodes/call-transfer-node">
+    Configure automated escalation nodes to hand calls off to human support representatives.
+  </Card>
+</CardGroup>

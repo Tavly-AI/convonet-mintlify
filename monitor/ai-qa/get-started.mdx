@@ -1,0 +1,94 @@
+---
+title: 'Access AI QA: Getting Started with Call Quality Auditing'
+sidebarTitle: 'Access AI QA'
+description: 'Get started with Tavly AI QA: navigate to the AI Quality Assurance tab, explore the evaluation dashboard, and click Create QA to launch automated call audits.'
+seo:
+  title: 'Access AI QA & Launch Call Quality Evaluations | Tavly AI'
+  description: 'Get started with Tavly AI QA: navigate to the AI Quality Assurance tab, explore the evaluation dashboard, and click Create QA to launch automated call audits.'
+og:title: 'Access AI QA: Getting Started with Call Quality Auditing'
+og:description: 'Get started with Tavly AI QA: navigate to the AI Quality Assurance tab, explore the evaluation dashboard, and click Create QA to launch automated call audits.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-qa-button.png'
+twitter:card: 'summary_large_image'
+icon: 'door-open'
+keywords: ['access AI QA', 'Tavly AI QA setup', 'create QA cohort', 'call quality evaluation', 'automated call audit', 'telephony supervision', 'AI QA dashboard']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Where is the AI Quality Assurance console located in the dashboard?'
+    answer: 'The AI QA console is located in the left navigation sidebar under the AI Quality Assurance tab. Clicking this opens your workspace active QA cohort management dashboard.'
+  - question: 'What workspace permissions are required to access AI QA?'
+    answer: 'Viewing existing QA cohorts and launching new evaluations requires Admin or Developer privileges, or custom roles granted call audit and analytics permissions.'
+  - question: 'What is the immediate next step after clicking Create QA?'
+    answer: 'Clicking Create QA launches the cohort creation flow, where you define target agents, time windows, and sampling rates before setting resolution criteria.'
+---
+
+## What is Tavly AI QA and how do you access the dashboard?
+
+**Tavly AI Quality Assurance (AI QA)** is accessed directly through the primary dashboard navigation sidebar. Clicking the **AI Quality Assurance** tab opens the centralized supervision console, providing administrators and engineering teams with immediate visibility into active evaluation cohorts, historical audit benchmarks, resolution trends, and direct tools to launch new automated call assessments.
+
+<Frame caption="The AI QA tab in the left sidebar navigation">
+  <img style={{ width: '200px', height: 'auto' }} src="https://mintcdn.com/retellai/2TMI5ueo5Rw-kjFw/ai-qa/images/advanced-qa-tab.png?fit=max&auto=format&n=2TMI5ueo5Rw-kjFw&q=85&s=122a0ab8ce9d2ab0d0b9d7c3a18f7cdb" alt="AI QA tab highlighted in the Tavly left sidebar navigation" width="552" height="1376" data-path="ai-qa/images/advanced-qa-tab.png" />
+</Frame>
+
+### Navigation and Prerequisites
+
+1. **Dashboard Navigation**: Log in to your Tavly workspace and locate **AI Quality Assurance** in the primary navigation menu.
+2. **Console State**: If cohorts already exist in your workspace, the dashboard displays active summaries, average quality scores, and recent evaluations. If no cohorts exist, an onboarding screen prompts you to create your initial evaluation.
+3. **Role Access**: Ensure your account holds **Admin**, **Developer**, or custom analytics write permissions to initialize evaluations.
+
+---
+
+## How do you launch a new automated call quality evaluation?
+
+To **launch a new automated call evaluation**, navigate to the top-right corner of the AI QA console and click **Create QA**. This action initiates the interactive evaluation wizard, prompting you to configure target cohort parameters, set sampling criteria, establish resolution benchmarks, and schedule automated evaluations across voice conversations.
+
+<Frame caption="Click Create QA to start a new cohort evaluation">
+  <img height="700" src="https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/create-qa-button.png?fit=max&auto=format&n=6wkwFDKypdjHQ-22&q=85&s=39fa03aeb10eafb7080443c50f04e60e" alt="AI QA dashboard with the Create QA button highlighted at the top right" data-path="ai-qa/images/create-qa-button.png" />
+</Frame>
+
+### What Occurs Upon Initialization
+
+Clicking **Create QA** opens the structured cohort builder:
+* **Cohort Scoping**: Select the specific conversational agents and date intervals to evaluate.
+* **Sampling Distribution**: Designate whether to audit 100% of conversations or a statistically significant sample percentage (e.g., 10%–25%).
+* **Rule Assignment**: Link custom resolution rules and scoring thresholds to the cohort.
+
+---
+
+## What steps follow cohort creation in the evaluation pipeline?
+
+Following initial creation, the **AI QA evaluation pipeline** guides you through three essential milestones: defining a targeted cohort by filtering specific agents and date ranges, establishing custom resolution criteria and latency thresholds, and inspecting transcript-backed diagnostic reports in the analytics dashboard to resolve performance bottlenecks.
+
+### Complete AI QA Onboarding Journey
+
+| Lifecycle Milestone | Configuration Objective | Reference Documentation |
+| :--- | :--- | :--- |
+| **1. Define Cohort** | Select target agents, timeframes, and sampling percentages. | [Define a QA Cohort](/monitor/ai-qa/create-cohort) |
+| **2. Set Resolution Criteria** | Define conditions and metric thresholds governing call success. | [Define Resolution Criteria](/monitor/ai-qa/define-resolution-criteria) |
+| **3. Review Diagnostics** | Inspect aggregate trend graphs, hallucinations, and transcript citations. | [View QA Results](/monitor/ai-qa/view-qa-results) |
+| **4. Remediate Defects** | Apply prompt updates, tune latency, and refine knowledge base docs. | [Address Metric Issues](/monitor/ai-qa/address-metric-issues) |
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Where is the AI Quality Assurance console located in the dashboard?">
+    The AI QA console is located in the left navigation sidebar under the **AI Quality Assurance** tab. Clicking this opens your workspace active QA cohort management dashboard.
+  </Accordion>
+
+  <Accordion title="What workspace permissions are required to access AI QA?">
+    Viewing existing QA cohorts and launching new evaluations requires **Admin** or **Developer** privileges, or custom workspace roles granted call audit and analytics write permissions.
+  </Accordion>
+
+  <Accordion title="What is the immediate next step after clicking Create QA?">
+    Clicking **Create QA** launches the cohort creation flow, where you define target agents, time windows, and sampling rates before setting custom resolution criteria.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [AI Quality Assurance overview](/monitor/ai-qa/overview): High-level architectural introduction and pricing details.
+* [Define a QA cohort](/monitor/ai-qa/create-cohort): Step-by-step instructions for selecting agents and configuring sampling.
+* [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria): Configure thresholds and AI conditions that decide whether calls succeed.
+* [AI QA metrics & terminology](/monitor/ai-qa/terminologies): Comprehensive glossary of quality assurance scoring metrics.

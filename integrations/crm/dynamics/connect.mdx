@@ -1,0 +1,173 @@
+---
+title: 'Connect Dynamics 365: Dataverse Environment URL & OAuth Setup'
+sidebarTitle: 'Connect Dynamics 365'
+description: 'Connect Microsoft Dynamics 365 to Tavly AI via OAuth: locate your Dataverse environment URL, authenticate service accounts, and enable live CRM contact sync.'
+seo:
+  title: 'Connect Dynamics 365 to Tavly AI | Dataverse OAuth Guide'
+  description: 'Connect Microsoft Dynamics 365 to Tavly AI via OAuth: locate your Dataverse environment URL, authenticate service accounts, and enable live CRM contact sync.'
+og:title: 'Connect Dynamics 365: Dataverse Environment URL & OAuth Setup'
+og:description: 'Connect Microsoft Dynamics 365 to Tavly AI via OAuth: locate your Dataverse environment URL, authenticate service accounts, and enable live CRM contact sync.'
+og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/microsoft-dynamics-connect-dialog.png'
+twitter:card: 'summary_large_image'
+icon: 'microsoft'
+keywords: ['connect Dynamics 365 to Tavly AI', 'Dataverse environment URL', 'Microsoft Dynamics OAuth setup', 'Dynamics 365 voice agent integration', 'Dataverse contact sync', 'Dynamics 365 Phone Call activity logging']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Who owns the records and activities created by Tavly in Dynamics 365?'
+    answer: 'All Contacts, Tasks, Notes, and Phone Call activities created by Tavly are owned by the Microsoft account authenticated during connection setup. Establishing a dedicated service user keeps your timeline labeled "Tavly Integration".'
+  - question: 'Can I connect more than one Dynamics 365 environment to a Tavly workspace?'
+    answer: 'Yes. You can add distinct connections for each environment or sandbox. However, only one CRM connection across all providers can drive automated two-way contact synchronization for your workspace at a time.'
+  - question: 'What happens if Microsoft Entra requires admin consent for third-party apps?'
+    answer: 'If your tenant enforces user consent restrictions, sign-in halts on an approval-required prompt. A Microsoft Entra tenant admin must approve the Tavly enterprise application before the connection can complete.'
+---
+
+## What is the Tavly AI Dynamics 365 integration and when should you use it?
+
+The **Tavly AI Dynamics 365 integration** connects your Microsoft Dataverse environment to Tavly via OAuth. Connect Dynamics 365 when it serves as your system of record to greet callers by name, write back conversation analysis to Contact records, log Phone Call activities automatically, and deploy live Dataverse agent tools.
+
+Authenticating your Microsoft Dynamics 365 environment establishes seamless interoperability between telephony pipelines and business applications:
+
+* **Customer Identification**: Automatically match incoming callers against Dataverse Contact records, exposing contact details as dynamic variables for personalized greetings.
+* **Closed-Loop Property Enrichment**: Write back qualification outcomes, extracted preferences, and notes directly to Contact attributes post-conversation.
+* **Automated Timeline Audit Trails**: Log every voice call as a completed **Phone Call** activity and every chat session as a **Task** directly on the customer timeline.
+* **Live Operational Tool Calling**: Equip agents with [Dynamics 365 agent functions](/integrations/crm/dynamics/agent-functions) to look up contacts, update records, and schedule tasks mid-call without manual rep data entry.
+
+***
+
+<a id="prerequisites" />
+
+## What prerequisites and permissions are required to connect Dynamics 365?
+
+Connecting Dynamics 365 requires a Dataverse environment supporting the Web API (`/api/data/v9.2`) and a Microsoft work account holding security roles with Read/Write access on **Contacts**, **Tasks**, **Phone Calls**, and **Notes**. Using a dedicated integration user account ensures created records are attributed cleanly to the service identity rather than individual employees.
+
+Before initiating connection, verify the following configuration requirements:
+
+* **Supported Environment**: A Dynamics 365 environment running on Microsoft Dataverse supporting REST Web API endpoint `/api/data/v9.2`.
+* **Microsoft Work Account**: An active Microsoft Entra work or school account with access to the target environment.
+* **Security Role Privileges**: The user must hold security roles granting Read, Create, Write, Append, and Append To privileges across Contacts, Tasks, Phone Calls, and Notes.
+* **Dedicated Integration Identity**: Provision a dedicated service user (e.g., `tavly-integration@yourdomain.com`) to prevent sync interruptions when personnel depart or change organizational roles.
+
+***
+
+## How do you find your Dataverse environment URL?
+
+To locate your environment URL, open the Dynamics 365 web app and copy the origin from your browser address bar ending in `.dynamics.com` (e.g., `https://your-org.crm.dynamics.com`). Alternatively, administrators can navigate to **Environments** in the **Power Platform admin center** and copy the designated **Environment URL**. Omit trailing paths.
+
+Use one of these two discovery methods:
+
+1. **Browser Address Bar**: Open any Dynamics 365 app (e.g., Customer Service Hub or Sales Hub). Copy the base URL origin from the address bar up to and including `.dynamics.com` (regional prefixes like `crm4` or `crm11` vary by data center).
+2. **Power Platform Admin Center**: Navigate to **Environments**, select your target environment, and copy the value listed under **Environment URL**.
+
+<Frame caption="Identifying the Dataverse environment URL from the browser address bar.">
+  <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+    <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/microsoft-dynamics-environment-url.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=5be5f9d0e1448a2caf5c0af8e0f147e9" alt="A Dynamics 365 Customer Service Hub dashboard open in a browser. The address bar is highlighted with a blue ring, showing an environment URL ending in .crm.dynamics.com with the organization's subdomain redacted. The dashboard's case data is also redacted." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="986" data-path="images/integration/microsoft-dynamics-environment-url.png" />
+  </div>
+</Frame>
+
+<Note>
+  Enter strictly the protocol and host origin (e.g., `https://acme.crm.dynamics.com`). Do not append application paths, query parameters, or trailing slashes.
+</Note>
+
+***
+
+## How do you connect and authenticate Dynamics 365 in Tavly?
+
+In the Tavly dashboard, open **Integrations → Available**, select **Microsoft Dynamics 365**, and input your connection alias and Dataverse environment URL. Click **Connect** to open the interactive Microsoft OAuth sign-in modal, authenticate with your dedicated service account, and verify the connection via an automated `WhoAmI` handshake test.
+
+Follow this configuration sequence:
+
+<Steps>
+  <Step title="Initiate Dynamics 365 connection in Tavly">
+    In the Tavly Dashboard, navigate to **Integrations → Available**, locate **Microsoft Dynamics 365**, and click **Connect** (or **Add Account**).
+  </Step>
+
+  <Step title="Enter environment configuration parameters">
+    Configure the connection parameters:
+
+    | Parameter | Configuration Requirement |
+    | :--- | :--- |
+    | **Connection name** | Workspace alias; defaults to `Microsoft Dynamics 365 - OAuth`. |
+    | **Dynamics environment URL** | Your canonical Dataverse origin (e.g., `https://your-org.crm.dynamics.com`). |
+
+    <Frame caption="The Microsoft Dynamics 365 connection dialog in the Tavly dashboard.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/microsoft-dynamics-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=d8a6aab28e1f50b06ff8d0905f057add" alt="Retell's Microsoft Dynamics 365 connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Microsoft Dynamics 365 - OAuth and a Dynamics environment URL field with the placeholder https://your-org.crm.dynamics.com, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1202" height="1002" data-path="images/integration/microsoft-dynamics-connect-dialog.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Authenticate via Microsoft OAuth sign-in">
+    Click **Connect**. A Microsoft OAuth authentication window appears. Sign in using your dedicated integration user credentials and accept the requested application permissions. Tavly stores an encrypted OAuth refresh token to maintain persistent API communication without periodic manual sign-ins.
+
+    <Note>
+      If your Microsoft Entra tenant enforces user consent restrictions, sign-in displays an approval-required prompt. A Microsoft Entra Global Administrator must grant enterprise-wide consent for Tavly before setup can proceed.
+    </Note>
+  </Step>
+
+  <Step title="Verify automated WhoAmI handshake">
+    Tavly tests the connection immediately by calling the Dataverse `WhoAmI` API endpoint as the authenticated user. Upon success, the connection appears on the **Connected** tab with an offer to **Set up contact sync**. Proceed to configure [Dynamics 365 contact sync](/integrations/crm/dynamics/contact-sync) or attach [Dynamics 365 agent functions](/integrations/crm/dynamics/agent-functions) to your agents.
+  </Step>
+</Steps>
+
+***
+
+## How do you troubleshoot common Dynamics 365 connection errors?
+
+If the sign-in succeeds but validation fails, verify that the signed-in account has security role access to the target Dataverse environment. If prompted with an "Approval required" notice, request that a Microsoft Entra administrator grant enterprise consent for Tavly. For broken tokens, click **Reconnect** to refresh credentials.
+
+### Common Diagnostics
+
+<AccordionGroup>
+  <Accordion title="Sign-in succeeds but the connection handshake test fails">
+    Microsoft accounts can authenticate against Entra ID successfully without possessing an active user license or security role inside the specific Dataverse environment. Confirm that the integration user can log in to the target Dynamics environment URL in a private browser session, and verify that the environment URL contains no extraneous paths after `.dynamics.com`.
+  </Accordion>
+
+  <Accordion title="OAuth prompt displays an 'Approval required' notice">
+    Your Microsoft Entra tenant restricts non-admin users from consenting to third-party applications. Contact your Microsoft Entra administrator and request tenant-wide admin consent for the Tavly application. Separately, verify that the Power Platform environment allows API access under tenant conditional access policies.
+  </Accordion>
+
+  <Accordion title="Connection switches to an error state after working">
+    Tavly displays a red **Connection error** tag when Microsoft rejects API calls using the stored refresh token. This typically occurs when the integration user's password is reset, their account is disabled, or an administrator revokes consent. Open connection settings in Tavly and click **Reconnect** to re-authenticate.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Who owns the records and activities created by Tavly in Dynamics 365?">
+    All Contacts, Tasks, Notes, and Phone Call activities created by Tavly are owned by the Microsoft account authenticated during connection setup. Establishing a dedicated service user keeps your timeline labeled `Tavly Integration` rather than an individual employee's name.
+  </Accordion>
+
+  <Accordion title="Can I connect more than one Dynamics 365 environment to a Tavly workspace?">
+    Yes. You can add distinct connections for each environment or sandbox. However, only one CRM connection across all providers can drive automated two-way contact synchronization for your workspace at a time.
+  </Accordion>
+
+  <Accordion title="What happens if Microsoft Entra requires admin consent for third-party apps?">
+    If your tenant enforces user consent restrictions, sign-in halts on an approval-required prompt. A Microsoft Entra tenant admin must approve the Tavly enterprise application before the connection can complete.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Dynamics 365 Contact Sync" icon="rotate" href="/integrations/crm/dynamics/contact-sync">
+    Import Dynamics Contacts, map custom fields, and log Phone Call activities automatically.
+  </Card>
+
+  <Card title="Dynamics 365 Agent Functions" icon="wrench" href="/integrations/crm/dynamics/agent-functions">
+    Equip conversational agents with tools to search, update, and schedule tasks in Dataverse.
+  </Card>
+
+  <Card title="Integrations Overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the complete directory of native enterprise integrations and agent tools.
+  </Card>
+
+  <Card title="CRM Integrations Architecture" icon="database" href="/integrations/crm/crm-integrations">
+    Learn how contact sync, post-call analysis mapping, and activity logging work across CRMs.
+  </Card>
+</CardGroup>

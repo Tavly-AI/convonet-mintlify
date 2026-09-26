@@ -1,0 +1,260 @@
+---
+title: "Connect Notion"
+sidebarTitle: "Connect"
+description: "Connect Notion to Tavly AI using an internal integration token: configure read-only API capabilities, share specific workspace pages, and sync knowledge bases."
+seo:
+  title: "Connect Notion to Tavly AI | Knowledge Base Setup"
+  description: "Connect Notion to Tavly AI using an internal integration token: configure read-only API capabilities, share specific workspace pages, and sync knowledge bases."
+og:title: "Connect Notion to Tavly AI | Knowledge Base Setup"
+og:description: "Connect Notion to Tavly AI using an internal integration token: configure read-only API capabilities, share specific workspace pages, and sync knowledge bases."
+og:image: "https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-new-connection-dialog.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=78df5018eabda15175b2569032de779f"
+twitter:card: "summary_large_image"
+icon: "arrow-trend-up"
+keywords:
+  - "Notion integration"
+  - "Tavly AI Notion connect"
+  - "Notion internal connection"
+  - "Notion API key"
+  - "knowledge base sync"
+  - "Notion workspace owner"
+  - "Notion ntn token"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Which Notion token is required as the API key in Tavly AI?"
+    answer: "Tavly requires the Installation access token of an internal connection, starting with ntn_, found on the Configuration tab in Notion's developer portal."
+  - question: "Can Tavly AI read my entire Notion workspace?"
+    answer: "No. The integration sees only pages and databases explicitly shared with the connection bot. Unshared workspace pages remain completely inaccessible to Tavly."
+  - question: "Does the Notion internal integration API key expire?"
+    answer: "No. The Installation access token is a static token that does not expire unless an administrator manually refreshes or deletes it in Notion."
+  - question: "Can I connect multiple Notion workspaces to Tavly AI?"
+    answer: "Yes. You can add up to 20 separate Notion workspace connections per Tavly workspace by creating an internal connection in each respective Notion workspace."
+---
+
+# Connect Notion
+
+> Connect Notion to Tavly AI with an API key: create an internal connection, share pages with it, and sync them into knowledge bases your agent answers from.
+
+## What is the Tavly AI Notion integration and when should you use it?
+
+**Tavly AI Notion integration** connects your Notion workspace to Tavly using an internal connection API key, synchronizing wikis, handbooks, and policy pages directly into conversational knowledge bases. Tavly operates strictly read-only, accessing only pages explicitly shared with the connection bot and leaving the remainder of your workspace private.
+
+Connecting Notion lets you [add Notion pages to knowledge bases](/integrations/knowledge-base/notion/knowledge-base-sync), equipping your voice and chat agents to answer caller inquiries using documentation, operating guidelines, and FAQs maintained in your team's Notion workspace. Notion connects via an API key: the **Installation access token** of an internal connection generated in Notion's developer portal. Tavly reads only the pages shared with that bot identity and never modifies or writes to your workspace.
+
+Notion adds no integration tools to your conversational agent. Like [Google Drive](/integrations/knowledge-base/google-drive/connect) and [Microsoft OneDrive](/integrations/knowledge-base/onedrive/connect), its sole role is supplying self-updating content to knowledge bases.
+
+### Architecture: Notion internal connection and vector sync
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│         Notion Workspace        │                 │            Tavly AI             │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Shared Parent Wiki / Page   │ │                 │ │ Knowledge Base Source Tree  │ │
+│ │ (and all nested subpages)   │ │ ── ntn_ Key ───►│ │ (Hierarchical Page Picker)  │ │
+│ └──────────────┬──────────────┘ │    Read-Only    │ └──────────────┬──────────────┘ │
+│                │                │                 │                │                │
+│                │ Block Content  │                 │                │ Parse Markdown │
+│                │ Markdown Export│                 │                │ Chunk & Vector │
+│                ▼                │                 │                ▼                │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Notion API Service          │ │ ── Delta Poll ─►│ │ Knowledge Base Embeddings   │ │
+│ │ (Title & Last-Edited Time)  │ │   (Skip Unmod)  │ │ (RAG Semantic Context Store)│ │
+│ └─────────────────────────────┘ │                 │ └─────────────────────────────┘ │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+### When to connect Notion
+
+Connect Notion when your company's core knowledge lives in a living Notion workspace that team members continuously update:
+
+* **Eliminate manual file exports**: A Notion page connected to a knowledge base re-syncs automatically when its content changes, avoiding static PDF or Markdown exports that quickly become obsolete.
+* **Empower non-technical teams**: Staff members edit the native Notion pages they use daily; no technical staff are required to export files or access the Tavly dashboard to keep the AI agent accurate.
+* **Granular, page-by-page access control**: Access is granted entirely within Notion by sharing specific pages with the bot. All other documents, private team spaces, and confidential databases remain completely invisible to Tavly.
+
+> **Real-World Implementation:** A regional veterinary clinic maintains its staff handbook in Notion: operating hours, vaccination protocols, pre-surgery fasting instructions, and emergency pricing across distinct subpages. These pages serve as knowledge base sources. When the practice manager modifies pre-surgery fasting instructions in Notion, the inbound phone agent immediately quotes the updated instructions following the next scheduled refresh.
+
+---
+
+## What prerequisites are required to connect Notion?
+
+Connecting Notion requires **Workspace Owner** status in Notion to generate an internal connection access token, along with an **Admin or Developer role** in Tavly. You must also identify the parent pages of the documentation you intend to ingest, as sharing a parent page automatically grants access to all nested child pages.
+
+* **Notion Workspace Owner Status**: Only Notion Workspace Owners can create internal connections. If you are a Member, an owner must generate the connection and provide you with the access token; any Member can subsequently share individual pages with that connection.
+* **Tavly Workspace Role**: You require an **Admin** or **Developer** role in Tavly, or a custom role granted both the `App.Write` and `CRM.Write` permissions.
+* **Target Documentation Structure**: A connection starts with access to zero pages. Identify the top-level parent pages of your handbooks or wikis in advance; sharing a top-level page grants access to every nested subpage automatically.
+
+---
+
+## How do you create an internal connection and generate a Notion API key?
+
+To generate an API key, open the Notion developer portal at `app.notion.com/developers/connections` as a Workspace Owner and click **New connection**. Select the **Access token** authentication method, disable all write and comment capabilities except **Read content**, set user information to **No user information**, and copy the resulting `ntn_` secret token.
+
+The API key requested by Tavly is the Installation access token of a Notion internal connection: a dedicated workspace bot scoped strictly to your organization.
+
+<Steps>
+  <Step title="Create an internal connection in Notion">
+    Sign in to Notion as a Workspace Owner and navigate to the developer portal at [app.notion.com/developers/connections](https://app.notion.com/developers/connections) (or inside Notion, navigate to **Settings > Connections > Develop or manage integrations**). Click **New connection**.
+
+    Provide a clear, recognizable **Connection name**, such as `Tavly AI`. This name is displayed to team members when sharing pages. Under **Authentication method**, select **Access token** (workspace-scoped static API token limited to a single workspace). Click **Create connection**.
+
+    <Frame caption="Notion's New connection dialog, with the Access token authentication method selected.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-new-connection-dialog.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=78df5018eabda15175b2569032de779f" alt="Notion's New connection dialog. The Connection name field reads Retell. Under Authentication method, the Access token option is selected and ringed in blue; its description reads 'Workspace-scoped static API token, shared across collaborators, with its own access settings. Limited to 1 workspace and not Marketplace-eligible.' A second, unselected authentication option sits below it, and a blue Create connection button is at the bottom right." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1048" height="880" data-path="images/integration/notion-new-connection-dialog.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Configure least-privilege read permissions">
+    Open the connection's **Configuration** tab and configure permissions to enforce least privilege:
+
+    | Connection Capability | Recommended Setting | Rationale |
+    | :--- | :--- | :--- |
+    | **Read content** | **On** | Enables Tavly to discover, inspect, and ingest page block content. |
+    | **Update content** | **Off** | Tavly never edits or alters content inside your Notion workspace. |
+    | **Insert content** | **Off** | Tavly never inserts new pages or blocks. |
+    | **Read / Insert comments** | **Off** | Comment streams are excluded from knowledge base ingestion. |
+    | **User information** | **No user information** | Tavly does not require access to your workspace member directory. |
+  </Step>
+
+  <Step title="Copy the Installation access token">
+    On the **Configuration** tab, locate the **Installation access token** and click **Show** to copy it. The token starts with the prefix `ntn_`. Treat this token with the same confidentiality as a password, as anyone holding it can read documents shared with the connection bot.
+  </Step>
+</Steps>
+
+---
+
+## How do you share Notion pages and databases with the internal connection?
+
+To grant access, open the target page in Notion, click the **•••** options menu, select **Connections**, and add your newly created connection. Alternatively, add pages directly within the developer portal under the connection's **Content access** tab. Sharing a parent page automatically shares all nested child pages within its document tree.
+
+A newly created Notion connection begins with zero file access. You must explicitly share documents with the connection before pages appear in the Tavly page selector:
+
+<Steps>
+  <Step title="Share a page directly from Notion">
+    Open the parent page or wiki you want your AI agent to reference. Click the **•••** menu in the top-right corner of the page, select **Connections**, and click **+ Add connection** (or **Add connections**). Search for your connection by name (e.g., `Tavly AI`), select it, and confirm.
+
+    <Tip>
+      Sharing a parent page automatically shares every nested subpage beneath it. To minimize maintenance, share the top-level wiki or handbook page rather than sharing individual child pages manually.
+    </Tip>
+  </Step>
+
+  <Step title="Manage shared content via the developer portal">
+    Open your connection at [app.notion.com/developers/connections](https://app.notion.com/developers/connections) and navigate to the **Content access** tab. This dashboard displays every page and database the connection currently has permission to read. Click **+ Add pages & databases** to search and attach additional pages directly.
+
+    <Frame caption="The connection's Content access tab in Notion's developer portal, where you add pages directly.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-content-access-tab.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=36ea80164e957bba4bc394d158198ce1" alt="A connection named Retell in Notion's developer portal, under the breadcrumb Developer tools, Connections, Retell. The tabs are Configuration, Content access (selected), Agent access (Beta), Webhooks, and Owners. The Content access panel reads 'This connection is enabled for the following pages and databases' above a workspace named Acme's Notion, and its + Add pages & databases row is ringed in blue. Below it a search box labeled 'Search pages and databases…' lists recent pages: test (in Task List), test subpage (in Task List / test), and Getting Started. The workspace name and icon are demo values." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1800" height="732" data-path="images/integration/notion-content-access-tab.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Verify page availability in Tavly">
+    In your Tavly knowledge base, open the **Add** source dropdown and select your Notion connection. The page picker displays all authorized pages in a hierarchical tree. If pages do not appear immediately, close and reopen the modal, as it refreshes the page list on demand.
+  </Step>
+</Steps>
+
+To revoke access to a page, open the page's **•••** menu, hover over the connection name under **Connections**, and select **Disconnect** (or remove it in the **Content access** tab). Previously synced page content remains queryable in Tavly knowledge bases but stops receiving updates.
+
+<Note>
+  Organizations on Notion's Enterprise Plan can restrict which integrations members may add to pages under **Settings > Connections > Manage**. If **Add connection** is unavailable, request that an Enterprise Workspace Owner approve the integration.
+</Note>
+
+---
+
+## How do you configure and authenticate the Notion connection in Tavly?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, select **Notion**, and click **Connect**. Provide a connection name, paste your `ntn_` Installation access token into the **API Key** field, and submit. Tavly immediately verifies the token with Notion and displays an active connection status upon successful authentication.
+
+<Steps>
+  <Step title="Open the Notion connection modal">
+    In the Tavly Dashboard, open **Integrations**, navigate to the **Available** tab, locate **Notion**, and click **Connect** (or click **Add Account** if an existing Notion connection is present). You can also initiate this from the knowledge base **Add** menu.
+  </Step>
+
+  <Step title="Provide credentials and validate">
+    Configure the connection modal:
+    * **Connection name**: Descriptive identifier (prefilled with `Notion - API key`).
+    * **API Key**: Paste the `ntn_` Installation access token copied from Notion's developer portal.
+
+    <Frame caption="Tavly's Notion connection dialog, with the API Key field for the token.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-connect-dialog.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=9c5f02f9d84b82777c7b347b017e29bc" alt="Retell's Notion connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Notion - API key and an API Key field, ringed in blue, with the placeholder 'Enter your API key'. Below the field a hint reads 'Need help finding your credentials? See docs'. Cancel and Add Account buttons sit at the bottom right; the button reads Add Account because a Notion connection already exists in this workspace." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="958" height="1120" data-path="images/integration/notion-connect-dialog.png" />
+      </div>
+    </Frame>
+
+    Click **Connect**. Tavly tests the API key by querying the connection's bot user profile. When verified, the dialog displays **Connected to Notion**. You can connect the integration before sharing pages in Notion.
+  </Step>
+</Steps>
+
+Proceed to [Notion knowledge base sync](/integrations/knowledge-base/notion/knowledge-base-sync) for guidelines on selecting pages, vector chunking, and managing automated refresh schedules.
+
+---
+
+## How does Tavly securely access and process Notion data?
+
+Tavly encrypts and securely stores the API key at rest, ensuring tokens are never exposed via API responses. The key is used exclusively to list shared pages, inspect last-edited timestamps for delta synchronization, and extract page bodies as Markdown for vector embedding, operating under strict read-only parameters.
+
+### Operational usage of the API key
+
+Tavly utilizes the internal integration token exclusively for three operational tasks:
+1. **Directory Enumeration**: Lists authorized pages so the knowledge base picker can display your workspace structure.
+2. **Delta Evaluation**: Queries each page's title and `last_edited_time` timestamp to determine if a document changed since its prior sync.
+3. **Markdown Block Extraction**: Fetches page blocks formatted as clean Markdown, which are chunked and transformed into semantic vector embeddings.
+
+Tavly verifies credentials prior to every scheduled refresh cycle. Because permissions are configured to **Read content** only, Tavly has no technical ability to create, modify, or delete workspace records.
+
+To terminate access entirely, delete the connection from the **Connected** tab in Tavly. To revoke access from the Notion side, refresh the token on the connection's **Configuration** tab or delete the connection in Notion's developer portal.
+
+---
+
+## Frequently asked questions about connecting Notion
+
+Notion internal connection tokens are static and do not expire unless manually regenerated in the developer portal. A single Tavly workspace supports up to **20 separate Notion connections**, allowing multi-workspace ingestion. Knowledge bases support up to **25 Notion pages** each, with nested subpages counted individually as distinct sources.
+
+<AccordionGroup>
+  <Accordion title="Which Notion token serves as the API key in Tavly?">
+    The **Installation access token** of an internal connection, located under the **Configuration** tab in Notion's developer portal at [app.notion.com/developers/connections](https://app.notion.com/developers/connections). The token begins with the prefix `ntn_`.
+  </Accordion>
+
+  <Accordion title="Do I need to be a Workspace Owner in Notion?">
+    Yes, to create the internal connection initially. Notion limits internal connection creation to Workspace Owners. Once created, any Member can share pages with the connection from the page's **•••** options menu, unless restricted by Enterprise connection settings.
+  </Accordion>
+
+  <Accordion title="Can Tavly AI read my entire Notion workspace?">
+    No. The connection sees only pages explicitly shared with it and any subpages nested beneath them. Unshared pages and private user documents are completely inaccessible. You can review all accessible documents on the connection's **Content access** tab in the developer portal.
+  </Accordion>
+
+  <Accordion title="Can I connect multiple Notion workspaces?">
+    Yes. Because each Notion internal connection is bound to a single workspace, create an internal connection in each respective workspace and add them to Tavly. Tavly supports up to **20 Notion connections** per workspace (as of September 2026).
+  </Accordion>
+
+  <Accordion title="Does the Notion API key expire?">
+    No. The Installation access token is a static token that does not expire. It remains valid until an administrator refreshes the token on the **Configuration** tab or deletes the connection in Notion. If refreshed, update the connection in Tavly with the new token.
+  </Accordion>
+
+  <Accordion title="How many Notion pages can I sync to a knowledge base?">
+    A knowledge base supports up to **25 Notion pages**, with each nested child page counting as a distinct source. For large wikis exceeding 25 pages, organize documents across multiple knowledge bases, as Tavly agents can reference multiple knowledge bases concurrently.
+  </Accordion>
+
+  <Accordion title="What happens if I delete the Notion connection in Tavly?">
+    Content already synchronized remains stored inside your knowledge base and continues serving agent queries; however, background synchronization stops, and sources display **Sync not available**.
+  </Accordion>
+
+  <Accordion title="Why does my Notion connection show a Connection error tag?">
+    Notion rejected the stored API key, typically because the token was refreshed in Notion's developer portal or the connection was deleted. Open the connection on the **Connected** tab, paste the updated token, and save.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Notion knowledge base sync" icon="rotate" href="/integrations/knowledge-base/notion/knowledge-base-sync">
+    Select the pages your agent references and configure automated refresh schedules.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of external integrations and knowledge sources supported by Tavly.
+  </Card>
+</CardGroup>
