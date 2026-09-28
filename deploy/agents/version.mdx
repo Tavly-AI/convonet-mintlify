@@ -1,0 +1,200 @@
+---
+title: 'Agent Versions and Environment Tags: Lifecycle Management'
+sidebarTitle: 'Versions & Tags'
+description: 'Deploy Tavly AI agents reliably with immutable published versions, editable drafts, and environment tags like prod and staging for zero-downtime phone routing.'
+seo:
+  title: 'Agent Versions & Environment Tags | Lifecycle Management | Tavly AI'
+  description: 'Deploy Tavly AI agents reliably with immutable published versions, editable drafts, and environment tags like prod and staging for zero-downtime phone routing.'
+og:title: 'Agent Versions and Environment Tags: Lifecycle Management'
+og:description: 'Deploy Tavly AI agents reliably with immutable published versions, editable drafts, and environment tags like prod and staging for zero-downtime phone routing.'
+og:image: 'https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/tags-info.png'
+twitter:card: 'summary_large_image'
+icon: 'code-branch'
+keywords: ['agent versioning', 'environment tags', 'Tavly AI agent lifecycle', 'zero-downtime deployment', 'prod staging tags', 'voice agent drafts', 'dynamic variable overrides']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between a draft and a published agent version?'
+    answer: 'A draft version is fully editable and mutable for rapid iteration and testing, whereas publishing locks that version into an immutable, read-only release that guarantees deterministic prompt and voice behavior in production.'
+  - question: 'How do environment tags enable zero-downtime agent rollouts?'
+    answer: 'Environment tags such as prod and staging point dynamically to specific version IDs. When you assign phone numbers to a tag instead of a hardcoded version, updating the tag routes new calls instantly to the new version without changing telephony configs.'
+  - question: 'How many environment tags can you create per agent?'
+    answer: 'Each Tavly AI agent supports up to 10 environment tags, including the default prod and staging tags. Each tag can also override dynamic variables like transfer phone numbers.'
+  - question: 'Can you assign both draft and published versions to phone numbers?'
+    answer: 'Yes. Both draft and published versions can be bound directly to phone numbers or referenced via environment tags, though binding published versions to production tags is recommended for stability.'
+---
+
+## What are Tavly AI agent versions and environment tags?
+
+**Tavly AI agent versions and environment tags** provide structured lifecycle and deployment controls for voice AI applications. Versions preserve immutable snapshots of agent configurations, prompt engineering, and voice parameters, while environment tags decouple telephony endpoints from hardcoded versions to enable instant, zero-downtime promotions, rollbacks, and environment-specific variable overrides.
+
+Deploying conversational AI in production requires balancing rapid iterative development with absolute runtime reliability. Tavly equips developers with dual mechanisms to control agent configurations:
+
+* **Version Snapshots**: Incremental states capturing the exact state of prompts, LLMs, voice models, tools, and latency settings.
+* **Environment Tags**: Dynamic aliases (such as `prod`, `staging`, or `dev`) that point to a chosen version, redirecting telephony traffic without modifying phone number configurations.
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/Bbz9TRzc2W4" title="How to Use Versioning and Environment Tags with Tavly AI" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+---
+
+## What is the difference between draft and published agent versions?
+
+The difference between **draft and published agent versions** centers on mutability and operational stability. Drafts are fully editable, work-in-progress workspaces starting at V0 (draft), whereas publishing transforms a draft into an immutable, read-only version such as V2 that preserves exact system prompts, dynamic variables, and telephony behaviors for live production calls.
+
+Every agent starts its lifecycle at **V0 (draft)**. As you iterate, the version index increments sequentially:
+
+| Version State | Mutability | Production Readiness | Naming Format | Telephony Attachment |
+| :--- | :--- | :--- | :--- | :--- |
+| **Draft** | Fully editable | Intended for testing and staging validation | `V[N] (draft)` | Allowed (useful for test numbers) |
+| **Published** | Read-only (immutable) | Recommended for live production traffic | `V[N]` | Recommended directly or via tags |
+
+### Lifecycle Transition Rules
+
+* **Incremental Numbering**: Version indices begin at **V0** and increment automatically whenever a new version is created.
+* **Publishing Seal**: Clicking **Publish** strips the `(draft)` label, freezing the configuration permanently. For example, `V2 (draft)` transforms permanently into `V2`.
+* **Branching New Work**: Because published versions are read-only, further prompt modifications require creating a new draft branched from that published state.
+* **Phone Binding**: Both draft and published versions can be attached directly to [phone numbers](/deploy/purchase-number).
+
+---
+
+## How do you create, publish, and manage agent versions?
+
+To **create, publish, and manage agent versions**, access the version panel in your agent header, select an existing release, and click the plus icon to branch a new draft. After testing your draft with phone or web simulations, click Publish to permanently commit the configuration as an immutable release.
+
+To access the version drawer in the Tavly dashboard, click the version button located in the top-right corner of the agent configuration page:
+
+<Frame caption="The version selector button located in the upper right header of the agent dashboard.">
+  <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/version-open-button.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=ac949091f0be4ea8a3ef981561c96ae9" alt="Agent configuration interface with the version button highlighted in the upper right corner" width="558" height="656" data-path="images/version-v2/version-open-button.png" />
+</Frame>
+
+The drawer separates configurations into two categories: **Draft** and **Published**. Selecting any version opens its prompt and voice configuration. Draft entries display ancestral lineage (e.g., *"Created from V1"*), enabling you to trace changes back to their source:
+
+<Frame caption="The versions drawer categorizing drafts and published versions with creation lineage.">
+  <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/versions.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=4a0b44e3ba7ef48d47fa1c85a45a5b88" alt="Versions drawer showing Draft and Published sections, version lineage, and creation timestamps" width="700" height="1816" data-path="images/version-v2/versions.png" />
+</Frame>
+
+### Version Operations
+
+<Steps>
+  <Step title="Create a new draft">
+    Select the baseline version you wish to branch from in the panel, then click **+** (Add Draft). Tavly duplicates the configuration into an isolated, editable draft. You can maintain multiple concurrent drafts to experiment with alternate prompts or voices simultaneously. Test your draft using [Test Phone Calls](/test/test-phone) before promoting.
+  </Step>
+
+  <Step title="Publish a draft">
+    Select the draft in the versions drawer, click **Publish** in the upper right corner of the agent page, and confirm your selection in the modal dialog. Publishing is instantaneous and irreversible.
+
+    <Frame caption="Confirming publication of an agent draft in the publish dialog.">
+      <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/publish-pop-up.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=2e563fa4af992c1b5cbb85c5e7f2ca90" alt="Publish confirmation modal displaying the version being finalized and a confirmation button" width="842" height="758" data-path="images/version-v2/publish-pop-up.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Delete obsolete versions">
+    Open the versions panel, select the target version, and select the delete option. If deleting a published version currently associated with live phone numbers or environment tags, reassign or detach those dependencies before deleting.
+  </Step>
+</Steps>
+
+---
+
+## What are environment tags and how do they decouple deployments?
+
+**Environment tags** are named pointers—such as prod, staging, or dev—that map dynamically to specific agent versions. By assigning inbound phone numbers or outbound campaigns to a tag rather than a static version number, operators can roll out updates or execute immediate rollbacks across hundreds of telephony numbers with a single click.
+
+Directly assigning phone numbers to version numbers introduces operational friction: upgrading an agent requires manually editing each phone number's routing setting. Environment tags resolve this by providing an indirection layer:
+
+```mermaid
+graph LR
+  subgraph Inbound Numbers
+    N1[Customer Support: +1-800-555-0100]
+    N2[Direct Sales: +1-800-555-0200]
+  end
+
+  subgraph Environment Tag
+    T1[prod tag]
+  end
+
+  subgraph Immutable Versions
+    V2[V2: Published Release]
+    V3[V3: Candidate Release]
+  end
+
+  N1 --> T1
+  N2 --> T1
+  T1 -.->|Default Traffic| V2
+  T1 ==>|Zero-Downtime Re-point| V3
+
+  style T1 fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
+  style V2 fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+  style V3 fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+```
+
+### Tag Characteristics
+
+* **Preconfigured Tags**: Every agent is automatically provisioned with default `prod` and `staging` tags.
+* **Many-to-One Tagging**: Multiple tags can point to the same version simultaneously (e.g., both `prod` and `staging` pointing to `V2`).
+* **Zero-Downtime Rollbacks**: If an issue occurs in `V3`, moving the `prod` tag back to `V2` instantly reverts all phone numbers attached to that tag.
+
+<Frame caption="The Environment Tags info modal displaying current version associations and assigned tags.">
+  <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/tags-info.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=8195bf4290d8fee44d8d4a9934504afd" alt="Environment tag interface showing tags assigned to specific version records" width="1212" height="776" data-path="images/version-v2/tags-info.png" />
+</Frame>
+
+---
+
+## How do you configure environment tags and dynamic variable overrides?
+
+To **configure environment tags and dynamic variable overrides**, open the Environment menu in the agent header and select Configure Tags to create up to ten custom tags. You can assign environment-specific dynamic variable values, allowing staging numbers to route transfer calls to test destinations while production routes to live teams.
+
+To manage your environment tags and customize runtime parameters:
+
+### Step 1: Open Tag Configuration
+Click **Environment** in the agent header, then select **Configure Tags**. You can edit existing tags or click **+ Add** to register new environments. Each agent supports up to **10 environment tags** (including defaults).
+
+<Frame caption="The Configure Tags modal allowing operators to add tags and configure environment-specific dynamic variable values.">
+  <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/configure-tags.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=6b293fd54f2ebffd3c0a87fc8b39cd73" alt="Configure Tags dialogue with tag creation inputs and dynamic variable override fields" width="1732" height="1264" data-path="images/version-v2/configure-tags.png" />
+</Frame>
+
+### Step 2: Override Dynamic Variables per Environment
+Tags support environment-scoped values for [dynamic variables](/build/context/dynamic-variables):
+
+* **Call Transfer Destinations**: Set a transfer variable to a developer's mobile number under `staging`, and to a live call center PBX under `prod`.
+* **API Endpoints**: Point webhooks or integration endpoints to sandbox URLs in `staging` and production servers in `prod`.
+* **Prompt Variations**: Inject environment-specific test indicators without modifying the underlying agent configuration.
+
+### Step 3: Assign or Relocate Tags
+In the versions panel, select the version you wish to bind. Click **Environment** in the agent header, select the target tag, and the tag indicator will attach beside that version:
+
+<Frame caption="Selecting and binding environment tags to specific agent versions in the versions drawer.">
+  <img style={{ maxHeight: 560 }} src="https://mintcdn.com/retellai/D9cEiBKGEvGbaqXg/images/version-v2/select-tags.png?fit=max&auto=format&n=D9cEiBKGEvGbaqXg&q=85&s=1c3e03352c6948d4e653768066c75eaf" alt="Version drawer showing environment tag badges next to version numbers" width="1014" height="430" data-path="images/version-v2/select-tags.png" />
+</Frame>
+
+<Tip>
+  Moving an environment tag automatically redirects all phone numbers linked to that tag. Numbers directly bound to a static version ID (e.g., `V2`) remain on that version regardless of tag reassignments.
+</Tip>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What happens to active phone calls when an environment tag is moved?">
+    Active, in-progress voice calls continue executing on the exact agent version they began with until termination. Only new incoming or outbound calls placed after the tag reassignment are routed to the newly targeted version.
+  </Accordion>
+
+  <Accordion title="Can I test multiple drafts simultaneously?">
+    Yes. You can create multiple independent drafts from any historical version and bind test phone numbers or web call simulators to each draft to evaluate alternative prompt instructions side-by-side.
+  </Accordion>
+
+  <Accordion title="How do dynamic variable overrides interact with API-injected variables?">
+    Dynamic variables specified within an environment tag act as default fallback values for calls utilizing that tag. If custom dynamic variables are explicitly passed in an API payload (such as in an outbound call request), the API values take precedence.
+  </Accordion>
+
+  <Accordion title="Can an immutable published version ever be edited?">
+    No. Once a version is published, its settings, system prompt, and tools cannot be modified. To make alterations, create a new draft from the published version, apply your edits, and publish the new draft.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Purchase and assign phone numbers](/deploy/purchase-number): Map incoming telephone numbers to environment tags or static versions.
+* [Dynamic variables configuration](/build/context/dynamic-variables): Define prompt placeholders and runtime context variables.
+* [Test phone calls](/test/test-phone): Validate draft agent behavior using live telephony before publishing.
+* [A/B testing voice agents](/deploy/ab-testing): Distribute traffic between multiple agent configurations to measure conversion and performance.

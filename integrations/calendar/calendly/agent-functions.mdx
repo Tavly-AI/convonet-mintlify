@@ -1,0 +1,182 @@
+---
+title: "Calendly Agent Functions"
+sidebarTitle: "Agent Functions"
+description: "Deploy Calendly tools for Tavly AI agents: check real-time availability, schedule meetings, inspect booking details, and cancel appointments during live calls."
+seo:
+  title: "Calendly Agent Functions | Tavly AI Integration Tools"
+  description: "Deploy Calendly tools for Tavly AI agents: check real-time availability, schedule meetings, inspect booking details, and cancel appointments during live calls."
+og:title: "Calendly Agent Functions | Tavly AI Integration Tools"
+og:description: "Deploy Calendly tools for Tavly AI agents: check real-time availability, schedule meetings, inspect booking details, and cancel appointments during live calls."
+twitter:card: "summary_large_image"
+icon: "calendar-check"
+keywords:
+  - "Calendly agent functions"
+  - "Tavly AI Calendly integration"
+  - "Calendly voice agent tools"
+  - "real-time appointment booking"
+  - "Calendly scheduling API"
+  - "check Calendly availability"
+  - "cancel Calendly booking"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why does the Book Appointment tool require a paid Calendly plan?"
+    answer: "Calendly restricts programmatic appointment creation via its Scheduling API to paid subscription accounts, whereas availability checks and cancellations remain functional on free plans."
+  - question: "How does Tavly handle timezones during Calendly booking calls?"
+    answer: "Tools accept standard IANA timezone identifiers (such as America/New_York), enabling the voice agent to quote and confirm slots in the caller's local time."
+  - question: "Can Tavly agents reschedule an existing Calendly event directly?"
+    answer: "Calendly does not offer a direct reschedule API endpoint. The agent handles reschedules by canceling the existing reservation and booking a new open slot."
+  - question: "Can Tavly book team round-robin or collective Calendly event types?"
+    answer: "No. The integration supports individually owned event types only. Team round-robin and collective event types cannot be scheduled programmatically."
+---
+
+# Calendly agent functions
+
+> Calendly tools for Tavly AI agents: check real availability, book appointments, and look up or cancel scheduled events live during the call.
+
+## What are Calendly agent functions and how do they work in Tavly AI?
+
+**Calendly agent functions** provide Tavly AI agents with real-time scheduling tools to check open calendar slots, create bookings, inspect scheduled events, and cancel appointments during conversational interactions. Tools make direct API calls to Calendly without intermediary contact syncing, ensuring accurate calendar validation and automated attendee confirmations.
+
+A [connected Calendly account](/integrations/calendar/calendly/connect) equips your agents with live scheduling tools that execute during active calls or as pre- and post-call operations (see [agent workflows](/agent/agent-workflow)). 
+
+Because each function interacts live with Calendly's API endpoints, appointments, cancellations, and availability queries reflect instant calendar state without synchronization lag.
+
+---
+
+## What Calendly scheduling tools are available for Tavly agents?
+
+Tavly provides five native Calendly tools: **Check Availability** (lists open meeting slots within a 7-day window), **Book Appointment** (reserves confirmed slots using caller name and email), **List Bookings** (retrieves up to 50 upcoming events), **Get Booking** (fetches event details by UUID), and **Cancel Booking** (voids scheduled reservations).
+
+Once Calendly is authenticated, these tools become available in your agent's function menu. **Check Availability** and **Book Appointment** require a configured [scheduling link](#how-do-you-find-and-configure-a-calendly-scheduling-link) to bind the tool instance to an individual meeting type. Consult [using integration tools in an agent](/integrations/integrations-overview#use-integration-tools-in-an-agent) for attachment instructions.
+
+<Note>
+  **Subscription Requirement for Booking**: Programmatic booking requires a paid Calendly plan because it routes requests through Calendly's Scheduling API, which Calendly limits to paid subscriptions (as of August 2026). On a free tier, **Book Appointment** will return an authorization error, while availability checks, lookups, and cancellations remain fully operational.
+</Note>
+
+### Tool functional specification
+
+| Tool Name | Operation Type | Functional Description | Key Input Parameters |
+| :--- | :--- | :--- | :--- |
+| **Check Availability** | Read | Lists open meeting slots for the configured event type across a specified date window. | `event_type_url`, `start_time`, `end_time` |
+| **Book Appointment** | Write | Reserves and books the configured event type after collecting the invitee's name and email address. | `event_type_url`, `start_time`, `name`, `email` |
+| **List Bookings** | Read | Retrieves up to 50 upcoming scheduled events matching the invitee's email within a given timeframe. | `invitee_email`, `min_start_time`, `max_start_time` |
+| **Get Booking** | Read | Retrieves complete event metadata and attendee details for a specific scheduled meeting using its UUID. | `event_uuid` |
+| **Cancel Booking** | Write | Voids a scheduled event; for one-on-one event types, this automatically cancels the invitee reservation. | `event_uuid`, `reason` |
+
+<Note>
+  The availability tool queries a window of up to **7 days** per request. When a caller asks about dates further in the future, the agent initiates follow-up checks targeting subsequent 7-day windows as defined in the tool prompt instructions.
+</Note>
+
+---
+
+## How do you find and configure a Calendly scheduling link?
+
+To configure event-specific tools, log into your Calendly dashboard, locate the target event type, and copy its public booking link (for example, `https://calendly.com/organization/30min`). Paste this URL into the tool's **Event Type URL** field. Tavly automatically normalizes trailing slashes, schemes, and query parameters during execution.
+
+<Steps>
+  <Step title="Open the event type in Calendly">
+    Sign in to your Calendly dashboard, navigate to the **Event Types** overview, and select the event you want the AI agent to manage.
+  </Step>
+
+  <Step title="Copy the public scheduling link">
+    Click **Copy link**, or open the public booking page in a browser tab and copy the URL from your address bar (e.g., `https://calendly.com/your-team/30min`).
+  </Step>
+
+  <Step title="Configure the URL inside the Tavly tool card">
+    Paste the copied URL into the tool's **Event Type URL** input field. Tavly's parser automatically handles case insensitivity, strips `www.` or HTTP/HTTPS schemes, removes trailing slashes, and ignores URL query parameters (such as `?month=2026-09`). Configure separate tool instances for each distinct event type you want the agent to book.
+  </Step>
+</Steps>
+
+<Note>
+  Only event types owned directly by the authenticated Calendly user can be resolved. If the URL points to an unlinked account, the tool returns: `Calendly event type not found on the connected account`. To book a colleague's calendar, connect a separate token for that user. Team round-robin and collective event types are not supported via the Scheduling API.
+</Note>
+
+---
+
+## What token scopes and permissions are required for Calendly tools?
+
+Connecting Calendly requires a **Personal Access Token** authorized with `users:read` alongside specific functional scopes: `event_types:read` and `availability:read` for slot checks, `scheduled_events:write` for booking appointments and cancellations, and `scheduled_events:read` for listing or fetching event records. Furthermore, booking appointments strictly requires an active paid Calendly subscription tier, as free accounts do not support API booking.
+
+The Personal Access Token operates under the identity of the user who generated it and must encompass all required permission scopes:
+
+### Required token scopes by tool
+
+| Tool Name | Required OAuth / PAT Scopes | Operational Rationale |
+| :--- | :--- | :--- |
+| **Connection Validation** | `users:read` | Baseline scope required to verify token validity and identify the Calendly user. |
+| **Check Availability** | `users:read`, `event_types:read`, `availability:read` | Resolves the public scheduling link to an event type ID, then inspects available booking slots. |
+| **Book Appointment** | `users:read`, `event_types:read`, `scheduled_events:write` | Resolves event parameters and submits new booking reservations via the Scheduling API. |
+| **List Bookings** | `users:read`, `scheduled_events:read` | Searches active and upcoming meetings filtered by invitee email address. |
+| **Get Booking** | `users:read`, `scheduled_events:read` | Queries granular meeting and attendee metadata by event UUID. |
+| **Cancel Booking** | `users:read`, `scheduled_events:write` | Revokes existing scheduled bookings and triggers cancellation workflows. |
+
+<Tip>
+  Calendly's `scheduled_events:write` scope automatically grants underlying `scheduled_events:read` permissions. Ensure all required scopes are selected when [generating your personal access token](/integrations/calendar/calendly/connect#what-permissions-and-scopes-are-required-for-the-calendly-token). While the connection test passes with only `users:read`, individual tools will fail if their respective scopes are missing.
+</Tip>
+
+---
+
+## How do you troubleshoot common Calendly tool errors?
+
+Resolve Calendly function failures by verifying that your token includes required write scopes (`scheduled_events:write`) and an active paid plan if booking errors occur. For availability discrepancies, confirm the scheduling URL belongs to the token owner and verify that the event type has published availability within the queried 7-day window.
+
+<AccordionGroup>
+  <Accordion title="The account connects successfully, but tools return permission errors">
+    A valid connection only confirms the presence of `users:read`. If a tool errors with a permissions failure, generate a new Personal Access Token in Calendly containing all required scopes (`event_types:read`, `availability:read`, and `scheduled_events:write`), paste it into the connection settings under **Integrations → Connected**, and click **Reconnect**.
+  </Accordion>
+
+  <Accordion title="Check Availability returns an empty list of time slots">
+    Verify that the **Event Type URL** exactly matches the link belonging to the authenticated token owner. Ensure that the event type in Calendly has active availability rules, working hours configured, and no conflicting events blocking the queried timeframe. Note that queries evaluate up to 7 days per call.
+  </Accordion>
+
+  <Accordion title="Availability checks succeed, but Book Appointment fails">
+    First, verify that your Calendly account is on an active paid plan, as Calendly blocks programmatic booking on free tiers. Second, ensure your Personal Access Token includes `scheduled_events:write`. Finally, ensure the voice agent prompt collects both the invitee's full name and email address, along with any mandatory custom fields (such as meeting location) before invoking the booking tool.
+  </Accordion>
+
+  <Accordion title="List Bookings cannot locate the caller's scheduled event">
+    Lookups execute against the invitee's exact email address within the specified time boundary. Have the agent verify the email address used during initial scheduling. If the event may occur outside the queried range, instruct the agent prompt to broaden the start and end search window.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Calendly agent functions
+
+Calendly tools execute live API calls during active calls, sending calendar invites directly to attendees. Timezones are managed using standard IANA identifiers to ensure callers receive local times. While direct in-place rescheduling is unsupported in Calendly, agents can cancel existing reservations and book new confirmed slots seamlessly.
+
+<AccordionGroup>
+  <Accordion title="Do attendees receive automated email confirmations and calendar invites?">
+    Yes. Because bookings route directly through Calendly's native API, invitees receive the standard confirmation emails, reminders, calendar invitations (`.ics`), and video meeting links (e.g., Zoom, Google Meet) configured on your event type.
+  </Accordion>
+
+  <Accordion title="How do timezones operate during live phone conversations?">
+    Tavly tools accept standard IANA timezone strings (e.g., `America/New_York`, `Europe/London`) alongside ISO timestamps. The voice agent automatically translates slot times to the caller's local timezone. You can configure your agent prompt to confirm the caller's timezone if it is not inferred from caller ID or contact data.
+  </Accordion>
+
+  <Accordion title="Can an agent reschedule an existing Calendly meeting directly?">
+    Not via a dedicated reschedule tool, as Calendly's API lacks an in-place reschedule endpoint. Instead, instruct your agent to invoke **Cancel Booking** for the existing reservation UUID and immediately call **Book Appointment** to secure the caller's new preferred slot. Alternatively, platforms such as [Cal.com](/integrations/calendar/caldotcom/agent-functions) and [GoHighLevel](/integrations/crm/gohighlevel/agent-functions#book-the-sub-accounts-calendars) provide native in-place reschedule tools.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Integration tools for prompt agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Attach Calendly tools to single- or multi-prompt agents and test real-time booking dialogues.
+  </Card>
+
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/conversation-flow/integration-tools">
+    Trigger Calendly functions inside visual conversation nodes and branch dialog on booking results.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Store booking confirmations, start times, and event UUIDs across conversational turns.
+  </Card>
+
+  <Card title="Simulation testing" icon="flask" href="/test/llm-simulation-testing">
+    Simulate booking dialogues and validate agent behavior without reserving live calendar slots.
+  </Card>
+</CardGroup>

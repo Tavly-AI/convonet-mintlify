@@ -76,11 +76,11 @@ The remaining panels in the agent editor provide comprehensive control over adva
 
 <Steps>
   <Step title="Write your prompt">
-    The primary text box holds the agent's core persona, identity, and task instructions. For multi-prompt agents, this acts as the global prompt governing every distinct state. Refer to the [write a single prompt](/build/single-multi-prompt/write-single-prompt) and [write a multi prompt](/build/single-multi-prompt/write-multi-prompt) guides.
+    The primary text box holds the agent's core persona, identity, and task instructions. For multi-prompt agents, this acts as the global prompt governing every distinct state. Refer to the [write a single prompt](/build/setup/single-multi-prompt/write-single-prompt) and [write a multi prompt](/build/setup/single-multi-prompt/write-multi-prompt) guides.
   </Step>
 
   <Step title="Set up a knowledge base">
-    Provide authoritative reference material by uploading documents, URLs, or raw text to improve factual accuracy. Review the [knowledge base guide](/build/knowledge-base).
+    Provide authoritative reference material by uploading documents, URLs, or raw text to improve factual accuracy. Review the [knowledge base guide](/build/context/knowledge-base).
   </Step>
 
   <Step title="Adjust speech settings">
@@ -89,7 +89,7 @@ The remaining panels in the agent editor provide comprehensive control over adva
     * **Response Wait time:** Set a deliberate pause (up to 5.5 seconds) before the agent replies to a caller. Increasing this accommodates slower talkers. The **Dynamically adjust** toggle lets the agent automatically vary wait times based on the caller's specific pacing.
     * **Interruption Sensitivity:** Dictate exactly how readily the agent yields when it detects the caller talking over it.
     * **Reminder frequency:** Define how frequently the agent nudges a persistently silent caller.
-    * **Pronunciation:** Create a dedicated [pronunciation guide](/build/add-pronunciation) for specialized vocabulary.
+    * **Pronunciation:** Create a dedicated [pronunciation guide](/build/speech/add-pronunciation) for specialized vocabulary.
 
     <Frame caption="The Response Wait time control under Speech Settings.">
       <img src="https://mintcdn.com/retellai/GtSB6YKE5JLSJhGy/images/response-wait-time-slider.png?fit=max&auto=format&n=GtSB6YKE5JLSJhGy&q=85&s=685487463543e07499528c3627cbf8eb" alt="The Response Wait time setting in Speech Settings" style={{ maxHeight: 560 }} width="760" height="185" data-path="images/response-wait-time-slider.png" />
@@ -98,7 +98,7 @@ The remaining panels in the agent editor provide comprehensive control over adva
 
   <Step title="Adjust call-handling settings">
     Govern the mechanical and routing aspects of the call:
-    * **Voicemail handling:** Detect and intelligently manage voicemails. See [Handle Voicemail](/build/handle-voicemail).
+    * **Voicemail handling:** Detect and intelligently manage voicemails. See [Handle Voicemail](/build/telephony/handle-voicemail).
     * **End call on silence:** Define the exact duration of silence permitted before automatically terminating the call.
     * **Call duration:** Set the strict maximum total duration allowed for any single call.
   </Step>
@@ -111,7 +111,7 @@ The remaining panels in the agent editor provide comprehensive control over adva
   </Step>
 
   <Step title="Set up post-call data extraction">
-    Configure the platform to automatically extract structured information (like booked appointments or caller sentiment) from completed calls. Check the [Post Call Extraction guide](/features/post-call-analysis-overview).
+    Configure the platform to automatically extract structured information (like booked appointments or caller sentiment) from completed calls. Check the [Post Call Extraction guide](/monitor/post-call-analysis-overview).
   </Step>
 
   <Step title="Configure security and fallback options">
@@ -123,7 +123,7 @@ The remaining panels in the agent editor provide comprehensive control over adva
   </Step>
 
   <Step title="Set up webhooks">
-    Connect external endpoints to securely receive real-time call event payloads. Refer to [register a webhook](/features/register-webhook).
+    Connect external endpoints to securely receive real-time call event payloads. Refer to [register a webhook](/monitor/register-webhook).
   </Step>
 </Steps>
 
@@ -139,4 +139,4 @@ With your foundational settings correctly configured, your agent is fully capabl
 
 Looking for a starting point? Check the [community prompt templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope).
 
-To give your agent even more capability, move on to [adding functions](/build/single-multi-prompt/function-calling).
+To give your agent even more capability, move on to [adding functions](/build/setup/single-multi-prompt/function-calling).

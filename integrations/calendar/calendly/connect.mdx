@@ -1,0 +1,189 @@
+---
+title: "Connect Calendly"
+sidebarTitle: "Connect"
+description: "Connect Calendly to Tavly AI using a personal access token: configure required OAuth scopes, link user event types, and deploy automated voice agent booking."
+seo:
+  title: "Connect Calendly to Tavly AI | Calendar Integration Setup"
+  description: "Connect Calendly to Tavly AI using a personal access token: configure required OAuth scopes, link user event types, and deploy automated voice agent booking."
+og:title: "Connect Calendly to Tavly AI | Calendar Integration Setup"
+og:description: "Connect Calendly to Tavly AI using a personal access token: configure required OAuth scopes, link user event types, and deploy automated voice agent booking."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/calendly-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=9161a9133d2f33aca69c7fc899e7ec38"
+twitter:card: "summary_large_image"
+icon: "calendar"
+keywords:
+  - "Calendly integration"
+  - "Tavly AI Calendly connect"
+  - "Calendly personal access token"
+  - "Calendly API scopes"
+  - "voice agent booking Calendly"
+  - "Calendly Scheduling API"
+  - "real-time appointment scheduling"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Which Calendly credentials are required to connect with Tavly AI?"
+    answer: "Tavly connects using a Calendly Personal Access Token (PAT) generated with users:read and relevant tool permission scopes."
+  - question: "Why does programmatic booking require a paid Calendly account?"
+    answer: "Calendly restricts programmatic appointment creation through its Scheduling API to paid subscription plans, though availability checks operate on free tiers."
+  - question: "Can a single Calendly token access event types across my entire team?"
+    answer: "The token accesses event types owned by that specific user. For multi-rep scheduling, connect separate tokens per team member or use a shared administrative account."
+  - question: "What happens if a Calendly token expires or is revoked?"
+    answer: "The connection enters an error state and tool executions halt until an administrator generates a new token in Calendly and reconnects in Tavly."
+---
+
+# Connect Calendly
+
+> Connect Calendly to Tavly AI with a personal access token so agents can check availability, book appointments, and cancel scheduled events.
+
+## What is the Tavly AI Calendly integration and when should you use it?
+
+**Tavly AI Calendly integration** connects your Calendly scheduling workspace to Tavly using a scoped Personal Access Token. Voice and chat agents query real-time slot availability, create calendar reservations, retrieve scheduled event details, and execute booking cancellations live during caller conversations without requiring manual human dispatching or intermediate contact synchronizations.
+
+Connecting Calendly provisions five native [Calendly agent functions](/integrations/calendar/calendly/agent-functions) across your Tavly workspace. A single account connection enables every conversational agent in your workspace to interact with Calendly's live API endpoints, eliminating the need to paste static API credentials into individual tool definitions.
+
+### When to connect Calendly
+
+Connect Calendly when your organization relies on Calendly event types and you require conversational AI agents to automate the booking lifecycle:
+
+* **Real-time calendar evaluation**: The voice agent checks your published availability schedules and offers valid, conflict-free time slots to callers.
+* **Instant booking execution**: Once the caller selects a slot and provides their contact details, the agent books the meeting, prompting Calendly to dispatch native confirmations and calendar invites.
+* **Direct in-call cancellations**: The agent verifies upcoming meetings by attendee email and cancels reservations on demand.
+
+> **Real-World Implementation:** A residential solar installation company deploys an inbound qualification agent. The agent screens homeowners for roof compatibility, queries the sales team's 30-minute consultation event type for the current week, and books Thursday at 2:00 PM using the caller's email. The sales representative's calendar updates immediately with zero human intervention.
+
+---
+
+## What prerequisites are required before connecting Calendly?
+
+Connecting Calendly requires a **Calendly account** owning the target event types and an active **paid Calendly subscription tier** to access the Scheduling API for automated bookings. While availability checks, meeting lookups, and cancellations function across free plans, creating appointments programmatically requires paid subscription permissions.
+
+* **Calendly User Account**: An active Calendly account owning the event types the agent will schedule. Because the Personal Access Token is bound to a single user identity, Tavly manages event types and bookings owned by that specific user.
+* **Paid Calendly Subscription Plan**: Creating appointments programmatically requires a paid subscription (Standard, Teams, or Enterprise), as Calendly restricts write access via its Scheduling API on free accounts (as of August 2026). Availability checks, lookups, and cancellations operate on any plan tier.
+
+---
+
+## How do you create a Calendly Personal Access Token with required scopes?
+
+To generate a token, log into Calendly, navigate to **Integrations & apps → API & webhooks**, select **Your personal access tokens**, and click **Create a token**. Assign a clear token label, select all necessary functional scopes (`users:read`, `event_types:read`, `availability:read`, `scheduled_events:write`), click **Create**, and securely copy the generated secret key.
+
+<Steps>
+  <Step title="Navigate to API settings in Calendly">
+    Sign in to Calendly, open **Integrations & apps** from the navigation menu, and select the **API & webhooks** tile.
+  </Step>
+
+  <Step title="Open the token creation modal">
+    Under the **Your personal access tokens** section, click **Create a token**. Provide an identifiable label, such as `Tavly AI`.
+
+    <Frame caption="Calendly's personal access tokens page, with the Create a token button highlighted.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/calendly-create-token.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=a57ae0555ac5715c228b6199d670dbbf" alt="Calendly's Your personal access tokens page, with Integrations & apps highlighted in the left sidebar and the Create a token button highlighted. A banner warns that tokens created by an admin grant access to Calendly data for everyone in the organization, and a token list shows one redacted entry, out of a 10-token limit." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="814" data-path="images/integration/calendly-create-token.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Select required permission scopes">
+    Before generating the token, select the permission scopes required for your planned agent workflows:
+
+    | OAuth / PAT Scope | Purpose and Functional Mapping |
+    | :--- | :--- |
+    | `users:read` | **Mandatory**: Verifies token validity and identifies the authenticated user identity. |
+    | `event_types:read` | Resolves public scheduling links for **Check Availability** and **Book Appointment**. |
+    | `availability:read` | Inspects open calendar slots for **Check Availability**. |
+    | `scheduled_events:read` | Queries booking records and invitee lists for **List Bookings** and **Get Booking**. |
+    | `scheduled_events:write` | Creates new bookings with **Book Appointment** and cancels reservations with **Cancel Booking**. |
+
+    <Tip>
+      Calendly's `:write` scopes inherently include their corresponding `:read` scopes. If you grant `scheduled_events:write`, you do not need to check `scheduled_events:read` separately. To support all five tools, ensure `users:read`, `event_types:read`, `availability:read`, and `scheduled_events:write` are selected.
+    </Tip>
+
+    Click **Create token** and copy the secret token string immediately; Calendly displays the secret key only once. Consult [Calendly tool permissions](/integrations/calendar/calendly/agent-functions#what-token-scopes-and-permissions-are-required-for-calendly-tools) for technical permission breakdowns.
+  </Step>
+</Steps>
+
+<Note>
+  **Role Scoping Caution**: The token's data visibility reflects the user's role. A token generated by an organization **Admin** can access organization-wide data across granted scopes. To adhere to least privilege, generate tokens using a dedicated non-admin service user.
+</Note>
+
+---
+
+## How do you authenticate and configure Calendly in the Tavly Dashboard?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, select **Calendly**, and click **Connect**. Specify an internal connection name, paste your Personal Access Token into the **API Key** field, and click **Connect**. Tavly immediately queries Calendly's `/users/me` endpoint using `users:read` to validate account credentials and establish the workspace integration.
+
+<Steps>
+  <Step title="Initiate the Calendly connection">
+    In the Tavly Dashboard, navigate to **Integrations**, select the **Available** tab, locate **Calendly**, and click **Connect** (or click **Add Account** if another Calendly account is already linked).
+  </Step>
+
+  <Step title="Enter your Personal Access Token">
+    Fill in the connection details:
+    * **Connection name**: A recognizable internal alias (prefilled with `Calendly - API key`).
+    * **API Key**: Paste the Personal Access Token generated in Step 1.
+
+    <Frame caption="The Calendly connection dialog: paste the personal access token as the API key.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/calendly-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=9161a9133d2f33aca69c7fc899e7ec38" alt="Retell's Calendly connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Calendly - API key and an API Key field with the placeholder Enter your API key, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1202" height="1004" data-path="images/integration/calendly-connect-dialog.png" />
+      </div>
+    </Frame>
+
+    Click **Connect** (or **Add Account**). Tavly tests the token by requesting current user profile data from Calendly via `users:read`. Note that this validation verifies token authenticity but does not check whether event-specific scopes (`availability:read` or `scheduled_events:write`) have been granted.
+  </Step>
+
+  <Step title="Verify active integration status">
+    Upon successful validation, the connection appears on the **Connected** tab with an active status. You can now attach scheduling tools to your conversational agents. See [Calendly agent functions](/integrations/calendar/calendly/agent-functions) for details on attaching and parameterizing each tool.
+  </Step>
+</Steps>
+
+---
+
+## How do you troubleshoot common Calendly connection and authorization errors?
+
+Resolve Calendly connection issues by ensuring you paste a valid **Personal Access Token** rather than an OAuth client secret or webhook key, and verify that `users:read` is explicitly granted. If an active connection errors over time, check whether the token was revoked or invalidated following password changes, then reconnect.
+
+<AccordionGroup>
+  <Accordion title="Connecting fails with an authorization error">
+    Verify that you pasted an authentic **Personal Access Token** and not an OAuth client secret or webhook signing key. If the token is valid but the dialog reports **Could not connect. Check your credentials and try again.**, ensure the token includes the mandatory `users:read` scope. Generate a new token with `users:read` and all required tool scopes, paste it into the **API Key** input, and retry.
+  </Accordion>
+
+  <Accordion title="The connection transitions to an error state after working previously">
+    Tavly flags a connection as errored when Calendly returns API authentication rejections. Calendly automatically revokes active tokens whenever an account's password or email address changes. Generate a replacement token with required scopes, open the connection settings on the **Connected** tab, paste the new token, and click **Reconnect**.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about connecting Calendly
+
+Calendly connections authenticate against a single user account and manage that user's owned event types. Multiple user connections can be added to support varied team members. In-place rescheduling is handled by canceling and rebooking, while alternative tools like **Cal.com** provide native reschedule support.
+
+<AccordionGroup>
+  <Accordion title="Which event types can my AI agent book?">
+    Agents can only interact with event types owned directly by the user account associated with the Personal Access Token. To schedule meetings across multiple team members, connect a dedicated token for each team member (multiple connections are supported) or create event types under a shared team account.
+  </Accordion>
+
+  <Accordion title="Can I connect multiple Calendly accounts to one Tavly workspace?">
+    Yes. You can add multiple independent Calendly connections under **Integrations → Available → Add Account**. Each connection retains its own token and alias, allowing agents to route bookings to different department calendars.
+  </Accordion>
+
+  <Accordion title="Does connecting require an administrator account?">
+    No. Any Calendly user can generate a Personal Access Token for their own account. However, creating a token as an organization admin grants access across organizational users, whereas non-admin tokens limit visibility to the individual user's events.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Calendly agent functions" icon="wrench" href="/integrations/calendar/calendly/agent-functions">
+    Inspect live availability, book meetings, and cancel events during voice conversations.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full suite of CRM, calendar, and knowledge base integrations supported by Tavly.
+  </Card>
+
+  <Card title="Connect Cal.com" icon="calendar" href="/integrations/calendar/caldotcom/connect">
+    Explore Cal.com integration for native in-place appointment rescheduling support.
+  </Card>
+</CardGroup>

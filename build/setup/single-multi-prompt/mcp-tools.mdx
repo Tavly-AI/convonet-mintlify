@@ -48,7 +48,7 @@ Say a retail support team already maintains an MCP server exposing `lookup_order
 
 Once you successfully attach an MCP server to an agent, each explicitly enabled tool behaves identically to [custom functions](/build/single-multi-prompt/custom-function). The agent triggers them natively based on semantic prompts and tool descriptions.
 
-Tavly securely reaches the remote server via Streamable HTTP, dynamically retrieves its list of available tools, and executes one by passing arguments inferred by the LLM based on the conversation context. Whatever structured data the tool returns is passed back to the agent, which can speak the payload aloud, act on it conditionally, or parse fields into explicit [dynamic variables](/build/dynamic-variables).
+Tavly securely reaches the remote server via Streamable HTTP, dynamically retrieves its list of available tools, and executes one by passing arguments inferred by the LLM based on the conversation context. Whatever structured data the tool returns is passed back to the agent, which can speak the payload aloud, act on it conditionally, or parse fields into explicit [dynamic variables](/build/context/dynamic-variables).
 
 ## How do you set up an MCP Server?
 
@@ -64,7 +64,7 @@ Connecting an MCP server involves configuring the base URL, defining authenticat
   </Step>
 
   <Step title="Add request headers (optional)">
-    Under **Headers**, define exact key/value authentication pairs Tavly should dispatch along with the connection (e.g., `Authorization: Bearer <token>`). These values completely support [dynamic variables](/build/dynamic-variables) (e.g., `{{api_key}}`), enabling robust per-call authentication routing.
+    Under **Headers**, define exact key/value authentication pairs Tavly should dispatch along with the connection (e.g., `Authorization: Bearer <token>`). These values completely support [dynamic variables](/build/context/dynamic-variables) (e.g., `{{api_key}}`), enabling robust per-call authentication routing.
   </Step>
 
   <Step title="Add query parameters (optional)">
@@ -80,7 +80,7 @@ Connecting an MCP server involves configuring the base URL, defining authenticat
   </Step>
 
   <Step title="Map response fields to variables">
-    Under **Store Fields as Variables**, actively pull specific values out of the tool's returning JSON object and securely save them as [dynamic variables](/build/dynamic-variables) utilizing dot notation (e.g., `data.items[0].id`).
+    Under **Store Fields as Variables**, actively pull specific values out of the tool's returning JSON object and securely save them as [dynamic variables](/build/context/dynamic-variables) utilizing dot notation (e.g., `data.items[0].id`).
   </Step>
 
   <Step title="Set how the agent speaks around the call">

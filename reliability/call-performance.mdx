@@ -1,0 +1,115 @@
+---
+title: 'Debug Call Transfer Failure: Diagnose Trigger & Telephony Errors'
+sidebarTitle: 'Debug Call Transfer Failure'
+description: 'Troubleshoot Tavly AI call transfer failures: diagnose single-prompt transfer_call tools, conversation flow transfer nodes, SIP errors, and human detection.'
+seo:
+  title: 'Debug Call Transfer Failure | Telephony Troubleshooting | Tavly AI'
+  description: 'Troubleshoot Tavly AI call transfer failures: diagnose single-prompt transfer_call tools, conversation flow transfer nodes, SIP errors, and human detection.'
+og:title: 'Debug Call Transfer Failure: Diagnose Trigger & Telephony Errors'
+og:description: 'Troubleshoot Tavly AI call transfer failures: diagnose single-prompt transfer_call tools, conversation flow transfer nodes, SIP errors, and human detection.'
+og:image: 'https://mintcdn.com/retellai/CusS6gidcUzaxvEx/images/cf/transfer-call-node.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-arrow-right'
+keywords: ['call transfer failure', 'debug transfer_call', 'SIP transfer failure', 'human detection transfer', 'conversation flow transfer node', 'telephony debugging', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can call transfer be used on web calls?'
+    answer: 'No. Call transfer is exclusively supported on phone calls routed through PSTN or SIP infrastructure. Web calls conducted in-browser cannot be transferred to external telephony numbers.'
+  - question: 'What causes the transfer_call tool to not trigger in single-prompt agents?'
+    answer: 'The transfer_call tool typically fails to trigger if it was not added to the agent function list, or if the prompt lacks explicit instructions defining the exact scenario when the transfer should occur.'
+  - question: 'Why does a call transfer fail after successfully triggering?'
+    answer: 'Post-trigger transfer failures are usually caused by outbound telephony errors (such as SIP connection drops or invalid destination numbers) or human detection failing on an IVR, voicemail, or delayed greeting.'
+  - question: 'How does human detection cause call transfer failures?'
+    answer: 'If human detection is enabled, the transfer fails if the recipient party is an automated IVR or voicemail, speaks after the detection timeout expires, or has an acoustic cadence misclassified as non-human.'
+---
+
+## Why do call transfers fail in Tavly AI?
+
+Call transfers fail when **transfer functions are misconfigured in agent prompts**, **conversation flow nodes lack valid transition paths**, or **downstream telephony carriers reject outbound transfer legs**. Failures fall into two distinct stages: **trigger failures**, where the transfer is never initiated, and **execution failures**, where SIP or human detection errors abort the transfer.
+
+When troubleshooting call transfer issues, first determine whether the problem occurred before or after the transfer was invoked:
+
+| Failure Stage | Primary Root Cause | Observable Symptom | Remediation Strategy |
+| :--- | :--- | :--- | :--- |
+| **Tool Configuration** | Missing `transfer_call` tool in agent settings | Agent promises transfer conversationally but never executes tool | Add `transfer_call` to function list in [Function Calling Guide](/build/setup/single-multi-prompt/function-calling) |
+| **Prompt Ambiguity** | Unclear transfer conditions in system prompt | LLM answers questions instead of handing off the call | Define explicit transfer criteria and refine tool description |
+| **Node Graph Routing** | Disconnected or unreachable transfer node | Agent conversation terminates or repeats earlier node turns | Verify edge conditions and ensure reachable nodes in [Conversation Flow](/build/setup/conversation-flow/add-nodes/call-transfer-node) |
+| **Channel Mismatch** | Attempting transfer on Web Call session | Transfer request ignored or rejected by client runtime | Restrict call transfer exclusively to PSTN / SIP telephony calls |
+| **Telephony Delivery** | Destination SIP reject, carrier block, or invalid E.164 | Transfer initiates but immediately disconnects the caller | Audit SIP logs and consult [Outbound Call Failure Guide](/reliability/debug-outbound-call) |
+| **Human Detection** | Voicemail, IVR screening, or delayed greeting | Transfer terminates before bridging with caller | Adjust human detection timeout or switch to [Agentic Warm Transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node) |
+
+## How do you troubleshoot call transfer in single and multi-prompt agents?
+
+In single and multi-prompt agents, transfer failures occur when the **`transfer_call` function** is omitted from the agent's tool list or prompt triggers are ambiguous. To resolve this, verify tool registration, provide an explicit, unambiguous function description, define strict prompt transfer conditions, and validate triggering behavior using the [LLM Playground](/test/llm-playground).
+
+If call transfer is not triggered in your single or multi-prompt agent:
+
+<Steps>
+  <Step title="Verify transfer_call function implementation">
+    1. **Check your agent configuration**: Open your agent in the Tavly dashboard.
+    2. **Confirm function registration**: Confirm that you have explicitly added the `transfer_call` function to your agent's function list. If the function is absent, the LLM will hallucinate promising a transfer without executing backend routing.
+    3. **Review implementation details**: Visit the [Function Calling Guide](/build/setup/single-multi-prompt/function-calling) for detailed instructions on implementing and registering functions.
+  </Step>
+
+  <Step title="Review transfer conditions">
+    1. **Define explicit trigger conditions**: Update your agent's system prompt to clearly define when a transfer must be initiated (e.g., *"If the user requests an escalation or human agent, call transfer_call immediately without asking repetitive questions"*).
+    2. **Refine function description**: Ensure the `transfer_call` function description is specific, clear, and unambiguous so the model understands exactly when it applies.
+    3. **Validate in testing**: Test with sample conversational scenarios in the playground to validate that transfer triggers execute reliably.
+  </Step>
+</Steps>
+
+For more detailed guidance on specific parameters, visit [Call Transfer Setup](/build/setup/single-multi-prompt/transfer-call).
+
+## How do you troubleshoot call transfer in conversation flow agents?
+
+In conversation flow agents, transfer failures stem from disconnected visual nodes or unreachable transition logic. Verify that a dedicated **Call Transfer Node** is properly wired into the conversation graph, confirm valid E.164 phone numbers or SIP URI destinations, and audit edge transition conditions to guarantee the transfer node can be evaluated.
+
+If call transfer is not triggered in your conversation flow agent:
+
+<Steps>
+  <Step title="Check transfer node configuration">
+    1. **Verify node presence**: Verify you have placed a dedicated Call Transfer Node within your conversation flow canvas.
+    2. **Confirm edge connections**: Ensure the transfer node is properly connected via incoming edges from preceding dialogue or evaluation nodes.
+    3. **Audit transition logic**: Check that transition conditions leading into the transfer node are correctly set up and can be satisfied by caller utterances.
+  </Step>
+
+  <Step title="Review transfer node settings">
+    1. **Confirm destination**: Confirm the transfer destination (PSTN phone number in E.164 format or SIP URI) is correctly configured.
+    2. **Clarify transfer conditions**: Verify the prompt and transition conditions within the node are clear and specific.
+    3. **Execute graph tests**: Test the conversation flow in the simulation playground to ensure the transfer node is reachable along real conversational paths.
+  </Step>
+</Steps>
+
+For complete architectural details, visit [Conversation Flow Transfer Setup](/build/setup/conversation-flow/add-nodes/call-transfer-node).
+
+## Why does call transfer fail after being triggered?
+
+When a transfer triggers but fails to bridge the caller, errors stem from **downstream telephony SIP rejections** or **human detection timeouts**. Because call transfers initiate an outbound carrier leg, check SIP connection logs for network disconnections, or inspect human detection settings if voicemail or IVR screening aborted the transfer.
+
+### 1. Call Type Verification
+
+<Note>Call transfer is only supported for phone calls, **not web calls**.</Note>
+
+Call transfers require active PSTN or SIP carrier signaling. Attempting to execute a transfer on a browser-based Web Call session will fail, as web audio streams do not connect to external telecommunication trunks.
+
+### 2. Telephony & Outbound Routing Issues
+Call transfer is functionally equivalent to placing a new outbound telephone call. When a transfer fails after triggering, the underlying failure mechanisms mirror outbound call errors:
+* **SIP Connection Logs**: Inspect the SIP connection logs available in the call detail view to diagnose why the transfer destination failed (e.g., SIP `404 Not Found`, `486 Busy Here`, or `503 Service Unavailable`).
+* **Carrier Troubleshooting**: For comprehensive analysis of telecommunication carrier disconnections, consult [Understand Reasons for Outbound Call Failure](/reliability/debug-outbound-call).
+
+### 3. Human Detection Screening Failures
+If **human detection** is enabled on the transfer leg, the call will deliberately abort if an authentic human voice is not confirmed on the receiving end. Common failure scenarios include:
+
+| Human Detection Failure Reason | Acoustic & Behavioral Cause | Diagnostic Indicator | Recommended Resolution |
+| :--- | :--- | :--- | :--- |
+| **No Human Present** | Target destination connected to an IVR menu, automated PBX attendant, or voicemail | Call terminates without bridge; recipient audio logged as machine greeting | Disable human detection if transferring to automated phone trees or call queues |
+| **Delayed Recipient Speech** | Callee answered the call silently or waited until after the detection timeout expired | Detection timeout elapses before speech onset threshold is met | Extend human detection timeout buffer in transfer settings |
+| **Acoustic Misclassification** | Recipient's greeting acoustic cadence closely resembled an IVR or cellular voicemail | Algorithmic classifier categorizes rapid, repetitive speech as non-human | Review call recordings; consider deploying [Agentic Warm Transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node) |
+
+## Related Resources
+
+* [Understand Reasons for Outbound Call Failure](/reliability/debug-outbound-call): Diagnose SIP error codes and carrier blocks.
+* [Call Transfer Setup (Single / Multi-Prompt)](/build/setup/single-multi-prompt/transfer-call): Implement the `transfer_call` tool in prompt agents.
+* [Call Transfer Node (Conversation Flow)](/build/setup/conversation-flow/add-nodes/call-transfer-node): Wire cold, warm, and agentic warm transfers visually.
+* [Function Calling Guide](/build/setup/single-multi-prompt/function-calling): Configure tool schemas and execution parameters.

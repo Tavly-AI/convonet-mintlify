@@ -1,0 +1,192 @@
+---
+title: "Google Drive Knowledge Base Sync: Live Docs & Sheets"
+sidebarTitle: "Knowledge Base Sync"
+description: "Sync Google Drive files into Tavly AI knowledge bases: select Docs and Sheets once, and modified documents re-sync automatically on a 24-hour refresh cycle."
+seo:
+  title: "Google Drive Knowledge Base Sync & Auto-Refresh | Tavly AI Docs"
+  description: "Sync Google Drive files into Tavly AI knowledge bases: select Docs and Sheets once, and modified documents re-sync automatically on a 24-hour refresh cycle."
+og:title: "Google Drive Knowledge Base Sync: Live Docs & Sheets"
+og:description: "Sync Google Drive files into Tavly AI knowledge bases: select Docs and Sheets once, and modified documents re-sync automatically on a 24-hour refresh cycle."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/google-drive-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=eeade44f4a48b764ac2b8b538129f33b"
+twitter:card: "summary_large_image"
+icon: "arrows-rotate"
+keywords:
+  - "Google Drive knowledge base sync"
+  - "Tavly AI Google Drive"
+  - "auto-refresh knowledge base"
+  - "Google Docs vector sync"
+  - "Google Sheets RAG"
+  - "knowledge base 24 hour sync"
+  - "Drive file limits"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Which file formats can I synchronize from Google Drive into a knowledge base?"
+    answer: "You can sync Google Docs and Google Sheets natively, plus standard document formats supported by Tavly uploads including PDF, DOCX, TXT, HTML, and CSV."
+  - question: "How frequently does Tavly AI re-sync modified Google Drive files?"
+    answer: "When auto-refresh is enabled on the knowledge base, Tavly evaluates source documents every 24 hours and automatically re-indexes files modified since the last run."
+  - question: "What happens if a synced Google Drive file is deleted or permissions are revoked?"
+    answer: "If a source file cannot be retrieved due to deletion or permission loss, Tavly retains the previously vectorized content rather than dropping it from the knowledge base."
+---
+
+# Google Drive knowledge base sync
+
+> Sync Google Drive files into a Tavly AI knowledge base: pick Docs and Sheets once, and changed files re-sync automatically on a 24-hour refresh cycle.
+
+## What is Google Drive knowledge base sync and how does it work?
+
+**Google Drive knowledge base sync** automatically imports and vectorizes Google Docs, Sheets, and supported files into Tavly AI knowledge bases. Once linked via the Google file picker, Tavly monitors source documents and executes incremental re-indexing on an automated **24-hour refresh cycle**, ensuring conversational agents always reference your team's latest edits.
+
+Files you add from Google Drive become living [knowledge base](/build/context/knowledge-base) sources that continuously follow the source document. When team members edit a Google Doc or update figures in a Google Sheet, Tavly automatically detects modifications during its scheduled scan and re-embeds the updated content.
+
+Adding Drive files requires an authenticated [connected Google Drive account](/integrations/knowledge-base/google-drive/connect).
+
+### Architecture: Document synchronization & vector embedding
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│        Google Drive Storage     │                 │       Tavly Knowledge Base      │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Google Docs & Sheets        │ │ ── Embedded ───►│ │ Selected Sources Registry   │ │
+│ │ (Max 25 Files, ≤ 50MB Each) │ │    File Picker  │ │ (Drive File IDs & Hashes)   │ │
+│ └──────────────┬──────────────┘ │                 │ └──────────────┬──────────────┘ │
+│                │                │                 │                │                │
+│                │ 24-Hour Scan   │                 │                │ Parse, Chunk   │
+│                │ Last-Modified  │                 │                │ & Embed Text   │
+│                ▼                │                 │                ▼                │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Modified File Content       │ │ ── Delta Sync ─►│ │ Vector Database Index       │ │
+│ │ (Docs Text / Sheets Cells)  │ │   (Skip Unmod)  │ │ (RAG Semantic Retrieval)    │ │
+│ └─────────────────────────────┘ │                 │ └─────────────────────────────┘ │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+---
+
+## How do you add and import Google Drive files into a knowledge base?
+
+To add Drive files, navigate to **Knowledge Base** in the Tavly dashboard, open or create a knowledge base, and choose your connected Google Drive account under **Add**. Select target files inside the embedded Google file picker; Tavly automatically fetches, parses, chunks, and embeds the documents into vector storage.
+
+<Steps>
+  <Step title="Open your knowledge base">
+    In the Tavly Dashboard, navigate to **Knowledge Base**, select an existing knowledge base (or click **Create Knowledge Base**), and open the **Add** source dropdown. Your connected Google Drive accounts appear in the menu list.
+  </Step>
+
+  <Step title="Select files via the Google file picker">
+    Select the appropriate Drive account. An embedded Google file picker modal opens directly in your dashboard interface. Select the specific Google Docs, Google Sheets, or uploaded files you wish to add.
+
+    <Note>
+      The file picker is an embedded Google component served directly from Google's servers. Your web browser must allow third-party cookies for Google domains to establish the session (see [troubleshooting](#how-do-you-troubleshoot-common-google-drive-sync-and-picker-issues)).
+    </Note>
+  </Step>
+
+  <Step title="Monitor automated processing">
+    Once selected, Tavly immediately downloads, chunks, and vectorizes the files. The knowledge base dashboard displays each source alongside its current indexing status (`Processing` or `Ready`).
+  </Step>
+</Steps>
+
+### File count and size limits
+
+| Resource Metric | Maximum Allowance | Behavior Beyond Limit |
+| :--- | :--- | :--- |
+| **Max Sources per Knowledge Base** | **25 Google Drive files** | Attempting to add a 26th file triggers: `too many google drive sources, please reduce the number to below 25`. |
+| **Max Individual File Size** | **50 MB** | Files exceeding 50 MB fail to import. |
+
+---
+
+## How does automated 24-hour background synchronization maintain accuracy?
+
+When auto-refresh is active on your knowledge base, Tavly inspects each Drive source's last-modified timestamp every **24 hours**. Only documents modified since the prior scan are re-fetched, re-chunked, and re-embedded, while unchanged sources are skipped. If a file is temporarily unreachable, Tavly retains the previously cached content rather than dropping it.
+
+### Incremental refresh mechanics
+
+* **Timestamp Delta Evaluation**: On each 24-hour refresh cycle, Tavly inspects the `modifiedTime` attribute across all registered Drive file IDs. Files with unchanged timestamps are skipped immediately to conserve compute and avoid unnecessary embedding re-calculations.
+* **Granular Re-indexing**: When modifications are identified, Tavly downloads the new revision, extracts its contents, generates fresh text chunks, and replaces the document's existing vector embeddings in storage.
+* **Fail-Safe Retention Policy**: If a file cannot be re-fetched (e.g., source file deleted, file permissions changed, or integration temporarily disconnected), the knowledge base **continues serving the previously cached embeddings**. This prevents agents from experiencing knowledge blackouts during temporary permission disruptions.
+
+---
+
+## What file formats and document types are supported for Drive sync?
+
+Tavly supports native Google Docs and Google Sheets, alongside all formats supported by direct [document upload](/build/context/knowledge-base), including PDF, DOCX, TXT, HTML, and CSV files. Google Docs serialize into clean markdown hierarchies, while Google Sheets sync cell values directly. File extraction behavior depends on the source format's structural layout.
+
+### Supported formats and extraction behaviors
+
+| File Format | MIME / Extension | Content Extraction Behavior |
+| :--- | :--- | :--- |
+| **Google Docs** | `application/vnd.google-apps.document` | Text, headings, and paragraph hierarchies are parsed and converted to structured markdown. |
+| **Google Sheets** | `application/vnd.google-apps.spreadsheet` | Cell contents and tabular structures are extracted directly from grid values. |
+| **Adobe PDF** | `.pdf` | Vector text layers extracted; scanned image PDFs require OCR prior to sync. |
+| **Microsoft Word** | `.docx` | Headings, paragraphs, and list items extracted as markdown. |
+| **Plain Text & Code** | `.txt`, `.html`, `.csv` | Ingested directly as UTF-8 raw or tabular data. |
+
+<Tip>
+  Google Sheets sync purely as raw cell values. For optimal semantic retrieval in voice conversations, ensure your spreadsheets have clear header columns and dense, well-labeled rows. Avoid heavily fragmented tables, merged header cells, or sparse multi-page grids, which chunk poorly for vector search.
+</Tip>
+
+---
+
+## How do you troubleshoot common Google Drive sync and picker issues?
+
+Resolve Drive synchronization issues by checking browser cookie settings, file sharing permissions, and knowledge base refresh settings. If the embedded picker fails with **Google Picker failed to load**, enable third-party cookies for Google domains. If documents fail to update, verify that auto-refresh is enabled and the connected account retains file access.
+
+<AccordionGroup>
+  <Accordion title="The Google file picker fails to load in the dashboard">
+    The file picker is an embedded Google widget requiring a valid Google authentication cookie inside an iframe. If your browser blocks third-party cookies (standard in incognito windows or strict privacy modes), the picker cannot verify your session and times out after 10 seconds with **Google Picker failed to load**. To fix, enable third-party cookies for Google domains or add an exception for the Tavly dashboard.
+  </Accordion>
+
+  <Accordion title="A specific file does not appear inside the Google picker">
+    The picker only displays documents visible to the connected Google user account. If the file is stored in a private Shared Drive, an external corporate domain, or another user's personal drive, you must share the file or folder with view access granted to the connected account.
+  </Accordion>
+
+  <Accordion title="A connected Drive source has stopped updating">
+    Confirm that **Auto-refresh** is toggled on in the knowledge base settings. Next, check the **Connected** tab in **Integrations** to ensure the OAuth token is active. Finally, verify inside Google Drive that the connected Google account still holds read permissions on the file.
+  </Accordion>
+
+  <Accordion title="The agent fails to retrieve information from a synchronized Google Sheet">
+    Spreadsheets sync raw cell values. If data is spread across complex merged cells, multi-tier headers, or disjointed tabs, retrieval chunking may separate related data points. Reformat your data into flat, single-header tabular sheets to maximize retrieval accuracy.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Google Drive knowledge base sync
+
+Google Drive knowledge base sync processes up to **25 files per knowledge base** with a **50 MB size limit** per file. Edits made in Google Docs or Sheets update in Tavly during the daily 24-hour cycle rather than instantly, and disconnected files remain queryable in cache until explicitly deleted.
+
+<AccordionGroup>
+  <Accordion title="Which file types can I add from Google Drive?">
+    You can add native Google Docs and Google Sheets, plus any format accepted by direct [document upload](/build/context/knowledge-base)—including PDF, DOCX, TXT, HTML, and CSV. Any document that uploads successfully via standard file upload will sync properly from Google Drive.
+  </Accordion>
+
+  <Accordion title="How quickly do edits in Google Drive reach my voice agent?">
+    With auto-refresh enabled, updates sync on the knowledge base's scheduled **24-hour refresh cycle**. Edits made to a Google Doc or Sheet during the day will be ingested during the next daily cycle rather than instantaneously.
+  </Accordion>
+
+  <Accordion title="What happens if a file exceeds 50 MB or I add more than 25 files?">
+    Individual files exceeding 50 MB cannot be indexed. If you attempt to link more than 25 Google Drive files to a single knowledge base, Tavly rejects the request with `too many google drive sources, please reduce the number to below 25`.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Knowledge base" icon="book" href="/build/context/knowledge-base">
+    Learn how to build knowledge bases, optimize semantic chunking, and tune retrieval parameters.
+  </Card>
+
+  <Card title="Connect Google Drive" icon="link" href="/integrations/knowledge-base/google-drive/connect">
+    Set up the Google Drive OAuth integration and inspect file permission scopes.
+  </Card>
+
+  <Card title="OneDrive knowledge base sync" icon="rotate" href="/integrations/knowledge-base/onedrive/knowledge-base-sync">
+    Synchronize Word documents, Excel spreadsheets, and PDFs from Microsoft OneDrive.
+  </Card>
+
+  <Card title="Notion knowledge base sync" icon="rotate" href="/integrations/knowledge-base/notion/knowledge-base-sync">
+    Synchronize team documentation and wiki pages directly from a connected Notion workspace.
+  </Card>
+</CardGroup>

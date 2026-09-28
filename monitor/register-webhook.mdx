@@ -1,0 +1,269 @@
+---
+title: 'Register and Set Up a Tavly Webhook'
+sidebarTitle: 'Register Webhook'
+description: 'Register and configure Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and register account or agent-level URLs with ease.'
+seo:
+  title: 'How to Register & Set Up Tavly AI Webhooks | Integration Guide'
+  description: 'Register and configure Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and register account or agent-level URLs with ease.'
+og:title: 'Register and Set Up a Tavly Webhook'
+og:description: 'Register and configure Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and register account or agent-level URLs with ease.'
+og:image: 'https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png'
+twitter:card: 'summary_large_image'
+icon: 'link'
+keywords: ['register webhook', 'Tavly webhook setup', 'webhook server Node.js', 'FastAPI webhook handler', 'ngrok webhook tunneling', 'account level webhook', 'agent level webhook']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between account-level and agent-level webhooks?'
+    answer: 'Account-level webhooks capture call and chat events across your entire workspace. Agent-level webhooks are configured on individual agents and take precedence, overriding account-level notifications for that specific agent.'
+  - question: 'Why does Tavly reject localhost or private IP addresses for webhook URLs?'
+    answer: 'Tavly enforces enterprise network security protocols that disallow connections to internal RFC 1918 subnets, localhost, and cloud metadata services. Developers must use public HTTPS endpoints or secure tunneling tools like ngrok.'
+  - question: 'Why is the Test button disabled when registering an agent-level webhook?'
+    answer: 'The Test button is automatically disabled if your webhook URL contains dynamic variables (such as customer CRM properties) that can only be resolved during an active call session.'
+  - question: 'How quickly must my webhook endpoint respond to Tavly events?'
+    answer: 'Your endpoint must return an HTTP 2xx status code within 10 seconds. If your service takes longer to process, Tavly marks the delivery as failed and triggers automated retries.'
+---
+
+## What is Tavly webhook registration and how does it work?
+
+**Tavly webhook registration** connects your external backend servers to real-time telephony and chat event streams. By configuring public HTTPS endpoints at either the workspace account level or per-agent configuration level, Tavly automatically pushes HTTP POST notifications containing call lifecycle transitions, conversational transcripts, telephony transfers, and post-call analyses directly to your application without polling.
+
+### Key Architectural Concepts
+
+* **Push-Based Integration**: Receives granular conversational state changes immediately without periodic polling of REST APIs.
+* **Hierarchical Scoping**: Route workspace-wide traffic to a centralized logging endpoint while directing specific agent workflows to dedicated microservices.
+* **Dynamic Variable Resolution**: Interpolate runtime session variables into the webhook destination URL query parameters.
+* **Resilient Retries**: Tavly automatically retries deliveries up to three times if your endpoint encounters temporary downtime or latency over 10 seconds.
+
+---
+
+## How do you create and test a local webhook server endpoint?
+
+To **create and test a local webhook server**, develop an HTTP endpoint using Express or FastAPI that accepts incoming POST requests and returns an immediate 204 No Content acknowledgment. Test payload parsing locally by dispatching simulated call payloads via Postman or cURL before exposing the route to the public internet.
+
+### 1. Build the Server Endpoint
+
+Implement an HTTP endpoint capable of ingesting `POST` requests formatted as JSON:
+
+<CodeGroup>
+  ```typescript Node.js (Express) theme={"dark"}
+  import express, { Request, Response } from "express";
+
+  const app = express();
+  app.use(express.json());
+
+  app.post("/webhook", (req: Request, res: Response) => {
+    const { event, call } = req.body;
+
+    switch (event) {
+      case "call_started":
+        console.log("Call started event received:", call.call_id);
+        break;
+      case "call_ended":
+        console.log("Call ended event received:", call.call_id);
+        break;
+      case "call_analyzed":
+        console.log("Call analyzed event received:", call.call_id);
+        break;
+      default:
+        console.log("Received an unhandled event:", event);
+    }
+
+    // Immediately acknowledge event receipt
+    res.status(204).send();
+  });
+
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, () => console.log(`Webhook server listening on port ${PORT}`));
+  ```
+
+  ```python Python (FastAPI) theme={"dark"}
+  import os
+  from fastapi import FastAPI, Request
+  from fastapi.responses import JSONResponse
+
+  app = FastAPI()
+
+  @app.post("/webhook")
+  async def handle_webhook(request: Request):
+      try:
+          post_data = await request.json()
+          event = post_data.get("event")
+          call = post_data.get("call", {})
+
+          if event == "call_started":
+              print(f"Call started: {call.get('call_id')}")
+          elif event == "call_ended":
+              print(f"Call ended: {call.get('call_id')}")
+          elif event == "call_analyzed":
+              print(f"Call analyzed: {call.get('call_id')}")
+          else:
+              print(f"Unhandled event: {event}")
+
+          return JSONResponse(status_code=204, content=None)
+      except Exception as err:
+          print(f"Error processing webhook: {err}")
+          return JSONResponse(
+              status_code=500, content={"message": "Internal Server Error"}
+          )
+  ```
+</CodeGroup>
+
+### 2. Test Locally via Postman or cURL
+
+Verify local parsing before exposing your server. Host the application on `http://localhost:8080/webhook` and validate with Postman:
+
+<Frame caption="Testing local webhook endpoints using Postman">
+  <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/webhook_postman.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=f6f0c37648926e503685ec7de48c4c30" alt="Testing webhook with postman" data-path="images/webhook_postman.png" />
+</Frame>
+
+Alternatively, dispatch a sample payload via cURL:
+
+```bash test_local_webhook.sh theme={"dark"}
+curl --location 'http://localhost:8080/webhook' --header 'Content-Type: application/json' --data '{
+  "event": "call_ended",
+  "call": {
+    "call_type": "phone_call",
+    "from_number": "+12137771234",
+    "to_number": "+12137771235",
+    "direction": "inbound",
+    "call_id": "Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6",
+    "agent_id": "oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+    "call_status": "registered",
+    "metadata": {},
+    "tavly_llm_dynamic_variables": {
+      "customer_name": "John Doe"
+    },
+    "start_timestamp": 1714608475945,
+    "end_timestamp": 1714608491736,
+    "disconnection_reason": "user_hangup",
+    "transcript": "Agent: Hello! Caller: Hi there.",
+    "opt_out_sensitive_data_storage": false
+  }
+}'
+```
+
+---
+
+## How do you expose a local server to the internet using tunneling?
+
+To **expose a local server using tunneling**, run a secure forwarding utility like ngrok to bridge your local development port to a public HTTPS URL. Tavly strictly requires publicly accessible internet destinations and rejects connections to localhost, private intranet subnets, or internal cloud metadata addresses for enterprise security compliance.
+
+<Steps>
+  <Step title="Install ngrok">
+    Install ngrok using Homebrew (macOS) or your preferred package manager:
+    ```bash theme={"dark"}
+    brew install ngrok/ngrok/ngrok
+    ```
+  </Step>
+
+  <Step title="Initiate secure HTTP tunnel">
+    Forward traffic from your local development port (e.g., 8080):
+    ```bash theme={"dark"}
+    ngrok http http://localhost:8080
+    ```
+  </Step>
+
+  <Step title="Capture forwarding URL">
+    Copy the public forwarding URL displayed in the ngrok terminal interface:
+    ```
+    Session Status                online
+    Account                       Developer (Plan: Free)
+    Version                       3.0.0
+    Region                        United States (us)
+    Latency                       78ms
+    Web Interface                 http://127.0.0.1:4040
+    Forwarding                    https://84c5df474.ngrok-free.dev -> http://localhost:8080
+    ```
+    Your full webhook endpoint URL is: `https://84c5df474.ngrok-free.dev/webhook`
+  </Step>
+</Steps>
+
+---
+
+## How do you register account-level and agent-level webhook URLs?
+
+To **register webhook URLs**, navigate to Settings for workspace-wide account-level webhooks, or open individual agent configurations for agent-specific endpoints. Agent-level URLs override account-level settings and support runtime dynamic variable interpolation. Use the dashboard Test button to dispatch a mock payload and verify that your endpoint receives events properly.
+
+### Configuration Options Comparison
+
+| Webhook Level | Scope & Target | Precedence & Behavior |
+| :--- | :--- | :--- |
+| **Account-Level** | All workspace agents | Default catch-all endpoint for general logging and CRM synchronization. |
+| **Agent-Level** | Specific conversational agent | Overrides account-level configuration for that specific agent. |
+
+### Option 1: Register Account-Level Webhook
+
+Under dashboard **Settings → Webhooks**, specify your public URL to capture events for all workspace agents:
+
+<Frame caption="Account-level webhook URL configuration in dashboard settings">
+  <img height="200" src="https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png?fit=max&auto=format&n=lFgxod3Z4ow1Jkgv&q=85&s=ad640e6141ba063dd7f6d33d43f36435" alt="Account-level webhook URL configuration in the dashboard settings" data-path="images/webhook.png" />
+</Frame>
+
+### Option 2: Register Agent-Level Webhook
+
+Navigate to the agent details page in your dashboard, or supply `webhook_url` when using the [Create Agent API](/api-references/create-agent):
+
+<Frame caption="Agent-level webhook URL configuration in the agent detail page">
+  <img height="200" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/agent_webhook.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=a33cfdbda36a3647d60d73d05e0c7330" alt="Agent-level webhook URL configuration in the agent detail page" data-path="images/agent_webhook.png" />
+</Frame>
+
+#### Dynamic Variable Parameterization
+Webhook URLs accept [dynamic variables](/build/context/dynamic-variables). Type `{{` in the configuration input to select available parameters (e.g., `https://api.yourdomain.com/webhook?customer={{customer_name}}`). Each token evaluates dynamically per interaction before event delivery.
+
+<Note>
+  **Test Button Behavior**: The dashboard **Test** button dispatches a mock JSON request to your endpoint. If your URL contains variables that only resolve mid-call (such as custom CRM variables), the **Test** button is disabled with an explanatory tooltip. Variables that resolve prior to call execution (such as workspace environment tags) can be tested normally.
+</Note>
+
+---
+
+## How do you verify and troubleshoot active webhook deliveries?
+
+To **verify and troubleshoot active webhook deliveries**, initiate a simulated browser web call from the Tavly dashboard to observe real-time event dispatching. Confirm your service parses incoming payloads accurately, validates HMAC security signatures, and returns HTTP 2xx status codes within ten seconds to avoid automated retries and delivery backoffs.
+
+<Steps>
+  <Step title="Trigger a live browser test call">
+    Open your agent in the Tavly dashboard and select **Test Call → Web Call**. Converse for a few turns and hang up to trigger `call_started`, `transcript_updated`, `call_ended`, and `call_analyzed` events.
+  </Step>
+
+  <Step title="Inspect ngrok traffic inspector">
+    Open `http://127.0.0.1:4040` in your web browser to view ngrok's inspection console. Confirm incoming `POST` requests, review request headers (`x-tavly-signature`), and verify payload bodies.
+  </Step>
+
+  <Step title="Verify cryptographic signatures">
+    In production environments, always validate the `x-tavly-signature` header against your raw request body using HMAC-SHA256 and your Tavly API key. Review the [secure webhook documentation](/features/secure-webhook).
+  </Step>
+
+  <Step title="Check server response codes and latency">
+    Ensure your server acknowledges each delivery with an HTTP `200` or `204` within **10 seconds**. If your endpoint times out, Tavly automatically initiates retries.
+  </Step>
+</Steps>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between account-level and agent-level webhooks?">
+    Account-level webhooks capture interactions across every agent in your workspace. Agent-level webhooks are assigned to specific agents and override account-level delivery for those agents, enabling distinct routing per workflow.
+  </Accordion>
+
+  <Accordion title="Why does Tavly reject localhost or private IP addresses for webhook URLs?">
+    Tavly strictly prohibits dispatching webhooks to private RFC 1918 subnets, `localhost`, and cloud metadata addresses (`169.254.169.254`) to prevent Server-Side Request Forgery (SSRF). Use public HTTPS URLs or tunneling tools like ngrok.
+  </Accordion>
+
+  <Accordion title="Why is the Test button disabled when registering an agent-level webhook?">
+    If the webhook URL contains runtime dynamic variables (e.g., `{{customer_id}}`) that depend on live caller input or CRM lookups, the Test button is disabled because mock values cannot be resolved in advance.
+  </Accordion>
+
+  <Accordion title="How quickly must my webhook endpoint respond to Tavly events?">
+    Your endpoint must respond with an HTTP `2xx` status code within **10 seconds**. If processing takes longer, Tavly marks the delivery as failed and enters an automated retry queue (retrying up to 3 times).
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Webhooks overview guide](/monitor/webhook-overview): Review the full lifecycle event matrix and JSON schemas.
+* [Secure webhook signature verification](/features/secure-webhook): Implement cryptographic HMAC-SHA256 signature validation.
+* [Dynamic variables guide](/build/context/dynamic-variables): Configure runtime variables for URL query string interpolation.
+* [Web call deployment](/deploy/web-call): Test voice agents directly in the browser to trigger webhook events.

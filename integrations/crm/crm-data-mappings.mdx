@@ -1,0 +1,310 @@
+---
+title: 'CRM Data Mappings: Inbound, Outbound & Post-Call Sync'
+sidebarTitle: 'CRM Data Mappings'
+description: 'Configure CRM data mappings in Tavly AI: sync contacts, map post-call extraction fields, push outbound updates, and manage LLM-driven field merge modes.'
+seo:
+  title: 'CRM Data Mappings & Field Sync Guide | Tavly AI Docs'
+  description: 'Configure CRM data mappings in Tavly AI: sync contacts, map post-call extraction fields, push outbound updates, and manage LLM-driven field merge modes.'
+og:title: 'CRM Data Mappings: Inbound, Outbound & Post-Call Sync'
+og:description: 'Configure CRM data mappings in Tavly AI: sync contacts, map post-call extraction fields, push outbound updates, and manage LLM-driven field merge modes.'
+og:image: 'https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/integrations-available-tab.png'
+twitter:card: 'summary_large_image'
+icon: 'diagram-project'
+keywords: ['Tavly CRM data mappings', 'voice AI contact sync', 'post call extraction CRM', 'Salesforce field mapping', 'HubSpot contact sync', 'LLM merge update mode', 'CRM activity logging']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How does Tavly match CRM contacts with voice conversation callers?'
+    answer: 'Contacts are matched between external CRMs and Tavly using the phone number in standard E.164 format as the unique primary key across both inbound and outbound calls.'
+  - question: 'What is the difference between Overwrite, Fill if empty, and Merge update modes?'
+    answer: 'Overwrite replaces existing field values with the newest analysis. Fill if empty writes only when the field is null. Merge uses an LLM to intelligently synthesize prior values and new conversation notes into a single cohesive summary.'
+  - question: 'How frequently does inbound CRM synchronization run?'
+    answer: 'Inbound synchronization polls connected CRM providers automatically every 5 minutes for newly modified records, while manual sync triggers an immediate full workspace re-scan.'
+  - question: 'Can Tavly create new records in your CRM if a caller does not exist?'
+    answer: 'By default, outbound sync updates existing records only. Enabling the "Create new contacts in CRM" setting allows Tavly to create new CRM records following a conversation for unmatched contacts.'
+---
+
+## What are CRM data mappings and how does data flow between systems?
+
+**CRM data mappings** in Tavly AI orchestrate four bidirectional synchronization flows between your enterprise CRM, unified contact records, and **Post Call Extraction** intelligence. Inbound sync imports contacts periodically; analysis mappings populate custom contact fields post-call; outbound sync updates CRM records; and activity logging creates detailed call histories on customer timelines.
+
+Understanding the structural entity relationships ensures clean data flow between voice agents and sales databases:
+
+<CardGroup cols={3}>
+  <Card title="External CRM" icon="database">
+    Your CRM's native contact records (Salesforce, HubSpot, Dynamics 365, GoHighLevel, Zoho) containing provider-specific properties.
+  </Card>
+
+  <Card title="Tavly Contact" icon="address-card">
+    A unified customer record in Tavly maintaining standard system properties and extensible custom fields.
+  </Card>
+
+  <Card title="Post Call Extraction" icon="chart-mixed">
+    Deterministic structured data extracted from completed calls or chats by your [Post Call Extraction](/monitor/post-call-analysis-overview) pipeline.
+  </Card>
+</CardGroup>
+
+### Enterprise Synchronization Flows
+
+| Data Flow | Direction | Core Operational Purpose | Execution Trigger |
+| :--- | :--- | :--- | :--- |
+| **Inbound Sync** | External CRM → Tavly Contact | Ingest and update contacts from your CRM on a recurring schedule. | Automated every 5 minutes or manual trigger |
+| **Analysis Mapping** | Post Call Extraction → Tavly Contact | Map extracted conversation insights to contact fields after calls. | Post-conversation analysis completion |
+| **Outbound Sync** | Tavly Contact → External CRM | Push updated contact fields back into corresponding CRM properties. | Contact record update (manual or analysis) |
+| **Activity Logging** | Tavly Contact → External CRM | Log transcripts, summaries, and durations to the CRM contact timeline. | Call/chat session completion |
+
+***
+
+## How does inbound sync import contacts from your CRM?
+
+**Inbound sync** automatically polls your connected CRM every **5 minutes** to ingest contacts modified since the previous scan, using the customer's **E.164 phone number** as the unique primary matching key. Records lacking valid phone numbers are safely bypassed, while matching records update existing Tavly contact profiles or spawn new contacts.
+
+A manual sync initiated from the dashboard executes an immediate, full scan across all CRM records.
+
+### Record Matching & Filtering Rules
+
+* **Primary Key Matching**: Inbound sync relies strictly on the contact's **phone number** formatted in international **E.164** standard. If an incoming record matches an existing Tavly contact's phone number, Tavly updates that record; otherwise, a new contact profile is created.
+* **Skipped Records**: CRM records containing an empty phone field or a string that cannot be resolved into a valid E.164 number are automatically skipped without interrupting the sync batch.
+* **Hardcoded Phone Dependency**: The `phone_number` mapping is hardcoded and mandatory. Without it, Tavly cannot link incoming voice calls to CRM customer identities.
+
+### Default Inbound Field Mappings
+
+| CRM Field (Example) | Direction | Tavly Contact Field | Required |
+| :--- | :--- | :--- | :--- |
+| `Phone` (Salesforce) / `phone` (HubSpot) | CRM → Tavly | `phone_number` | **Yes (Mandatory)** |
+| `FirstName` / `firstname` | CRM → Tavly | `first_name` | Optional |
+| `LastName` / `lastname` | CRM → Tavly | `last_name` | Optional |
+| `Email` (Salesforce) / `email` (HubSpot) | CRM → Tavly | User-defined custom field | Optional |
+| `Custom_Field__c` / `custom_property` | CRM → Tavly | User-defined custom field | Optional |
+
+<Note>
+  The `phone_number` mapping is hardcoded for inbound sync. It serves as the immutable indexing key connecting telephony session streams to CRM business data.
+</Note>
+
+***
+
+## How does post-call analysis data map to contact fields?
+
+Following each voice conversation or chat, **Post Call Extraction** extracts structured insights that map directly into Tavly contact attributes using three specialized update modes: **Overwrite**, **Fill if empty**, and **Merge**. These deterministic mappings enrich persistent contact records over time, allowing agents to retain qualification statuses, updated emails, and evolving customer preferences.
+
+For example, when a prompt agent extracts a caller's `lead_status` during qualification, Tavly automatically updates the contact's persistent record:
+
+| Analysis Data Field | Flow Direction | Target Contact Field | Recommended Update Mode |
+| :--- | :--- | :--- | :--- |
+| `lead_status` | Analysis → Contact | `qualification_status` | **Overwrite** |
+| `email_address` | Analysis → Contact | `email` | **Fill if empty** |
+| `customer_notes` | Analysis → Contact | `interaction_summary` | **Merge** |
+
+### Understanding Update Modes
+
+Update modes define how newly extracted conversation values reconcile with existing contact attributes:
+
+<CardGroup cols={3}>
+  <Card title="Overwrite">
+    **Always replaces** the existing field value with the newest analysis output. Ideal for volatile states like sentiment, qualification stage, or current interest level.
+  </Card>
+
+  <Card title="Fill if empty (Fill only if empty)">
+    **Writes only if null.** If the contact field already holds a value, the new data is discarded. Ideal for stable identifiers such as verified emails or company names.
+  </Card>
+
+  <Card title="Merge (Accumulate & summarize)">
+    **Synthesizes context via an LLM.** Reads prior values and new insights to generate a unified string summary. Available exclusively for `string` fields.
+  </Card>
+</CardGroup>
+
+***
+
+<a id="how-merge-works" />
+
+## How does the LLM-powered merge update mode work?
+
+The **Merge** update mode employs an LLM to synthesize existing string field values with newly extracted conversation findings into a single, cohesive summary capped at approximately **512 tokens**. The custom field's description acts as the direct prompt instruction, guiding the model on deduplication, chronology, and specific details to prioritize across calls.
+
+Instead of naive string concatenation, the LLM evaluates both the historical field content and the new analysis data, writing back an authoritative consolidated summary.
+
+### Prompting the LLM via Field Descriptions
+
+The field description configured when creating custom contact attributes serves as the system prompt for the merge evaluation:
+
+| Field Name | High-Performance Field Description | Operational Advantage |
+| :--- | :--- | :--- |
+| `interaction_notes` | `A running summary of all conversations with this contact. Include key topics discussed, action items, and any commitments made. Keep the most recent interaction details prominent while preserving important context from earlier conversations.` | Enforces chronological relevance while preserving historic customer context. |
+| `customer_preferences` | `The contact's stated preferences and requirements. Consolidate preferences across conversations — update changed preferences and keep unchanged ones. Format as a bullet list.` | Resolves conflicting statements and guarantees structured bulleted outputs. |
+| `objections_raised` | `A deduplicated list of objections or concerns the contact has raised across all conversations. Merge new objections into the existing list without repeating ones already captured.` | Eliminates redundant entries across recurring customer calls. |
+
+<Tip>
+  Treat the field description as a targeted LLM prompt. Specifying explicit constraints—such as output formatting, deduplication rules, and priority hierarchies—significantly improves merge precision.
+</Tip>
+
+### Technical Constraints & Error Handling
+
+* **Data Type Restriction**: Merge functions exclusively on fields of type `string`. Attempting to apply merge on numbers, booleans, or dates causes the mapping to be skipped.
+* **Token Budget Limit**: Merged outputs are constrained to approximately **512 tokens** (as of August 2026). Continuous logging eventually prunes the oldest details; structure field prompts to prioritize critical parameters.
+* **Pricing Metric**: Each LLM merge execution incurs a processing charge of **$0.005 per merge** (as of August 2026).
+* **Fault-Tolerant Fallback**: If the merge LLM times out or returns an empty payload, Tavly defaults to concatenating both values separated by a blank line. Contact data is never discarded during network interruptions.
+
+***
+
+## How does outbound sync push contact updates back to your CRM?
+
+**Outbound sync** automatically pushes modified Tavly contact fields back to corresponding CRM properties whenever contact data changes via manual dashboard edits or post-call analysis runs. By default, outbound sync **updates existing records only** without altering phone numbers; enabling **Create new contacts in CRM** permits inserting new records for unmatched callers.
+
+Outbound synchronization executes across two distinct event pipelines:
+
+1. **Direct Dashboard Modifications**: Manual edits to contact attributes push to the CRM immediately upon saving.
+2. **Post-Conversation Analysis Updates**: Analysis mappings trigger outbound sync depending on update mode behavior (**Overwrite** triggers updates even if the value remains identical; **Fill if empty** skips outbound calls if no change occurred).
+
+### Synchronization Prerequisites
+
+* **CRM Origin Identifier**: The contact record must have been imported from the CRM and retain its native CRM record ID.
+* **Active Connection Alignment**: For conversation-driven pushes, the contact must have been imported by the CRM connection that is currently designated as active in your workspace.
+* **Configured Field Mapping**: At least one outbound field mapping must be established for the modified property.
+
+### Outbound Sync Field Mapping Specifications
+
+| Tavly Contact Field | Direction | Target CRM Property (Example) | Default Behavior |
+| :--- | :--- | :--- | :--- |
+| `qualification_status` | Tavly → CRM | `Lead_Status__c` (Salesforce) / `lead_status` (HubSpot) | Overwrites remote property |
+| `interaction_summary` | Tavly → CRM | `Notes__c` (Salesforce) / `notes` (HubSpot) | Updates remote field |
+
+<Note>
+  **Safety Constraints**: Outbound sync never deletes CRM records. Furthermore, Tavly never writes back or modifies the CRM contact's primary phone number, maintaining it as the immutable foreign key.
+</Note>
+
+***
+
+## How does automatic conversation activity logging work?
+
+When enabled, **activity logging** generates an interaction record—such as a Salesforce Task or CRM timeline engagement—attached directly to the matched contact. Every logged entry records the **conversation summary**, **Tavly conversation ID**, **source and destination phone numbers**, and call duration, giving revenue and support teams full conversation context inside their CRM.
+
+The specific interaction object created reflects the provider's native activity data model:
+
+### Provider Activity Support Matrix
+
+| CRM Platform | Logged Activity Object | Captured Call Direction | Recorded Call Duration |
+| :--- | :--- | :--- | :--- |
+| **Salesforce** | Task record attached to Contact | Derived from call type | Yes (seconds) |
+| **HubSpot** | Call Engagement on contact timeline | Inbound / Outbound | Yes (seconds) |
+| **Microsoft Dynamics 365** | Phone Call Activity | Inbound / Outbound | Yes (seconds) |
+| **Zoho CRM** | Call / Note Activity on contact | Inbound / Outbound | Yes (seconds) |
+| **GoHighLevel** | Conversation Note / Task | Inbound / Outbound | Yes (seconds) |
+
+* **Caller Identification Matching**: Tavly determines the contact identifier based on call direction: inbound calls match on the caller's CLI number; outbound calls match on the dialed destination number.
+* **Connection Dependency**: Activity logging requires the contact to be synced with the currently active CRM connection. Unmatched numbers and unlinked contacts do not generate timeline activities.
+
+***
+
+## What does an end-to-end CRM data flow look like in practice?
+
+An end-to-end data lifecycle begins when an inbound sync ingests CRM contacts, injecting dynamic customer variables into active calls. Post-conversation, **Post Call Extraction** extracts structured fields, applies configured update modes to contact attributes, triggers an outbound push to update the CRM record, and logs a comprehensive activity record to the contact's timeline.
+
+The following sequence illustrates the complete workflow:
+
+<Steps>
+  <Step title="Inbound contact synchronization">
+    An automated sync ingests an enterprise contact from Salesforce:
+    * `Phone`: `+1234567890`
+    * `FirstName`: `Alice`
+    * `LastName`: `Smith`
+    * `Lead_Status__c`: `New`
+
+    Tavly initializes a unified contact record with `phone_number: +1234567890`, `first_name: Alice`, `last_name: Smith`, and custom field `qualification_status: New`.
+  </Step>
+
+  <Step title="Live agent conversation">
+    Your voice agent dials Alice on an outbound campaign. Tavly retrieves Alice's contact record and injects her name and current qualification status directly into the agent's LLM context as [dynamic variables](/build/context/dynamic-variables).
+  </Step>
+
+  <Step title="Post Call Extraction execution">
+    Upon call termination, Post Call Extraction processes the conversation transcript and extracts three target attributes:
+    * `lead_status`: `Qualified`
+    * `customer_notes`: `Interested in enterprise plan, wants demo next week`
+    * `email_address`: `alice@example.com`
+  </Step>
+
+  <Step title="Contact record update via mapping modes">
+    Tavly reconciles the analysis payload against Alice's contact profile:
+    * `qualification_status` is **overwritten** with `Qualified`.
+    * `interaction_summary` is **merged** with historical call notes using the LLM, preserving prior discussion points.
+    * `email` is **filled** because the field was previously empty.
+  </Step>
+
+  <Step title="Outbound synchronization to Salesforce">
+    Outbound sync detects the updated properties and pushes changes to Salesforce:
+    * `Lead_Status__c` updates to `Qualified`.
+    * `Notes__c` updates with the merged, comprehensive interaction summary.
+  </Step>
+
+  <Step title="Activity timeline logging">
+    Tavly creates a completed **Task** activity in Salesforce linked to Alice's contact record, containing the call summary, duration, and the unique Tavly conversation ID.
+  </Step>
+</Steps>
+
+***
+
+## How do you configure custom fields and ensure data type compatibility?
+
+To support external properties, administrators create **custom fields** in `snake_case` formatted across six supported types: **string**, **number**, **boolean**, **date**, **datetime**, and **enum**. Tavly performs automatic type coercion during synchronization—parsing ISO date strings, converting numeric strings, casting boolean representations, and validating picklist items against enumerated options seamlessly.
+
+Configure custom contact fields under **Dashboard → Contacts → Custom Fields** prior to configuring custom CRM mappings.
+
+### Supported Data Types
+
+| Data Type | Description | Supported Format / Example |
+| :--- | :--- | :--- |
+| `string` | Text strings, free-form notes, or IDs | `"Enterprise tier requested"` |
+| `number` | Floating point numbers and integers | `42`, `99.50` |
+| `boolean` | Binary boolean flags | `true`, `false` |
+| `date` | Standard calendar dates | `2026-09-27` |
+| `datetime` | ISO-8601 calendar date and timestamp | `2026-09-27T10:30:00Z` |
+| `enum` | Predefined enumerated categorical list | `["New", "Contacted", "Qualified", "Closed"]` |
+
+<Note>
+  Custom field identifiers must use lowercase `snake_case` beginning with an alphabetical letter. Custom keys cannot conflict with built-in system properties or begin with the reserved prefixes `contact` or `external`. Review [contact management](/features/contacts) for field creation workflows.
+</Note>
+
+### Type Coercion Architecture
+
+When synchronizing heterogeneous data schemas, Tavly executes the following type coercions:
+
+* **Dates & Timestamps**: CRM date strings are parsed into Tavly `date` or `datetime` types.
+* **Picklists & Select Menus**: CRM picklists and dropdown values map directly to Tavly `enum` options.
+* **Numeric Values**: Stringified numbers from CRMs are parsed and stored as Tavly `number` fields.
+* **Booleans**: Truthy and falsy CRM values (`"true"`, `"false"`, `1`, `0`) normalize to Tavly `boolean` flags.
+
+***
+
+## What best practices optimize CRM data mappings and sync performance?
+
+To optimize synchronization, prioritize essential identifiers (`first_name`, `last_name`), reserve **Fill if empty** for immutable data like email addresses, and use **Overwrite** for dynamic statuses. Deploy **Merge** selectively on key notes due to LLM processing costs ($0.005/call), and always connect Salesforce using a dedicated service user account.
+
+* **Map Core Properties First**: Begin by establishing mappings for `first_name` and `last_name` (`phone_number` is mapped automatically). Layer in custom fields incrementally as business workflows expand.
+* **Reserve 'Fill If Empty' for Stable Identifiers**: For properties that rarely change once captured—such as verified email addresses, company domains, or national tax IDs—use **Fill if empty** to prevent overwriting validated records with casual speech errors.
+* **Apply 'Overwrite' to Dynamic States**: Volatile conversational attributes such as customer sentiment, qualification stage, or disposition should always reflect the most recent engagement.
+* **Deploy 'Merge' Strategically**: While LLM merging produces clean conversational notes, it introduces LLM processing costs (**$0.005 per merge**) and modest background latency. Use it for cumulative customer summaries rather than trivial text fields.
+* **Craft Strict Field Prompt Descriptions**: When using Merge, formulate clear, unambiguous descriptions that instruct the LLM on priority, style, bullet formatting, and deduplication criteria.
+* **Activate Activity Logging for Revenue Visibility**: Turn on activity logging so sales and account executives can review call summaries, outcomes, and durations without leaving their CRM dashboard.
+* **Employ Dedicated Service Accounts**: For platforms like Salesforce, authenticate using a dedicated integration user rather than an individual employee's account to prevent synchronization disruptions when team personnel changes.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can I map multiple phone numbers to a single contact record?">
+    No. Inbound synchronization relies strictly on a single primary phone number in E.164 format as the indexing key. If a contact possesses multiple numbers in your CRM (e.g., Mobile and Work Phone), choose one primary phone property during inbound mapping configuration.
+  </Accordion>
+
+  <Accordion title="Does outbound sync overwrite phone numbers in my CRM?">
+    No. Outbound sync explicitly protects the primary phone number from being altered in your external CRM. The phone number remains reserved as the immutable primary matching key across systems.
+  </Accordion>
+
+  <Accordion title="What happens if a field merge operation fails?">
+    If the LLM merge operation times out or encounters an error, Tavly activates a non-destructive fallback mechanism: the new conversation extraction is appended directly beneath the existing field content, separated by a blank line. No conversational data is ever lost.
+  </Accordion>
+
+  <Accordion title="Why are some of my CRM contacts not appearing in Tavly?">
+    Contacts are skipped during inbound sync if their mapped phone field is empty or contains an invalid string that cannot be parsed into a standard international E.164 phone number. Verify that your CRM contacts have valid phone numbers with country codes.
+  </Accordion>
+</AccordionGroup>

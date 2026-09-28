@@ -1,0 +1,189 @@
+# Make a web call
+
+> Make browser voice calls with Retell AI: use the JavaScript SDK to connect users to an agent, control microphone audio, and handle transcripts and call events.
+
+A web call connects a user to your voice agent directly in the browser, using their microphone and speakers. The [Retell Web SDK](https://github.com/RetellAI/retell-client-js-sdk) creates the call and connects its audio; no phone number is involved.
+
+## When to use web calls
+
+* **Voice inside your product.** Add a support agent to your help center, a sales assistant to a landing page, or voice-guided onboarding, with a UI you fully control.
+* **Custom call experiences.** Build call controls and audio visualizations. Enable live transcripts separately for captions or conversation flow updates.
+* **Development and testing.** Talk to an agent while building it. For a quick test without writing code, use the dashboard's [web call testing](/test/test-web).
+
+If you want a voice entry point on your website without building a frontend, embed the [website widget](/deploy/chat-widget). To reach users on their phones, see [outbound calls](/deploy/outbound-call) and [inbound calls](/deploy/inbound-call).
+
+For example, an e-commerce site adds a "Talk to support" button to its order page. Clicking it starts a web call that passes the customer's name and order ID as [dynamic variables](/build/context/dynamic-variables), so the agent can look up the right order.
+
+## Set up web calls
+
+<Steps>
+  <Step title="Install the Web SDK">
+    ```bash theme={"dark"}
+    npm install retell-client-js-sdk@latest
+    ```
+  </Step>
+
+  <Step title="Configure authentication">
+    Create a [public key](/accounts/public-keys) and allow your website's domain. Add `localhost` to test locally. Use the public key in your browser code; keep API keys on your server.
+
+    If your public key has reCAPTCHA enabled, obtain a fresh token before each call and pass it as `recaptchaToken` to `createWebCall()`.
+  </Step>
+
+  <Step title="Create and connect the call">
+    Initialize `RetellClient` and call `createWebCall()` from your button's click handler. Replace the public key and agent ID with your own values.
+
+    ```javascript theme={"dark"}
+    import { RetellClient } from "retell-client-js-sdk";
+
+    const client = new RetellClient({ key: "public_key_YOUR_PUBLIC_KEY" });
+    let call;
+
+    function startCall() {
+      if (call && call.status !== "ended") return;
+
+      call = client.createWebCall({
+        agent_id: "agent_oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+        retell_llm_dynamic_variables: { customer_name: "John Doe" },
+        metadata: { internal_customer_id: "cust_123" },
+        hooks: {
+          onStatus: (status) => console.log("Call status:", status),
+          onEnd: () => console.log("Call ended"),
+          onError: (error) => console.error("Call error:", error),
+        },
+      });
+    }
+    ```
+
+    `createWebCall()` returns a session immediately with `status: "connecting"`, then reports `live` and `ended` through `onStatus`. Audio may take a moment to connect after `live`. Once creation succeeds, `call.callId` identifies the call.
+
+    The browser prompts for microphone permission. Serve your page over HTTPS; `localhost` also works during development.
+
+    `agent_id` is the only required call option. Common optional fields:
+
+    | Field                          | What it does                                                                                                                                 |
+    | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `retell_llm_dynamic_variables` | String key-value pairs injected into the agent's prompt and tool descriptions as [dynamic variables](/build/context/dynamic-variables).              |
+    | `metadata`                     | An arbitrary object stored on the call, such as an internal customer ID. Not used for processing; returned when you retrieve the call later. |
+    | `agent_version`                | The numeric [agent version](/agent/version) to use for this call.                                                                            |
+    | `agent_override`               | Override agent configuration for this call only.                                                                                             |
+
+    See [Create Web Call](/api-references/create-web-call) for the REST request fields, and [audio controls](#control-audio-during-the-call) for browser audio options.
+  </Step>
+
+  <Step title="End the call">
+    ```javascript theme={"dark"}
+    await call?.end();
+    ```
+
+    The agent can also end the call. Either way, the session reports `ended` through `onStatus` and fires `onEnd`.
+  </Step>
+</Steps>
+
+## Handle call events
+
+Pass hooks when creating the call, as shown above, or register listeners on the returned session:
+
+```javascript theme={"dark"}
+call.on("end", () => {
+  console.log("Call ended");
+});
+```
+
+| Hook               | Event             | When it fires                                                                                                                          |
+| ------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `onStatus`         | `status`          | The session reports `live` or `ended`. Read the initial `call.status` for `connecting`.                                                |
+| `onAudio`          | `audio`           | An audio visualization snapshot is available. Requires `audio.emitRawAudioSamples`.                                                    |
+| `onEnd`            | `end`             | The session ends, including after a failed connection. The payload may be empty.                                                       |
+| `onError`          | `error`           | The SDK reports an error, such as a failed creation request or microphone permission denial. The payload is an `Error` object.         |
+| `onTranscript`     | `transcript`      | The live transcript changes. Requires the transcript connection described below.                                                       |
+| `onNodeTransition` | `node_transition` | A conversation flow node first appears in the transcript, including nodes in the initial snapshot. Requires the transcript connection. |
+
+Reset call controls in `onEnd`, including when no `onError` fires. Use [Get Call](/api-references/get-call) for the recorded disconnection reason.
+
+## Enable live transcripts
+
+Live transcripts use a separate [monitoring WebSocket](/api-references/monitor-call-websocket) and are off by default. With the public-key client configured above, add `transcript: true`:
+
+```javascript theme={"dark"}
+call = client.createWebCall({
+  agent_id: "agent_oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+  transcript: true,
+  hooks: {
+    onTranscript: (transcript, preSessionTranscript) => {
+      console.log("Conversation:", transcript);
+      console.log("Pre-session tools:", preSessionTranscript);
+    },
+    onNodeTransition: (transition) => console.log("Flow node:", transition),
+    onError: (error) => console.error("Call error:", error),
+  },
+});
+```
+
+`onTranscript` receives the full transcript so far and a separate array of pre-session tool calls. The SDK merges updates by each item's stable ID. Items include spoken turns, tool calls, and flow nodes; see the [transcript item spec](/api-references/monitor-call-websocket#transcript-item-spec). Transcript text can change as a turn progresses and does not mark exact speaking boundaries.
+
+<Note>
+  If the optional transcript connection fails, the SDK logs a console warning and the audio call continues. This failure does not fire `onError`. See [WebSocket authentication](/api-references/monitor-call-websocket#authentication) if you create calls through your own backend.
+</Note>
+
+To follow a web call from a second screen, or to let a supervisor step in, see [Monitor live calls](/features/live-monitoring).
+
+## Control audio during the call
+
+Mute and unmute the microphone without ending the call:
+
+```javascript theme={"dark"}
+call.mute();
+call.unmute();
+```
+
+Some browsers block playback until the user interacts with the page. To resume audio, call this from a click handler:
+
+```javascript theme={"dark"}
+await call.startAudioPlayback();
+```
+
+Pass capture, playback, or visualization settings in the `audio` option of `createWebCall()`:
+
+| Option                | Type    | Description                                                                                |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------ |
+| `sampleRate`          | number  | Requested audio sample rate. See [audio basics](/knowledge/audio-basics).                  |
+| `captureDeviceId`     | string  | Microphone device ID.                                                                      |
+| `playbackDeviceId`    | string  | Speaker device ID.                                                                         |
+| `emitRawAudioSamples` | boolean | Emit `Float32Array` snapshots through `onAudio` or the `audio` event. Defaults to `false`. |
+
+Use `onAudio` snapshots to calculate a level for an orb or volume meter. They contain incoming audio, including any background sound, and are sampled for visualization rather than continuous recording.
+
+## After the call
+
+Collect full results after the call ends:
+
+* [Register a webhook](/features/register-webhook) to receive `call_started`, `call_ended`, and `call_analyzed` events on your server.
+* Use `call.callId` with the [get call API](/api-references/get-call) to fetch the complete transcript, recording, and analysis, or review the call in [session history](/features/session-history).
+
+## Example project
+
+The [React and Node.js demo](https://github.com/RetellAI/retell-frontend-reactjs-demo) uses `RetellClient` with an API key kept on the Node.js backend.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Why does my call fail before it starts?">
+    Read the error passed to `onError`. Check your public key's allowed domains, the agent ID, and microphone permission. If reCAPTCHA is enabled, provide a fresh token for each call.
+  </Accordion>
+
+  <Accordion title="Why can't the user hear the agent?">
+    Browsers can block audio playback before user interaction. Start the call from a click handler, or call `call.startAudioPlayback()` inside one.
+  </Accordion>
+
+  <Accordion title="Why doesn't the microphone work?">
+    The user may have denied microphone permission, or the page isn't served over HTTPS. Microphone access requires a secure context; localhost works during development.
+  </Accordion>
+
+  <Accordion title="How do I pass customer data into the call?">
+    Use `retell_llm_dynamic_variables` for values the agent should use in conversation. Use `metadata` for values you only need to look up later, such as an internal customer ID. See [dynamic variables](/build/context/dynamic-variables).
+  </Accordion>
+
+  <Accordion title="Do web calls count toward my concurrency limit?">
+    Yes. Web calls draw from the same [concurrency](/deploy/concurrency) pool as outbound phone calls.
+  </Accordion>
+</AccordionGroup>

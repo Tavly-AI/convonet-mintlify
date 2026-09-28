@@ -1,0 +1,226 @@
+---
+title: "GoHighLevel Contact Sync: Two-Way Mapping & Note Logging"
+sidebarTitle: "Contact Sync"
+description: "Sync GoHighLevel sub-account contacts with Tavly AI: map custom fields, write back post-call extraction data, and log call summaries as native contact notes."
+seo:
+  title: "GoHighLevel Contact Sync & Conversation Note Logging | Tavly AI Docs"
+  description: "Sync GoHighLevel sub-account contacts with Tavly AI: map custom fields, write back post-call extraction data, and log call summaries as native contact notes."
+og:title: "GoHighLevel Contact Sync: Two-Way Mapping & Note Logging"
+og:description: "Sync GoHighLevel sub-account contacts with Tavly AI: map custom fields, write back post-call extraction data, and log call summaries as native contact notes."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/gohighlevel-private-integration-scopes.png"
+twitter:card: "summary_large_image"
+icon: "arrows-rotate"
+keywords:
+  - "GoHighLevel contact sync"
+  - "Tavly AI GoHighLevel integration"
+  - "two-way CRM sync"
+  - "GoHighLevel note logging"
+  - "post call analysis mapping"
+  - "E.164 phone matching"
+  - "GoHighLevel custom fields"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Does Tavly create or delete contacts in GoHighLevel during sync?"
+    answer: "By default, Tavly only updates existing contacts and never deletes them. You can enable automatic contact creation for new callers by toggling Create new contacts in CRM on the Sync to GoHighLevel tab."
+  - question: "How does Tavly match inbound callers with GoHighLevel contacts?"
+    answer: "Tavly matches callers to GoHighLevel contacts using their international E.164 phone number. The phone-to-phone_number mapping is mandatory and non-removable."
+  - question: "Where are call summaries and recordings logged in GoHighLevel?"
+    answer: "Every call or chat is logged as a note on the matched contact's Notes panel, containing the conversation ID, phone numbers, disconnection reason, and summary."
+---
+
+# GoHighLevel contact sync
+
+> Sync GoHighLevel sub-account contacts with Tavly AI: field mappings, Post Call Extraction write-back, and conversation logging as contact notes.
+
+## What is GoHighLevel contact sync and what capabilities does it provide?
+
+**GoHighLevel contact sync** provides automated, bidirectional data synchronization between your GoHighLevel sub-account and Tavly AI. It imports location contacts on a recurring **5-minute** polling schedule, matches caller identities using **E.164 phone numbers**, maps **Post Call Extraction** data back to contact fields, and logs conversation summaries directly as native contact notes.
+
+Contact sync imports the connected sub-account's contacts into Tavly, writes [Post Call Extraction](/monitor/post-call-analysis-overview) results and field updates back, and logs each conversation as a note on the contact. This page covers the GoHighLevel-specific behavior; [CRM integrations](/integrations/crm/crm-integrations) explains the four data flows all CRM providers share.
+
+Contact sync requires a [connected GoHighLevel sub-account](/integrations/crm/gohighlevel/connect). Integration tools work without it — see [GoHighLevel agent functions](/integrations/crm/gohighlevel/agent-functions).
+
+### Architecture & synchronization pipeline
+
+```
+┌────────────────────────────────┐                 ┌────────────────────────────────┐
+│   GoHighLevel Sub-Account      │                 │            Tavly AI            │
+│ ┌────────────────────────────┐ │                 │ ┌────────────────────────────┐ │
+│ │  Location Contacts Pool    │ │ ── 5-Min Poll ─►│ │  Synchronized Contact DB   │ │
+│ │  (E.164 Phone Matching)    │ │                 │ │  (Inbound CRM Cache)       │ │
+│ └────────────────────────────┘ │                 │ └──────────────┬─────────────┘ │
+│                                │                 │                │               │
+│                                │                 │         Live Voice Call        │
+│                                │                 │         & Conversation         │
+│                                │                 │                │               │
+│ ┌────────────────────────────┐ │                 │ ┌──────────────▼─────────────┐ │
+│ │  Contact Notes Feed        │ │◄── Auto-Log ────│ │  Post Call Extraction      │ │
+│ │  - Conversation ID & Discon│ │    (Notes API)  │ │  - Structured Data Sync    │ │
+│ │  - Full Call Summary       │ │                 │ │  - Call Recording & Notes  │ │
+│ └────────────────────────────┘ │                 │ └────────────────────────────┘ │
+└────────────────────────────────┘                 └────────────────────────────────┘
+```
+
+The synchronization pipeline operates across three foundational mechanics:
+* **Contact Ingestion**: Imports records containing valid phone numbers and custom properties from your sub-account into Tavly's persistent contact store.
+* **Extraction Write-Back**: Transmits AI-analyzed insights (e.g., qualifying details, intent, sentiment) back to mapped GoHighLevel fields when conversations conclude.
+* **Timeline Activity Logging**: Posts comprehensive conversation transcripts and metadata directly to contact notes.
+
+---
+
+## What API scopes are required for GoHighLevel contact synchronization?
+
+GoHighLevel contact synchronization requires three specific Private Integration scopes: `contacts.readonly` for ingesting contacts, `contacts.write` for pushing outbound updates and logging conversation notes, and `locations/customFields.readonly` for fetching custom field schema definitions. If any scope is omitted, the associated synchronization operation silently stops without flagging a connection error.
+
+Contact sync uses the Private Integration's scopes, granted in [Step 1 of connecting](/integrations/crm/gohighlevel/connect#how-do-you-create-a-private-integration-token-and-configure-scopes-in-gohighlevel):
+
+| Scope Slug | Access Level | Used For |
+| :--- | :--- | :--- |
+| `contacts.readonly` | Read | Importing contact records and performing credential validation tests. |
+| `contacts.write` | Write | Pushing outbound field updates and logging completed conversations as contact notes. |
+| `locations/customFields.readonly` | Read | Fetching sub-account custom field definitions to configure field mapping dropdowns. |
+
+<Warning>
+  A missing scope never flags the connection with an error badge when sync is what hits it; the affected part of sync silently stops working. A tool call behaves differently and explicitly errors — see [required scopes](/integrations/crm/gohighlevel/agent-functions#what-api-scopes-are-required-for-gohighlevel-agent-functions) on the agent functions page.
+</Warning>
+
+---
+
+## How do you configure field mappings and activate contact sync in Tavly?
+
+To configure contact synchronization, click **Set up contact sync** in the Tavly dashboard after connecting your sub-account. The system pre-fills a non-removable bidirectional mapping between GoHighLevel `phone` and Tavly `phone_number`. Map desired inbound and outbound fields, configure update rules, and toggle **Log activities automatically** under the **Sync to GoHighLevel** tab.
+
+<Steps>
+  <Step title="Open the field mapping modal">
+    After the connection test passes, click **Set up contact sync** to open the field mapping dialog. For a connection established earlier, open the **Connected** tab in **Integrations**, select your GoHighLevel connection's settings, and click **Set up contact sync**.
+  </Step>
+
+  <Step title="Configure contact property mappings">
+    Tavly pre-fills one mandatory mapping in each direction: GoHighLevel `phone` to Tavly `phone_number`. Phone number is how contacts are matched between the two systems, so it remains locked and cannot be removed.
+    
+    Map the remaining GoHighLevel fields you want to import into Tavly and the Tavly fields you want written back to the sub-account. See [CRM data mappings](/integrations/crm/crm-data-mappings) for instructions on creating custom fields and selecting update modes:
+    * **Always Overwrite**: Replaces existing CRM values whenever post-call data is extracted.
+    * **Fill if Empty**: Writes to the CRM field only if it currently contains no data.
+    * **Never Overwrite**: Retains existing CRM data and prevents automated overwrites.
+  </Step>
+
+  <Step title="Enable automated activity note logging">
+    To record call records and summaries in GoHighLevel, navigate to the **Sync to GoHighLevel** tab and turn on **Log activities automatically**.
+  </Step>
+</Steps>
+
+---
+
+## How do you verify and monitor GoHighLevel contact synchronization?
+
+Verify sync by opening the **Contacts** tab in Tavly to confirm imported sub-account records appear with standardized phone numbers and mapped properties. Initial sync executes a full scan of all records containing valid phone numbers; subsequent incremental sync polls every **5 minutes**, importing only contacts modified since the previous synchronization cycle.
+
+To ensure your data is synchronizing as intended:
+
+* **Inspect Contacts Directory**: Navigate to **Contacts** in the Tavly dashboard. After the first sync finishes, sub-account contacts appear with correctly formatted phone numbers and your mapped properties populated.
+* **Polling Cadence & Initial Sync**: The initial sync performs a complete scan across every sub-account contact that contains a populated phone field. In large databases with thousands of contacts, this initial scan takes several minutes. Subsequent sync cycles run on an automated **5-minute polling interval** (as of August 2026), ingesting only records modified since the preceding scan.
+
+<Note>
+  Contacts with no value in the mapped phone field are excluded from the sync entirely, as are contacts whose number cannot be parsed into a valid **E.164 international format**.
+</Note>
+
+### Verification checklist
+
+| Step | Expected Behavior | Confirmation Location |
+| :--- | :--- | :--- |
+| **Initial Ingestion** | Sub-account contacts appear in Tavly with mapped properties. | Tavly Dashboard → **Contacts** |
+| **Outbound Write-Back** | AI extraction values populate mapped GoHighLevel contact fields after calls. | GoHighLevel Sub-Account → **Contacts → Additional Info** |
+| **Activity Logging** | Calls and chats create notes containing metadata and summaries. | GoHighLevel Sub-Account → **Contacts → Notes** |
+
+---
+
+## How are conversations logged as contact notes in GoHighLevel?
+
+Tavly automatically logs completed calls and chats as **contact notes** on matched GoHighLevel records. Each note contains the conversation ID, participant phone numbers, call disconnection reason, and an AI-generated summary. Notes are used because they populate the native Notes panel and require standard contact permissions without writing to GoHighLevel's Conversations call log.
+
+### Note contents & formatting
+
+Each call or chat becomes a dedicated **note** entry on the matched contact's timeline:
+
+```yaml
+Conversation ID: conv_8f92b7c4d1e0
+Direction: Inbound Call
+From: +15125550198
+To: +15125550100
+Disconnection Reason: user_hangup
+Duration: 3m 42s
+
+Summary:
+Caller inquired about pricing tiers for enterprise voice agents.
+Provided overview of monthly usage allowances and custom integration support.
+Contact indicated strong interest in GoHighLevel contact sync and requested follow-up.
+Outcome: Qualified Lead
+```
+
+### Logging rules & constraints
+
+* **Notes Panel Visibility**: Tavly utilizes notes because the interaction history is prominently organized inside the contact's **Notes** panel and requires only standard contact scopes (`contacts.write`). It does not write to GoHighLevel's Conversations call log.
+* **Matched Contact Prerequisite**: Tavly logs activity **only for contacts imported from the currently connected CRM**. A conversation with a phone number that does not match a synced contact produces no note unless automatic contact creation is activated.
+
+---
+
+## How do you troubleshoot GoHighLevel contact sync issues?
+
+Troubleshoot contact sync issues by verifying Private Integration token scopes and inspecting contact phone formatting. If contact properties fail to update or notes do not appear, ensure `contacts.write` is granted. If contacts fail to import, confirm records have valid **E.164 phone numbers** and that the initial full sync scan has completed.
+
+<AccordionGroup>
+  <Accordion title="Notes or post-call extractions are not writing back to GoHighLevel">
+    Ensure that **Log activities automatically** is toggled on under the **Sync to GoHighLevel** tab in your connection settings. Additionally, verify that your Private Integration token has the `contacts.write` scope enabled. If this scope was missed, GoHighLevel silently rejects write requests without failing the connection card.
+  </Accordion>
+
+  <Accordion title="Sub-account contacts are missing from Tavly">
+    Verify that the missing contacts have a phone number populated in the primary phone field in GoHighLevel. Tavly requires phone numbers formatted in or convertible to international **E.164 format** (`+[country code][number]`). Contacts with missing or unparseable phone numbers are excluded from the sync.
+  </Accordion>
+
+  <Accordion title="Custom field values are not importing into Tavly">
+    Check that your Private Integration token includes the `locations/customFields.readonly` scope. Without this scope, Tavly cannot retrieve custom field definitions from GoHighLevel, preventing custom properties from populating in the field mapping interface.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about GoHighLevel contact synchronization
+
+GoHighLevel contact sync exclusively updates existing contact profiles and never deletes CRM records. By default, conversations with new callers do not create CRM contacts; however, enabling **Create new contacts in CRM** instructs Tavly to create new sub-account records automatically after calls with previously unrecognized phone numbers.
+
+<AccordionGroup>
+  <Accordion title="Does Tavly create or delete contacts in GoHighLevel?">
+    By default it only updates contacts that already exist, and it never deletes them. Turn on **Create new contacts in CRM** on the **Sync to GoHighLevel** tab to have Tavly create a contact after a conversation when the matched contact isn't linked to one yet. Your agent can also create contacts through the **Create Contact** [tool](/integrations/crm/gohighlevel/agent-functions#which-gohighlevel-function-tools-are-available-for-conversational-agents), but that's an explicit tool call, not sync.
+  </Accordion>
+
+  <Accordion title="Can I synchronize multiple GoHighLevel sub-accounts simultaneously?">
+    While you can connect multiple sub-accounts to your Tavly workspace for agent tool access, **only one CRM connection** can drive automated contact synchronization at a time across your workspace. The active sync connection is managed via the **Contact sync** toggle in the integration settings.
+  </Accordion>
+
+  <Accordion title="How quickly do updates in GoHighLevel appear in Tavly?">
+    Following the initial full scan, Tavly polls GoHighLevel every **5 minutes** for modified records. Any contact created or updated in GoHighLevel will sync to Tavly during the next polling cycle.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="CRM data mappings" icon="arrows-left-right" href="/integrations/crm/crm-data-mappings">
+    Map GoHighLevel fields to Tavly contacts, choose update modes, and control what syncs back.
+  </Card>
+
+  <Card title="Build contact memory" icon="brain" href="/integrations/crm/persistent-memory">
+    Accumulate what your agents learn across conversations into the contact record.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Reference synced contact fields from your agent's prompt.
+  </Card>
+
+  <Card title="GoHighLevel agent functions" icon="wrench" href="/integrations/crm/gohighlevel/agent-functions">
+    Look up callers, add tags that fire workflows, and work opportunities mid-conversation.
+  </Card>
+</CardGroup>

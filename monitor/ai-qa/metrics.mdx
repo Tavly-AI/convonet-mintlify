@@ -1,0 +1,212 @@
+---
+title: 'AI QA Metrics and Diagnostic Formulas: Complete Reference'
+sidebarTitle: 'Metrics'
+description: 'Comprehensive reference for Tavly AI QA metrics: evaluate latency, acoustic sentiment, hallucinations, KB recall, WER, tool accuracy, and calibration.'
+seo:
+  title: 'Voice AI QA Metrics & Scoring Formulas Reference | Tavly AI'
+  description: 'Comprehensive reference for Tavly AI QA metrics: evaluate latency, acoustic sentiment, hallucinations, KB recall, WER, tool accuracy, and calibration.'
+og:title: 'AI QA Metrics and Diagnostic Formulas: Complete Reference'
+og:description: 'Comprehensive reference for Tavly AI QA metrics: evaluate latency, acoustic sentiment, hallucinations, KB recall, WER, tool accuracy, and calibration.'
+og:image: 'https://mintcdn.com/retellai/6wkwFDKypdjHQ-22/ai-qa/images/charts.png'
+twitter:card: 'summary_large_image'
+icon: 'chart-mixed'
+keywords: ['AI QA metrics', 'word error rate WER', 'LLM hallucination rate', 'knowledge base recall', 'voice latency P50', 'acoustic sentiment analysis', 'call resolution rate']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How is AI QA sentiment analysis different from Post Call Extraction sentiment?'
+    answer: 'Post Call Extraction infers sentiment strictly from transcript text using an LLM. In contrast, AI QA sentiment evaluates multimodal acoustic signals (such as vocal pitch, tone, and volume) alongside transcript content.'
+  - question: 'How is Word Error Rate (WER) calculated in Tavly AI QA?'
+    answer: 'WER is calculated as: (Substitutions + Insertions + Deletions) / Total Words in Reference * 100%. The reference is generated via an acoustic re-transcription pipeline evaluated against the original STT stream.'
+  - question: 'What constitutes an LLM Hallucination during conversation evaluation?'
+    answer: 'Hallucinations are evaluated per agent turn and categorized into Fabrications (inventing unsupported claims), Contradictions (stating conflicting facts), and Confusion (misunderstanding instructions or generating logically flawed data).'
+  - question: 'Does manual score calibration alter future cohort evaluation criteria?'
+    answer: 'No. Calibrating a call to success or failure overrides the score for that specific historical call record only, without modifying the underlying evaluation prompts, criteria, or models for future calls.'
+---
+
+## What are the core latency and acoustic sentiment metrics in AI QA?
+
+**Latency and acoustic sentiment metrics** evaluate how responsive and emotionally resonant your voice agent remains throughout calls. Latency tracks end-to-end speech delays, while sentiment analysis incorporates vocal pitch, volume, and speech pacing alongside transcript semantics—distinguishing it from text-only post-call extraction to measure authentic customer satisfaction and natural agent tonality.
+
+### Voice Latency Benchmarks
+
+* **Average Latency**: Measures the total round-trip elapsed duration between when a caller stops speaking and when the Voice AI outputs synthesized audio. Expressed in seconds ($s$), lower numbers reflect superior responsiveness.
+* **Latency P50 (Median)**: The 50th percentile of all turn-taking latency measurements across the session. Half of all responses were faster than this threshold, and half were slower, representing typical response speed.
+
+<Info>
+  **Performance Target**: Latency under 1.2s ensures conversational fluidity, while latency exceeding 2.0s introduces noticeable silence that leads to caller talk-overs.
+</Info>
+
+### Multimodal Sentiment Analysis
+
+Unlike post-call text extraction which evaluates transcripts alone, AI QA incorporates **acoustic audio characteristics** (vocal pitch, amplitude, cadence) alongside linguistic content:
+
+<Note>
+  **Signal Distinction**: The `call_analysis.user_sentiment` field returned by [Post Call Extraction](/monitor/post-call-analysis-overview) is derived strictly from text transcripts. The AI QA sentiment metrics below incorporate acoustic audio signals like pitch, inflection, and tone.
+</Note>
+
+| Sentiment Metric | Telemetry Description | Operational Target |
+| :--- | :--- | :--- |
+| **User Sentiment** | Detected caller emotional state (`Positive`, `Neutral`, `Negative`) combining voice acoustics with transcript semantics. | Baseline customer satisfaction. |
+| **User Positive Sentiment Rate** | Percentage of conversational turns where the caller exhibits positive inflection or satisfaction. | High values indicate pleasant user experiences. |
+| **User Negative Sentiment Rate** | Percentage of turns where the caller expresses frustration, anger, or dissatisfaction. | Minimize to prevent customer churn. |
+| **Negative Sentiment Rate** | Overall proportion of the interaction classified as negative. | Key threshold for compliance escalation. |
+| **Agent Sentiment** | Emotional tone expressed by the Voice AI synthesis engine. | Ensures agent remains empathetic and composed. |
+| **Agent Positive Sentiment Rate** | Percentage of agent responses delivering supportive, positive messaging. | Fosters brand loyalty. |
+| **Agent Natural Tonality Rate** | Percentage of agent speech free from robotic artifacts, slurring, or unnatural cadence. | Target ≥ 95% for authentic voice persona. |
+
+---
+
+## How are transcription accuracy and conversational speech quality evaluated?
+
+**Transcription accuracy and speech quality** are evaluated using Word Error Rate (WER), entity verification, overlapping speech tracking, and natural tonality scoring. WER compares runtime STT transcripts against an acoustic reference re-transcription, while naturalness heuristics audit vocal distortion, slurring, pacing anomalies, and awkward speech interruptions across conversational turns.
+
+### Speech-to-Text Accuracy
+
+* **Word Error Rate (WER)**: Standard phonetic error measurement quantifying transcription divergence:
+  ```
+WER = ((Substitutions + Insertions + Deletions) / Total Words in Reference) × 100%
+```
+* **Mistranscribed Entities**: Count of critical named entities (names, email addresses, phone numbers, alphanumeric account codes, dates) transcribed incorrectly. Only errors that alter meaning are flagged.
+
+<Accordion title="How is the WER reference transcript generated?">
+  The reference transcript is generated using a high-accuracy, dual-pass acoustic model that re-transcribes caller audio using the initial real-time STT transcript as semantic context. This produces an authoritative reference transcript against which the runtime STT output is benchmarked.
+</Accordion>
+
+### Speech Dynamics and Naturalness
+
+* **Overlapping Speech Count**: Total instances where caller audio and agent speech collided simultaneously. High counts indicate poor turn-taking calibration or low interruption sensitivity.
+* **Avg. Overlapping Speech**: Mean overlapping speech instances across the entire cohort.
+* **Agent Naturalness**: Holistic acoustic evaluation assessing pronunciation clarity, natural breath pauses, intonation curves, and the absence of synthesized jitter.
+
+<Accordion title="How is Agent Naturalness evaluated?">
+  Evaluated across both audio waveforms and textual transcripts, flagging:
+  * Robotic glitches, synthetic clipping, or sudden amplitude fluctuations.
+  * Phonetic mispronunciations or unexpected word substitutions.
+  * Slurring, muttering, or clipped phonemes.
+  * Unnatural prosody that changes intended semantic meaning.
+
+  ```
+Natural Tonality Rate = (Utterances without naturalness issues / Total agent utterances) × 100%
+```
+</Accordion>
+
+---
+
+## How does AI QA calculate model hallucinations and knowledge base recall?
+
+AI QA evaluates **hallucinations and knowledge base recall** on a per-turn basis to guarantee factual reliability. Hallucination scoring checks model assertions against conversation history, knowledge base articles, and verified tool payloads to detect fabrications or contradictions. KB Recall measures whether all relevant documentation chunks were retrieved during informational turns.
+
+### LLM Hallucination Scoring
+
+Evaluated strictly **per agent conversational turn**, checking responses against system prompts, reference documentation, and dialogue history:
+
+| Hallucination Type | Evaluation Criteria | Production Risk |
+| :--- | :--- | :--- |
+| **Fabrication** | Agent invents unverified factual data (e.g., generating fake ticket numbers, unlisted business hours). | **Major**: Damages customer trust and creates compliance liabilities. |
+| **Contradiction** | Agent provides statements directly conflicting with system prompts or earlier statements. | **Major**: Causes customer confusion and misdirection. |
+| **Confusion** | Agent misunderstands customer intent and provides irrelevant or logically flawed guidance. | **Minor / Major**: Causes friction and failed resolutions. |
+
+<Warning>
+  High hallucination rates indicate systemic prompt ambiguities or ungrounded knowledge retrieval. Review flagged transcripts using [Address Metric Issues](/monitor/ai-qa/address-metric-issues).
+</Warning>
+
+### Knowledge Base (KB) Recall
+
+Measures semantic retrieval performance when grounding responses in external documentation:
+
+```
+KB Recall Rate = (Retrieval turns with full recall / Total retrieval turns) × 100%
+```
+
+* **Hit (Full Recall)**: All relevant documentation chunks required to answer the caller query were retrieved.
+* **Miss (Partial / Zero Recall)**: One or more critical source chunks were missed, leading to incomplete or generic responses.
+
+---
+
+## What tool execution, flow transition, and resolution metrics are tracked?
+
+**Tool execution, flow, and resolution metrics** measure whether agents execute backend integrations cleanly, transition through dialogue states properly, and achieve target business outcomes. Telemetry tracks tool accuracy, execution latency, flow transition correctness, telephony transfer success rates, wait times, and composite resolution percentages based on weighted scoring.
+
+### Function and Flow Telemetry
+
+* **Tool Call Accuracy**: Percentage of turns where the agent selected and executed the correct tool with valid schema arguments.
+* **Tool Call Inaccuracy**: Inverse of tool accuracy, measuring inappropriate, redundant, or missing function calls.
+* **Custom Tool Success Rate**: Proportion of custom backend tool HTTP requests that returned valid `2xx` responses.
+* **Avg Custom Tool Latency**: Mean execution duration taken by external webhook APIs to return payloads to the agent.
+* **Transition Accuracy**: Correctness of state transitions across conversational flow nodes.
+* **Node Transition Inaccuracy**: Rate of erroneous transitions where the agent diverged into incorrect conversational branches.
+
+### Call Resolution & Telephony Transfers
+
+| Resolution Metric | Telemetry Description | Strategic Value |
+| :--- | :--- | :--- |
+| **Call Resolution Rate** | Percentage of calls meeting all mandatory resolution criteria and score thresholds. | Executive KPI measuring operational success. |
+| **Average Score** | Mean quality score ($0$ to $100$) across the cohort based on weighted scoring rules. | Benchmarks conversational quality across iterations. |
+| **Calls Analyzed** | Total volume of calls processed within the active cohort. | Cohort sample size indicator. |
+| **Transfer Success Rate** | Percentage of calls transferred successfully to human agents or external SIP numbers. | Measures telephony routing reliability. |
+| **Transfer Wait Time** | Mean caller hold duration prior to transfer connection. | Identifies telephony bottleneck delays. |
+
+---
+
+## How do cohort parameters, statistical percentiles, and calibration work?
+
+**Cohort parameters, statistical percentiles, and calibrations** govern how evaluation datasets are sampled, interpreted, and refined. Percentiles like P50 represent typical median response delays. Cohorts enforce sampling rates and weekly budget ceilings, while manual calibration controls allow quality supervisors to override algorithmic scores and attach explanatory audit notes.
+
+### Call-Level Metadata Attributes
+
+* **Call ID**: Unique alphanumeric identifier assigned to each telephony session.
+* **Call Start Time**: Epoch timestamp indicating session connection.
+* **Call Length**: Total active elapsed conversation time in seconds.
+* **Eval**: Automated pass or fail determination based on cohort resolution criteria.
+
+### Statistical & Cohort Terms
+
+* **P50 (Median)**: The 50th percentile value, representing typical baseline performance.
+* **Cohort**: A filtered subset of conversations sharing common agents, dates, and characteristics.
+* **Sampling Percentage**: The proportion of matching calls randomly selected for QA evaluation.
+* **Weekly Max**: A strict weekly volume ceiling capping evaluated calls to control expenditure.
+
+### Supervisory Score Calibration
+
+Human quality managers can manually adjust automated scores in the [Call QA Sheet](/monitor/ai-qa/view-qa-results#call-level-qa-sheet):
+
+* **Calibrate to Success**: Overrides an automated failure flag when context justified the agent response, removing the negative impact from the call score.
+* **Calibrate to Failure**: Overrides an automated pass flag when an ungrounded or inappropriate response went undetected by automated heuristics.
+
+<Note>
+  **Scope of Calibration**: Calibration updates the **per-call score only**. It does not retroactively alter the cohort resolution criteria or affect subsequent calls.
+</Note>
+
+<Warning>
+  Metrics may display `N/A` when insufficient data exists or when a metric is inapplicable to a specific call type (e.g., transfer metrics for calls without transfer attempts).
+</Warning>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How is AI QA sentiment analysis different from Post Call Extraction sentiment?">
+    Post Call Extraction infers sentiment strictly from transcript text using an LLM. In contrast, AI QA sentiment evaluates multimodal acoustic signals (such as vocal pitch, tone, and volume) alongside transcript content.
+  </Accordion>
+
+  <Accordion title="How is Word Error Rate (WER) calculated in Tavly AI QA?">
+    WER is calculated as: `(Substitutions + Insertions + Deletions) / Total Words in Reference * 100%`. The reference is generated via an acoustic re-transcription pipeline evaluated against the original STT stream.
+  </Accordion>
+
+  <Accordion title="What constitutes an LLM Hallucination during conversation evaluation?">
+    Hallucinations are evaluated per agent turn and categorized into Fabrications (inventing unsupported claims), Contradictions (stating conflicting facts), and Confusion (misunderstanding instructions or generating logically flawed data).
+  </Accordion>
+
+  <Accordion title="Does manual score calibration alter future cohort evaluation criteria?">
+    No. Calibrating a call to success or failure overrides the score for that specific historical call record only, without modifying the underlying evaluation prompts, criteria, or models for future calls.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Address metric issues](/monitor/ai-qa/address-metric-issues): Step-by-step remediation guide for resolving hallucinations, latency, and tone issues.
+* [View QA results](/monitor/ai-qa/view-qa-results): Inspect aggregate cohort trend charts, top caller questions, and Call QA Sheets.
+* [Define resolution criteria](/monitor/ai-qa/define-resolution-criteria): Configure thresholds and AI conditions governing call success.
+* [Define a QA cohort](/monitor/ai-qa/create-cohort): Scope evaluations by selecting agents, dates, durations, and sampling rates.

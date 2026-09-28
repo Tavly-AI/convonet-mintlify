@@ -42,7 +42,7 @@ The node transitions **immediately**. The precise moment the agent enters the Lo
 
 Setting up branching logic requires adding standard transition conditions and explicitly defining a mandatory fallback route.
 
-* **Add conditions:** Attach standard edge conditions exactly the same way you would on any other functional node. You can explicitly branch based on conversational context or parsed **[Dynamic Variables](/build/dynamic-variables)**.
+* **Add conditions:** Attach standard edge conditions exactly the same way you would on any other functional node. You can explicitly branch based on conversational context or parsed **[Dynamic Variables](/build/context/dynamic-variables)**.
 * **Configure the Else Destination:** This node **always** requires a mandatory fallback destination. Because the Logic Split Node exists purely as a silent branching junction, this explicit fallback ensures the flow never fatally stalls if none of the defined conditions match the active context.
 
 ## What configurations are available?

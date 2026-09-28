@@ -1,0 +1,326 @@
+---
+title: "Trigger Tavly Calls from HubSpot Workflows"
+sidebarTitle: "HubSpot App"
+description: "Install and configure the Tavly AI HubSpot app to automate outbound voice agent calls from HubSpot workflows, pass contact context, and sync call results."
+seo:
+  title: "Trigger Tavly AI Outbound Calls from HubSpot Workflows"
+  description: "Install and configure the Tavly AI HubSpot app to automate outbound voice agent calls from HubSpot workflows, pass contact context, and sync call results."
+og:title: "Trigger Tavly AI Outbound Calls from HubSpot Workflows"
+og:description: "Install and configure the Tavly AI HubSpot app to automate outbound voice agent calls from HubSpot workflows, pass contact context, and sync call results."
+og:image: "https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-1.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=abb4331c5b2a38448b53c67b7f6e6b31"
+twitter:card: "summary_large_image"
+icon: "hubspot"
+keywords:
+  - "HubSpot workflow automation"
+  - "Tavly AI HubSpot app"
+  - "automated outbound calls"
+  - "HubSpot call logging"
+  - "voice agent CRM workflow"
+  - "post call analysis HubSpot"
+  - "dynamic variables call dispatch"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How does the Tavly AI HubSpot app differ from the HubSpot CRM integration?"
+    answer: "The HubSpot App enables HubSpot workflows to trigger outbound AI calls via workflow actions, whereas the CRM integration syncs contacts and writes call history bidirectionally."
+  - question: "Does a HubSpot workflow wait for the phone call to complete?"
+    answer: "Yes. The Make a Phone Call action pauses the workflow run until the voice call finishes, enabling downstream branching based on call success, sentiment, or outcome."
+  - question: "What call details are synced back to HubSpot records?"
+    answer: "Tavly automatically syncs call recordings, transcripts, summaries, duration, user sentiment, voicemail detection status, and custom post-call extraction variables."
+  - question: "Can I pass custom contact properties into the AI agent call?"
+    answer: "Yes. Use the Dynamic Variables field in the workflow action to pass contact data formatted as JSON strings directly into the conversational prompt."
+---
+
+# Trigger Tavly calls from HubSpot workflows
+
+> Install and configure the Tavly AI HubSpot app to trigger outbound voice agent calls from HubSpot workflows, pass contact context, and sync call results back.
+
+This guide provides step-by-step instructions for installing and configuring the **Tavly AI** application within **HubSpot** to trigger automated outbound phone calls through conversational voice agents.
+
+<Card title="Install Tavly AI for HubSpot" icon="download" href="https://app.hubspot.com/marketplace/46771873/listing/retell-ai">
+  Open the Tavly AI integration in the HubSpot App Marketplace.
+</Card>
+
+<Note>
+  This application allows HubSpot workflows to initiate outbound calls. If you instead require contact synchronization from HubSpot into Tavly or bidirectional timeline activity logging, configure the [HubSpot CRM integration](/integrations/crm/hubspot/connect). Both integrations operate independently and can be deployed concurrently.
+</Note>
+
+---
+
+## What is the Tavly AI HubSpot app and how does it automate outbound calls?
+
+**Tavly AI HubSpot application** integrates autonomous voice agents into HubSpot automation workflows, introducing the native **Make a Phone Call** workflow action. This capability enables marketing and sales teams to automatically trigger AI-driven phone calls upon lead generation or deal stage movements, write call logs, and log structured call analyses back to CRM records.
+
+The application registers an integrated workflow action inside HubSpot. When a contact reaches the **Make a Phone Call** action step, HubSpot initiates an outbound call via Tavly's telephony network and pauses workflow progression until the conversation concludes.
+
+### Automated post-call CRM synchronization
+
+Upon call completion, Tavly updates HubSpot CRM records automatically:
+* **Contact Activity Timeline**: Automatically writes call summaries, duration metrics, and [Post Call Extraction](/monitor/post-call-analysis-overview) data.
+* **Native Call Log**: Attaches the full audio recording, caller metadata, and timestamped conversational transcript.
+* **Associated Company Timeline**: Automatically associates the call record with the contact's primary company record.
+
+---
+
+## How do you install and configure the Tavly AI app from the HubSpot Marketplace?
+
+To install the application, locate Tavly AI in the **HubSpot App Marketplace** and click **Connect app**. Complete the external setup form by pasting your Tavly **Secret Key (Webhook)** from dashboard API settings, copy the generated webhook endpoint back into Tavly Webhook settings, and save the integration to establish two-way communication.
+
+<Steps>
+  <Step title="Initiate installation from HubSpot Marketplace">
+    Open the [HubSpot Marketplace listing](https://app.hubspot.com/marketplace/46771873/listing/retell-ai) and click **Install app** (or **Connect app**).
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-1.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=abb4331c5b2a38448b53c67b7f6e6b31" alt="HubSpot app installation prompt" width="711" height="844" data-path="images/hubspot/screenshot-1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Access the external integration setup form">
+    HubSpot redirects your browser to an external setup form requiring API handshake credentials.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-2.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=60146aa7f2c5e5a606c210fe6c65d0cf" alt="External integration form" width="561" height="596" data-path="images/hubspot/screenshot-2.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Retrieve your Tavly API Secret Key">
+    Log into your Tavly AI Dashboard and navigate to **Settings → API Keys**. Locate the **Secret Key (Webhook)** and copy the token string. Paste this key into the **Retell API Key** field on the external integration form.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-3.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=d99d420008b2660543881b892bfe8706" alt="Retell AI API Keys settings" width="1263" height="405" data-path="images/hubspot/screenshot-3.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure webhook endpoint in Tavly">
+    Copy the unique **Webhook URL** displayed in the external form. In your Tavly Dashboard, navigate to **Settings → Webhooks**, paste the URL into your webhook destination field, and save changes.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-4.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=eec6e4b6ea6b6084202f6aab4b2292e0" alt="Retell AI Webhooks settings" width="1263" height="405" data-path="images/hubspot/screenshot-4.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Save and return to HubSpot">
+    Click **Save** on the external setup form to confirm the handshake, then close the tab and return to HubSpot.
+  </Step>
+</Steps>
+
+---
+
+## How do you build a HubSpot workflow to trigger automated AI phone calls?
+
+In HubSpot, navigate to **Automation → Workflows** and create a workflow triggered by events like form submissions or record creation. Add an enrollment filter confirming **Phone number is known**, insert the **Make a Phone Call** integrated action, select your agent, map contact phone properties, and pass dynamic JSON context variables.
+
+### Primary trigger use cases
+
+| Trigger Use Case | Operational Scenario | Business Value |
+| :--- | :--- | :--- |
+| **Instant Lead Qualification** | Contact submits high-intent demo form | Qualifies lead within seconds, reducing response latency. |
+| **New Contact Enrollment** | Contact created from inbound campaign | Engages new CRM entries automatically. |
+| **Deal Stage Acceleration** | Deal moves to "Proposal Sent" | Proactively calls decision-maker to address open objections. |
+| **Stale Lead Re-engagement** | Contact inactivity exceeds 60 days | Re-evaluates interest via low-pressure conversational check-in. |
+| **Appointment Confirmation** | Meeting booked 24 hours in advance | Confirms attendance and collects preliminary meeting agenda. |
+
+<Note>
+  Operational requirement: Your Tavly AI workspace must have at least one configured conversational voice agent provisioned with an active outbound phone number.
+</Note>
+
+### Step-by-step workflow setup
+
+<Steps>
+  <Step title="Create and configure workflow enrollment triggers">
+    In HubSpot, navigate to **Automation → Workflows** and click **Create workflow**. Select an enrollment trigger aligned with your operational objective (e.g., **Data Values → Record Created** or **Form submission**).
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-5.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=5a3a41151702c5ed972f9a95c2f74d7d" alt="Create workflow with Record Created trigger" width="1064" height="625" data-path="images/hubspot/screenshot-5.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Enforce phone number criteria">
+    Add an enrollment filter for **Phone number is known**. This ensures the workflow only processes contacts with valid dialing information, preventing unrouteable call errors.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-6.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=8131c0db66a5767eeb1c1d82a20029eb" alt="Add phone number condition" width="1064" height="625" data-path="images/hubspot/screenshot-6.png" />
+    </Frame>
+
+    Combine additional criteria to segment target audiences:
+    * **Lifecycle Stage**: Restrict calls to "Lead" or "Marketing Qualified Lead".
+    * **Lead Status**: Exclude unqualified or churned contacts.
+    * **Owner Assignment**: Filter by assigned sales representative.
+
+    <Frame caption="Completed trigger enrollment criteria with phone validation.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-7.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=e69ae4738ab35cc92be78828f3022c00" alt="Phone number condition configuration" width="1064" height="782" data-path="images/hubspot/screenshot-7.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Add the Make a Phone Call action">
+    Click the **(+)** button in the workflow builder. In the right panel, select **Integrated apps → Retell AI → Make a Phone Call**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-8.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=f1b9e51bdaf3523c9d72b8454786ccba" alt="Add Retell AI Make a Phone Call action" width="399" height="193" data-path="images/hubspot/screenshot-8.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Parameterize the call action">
+    Configure the call action properties:
+    * **From**: Select the desired Tavly voice agent and outbound telephony number.
+    * **To**: Select the contact's phone number token (e.g., `Contact: Phone Number`).
+    * **Dynamic Variables** (Optional): Inject contact personalization using valid JSON format (e.g., `{"first_name": "[Contact: First Name]", "company": "[Contact: Company Name]"}`). All values must be enclosed in quotes.
+
+    <Frame caption="The call form configuration dialog showing all available fields.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-9.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=011d1de0f206f6a1efc17641b619d6a3" alt="Call form configuration" width="411" height="464" data-path="images/hubspot/screenshot-9.png" />
+    </Frame>
+
+    <br />
+
+    <Frame caption="Selecting the agent/phone number from the From dropdown.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-10.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=b675344808a66560c010654be40adf76" alt="From field selection" width="411" height="464" data-path="images/hubspot/screenshot-10.png" />
+    </Frame>
+
+    <br />
+
+    <Frame caption="Selecting the contact's phone number token for the To field.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-11.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=65fa530df479e2543e4ad21d03cc8081" alt="To field selection" width="735" height="464" data-path="images/hubspot/screenshot-11.png" />
+    </Frame>
+
+    <br />
+
+    <Frame caption="Configuring dynamic variable JSON payloads for caller personalization.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-12.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=8ca35ef82564cfd4f2b56dbd6c942f23" alt="Dynamic variables configuration" width="735" height="464" data-path="images/hubspot/screenshot-12.png" />
+    </Frame>
+
+    Click **Save**.
+  </Step>
+
+  <Step title="Configure conditional outcome branching">
+    The **Make a Phone Call** action emits execution outputs such as **Call Success**, **User Sentiment**, and **Call Outcome**. Add an **If/then branch** to tailor downstream follow-ups:
+
+    * **If Call Successful**:
+      * Send a confirmation email with calendar booking links or meeting summaries.
+      * Create a follow-up task for the assigned sales representative.
+      * Update lifecycle stage to "Sales Qualified Lead".
+    * **If Call Unsuccessful** (No answer, voicemail, line busy):
+      * Schedule a secondary retry call after 2 hours.
+      * Send an automated SMS message alerting the contact to the missed call.
+      * Route to an alternate nurture workflow.
+
+    <Frame caption="Branching workflow logic based on Tavly call success and outcome.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-14.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=57353adb745cecf37c2ce397c11bbec9" alt="Branching workflow based on call outcome" width="2698" height="1536" data-path="images/hubspot/screenshot-14.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review and activate workflow">
+    Click **Review and publish** in the top-right corner to activate your outbound automated call workflow.
+  </Step>
+</Steps>
+
+---
+
+## How do you review call recordings, transcripts, and analysis in HubSpot?
+
+Once an outbound call finishes, Tavly automatically updates the enrolled contact and company records in HubSpot. Open the contact in **CRM → Contacts**, navigate to the **Activity** tab filtered for Tavly AI to inspect structured call summaries, sentiments, and custom extracted properties, or check the **Calls** tab for recordings.
+
+<Steps>
+  <Step title="Locate the enrolled contact record">
+    In HubSpot, go to **CRM → Contacts** and select the contact enrolled in the workflow.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-15.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=9f000437e847f5767d292338b12596f8" alt="Activity tab with filters" width="1265" height="647" data-path="images/hubspot/screenshot-15.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Inspect call analysis on the Activity timeline">
+    Open the **Activity** tab. Verify that your timeline filters include **Retell AI** (or Tavly AI) integrations.
+
+    <Frame caption="Configuring activity feed filters to display Tavly AI call logs.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-16.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=c99b3cf14f514d0f981aae7cd902cf2a" alt="Activity filters including Retell AI" width="1265" height="816" data-path="images/hubspot/screenshot-16.png" />
+    </Frame>
+
+    The activity event surfaces two analytical datasets:
+    1. **Default Analytical Metrics**: Generated across every executed call, including executive summary, duration, voicemail detection, user sentiment score, and formal call outcome.
+    2. **Custom Post-Call Extraction**: Structured business data defined in Tavly using [Post Call Extraction](/monitor/post-call-analysis-overview), including budget qualification, purchase timeframe, custom scoring, and objection categories.
+
+    <Frame caption="Detailed call analysis event rendering summary and qualification metadata.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-17.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=ff083d484c507ccd15bb92f0bb43f222" alt="Call Analysis in Activity tab" width="765" height="466" data-path="images/hubspot/screenshot-17.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review the Call Log and audio recording">
+    Navigate to the **Calls** tab on the contact record. Access the complete call entry to playback the high-fidelity audio recording, inspect caller disposition, and read the line-by-line dialogue transcript.
+
+    <Frame caption="HubSpot Calls tab displaying audio playback and synchronized transcript.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-18.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=93671edd7a38cc92f9a8d3671ea65722" alt="Call Log with recording" width="781" height="369" data-path="images/hubspot/screenshot-18.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you safely uninstall the Tavly AI application from HubSpot?
+
+To uninstall the app, navigate to **Settings → Integrations → Connected Apps** in HubSpot and locate **Tavly AI**. Select the **General Settings** tab, click **Uninstall**, and confirm the prompt. Note that uninstalling permanently severs workflow triggers, deletes active integration credentials, and unlinks the application from your HubSpot portal.
+
+<Steps>
+  <Step title="Navigate to Connected Apps in HubSpot">
+    In your HubSpot portal, click the **Settings** gear icon in the main navigation bar. In the left sidebar, navigate to **Integrations → Connected Apps**, and locate **Retell AI** (Tavly AI).
+  </Step>
+
+  <Step title="Access General Settings">
+    Select **Actions → General Settings** for the Tavly application.
+
+    <Frame caption="Connected Apps general settings interface.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-19.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=1512539bdda8965b043e62a9bc74e81a" alt="Retell AI General Settings tab" width="1137" height="539" data-path="images/hubspot/screenshot-19.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Execute uninstallation">
+    Click **Uninstall**.
+
+    <Frame caption="Uninstallation confirmation dialog in HubSpot.">
+      <img src="https://mintcdn.com/retellai/gW-1SjSS0hmYoa7S/images/hubspot/screenshot-20.png?fit=max&auto=format&n=gW-1SjSS0hmYoa7S&q=85&s=7b58a7a700e13baa0a46d873aabc3e26" alt="Uninstall Retell AI application" width="1137" height="539" data-path="images/hubspot/screenshot-20.png" />
+    </Frame>
+
+    <Warning>
+      Uninstalling the application terminates the API connection, permanently removes the "Make a Phone Call" action from all active workflows, and deletes associated app authorization records.
+    </Warning>
+  </Step>
+</Steps>
+
+---
+
+## Frequently asked questions about triggering Tavly calls from HubSpot
+
+The Tavly AI HubSpot app enables HubSpot workflows to trigger outbound voice calls autonomously. This works independently of the two-way **HubSpot CRM integration**, which syncs contact directories. Workflows pause while calls execute, allowing downstream conditional branching based on call success, detected voicemail, or custom extraction variables.
+
+<AccordionGroup>
+  <Accordion title="Does the workflow action wait for the phone call to complete?">
+    Yes. The **Make a Phone Call** workflow action temporarily suspends workflow progression for that enrolled contact until the voice call finishes. This architecture ensures all call outcomes, sentiment scores, and extracted variables are populated in CRM memory before downstream workflow actions execute.
+  </Accordion>
+
+  <Accordion title="Can I pass personalized dynamic variables into the call?">
+    Yes. The **Dynamic Variables** input on the workflow action accepts JSON-formatted key-value pairs (e.g., `{"contact_name": "[Contact: First Name]"}`). These variables are passed into the agent's conversational prompt at runtime, enabling tailored greetings and context-aware responses.
+  </Accordion>
+
+  <Accordion title="Can I deploy both the HubSpot Marketplace app and the HubSpot CRM integration?">
+    Yes. The two integrations serve complementary roles:
+    * The **Marketplace App** allows HubSpot workflows to trigger outbound calls and receive immediate post-call updates.
+    * The **CRM Integration** enables continuous bidirectional contact synchronization and agent functions within Tavly.
+  </Accordion>
+
+  <Accordion title="What happens if a contact does not have a phone number?">
+    To prevent workflow execution errors, always insert an enrollment condition specifying **Phone number is known** before the call action. Contacts missing phone numbers will skip the action without causing failed workflow tasks.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="HubSpot CRM integration" icon="hubspot" href="/integrations/crm/hubspot/connect">
+    Configure bidirectional contact synchronization and agent CRM search functions.
+  </Card>
+
+  <Card title="Post-call analysis overview" icon="chart-simple" href="/monitor/post-call-analysis-overview">
+    Configure custom extraction variables and scoring metrics to capture structured data from calls.
+  </Card>
+</CardGroup>

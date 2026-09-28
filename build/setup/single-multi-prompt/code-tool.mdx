@@ -110,7 +110,7 @@ Creating a Code Tool involves explicitly defining a unique name, writing the Jav
 Code Tool logic executes securely inside a locked-down QuickJS sandbox. It fully supports top-level `await`, dynamic variable extraction via the `dv` object, and limited HTTP requests using the standard `fetch()` API.
 
 ### `dv`: dynamic variables
-Access your [dynamic variables](/build/dynamic-variables) as properties attached to the `dv` object. All stored values are returned strictly as string literals, including values set by prior tools. **Use `dv.user_number`, not `{{user_number}}`**, inside the JavaScript execution block. 
+Access your [dynamic variables](/build/context/dynamic-variables) as properties attached to the `dv` object. All stored values are returned strictly as string literals, including values set by prior tools. **Use `dv.user_number`, not `{{user_number}}`**, inside the JavaScript execution block. 
 
 <Note> Code Tool inherently has no parameter schema. If the logic requires variables spoken by the caller, you must extract them into dynamic variables utilizing an [Extract Dynamic Variable tool](/build/single-multi-prompt/extract-dv) beforehand.</Note>
 

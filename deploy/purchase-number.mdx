@@ -1,35 +1,75 @@
 ---
-title : "Purchase phone number"
-description : "Purchase Tavly-managed US or Canada phone numbers directly in the dashboard — no telephony provider account required, ready for inbound and outbound calling."
+title: 'Purchase Phone Numbers: Provision US & Canada Telephony'
+sidebarTitle: 'Purchase Phone Number'
+description: 'Purchase and manage US or Canada phone numbers in Tavly: provision local or toll-free lines via console or API, assign voice agents, and start calling.'
+seo:
+  title: 'Purchase Phone Numbers | US & Canada Telephony | Tavly AI'
+  description: 'Purchase and manage US or Canada phone numbers in Tavly: provision local or toll-free lines via console or API, assign voice agents, and start calling.'
+og:title: 'Purchase Phone Numbers: Provision US & Canada Telephony'
+og:description: 'Purchase and manage US or Canada phone numbers in Tavly: provision local or toll-free lines via console or API, assign voice agents, and start calling.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-plus'
+keywords: ['purchase phone number', 'telephony provisioning', 'US phone numbers', 'toll-free numbers', 'Twilio Telnyx numbers', 'inbound voice agent', 'Tavly AI phone']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can you purchase international phone numbers outside the US and Canada?'
+    answer: 'Not directly through Tavly-managed purchasing; Tavly provides US and Canada numbers natively. To use phone numbers from other countries or call beyond supported international destinations, connect your own carrier via custom telephony.'
+  - question: 'Can you port or connect an existing phone number you already own?'
+    answer: 'Yes, you can import an existing phone number into Tavly via the API or integrate your existing Twilio, Telnyx, or SIP carrier account using Tavly''s custom telephony infrastructure.'
+  - question: 'How much do Tavly-managed phone numbers cost?'
+    answer: 'Twilio US local numbers and Canadian numbers cost $2.00 per month, US toll-free numbers cost $5.00 per month (plus $0.06 per minute inbound), and Telnyx US numbers cost $2.00 per month.'
+  - question: 'How do you release or delete a phone number you no longer need?'
+    answer: 'Delete the number from the Phone Numbers dashboard or trigger the Delete Phone Number API; monthly recurring subscription charges immediately stop upon release.'
 ---
 
 Purchase a phone number from Tavly directly in the dashboard or through the API. Tavly manages these numbers, so you don't have to set up any telephony infrastructure.
 
-<Note>Currently we only support purchase of US and Canada numbers and support making calls to [15 countries](/deploy/international-call). If you are looking to use numbers from other countries, or to make calls to more countries, or to use your own telephony provider, check out [Custom Telephony guide](/deploy/custom-telephony).</Note>
+<Note>
+  Currently we only support purchase of US and Canada numbers and support making calls to [15 countries](/deploy/international-call). If you are looking to use numbers from other countries, or to make calls to more countries, or to use your own telephony provider, check out [Custom Telephony guide](/deploy/custom-telephony).
+</Note>
 
-### From the dashboard
+## What are Tavly-managed phone numbers?
 
-You can purchase a number and bind agents to it from the dashboard. You can optionally specify the
-area codes you want to purchase from.
+**Tavly-managed phone numbers** provide turnkey telephony connectivity for voice agents without requiring third-party carrier accounts. Teams can provision United States and Canadian local or toll-free numbers directly in the dashboard or via API, assigning inbound and outbound agents instantly without managing SIP trunking, telecom contracts, or telephony infrastructure.
 
-<img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/purchase-number/purchase-new.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=37af1861e983af1260f2ecc0fec5337d" data-path="images/deploy/purchase-number/purchase-new.png" />
+Tavly provides turnkey carrier provisioning across multiple tier-one telecom providers:
+
+| Number Type / Provider | Supported Region | Monthly Rental Cost | Inbound Usage Rate | Outbound Calling Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **Twilio Local** | United States (`+1`) | **$2.00 / month** | Standard voice rate | Standard voice rate |
+| **Twilio Toll-Free** | United States (`+1-800/888...`) | **$5.00 / month** | **$0.06 / min** + voice rate | Standard voice rate |
+| **Twilio Canada** | Canada (`+1`) | **$2.00 / month** | Standard voice rate | Standard voice rate |
+| **Telnyx Local** | United States (`+1`) | **$2.00 / month** | Standard voice rate | Standard voice rate |
+
+## How do you purchase a phone number from the dashboard?
+
+To purchase a number from the dashboard, navigate to the **Phone Numbers** screen, click **Buy Number**, select your preferred area code, and bind an inbound or outbound agent. After checkout, assign a descriptive nickname for organization; the number immediately begins accepting inbound calls or making outbound dispatches.
+
+You can purchase a number and bind agents to it from the dashboard. You can optionally specify the area codes you want to purchase from.
+
+<Frame caption="Purchasing a phone number in the dashboard.">
+  <img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/purchase-number/purchase-new.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=37af1861e983af1260f2ecc0fec5337d" data-path="images/deploy/purchase-number/purchase-new.png" />
+</Frame>
 
 After purchasing, you can change the number's nickname to make it easier to find and identify.
 
-<img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/purchase-number/rename.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=2d38919aecddc341584dff635e13d6a1" data-path="images/deploy/purchase-number/rename.jpeg" />
+<Frame caption="Renaming a phone number nickname.">
+  <img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/purchase-number/rename.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=2d38919aecddc341584dff635e13d6a1" data-path="images/deploy/purchase-number/rename.jpeg" />
+</Frame>
 
 The number is ready to accept [inbound calls](/deploy/inbound-call) once you've assigned an inbound agent. Try calling it.
 
-### From the API
+## How do you purchase and configure phone numbers via API?
 
-Check out [Create Phone Number API Reference](/api-references/create-phone-number)
-for all the parameters you can use programmatically.
+To provision phone numbers programmatically, invoke the **Create Phone Number API** endpoint with your desired agent identifiers. The API allows developers to specify inbound and outbound agent bindings, configure webhook parameters, or leave inbound agents unassigned to prevent callbacks during outbound cold calling campaigns.
 
-* Phone numbers are yours once purchased, and can be used indefinitely.
-  Find numbers you own [here](/api-references/list-phone-numbers).
-* You can assign different inbound and outbound agents to the number.
-* If you don't want a user to be able to call this number (maybe you are doing [outbound calls](/deploy/outbound-call) and don't
-  want callbacks), you can leave `inbound_agent_id` unset.
+Check out the [Create Phone Number API Reference](/api-references/create-phone-number) for all the parameters you can use programmatically:
+
+* **Indefinite ownership**: Phone numbers are yours once purchased, and can be used indefinitely. Find numbers you own via [List Phone Numbers](/api-references/list-phone-numbers).
+* **Dual agent bindings**: You can assign different inbound and outbound agents to the number.
+* **Callback suppression**: If you don't want a user to be able to call this number (for example, when conducting [outbound calls](/deploy/outbound-call) where callbacks are unsupported), leave `inbound_agent_id` unset.
 
 <CodeGroup>
   ```typescript Node theme={"dark"}
@@ -51,22 +91,26 @@ for all the parameters you can use programmatically.
   ```
 </CodeGroup>
 
-### Pricing
+## How does phone number pricing and billing work?
 
-We support both **Twilio** and **Telnyx** numbers:
+**Phone number pricing** operates on a flat monthly lease model starting at **$2.00 per month** for standard US and Canadian numbers, and **$5.00 per month** for US toll-free numbers. Recurring number charges are billed at the close of each billing cycle until released, with toll-free inbound calls incurring an additional $0.06 per minute.
 
-* **Twilio**
-  * US numbers: **\$2/month**
-  * US toll-free numbers: **\$5/month**
-  * Canadian numbers: **\$2/month**
-* **Telnyx**
-  * US numbers only: **\$2/month**
+Tavly supports managed numbers through both **Twilio** and **Telnyx**:
 
-<Note>Toll-free numbers cost \$0.06 per minute for inbound calls. Outbound calls are charged at the same rate as regular U.S. numbers.</Note>
+* **Twilio**:
+  * US local numbers: **$2/month**
+  * US toll-free numbers: **$5/month**
+  * Canadian numbers: **$2/month**
+* **Telnyx**:
+  * US numbers only: **$2/month**
+
+<Note>
+  Toll-free numbers cost $0.06 per minute for inbound calls. Outbound calls are charged at the same rate as regular U.S. numbers.
+</Note>
 
 The monthly number fee is billed to your payment method at the end of each billing cycle (prorated if purchased mid-month on credit-based accounts) and recurs until the number is released. See the [billing overview](/accounts/billing) for how number charges appear on your invoice.
 
-## FAQ
+## Frequently Asked Questions
 
 <AccordionGroup>
   <Accordion title="Can I use a phone number I already own?">
@@ -81,3 +125,9 @@ The monthly number fee is billed to your payment method at the end of each billi
     Delete it from the phone number page in the dashboard, or call the [Delete Phone Number API](/api-references/delete-phone-number). The monthly fee stops once the number is released.
   </Accordion>
 </AccordionGroup>
+
+## Related Resources
+
+* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Custom telephony](/deploy/custom-telephony): Connect your existing Twilio, Telnyx, or SIP provider to Tavly.

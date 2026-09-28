@@ -1,0 +1,240 @@
+---
+title: "Notion Knowledge Base Sync"
+sidebarTitle: "Knowledge Base Sync"
+description: "Sync Notion workspace pages into Tavly AI knowledge bases with automated 24-hour delta refreshes, hierarchical page picking, and Markdown vector ingestion."
+seo:
+  title: "Sync Notion Pages to Knowledge Bases | Tavly AI"
+  description: "Sync Notion workspace pages into Tavly AI knowledge bases with automated 24-hour delta refreshes, hierarchical page picking, and Markdown vector ingestion."
+og:title: "Sync Notion Pages to Knowledge Bases | Tavly AI"
+og:description: "Sync Notion workspace pages into Tavly AI knowledge bases with automated 24-hour delta refreshes, hierarchical page picking, and Markdown vector ingestion."
+og:image: "https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-select-pages-picker.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=caec9341ad9abac9fd98d24942aeaf65"
+twitter:card: "summary_large_image"
+icon: "arrows-rotate"
+keywords:
+  - "Notion knowledge base sync"
+  - "Tavly AI Notion"
+  - "Notion RAG vector sync"
+  - "Notion automated refresh"
+  - "Notion Markdown ingestion"
+  - "Notion page picker"
+  - "voice agent knowledge base"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How often does Tavly AI sync updated Notion pages?"
+    answer: "Tavly checks page last-edited timestamps every 24 hours when auto-refresh is enabled, re-indexing only modified content while leaving unchanged pages intact."
+  - question: "Do nested Notion subpages sync automatically when selecting a parent page?"
+    answer: "No. Each page is an individual source in Tavly. You must tick each child page individually in the page picker, up to 25 pages per knowledge base."
+  - question: "Can I sync an entire Notion database into a knowledge base?"
+    answer: "Not as a single unified source. Database rows appear as individual pages in the picker and can be ingested one by one into the knowledge base."
+  - question: "What happens if a Notion page is deleted or unshared?"
+    answer: "Tavly preserves previously embedded vector content so your agent continues answering queries, while flagging future background synchronizations as unavailable."
+---
+
+# Notion knowledge base sync
+
+> Sync Notion pages into a Tavly AI knowledge base: pick the pages shared with your connection, and edited pages re-sync automatically every 24 hours.
+
+## How does Notion knowledge base sync work in Tavly AI?
+
+**Notion knowledge base sync** ingests selected documentation pages from your Notion workspace directly into Tavly conversational knowledge bases as searchable Markdown vector embeddings. When team members edit live Notion pages, Tavly automatically detects modifications through **24-hour delta refreshes**, re-syncing updated content so your voice and chat agents maintain continuous factual accuracy.
+
+Pages you import from Notion become dynamic [knowledge base](/build/knowledge-base) sources that mirror living workspace documentation. Instead of maintaining static exports that risk obsolescence, Tavly tracks page updates automatically.
+
+Before selecting pages, ensure you have an active [connected Notion account](/integrations/knowledge-base/notion/connect) with your target documentation [shared with the internal connection](/integrations/knowledge-base/notion/connect#how-do-you-share-notion-pages-and-databases-with-the-internal-connection).
+
+### Architecture: Notion ingestion and vector update lifecycle
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│         Notion Workspace        │                 │            Tavly AI             │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Shared Parent Wiki / Page   │ │                 │ │ Native Tree Page Picker     │ │
+│ │ (and nested subpages)       │ │ ── ntn_ Key ───►│ │ (Title & Hierarchy Browsing)│ │
+│ └──────────────┬──────────────┘ │    Read-Only    │ └──────────────┬──────────────┘ │
+│                │                │                 │                │                │
+│                │ Block Content  │                 │                ▼                │
+│                │ (Markdown)     │                 │ ┌─────────────────────────────┐ │
+│                ▼                │                 │ │ Ingestion & Chunking Engine │ │
+│ ┌─────────────────────────────┐ │                 │ │ (Attaches Page Title to RAG)│ │
+│ │ Delta Poller (24h Schedule) │ │                 │ └──────────────┬──────────────┘ │
+│ │ (Evaluates last_edited_time)│ │                 │                │                │
+│ └──────────────┬──────────────┘ │                 │                ▼                │
+│                │                │                 │ ┌─────────────────────────────┐ │
+│                └──── Delta ─────┼── Modified ────►│ │ Knowledge Base Embeddings   │ │
+│                      Check      │   Blocks Only   │ │ (Vector Semantic Store)     │ │
+│                                 │                 │ └─────────────────────────────┘ │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+---
+
+## How do you add and select Notion pages in a knowledge base?
+
+To add Notion documentation, open your target knowledge base in Tavly, click **Add**, and choose your connected Notion account to open the native **Select pages** dialog. Browse the hierarchical document tree, mark the checkboxes beside specific pages, and confirm by clicking **Select** to initiate automatic block extraction and vector embedding.
+
+<Steps>
+  <Step title="Open the knowledge base source menu">
+    In the Tavly Dashboard, navigate to **Knowledge Base**, open an existing knowledge base or click **Create New**, and open the **Add** source menu. Your connected Notion workspaces appear beneath the native source types. If no account has been linked yet, the menu provides a direct **Connect Notion** prompt.
+
+    <Frame caption="The knowledge base Add menu, listing connected Notion accounts below the built-in source types.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/knowledge-base-add-menu-notion.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=46fe45d6b2be9201b466e2d6d24b019a" alt="The Add Knowledge Base dialog with a Knowledge Base Name field and a Documents section whose + Add button has opened the source menu. The menu lists Add Web pages, Upload files (Up to 50MB), and Add text, then a divider, then five connected accounts: Google Drive - OAuth, two Microsoft OneDrive connections, and two Notion connections named Notion - connection and Notion - API key, which are ringed in blue. Selecting a Notion account opens the Select pages dialog." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1684" height="960" data-path="images/integration/knowledge-base-add-menu-notion.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Select pages in the hierarchical document picker">
+    Select your Notion account. The **Select pages** modal opens natively within the Tavly interface without requiring browser popup permissions or third-party cookies.
+
+    The modal renders every document shared with your Notion connection as an expandable hierarchy, displaying **Name** and **Last modified** timestamps:
+    * **Expand document trees**: Click the chevron beside any parent page to view its nested subpages.
+    * **Title search filtering**: Use the search field to filter by page title; matching results automatically expand parent branches.
+    * **Independent page selection**: Each page functions as an individual knowledge source. Selecting a parent page imports that parent's text only. To ingest subpages, select each nested child checkbox individually.
+    * **State preservation**: Pages currently active in your knowledge base open with checkboxes pre-selected. Unchecking an existing page removes it from the knowledge base upon saving.
+
+    <Frame caption="The Select pages dialog, with a nested page ticked on its own while its parent stays unticked.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-select-pages-picker.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=caec9341ad9abac9fd98d24942aeaf65" alt="Retell's Select pages dialog for a Notion connection, with a Search box and a table with Name and Last modified columns. A top-level page named test is expanded with a chevron and unticked; nested under it, test subpage is ticked. A second top-level page, General Magic the Movie, is ticked. Each row shows September 2, 2026 as its last-modified date. The footer reads '2 pages selected' with Cancel and Select buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1800" height="652" data-path="images/integration/notion-select-pages-picker.png" />
+      </div>
+    </Frame>
+
+    The modal footer maintains a live tally of selected documents. Click **Select** to finalize your selection.
+  </Step>
+
+  <Step title="Monitor automated processing and indexing">
+    Selected pages are automatically extracted, partitioned into contextual chunks, and indexed into the vector store. In the knowledge base document table, each imported source appears with its original Notion title and is marked with a **Notion** provider badge. If a single page encounters processing issues, processing continues uninterrupted for all remaining pages.
+  </Step>
+</Steps>
+
+---
+
+## What page elements sync from Notion into Tavly knowledge bases?
+
+Tavly extracts native text blocks—including **headings, paragraphs, numbered lists, and bullet points**—converting them into structured Markdown with the page title attached to each chunk. Embedded databases, standalone image attachments, nested subpages, and link previews are excluded, requiring individual page selection and descriptive text captions for complete indexing.
+
+Because Tavly processes Notion content as semantic Markdown, structured text formatting provides optimal retrieval accuracy:
+
+### Ingestion scope by Notion block type
+
+| Notion Element | Synchronization Behavior | Impact on Agent Retrieval |
+| :--- | :--- | :--- |
+| **Text, Headings, Lists** | Ingested fully as standard Markdown | Primary source text for voice agent retrieval and conversational context. |
+| **Page Title** | Prefixed to every extracted chunk | Ensures semantic disambiguation across diverse knowledge topics. |
+| **Nested Subpages** | **Excluded** from parent page content | Subpages must be selected individually in the page picker. |
+| **Inline & Full Databases** | **Excluded** from page body | Databases cannot sync as a single source; database row pages must be selected individually. |
+| **Images & File Attachments** | Only captions or alt-text ingested | File binaries, OCR parsing, and embedded audio/video are not processed. |
+| **Bookmarks & Embeds** | Only raw URLs ingested | Third-party web previews and external page contents are skipped. |
+
+<Note>
+  A Notion page containing no indexable text blocks after filtering will fail processing with the error: `Notion page "<title>" produced no content to index (empty page, or all content is in nested pages which must be added separately)`. This frequently occurs on directory or table-of-contents pages containing only hyperlinks to subpages.
+</Note>
+
+<Tip>
+  Pages formatted with concise headers, short paragraphs, and clear topic clustering achieve the highest retrieval accuracy in Tavly. Consult the [knowledge base best practices guide](/build/knowledge-base#best-practices) for optimization techniques.
+</Tip>
+
+---
+
+## What limits and constraints apply to Notion knowledge base synchronization?
+
+Tavly enforces a limit of **25 Notion pages** per knowledge base, while the native page selector can enumerate up to **3,000 shared pages** per connection. Pages are retrieved in segments of approximately **20,000 blocks** across up to 20 segments, with automated delta background synchronization executing continuously every **24 hours**.
+
+### Technical integration thresholds
+
+| Metric / Parameter | Threshold / Specification | Operational Guidance |
+| :--- | :--- | :--- |
+| **Pages per knowledge base** | **25 pages** | Exceeding 25 yields `too many notion pages, please reduce the number to below 25`. Distribute large wikis across multiple knowledge bases. |
+| **Maximum page size** | **~400,000 blocks** (20 segments × 20,000 blocks) | Pages exceeding this capacity fail with `Notion page is too large to index; split it into smaller pages`. |
+| **Picker listing limit** | **~3,000 pages** per connection | If the picker fails to load, reduce shared pages in Notion or deploy scoped internal connections per department. |
+| **Delta refresh cadence** | Every **24 hours** | Executes automatically when the **Automatically sync Notion pages every 24 hours** setting is enabled. |
+
+*Specifications confirmed as of September 2026.*
+
+---
+
+## How does Tavly maintain automated synchronization and handle document edits?
+
+When **auto-refresh** is enabled, Tavly evaluates each page's last-edited timestamp every **24 hours**, fetching updated Markdown blocks exclusively for modified documents while skipping unchanged pages. Renaming or reorganizing pages within shared Notion hierarchies preserves document IDs without breaking active vector links or interrupting real-time conversational agent retrieval.
+
+### Synchronization dynamics
+
+* **Automated background refresh**: Adding a Notion page automatically activates **Automatically sync Notion pages every 24 hours** on the knowledge base. Edits published in Notion within minutes of a cycle are captured in the subsequent synchronization run.
+* **Page renames and relocation**: Renaming or moving a page within your Notion workspace does not disrupt sync. Tavly tracks the static Notion page UUID and refreshes the title metadata during each sync cycle.
+* **Handling newly shared pages**: Newly shared pages in Notion are not appended automatically. To index new documents, open the knowledge base **Add** menu and select the corresponding pages in the picker.
+* **Resilient fallback serving**: If a page becomes temporarily inaccessible (e.g., moved to trash, unshared, or paused due to invalid connection credentials), Tavly **retains previously cached vector chunks**. Your agent continues answering customer queries seamlessly rather than dropping knowledge abruptly.
+
+---
+
+## How do you troubleshoot Notion synchronization and processing errors?
+
+Resolve synchronization failures by confirming that the parent page or subpage is explicitly shared with your integration bot and that the connection retains valid **Read content** permissions without API errors. For pages with indexing failures, ensure the page contains textual body blocks rather than solely embedded databases or child links.
+
+<AccordionGroup>
+  <Accordion title="'This Notion connection has no pages shared with it yet'">
+    The internal connection exists in Tavly but has not been granted access to workspace documents. Open the target documentation page in Notion, click the **•••** menu, select **Connections**, and add your integration bot. Return to Tavly and reopen the picker to view newly shared pages.
+  </Accordion>
+
+  <Accordion title="'Could not load pages from this Notion connection'">
+    Tavly failed to query Notion's integration endpoint. Navigate to **Integrations → Connected** and verify the status tag. A red **Connection error** tag indicates an invalidated or refreshed access token; paste the updated `ntn_` token to restore connectivity. If the connection is active, ensure the total shared pages count does not exceed the 3,000-page selector threshold.
+  </Accordion>
+
+  <Accordion title="A specific page does not appear in the picker tree">
+    The page picker displays only documents explicitly shared with the internal connection. Ensure the page or its parent wiki is shared in Notion. Note that pages in the Notion trash are automatically hidden, databases do not appear as parent containers, and pages placed inside column or toggle blocks display at the root of the hierarchy rather than nested.
+  </Accordion>
+
+  <Accordion title="A page fails with 'produced no content to index'">
+    The source page lacks indexable body text. This occurs when a page serves strictly as an index containing links to child pages, or when content is restricted to embedded databases and unsupported media attachments without textual notes or captions.
+  </Accordion>
+
+  <Accordion title="A Notion source stops receiving updates">
+    Confirm that **Automatically sync Notion pages every 24 hours** is toggled on in knowledge base settings, verify that the connection on the **Connected** tab shows no credential errors, and check that the document remains shared with the integration in Notion.
+  </Accordion>
+
+  <Accordion title="The page picker takes several seconds to open">
+    Tavly retrieves pages dynamically via Notion's API in batches of 100 pages per request, adhering to Notion API rate limits. For workspaces sharing thousands of pages, loading may require several seconds. Limit connection shares to relevant knowledge sections to ensure rapid picker loading.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Notion knowledge base sync
+
+Notion pages update on a **24-hour auto-refresh cycle** or via manual sync triggers within the Tavly dashboard. Nested pages must be selected individually up to the **25-page limit**, and database rows can be ingested page by page. Synthesized vector chunks remain cached for agent retrieval even if connections pause.
+
+<AccordionGroup>
+  <Accordion title="How quickly do edits made in Notion appear in my agent's answers?">
+    Under standard operation, updated pages re-sync automatically during the scheduled 24-hour knowledge base refresh cycle. If immediate deployment is required, you can trigger a manual sync directly from the knowledge base source settings in the Tavly dashboard.
+  </Accordion>
+
+  <Accordion title="Do I need to select nested child pages separately?">
+    Yes. Notion's API isolates page blocks from nested children. Marking a parent page checkbox ingests only that specific page's body text. To index subpages, check each nested document individually in the picker tree.
+  </Accordion>
+
+  <Accordion title="Can I sync an entire Notion database into a knowledge base?">
+    Not as a single unified container. Inline and full-page databases are bypassed during page ingestion. However, because each database record is technically a Notion page, individual database rows appear in the page picker and can be selected as distinct knowledge sources. For large structured tables, linking spreadsheets via [Google Drive](/integrations/knowledge-base/google-drive/knowledge-base-sync) or [Microsoft OneDrive](/integrations/knowledge-base/onedrive/knowledge-base-sync) is recommended.
+  </Accordion>
+
+  <Accordion title="Can a knowledge base combine Notion pages with other source types?">
+    Yes. Notion pages seamlessly coexist with uploaded PDFs, crawled web URLs, custom raw text, [Google Drive files](/integrations/knowledge-base/google-drive/knowledge-base-sync), and [OneDrive documents](/integrations/knowledge-base/onedrive/knowledge-base-sync) within a single knowledge base, sharing unified vector retrieval.
+  </Accordion>
+
+  <Accordion title="Can I export or download raw Notion files from Tavly?">
+    No. Tavly references the original document in your Notion workspace and stores parsed vector embeddings for retrieval. The raw page binary is not hosted for direct download in the dashboard.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Knowledge base overview" icon="book" href="/build/knowledge-base">
+    Configure vector search parameters, test query accuracy, and review best practices for source formatting.
+  </Card>
+
+  <Card title="Connect Notion" icon="link" href="/integrations/knowledge-base/notion/connect">
+    Generate internal integration tokens and manage workspace sharing permissions for Notion.
+  </Card>
+</CardGroup>

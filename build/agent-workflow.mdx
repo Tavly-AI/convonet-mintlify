@@ -9,7 +9,6 @@ og:title: 'Agent Workflows: Pre-Call & Post-Call Automation'
 og:description: 'Configure Tavly agent workflows to automate pre-call CRM lookups, trigger post-call webhooks, and log conversational data dynamically.'
 og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/workflow-pre-call-functions.png'
 twitter:card: 'summary_large_image'
-icon: 'max'
 keywords: ['agent workflows', 'pre-call automation', 'post-call functions', 'CRM integration', 'Tavly webhook', 'data extraction']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -50,7 +49,7 @@ You strictly use Pre-Call functions to arm the agent with required context befor
 * **Log outcomes:** Write the AI summary and sentiment directly into a CRM timeline.
 * **Create follow-ups:** Automatically generate callback tickets or SMS notifications.
 
-<Note> **Mid-Call Tools:** If the agent needs to fetch data *during* the active conversation (e.g., checking calendar slots mentioned by the caller), you must use [Integration Tools](/build/single-multi-prompt/integration-tools) instead of Workflow functions.</Note>
+<Note> **Mid-Call Tools:** If the agent needs to fetch data *during* the active conversation (e.g., checking calendar slots mentioned by the caller), you must use [Integration Tools](/build/setup/single-multi-prompt/integration-tools) instead of Workflow functions.</Note>
 
 ## What types of functions are available?
 
@@ -109,14 +108,14 @@ If a `{{variable}}` referenced in an input has no value — either because the f
 
 ### Variables Available to Post-Conversation Functions
 
-Post-call and post-chat functions run after [Post Call Extraction](/features/post-call-analysis-overview) completes, so on top of everything else, they can also read its results:
+Post-call and post-chat functions run after [Post Call Extraction](monitor/post-call-analysis-overview) completes, so on top of everything else, they can also read its results:
 
 | Voice                            | Chat                             | What it holds                                                                                            |
 | ----------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
 | `{{call_summary}}`                  | `{{chat_summary}}`                    | The analysis summary                                                                                             |
 | `{{call_successful}}`               | `{{chat_successful}}`                 | Whether the analysis judged the session successful                                                               |
 | `{{user_sentiment}}`                | `{{user_sentiment}}`                  | The user's sentiment                                                                                              |
-| One per custom analysis field       | One per custom analysis field         | Named after the field, coming from your [Post Call Extraction](/features/post-call-analysis-overview) setup      |
+| One per custom analysis field       | One per custom analysis field         | Named after the field, coming from your [Post Call Extraction](monitor/post-call-analysis-overview) setup      |
 | `{{disconnection_reason}}`          | `{{disconnection_reason}}`            | Why the session ended — see [call disconnect reasons](/reliability/debug-call-disconnect)                        |
 | `{{call_status}}`                   | `{{chat_status}}`                     | The session's final status                                                                                        |
 
@@ -153,7 +152,7 @@ A support line greets the caller by name and already has their open ticket in co
 
 The prompt then opens with something like `Greet {{caller_name}} by name.`, and since the ticket list is already in context, "what's the status of my ticket?" gets answered on the very first turn instead of the third.
 
-The exact same pair works just as well on a [chat agent](/build/create-chat-agent) as pre-chat functions — just swap `{{user_number}}` for whatever [dynamic variable](/build/dynamic-variables) your chat session starts with, such as an email address passed in when the widget first opens.
+The exact same pair works just as well on a [chat agent](/build/create-chat-agent) as pre-chat functions — just swap `{{user_number}}` for whatever [dynamic variable](/build/context/dynamic-variables) your chat session starts with, such as an email address passed in when the widget first opens.
 
 ### Logging the Session and Opening a Follow-Up Task
 
@@ -166,7 +165,7 @@ A sales agent writes every conversation back into HubSpot, and only creates a ta
 **Post-call functions:**
 
 1. `log_hubspot_call` — HubSpot **Log Call Activity** against `{{hubspot_contact_id}}`, with the body set to `{{call_summary}}`. Gated on **All**: `{{call_summary}}` exists — so a call that never got far enough to be analyzed writes nothing at all.
-2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function alongside `log_hubspot_call` so both writes fire off together. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom [Post Call Extraction](/features/post-call-analysis-overview) field. Its subject line is a description the LLM fills in based on the transcript.
+2. `create_followup` — HubSpot **Create Task**, added as a *parallel* function alongside `log_hubspot_call` so both writes fire off together. Gated on **All**: `{{call_status}}` = `ended` **and** `{{followup_needed}}` = `true`, where `followup_needed` is a custom [Post Call Extraction](monitor/post-call-analysis-overview) field. Its subject line is a description the LLM fills in based on the transcript.
 
 The session gets logged every single time it finishes; the task only shows up on the conversations that actually earned one.
 

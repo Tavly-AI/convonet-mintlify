@@ -24,7 +24,7 @@ faq:
 
 ## What is the Extract Dynamic Variable tool?
 
-The **Extract Dynamic Variable tool** securely grabs contextual values from the live conversation as an active call unfolds and securely saves them as [dynamic variables](/build/dynamic-variables) so the agent can reference them on subsequent conversational turns. 
+The **Extract Dynamic Variable tool** securely grabs contextual values from the live conversation as an active call unfolds and securely saves them as [dynamic variables](/build/context/dynamic-variables) so the agent can reference them on subsequent conversational turns. 
 
 For instance, a scheduling agent can automatically capture a caller's first name and email address immediately when spoken, utilize `{{user_name}}` while confirming the booking slot, and securely hand off `{{user_email}}` to a custom backend webhook that issues an appointment confirmation.
 
@@ -37,7 +37,7 @@ You should reach for this tool whenever the active agent requires a spoken value
 | Operational Need | Recommended Tool |
 | --- | --- |
 | Reuse a captured conversational value mid-call | **Extract Dynamic Variable tool** |
-| Collect structured analytics only after the call ends | [Post Call Extraction](/features/post-call-analysis-overview) |
+| Collect structured analytics only after the call ends | [Post Call Extraction](monitor/post-call-analysis-overview) |
 | Guarantee extraction occurs at a rigid sequence step | [Extract Dynamic Variable node](/build/conversation-flow/extract-dv-node) |
 | Compute or transform an extracted numerical value | [Code Tool](/build/single-multi-prompt/code-tool) |
 

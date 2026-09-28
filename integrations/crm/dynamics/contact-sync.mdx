@@ -1,0 +1,173 @@
+---
+title: 'Dynamics 365 Contact Sync: Property Mapping & Activity Logging'
+sidebarTitle: 'Contact Sync'
+description: 'Sync Dynamics 365 Contacts with Tavly AI: map phone-matched fields, write back post-call analysis, and log completed Phone Call activities to Dataverse.'
+seo:
+  title: 'Dynamics 365 Contact Sync & Phone Call Logging | Tavly AI Docs'
+  description: 'Sync Dynamics 365 Contacts with Tavly AI: map phone-matched fields, write back post-call analysis, and log completed Phone Call activities to Dataverse.'
+og:title: 'Dynamics 365 Contact Sync: Property Mapping & Activity Logging'
+og:description: 'Sync Dynamics 365 Contacts with Tavly AI: map phone-matched fields, write back post-call analysis, and log completed Phone Call activities to Dataverse.'
+og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/microsoft-dynamics-connect-dialog.png'
+twitter:card: 'summary_large_image'
+icon: 'arrows-rotate'
+keywords: ['Dynamics 365 contact sync', 'Tavly AI Dynamics 365 integration', 'Dataverse Phone Call activity logging', 'two-way Dynamics sync', 'post call extraction Dynamics', 'voice AI dynamic variables', 'Dataverse contact mapping']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Does Tavly automatically create or delete Contacts in Dynamics 365?'
+    answer: 'By default, outbound sync updates existing Contacts only and never deletes records. Enabling "Create new contacts in CRM" allows Tavly to insert new Contact records post-call for unmatched callers.'
+  - question: 'Can I map a different phone field instead of Business Phone (telephone1)?'
+    answer: 'Yes. Tavly pre-fills the mapping from "telephone1" (Business Phone) to "phone_number". If your primary phone numbers reside in "mobilephone", update the mapped field on both inbound and outbound sync tabs.'
+  - question: 'What happens to existing Tavly contacts if Dynamics 365 is disconnected?'
+    answer: 'Imported Contact records remain preserved in your Tavly workspace. Disconnecting stops future synchronization cycles without deleting local contact profiles.'
+---
+
+## What is Dynamics 365 contact sync and what capabilities does it enable?
+
+**Dynamics 365 contact sync** establishes automated, bidirectional synchronization between Microsoft Dataverse Contacts and Tavly AI. Operating on a **5-minute** incremental polling schedule, it matches records using **E.164 phone numbers**, maps **Post Call Extraction** insights to Contact fields, and logs calls as completed **Phone Call** activities on customer timelines.
+
+Synchronizing your Microsoft Dataverse environment ensures that customer phone conversations and CRM intelligence remain unified:
+
+* **Bidirectional Contact Synchronization**: Ingest Dynamics 365 Contacts into Tavly and push updated field values back to customer records automatically.
+* **Autonomous Property Enrichment**: Map extracted metrics from [Post Call Extraction](/monitor/post-call-analysis-overview) to Dataverse Contact properties using configurable update modes.
+* **Automated Timeline Activity Logging**: Record call durations, summaries, and transcripts directly onto customer timelines as completed Phone Call activities without manual entry.
+
+<Tip>
+  Contact sync requires an authenticated [Dynamics 365 connection](/integrations/crm/dynamics/connect). If your agents only need to search records or update customer fields on demand, [Dynamics 365 agent functions](/integrations/crm/dynamics/agent-functions) execute via live API calls without enabling persistent contact sync.
+</Tip>
+
+***
+
+## What security role privileges are required for Dynamics 365 contact sync?
+
+Contact sync executes under the authenticated Microsoft work account. Its Dataverse security role requires **Read** and **Write** privileges on Contact, **Create** and **Write** privileges on Phone Call and Task (to generate and close activities), and both **Append** and **Append To** privileges to link activities to Contact records.
+
+These privileges are configured within Power Platform Admin Center as detailed in the [Dynamics connection prerequisites](/integrations/crm/dynamics/connect#prerequisites):
+
+### Privilege Requirements Matrix
+
+| Dataverse Entity / Activity | Required Security Role Privileges | Operational Purpose |
+| :--- | :--- | :--- |
+| **Contact** | **Read** (all imported fields) | Ingests Contacts during initial scans and recurring polling. |
+| **Contact** | **Write** (all mapped fields) | Updates Contact properties when outbound sync pushes changes. |
+| **Phone Call** | **Create**, **Write**, and **Append** | Generates call activity records and transitions status to `Completed`. |
+| **Task** | **Create**, **Write**, and **Append** | Generates chat activity records and marks status as `Completed`. |
+| **Contact** (Relational) | **Append To** | Allows attaching Phone Call and Task activities to the Contact record. |
+
+<Warning>
+  Omitted privileges do not generate connection error badges in Tavly, because Dataverse responds with permission-level exceptions rather than authentication rejections. The affected field or activity silently stops syncing until privileges are updated.
+</Warning>
+
+***
+
+## How do you configure and verify Dynamics 365 contact sync in Tavly?
+
+To configure sync, navigate to your authenticated connection under **Integrations → Connected** and select **Set up contact sync**. Map inbound and outbound properties (locking the mandatory `telephone1` to `phone_number` key), enable **Log activities automatically**, and trigger an initial full-scan sync to ingest your existing Dataverse Contact directory.
+
+Follow these configuration steps:
+
+### 1. Configure Inbound and Outbound Field Mappings
+
+In the contact sync modal, establish bidirectional mapping rules across two directional tabs:
+
+* **Import contacts (Dynamics 365 → Tavly)**: Select which Dataverse Contact fields populate Tavly contact attributes. Tavly automatically pre-fills and locks the mapping from Dynamics `telephone1` (Business Phone) to Tavly `phone_number`. If your caller numbers reside in `mobilephone`, adjust the external property on both tabs.
+* **Sync to Microsoft Dynamics 365 (Tavly → Dynamics 365)**: Select which Tavly contact fields write back to Dynamics properties when modified via conversation analysis or dashboard updates.
+* **Activity Logging**: Turn on **Log activities automatically** on the **Sync to Microsoft Dynamics 365** tab to publish interaction records directly to customer timelines.
+
+Consult the comprehensive [CRM data mappings guide](/integrations/crm/crm-data-mappings) for update mode behaviors (`Overwrite`, `Fill if empty`, `Merge`) and custom field creation rules.
+
+### 2. Verify Initial Synchronization
+
+* **Full-Scan Processing**: The initial sync performs a complete rescan across all Dataverse Contacts possessing the mapped phone property. Large enterprise databases may require several minutes to complete ingestion.
+* **Recurring Incremental Polling**: Following the initial import, Tavly polls Dynamics 365 every **5 minutes** (as of August 2026), incrementally fetching only Contacts modified since the previous sync timestamp.
+* **Review the Contacts Table**: Open **Contacts** in the Tavly dashboard to verify that records display with valid international E.164 phone numbers and mapped custom attributes.
+
+<Note>
+  Contacts lacking a value in the mapped phone field are skipped automatically, as are records containing phone numbers that cannot be normalized to the international E.164 standard. Standardize phone formatting in Dynamics to ensure comprehensive synchronization.
+</Note>
+
+***
+
+## How are voice calls and web chats logged to the Dynamics 365 timeline?
+
+Tavly logs phone calls as completed **Phone Call** activities with call direction, call duration rounded up to whole minutes, and a description containing the **conversation ID**, phone numbers, disconnection reason, and summary. Web chats log as completed **Task** activities. Both link directly to the matched Contact record.
+
+The logged activity record includes:
+
+| Logged Parameter | Representation in Dynamics 365 Activity |
+| :--- | :--- |
+| **Activity Entity** | **Phone Call** for telephony sessions; **Task** for web chats. |
+| **Activity Status** | Transitioned automatically to `Completed`. |
+| **Call Duration** | Recorded call duration rounded up to whole minutes. |
+| **Direction** | Tagged as Inbound or Outbound based on telephony metadata. |
+| **Description** | Contains the Tavly conversation ID, from and to phone numbers, disconnection reason, and full AI conversation summary. |
+| **Regarding / Contact Link** | Attached directly to the matched Contact record via Dataverse relationship. |
+
+<Note>
+  Tavly attaches activities exclusively to Contacts matched by phone number from the currently connected Dynamics 365 environment. Calls from unrecognized phone numbers or contacts created outside of Dynamics sync do not generate timeline activities.
+</Note>
+
+***
+
+## How do you troubleshoot Dynamics 365 contact sync and activity logging issues?
+
+If activities fail to appear on customer timelines, ensure **Log activities automatically** is active on the **Sync to Microsoft Dynamics 365** tab, confirm the caller matches an existing synced Contact, and verify that the integration security role possesses **Append** and **Append To** privileges on the Contact table.
+
+### Diagnostic Checklist
+
+<AccordionGroup>
+  <Accordion title="Sync runs cleanly but timeline activities never appear">
+    Activity logging requires three distinct conditions:
+    1. **Log activities automatically** must be active on the **Sync to Microsoft Dynamics 365** tab.
+    2. The caller's phone number must match a Contact previously imported from this specific Dynamics connection.
+    3. The authenticated Microsoft security role must have **Create**, **Write**, and **Append** privileges on `Phone Call`/`Task`, and **Append To** privileges on `Contact`.
+  </Accordion>
+
+  <Accordion title="Mapped custom properties fail to populate">
+    Ensure the target property is mapped under the appropriate directional tab, that data types match (e.g., text to string, whole numbers to number), and that the authenticated Microsoft user has **Write** permissions on the Contact entity for outbound pushes.
+  </Accordion>
+
+  <Accordion title="Contacts appear missing from Tavly after running synchronization">
+    Tavly requires a valid, parsable phone number in international E.164 format. Records with empty phone fields or numbers stored in custom phone attributes that were not mapped during setup are omitted from synchronization.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Does Tavly automatically create or delete Contacts in Dynamics 365?">
+    By default, outbound sync updates existing Contacts only and never deletes records. Enabling **Create new contacts in CRM** on the **Sync to Microsoft Dynamics 365** tab allows Tavly to insert new Contact records post-call for unmatched callers.
+  </Accordion>
+
+  <Accordion title="Can I map a different phone field instead of Business Phone (telephone1)?">
+    Yes. Tavly pre-fills the mapping from `telephone1` (Business Phone) to `phone_number`. If your primary phone numbers reside in `mobilephone`, update the mapped field on both inbound and outbound sync tabs.
+  </Accordion>
+
+  <Accordion title="What happens to existing Tavly contacts if Dynamics 365 is disconnected?">
+    Imported Contact records remain preserved in your Tavly workspace. Disconnecting stops future synchronization cycles without deleting local contact profiles.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="CRM Data Mappings" icon="arrows-left-right" href="/integrations/crm/crm-data-mappings">
+    Configure update modes, type conversions, and field merge rules across your CRM stack.
+  </Card>
+
+  <Card title="Persistent Contact Memory" icon="brain" href="/integrations/crm/persistent-memory">
+    Accumulate caller preferences and multi-session summaries directly onto contact profiles.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Reference synced Dynamics Contact properties inside live agent conversational prompts.
+  </Card>
+
+  <Card title="Dynamics 365 Agent Functions" icon="wrench" href="/integrations/crm/dynamics/agent-functions">
+    Equip voice agents with tools to search, update, and schedule tasks in Dataverse mid-call.
+  </Card>
+</CardGroup>

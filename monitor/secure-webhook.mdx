@@ -1,0 +1,357 @@
+---
+title: 'Secure Webhook Setup: Registration and Signature Verification'
+sidebarTitle: 'Secure Webhook'
+description: 'Securely set up and register Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and verify HMAC signatures for incoming events.'
+seo:
+  title: 'Secure Tavly Webhooks | HMAC Signature Verification & Setup'
+  description: 'Securely set up and register Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and verify HMAC signatures for incoming events.'
+og:title: 'Secure Webhook Setup: Registration and Signature Verification'
+og:description: 'Securely set up and register Tavly webhooks: build server endpoints, test with Postman, tunnel via ngrok, and verify HMAC signatures for incoming events.'
+og:image: 'https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png'
+twitter:card: 'summary_large_image'
+icon: 'shield-check'
+keywords: ['secure webhook', 'verify webhook signature', 'HMAC SHA256 webhook', 'Tavly webhook security', 'register webhook endpoint', 'webhook ngrok testing', 'account agent webhook']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is cryptographic HMAC signature verification required for webhooks?'
+    answer: 'HMAC-SHA256 verification ensures incoming HTTP requests originate genuinely from Tavly and have not been altered or forged in transit. It also enables timestamp validation to defend against replay attacks.'
+  - question: 'What is the difference between account-level and agent-level webhook registration?'
+    answer: 'Account-level webhooks listen to events across all agents in your workspace. Agent-level webhooks are defined on individual agents and take precedence, overriding account-level webhooks for those specific agents.'
+  - question: 'Why does Tavly prevent registering localhost or private IP addresses?'
+    answer: 'To prevent Server-Side Request Forgery (SSRF) and ensure high availability, Tavly blocks requests to RFC 1918 subnets, localhost, and cloud metadata endpoints. Use tools like ngrok for local development.'
+  - question: 'How do I verify webhook signatures without using an official SDK?'
+    answer: 'Extract the timestamp and digest from the x-tavly-signature header, verify the timestamp is within 5 minutes, compute an HMAC-SHA256 hash over the raw body concatenated with the timestamp using your API key, and compare digests.'
+---
+
+## What is a secure Tavly webhook and why is verification essential?
+
+A **secure Tavly webhook** delivers real-time HTTP event notifications to your backend whenever conversational voice calls or chats start, end, or finish analysis. Securing these endpoints with HMAC-SHA256 signature verification guarantees payload authenticity, protects against unauthorized spoofing or data tampering, and prevents malicious replay attacks across mission-critical enterprise workflows.
+
+### Core Security Fundamentals
+
+* **Origin Authenticity**: Verifies that every incoming HTTP request originates directly from Tavly rather than an unauthorized third party.
+* **Payload Integrity**: Guarantees that the JSON payload body has not been intercepted, tampered with, or modified in transit.
+* **Replay Attack Mitigation**: Validates request timestamps to ensure expired requests cannot be captured and replayed against your server.
+* **Network Isolation**: Protects internal network topologies by restricting webhook endpoints to publicly reachable HTTPS destinations and supporting IP allowlisting (`100.20.5.228`).
+
+---
+
+## How do you create and test a local webhook server endpoint?
+
+To **create and test a local webhook server**, implement an HTTP endpoint using Node.js Express or Python FastAPI configured to accept JSON POST requests and acknowledge events with an HTTP 204 status. Test endpoint behavior locally by sending simulated call payloads using Postman or cURL before exposing it externally.
+
+### 1. Build the Server Endpoint
+
+Implement an endpoint that ingests incoming `POST` requests and acknowledges receipt immediately:
+
+<CodeGroup>
+  ```typescript Node.js (Express) theme={"dark"}
+  import { Tavly } from "tavly-sdk";
+  import express, { Request, Response } from "express";
+
+  const app = express();
+  // Parse incoming JSON payloads
+  app.use(express.json());
+
+  app.post("/webhook", (req: Request, res: Response) => {
+    const { event, call } = req.body;
+
+    switch (event) {
+      case "call_started":
+        console.log("Call started event received:", call.call_id);
+        break;
+      case "call_ended":
+        console.log("Call ended event received:", call.call_id);
+        break;
+      case "call_analyzed":
+        console.log("Call analyzed event received:", call.call_id);
+        break;
+      default:
+        console.log("Received an unknown event:", event);
+    }
+
+    // Acknowledge receipt of the event immediately
+    res.status(204).send();
+  });
+
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+  ```
+
+  ```python Python (FastAPI) theme={"dark"}
+  import os
+  from fastapi import FastAPI, Request
+  from fastapi.responses import JSONResponse
+  from tavly import Tavly
+
+  tavly = Tavly(api_key=os.environ["TAVLY_API_KEY"])
+  app = FastAPI()
+
+  @app.post("/webhook")
+  async def handle_webhook(request: Request):
+      try:
+          post_data = await request.json()
+          event = post_data.get("event")
+          call = post_data.get("call", {})
+
+          if event == "call_started":
+              print("Call started event:", call.get("call_id"))
+          elif event == "call_ended":
+              print("Call ended event:", call.get("call_id"))
+          elif event == "call_analyzed":
+              print("Call analyzed event:", call.get("call_id"))
+          else:
+              print("Unknown event:", event)
+
+          return JSONResponse(status_code=204, content=None)
+      except Exception as err:
+          print(f"Error in webhook: {err}")
+          return JSONResponse(
+              status_code=500, content={"message": "Internal Server Error"}
+          )
+  ```
+</CodeGroup>
+
+### 2. Test Your Endpoint Locally
+
+Before exposing your service online, test endpoint processing locally on `localhost:8080/webhook` using Postman:
+
+<Frame caption="Testing local webhook endpoints using Postman">
+  <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/webhook_postman.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=f6f0c37648926e503685ec7de48c4c30" alt="Testing webhook with postman" data-path="images/webhook_postman.png" />
+</Frame>
+
+Alternatively, dispatch a sample payload via cURL:
+
+```bash test_local_webhook.sh theme={"dark"}
+curl --location 'http://localhost:8080/webhook' --header 'Content-Type: application/json' --data '{
+  "event": "call_ended",
+  "call": {
+    "call_type": "phone_call",
+    "from_number": "+12137771234",
+    "to_number": "+12137771235",
+    "direction": "inbound",
+    "call_id": "Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6",
+    "agent_id": "oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+    "call_status": "registered",
+    "metadata": {},
+    "tavly_llm_dynamic_variables": {
+      "customer_name": "John Doe"
+    },
+    "start_timestamp": 1714608475945,
+    "end_timestamp": 1714608491736,
+    "disconnection_reason": "user_hangup",
+    "transcript": "...",
+    "opt_out_sensitive_data_storage": false
+  }
+}'
+```
+
+---
+
+## How do you expose a local server to the internet using tunneling?
+
+To **expose a local server using tunneling**, install and run ngrok to forward local HTTP traffic to a temporary, secure public HTTPS forwarding URL. Tavly requires publicly reachable internet destinations and intentionally blocks connections to localhost, private RFC 1918 subnets, and cloud metadata addresses for enterprise security compliance.
+
+<Steps>
+  <Step title="Install ngrok">
+    Install ngrok using Homebrew or your package manager:
+    ```bash theme={"dark"}
+    brew install ngrok/ngrok/ngrok
+    ```
+  </Step>
+
+  <Step title="Start the secure tunnel">
+    Forward external traffic to your local server port (e.g., 8080):
+    ```bash theme={"dark"}
+    ngrok http http://localhost:8080
+    ```
+  </Step>
+
+  <Step title="Extract public HTTPS URL">
+    Review the terminal output session status:
+    ```
+    ngrok                                                                   (Ctrl+C to quit)
+
+    Session Status                online
+    Account                       inconshreveable (Plan: Free)
+    Version                       3.0.0
+    Region                        United States (us)
+    Latency                       78ms
+    Web Interface                 http://127.0.0.1:4040
+    Forwarding                    https://84c5df474.ngrok-free.dev -> http://localhost:8080
+    ```
+    Your public endpoint URL is: `https://84c5df474.ngrok-free.dev/webhook`
+  </Step>
+</Steps>
+
+---
+
+## How do you register and configure webhook URLs in Tavly?
+
+To **register webhook URLs in Tavly**, select either account-level webhooks in system settings to receive events workspace-wide, or configure agent-level webhooks on specific agent pages for dedicated routing. Agent-level webhooks override account-level settings, support runtime dynamic variables, and include a dashboard Test tool for validating pre-call configuration.
+
+### Option 1: Register an Account-Level Webhook
+
+Configure this under workspace **Settings → Webhooks** to receive events across every agent in your workspace:
+
+<Frame caption="Account-level webhook URL configuration in the dashboard settings">
+  <img height="200" src="https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png?fit=max&auto=format&n=lFgxod3Z4ow1Jkgv&q=85&s=ad640e6141ba063dd7f6d33d43f36435" alt="Account-level webhook URL configuration in the dashboard settings" data-path="images/webhook.png" />
+</Frame>
+
+### Option 2: Register an Agent-Level Webhook
+
+Configure this on the agent detail page in your dashboard or pass `webhook_url` during agent creation. Agent-level endpoints supersede account-level webhooks for that specific agent:
+
+<Frame caption="Agent-level webhook URL configuration in the agent detail page">
+  <img height="200" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/agent_webhook.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=a33cfdbda36a3647d60d73d05e0c7330" alt="Agent-level webhook URL configuration in the agent detail page" data-path="images/agent_webhook.png" />
+</Frame>
+
+#### Dynamic Variables and URL Parameterization
+
+The webhook URL field supports [dynamic variables](/build/context/dynamic-variables). Type `{{` to browse available variables, or wrap parameter keys in double curly braces (e.g., `https://example.com/webhook?customer={{customer_name}}`). Tavly replaces each variable with its runtime value prior to event delivery.
+
+<Note>
+  **Test Button Behavior**: Use the **Test** button to dispatch a mock request to your endpoint. If your URL uses dynamic variables whose values are only known during a live call (such as customer CRM fields), the Test button is disabled with an explanatory tooltip. Variables resolvable ahead of time (such as workspace environment tags) can be tested immediately.
+</Note>
+
+---
+
+## How do you verify webhook signatures and test live deliveries?
+
+To **verify webhook signatures and test live deliveries**, validate the incoming x-tavly-signature header against the raw request body using HMAC-SHA256, or use SDK helper methods. Confirm live operation by initiating a test web call from the dashboard, verifying that call events trigger expected server logs, and allowlisting Tavly IP addresses.
+
+### 1. Cryptographic Signature Verification
+
+Every incoming webhook request contains an `x-tavly-signature` (or `x-retell-signature`) header. Always compute and compare signatures against the **raw unparsed body string**, never a re-serialized JSON object.
+
+<CodeGroup>
+  ```typescript Node.js (Raw Body Verification) theme={"dark"}
+  import express from "express";
+  import crypto from "crypto";
+
+  const app = express();
+  // Capture raw buffer for cryptographic hashing
+  app.use(express.raw({ type: "application/json" }));
+
+  function isValidSignature(rawBody: string, apiKey: string, signature: string): boolean {
+    // Tavly signature format: v=<timestamp>,d=<hex_digest>
+    const match = signature.match(/^v=(\d+),d=(.*)$/);
+    if (!match) return false;
+
+    const [, timestamp, receivedDigest] = match;
+    const now = Date.now();
+
+    // Prevent replay attacks: enforce 5-minute tolerance
+    if (Math.abs(now - parseInt(timestamp, 10)) > 5 * 60 * 1000) {
+      return false;
+    }
+
+    const payloadToSign = `${rawBody}${timestamp}`;
+    const computedDigest = crypto
+      .createHmac("sha256", apiKey)
+      .update(payloadToSign)
+      .digest("hex");
+
+    return crypto.timingSafeEqual(
+      Buffer.from(computedDigest),
+      Buffer.from(receivedDigest)
+    );
+  }
+
+  app.post("/webhook", (req, res) => {
+    const rawBody = req.body.toString("utf-8");
+    const signature = (req.headers["x-tavly-signature"] || req.headers["x-retell-signature"]) as string;
+
+    if (!signature || !isValidSignature(rawBody, process.env.TAVLY_API_KEY!, signature)) {
+      return res.status(401).json({ error: "Invalid signature" });
+    }
+
+    const eventData = JSON.parse(rawBody);
+    console.log("Verified event received:", eventData.event);
+    res.status(204).send();
+  });
+  ```
+
+  ```python Python (FastAPI Verification) theme={"dark"}
+  import os
+  import hmac
+  import hashlib
+  import time
+  import json
+  from fastapi import FastAPI, Request
+  from fastapi.responses import JSONResponse
+
+  app = FastAPI()
+
+  def verify_webhook(raw_body: bytes, api_key: str, signature: str) -> bool:
+      try:
+          parts = dict(item.split("=") for item in signature.split(","))
+          timestamp = int(parts.get("v", 0))
+          received_digest = parts.get("d", "")
+
+          # Replay protection: 5 minute window
+          if abs(time.time() * 1000 - timestamp) > 5 * 60 * 1000:
+              return False
+
+          payload = raw_body + str(timestamp).encode("utf-8")
+          computed = hmac.new(api_key.encode("utf-8"), payload, hashlib.sha256).hexdigest()
+          return hmac.compare_digest(computed, received_digest)
+      except Exception:
+          return False
+
+  @app.post("/webhook")
+  async def handle_webhook(request: Request):
+      raw_body = await request.body()
+      signature = request.headers.get("x-tavly-signature") or request.headers.get("x-retell-signature")
+
+      if not signature or not verify_webhook(raw_body, os.environ["TAVLY_API_KEY"], signature):
+          return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+      data = json.loads(raw_body.decode("utf-8"))
+      print("Verified event:", data.get("event"))
+      return JSONResponse(status_code=204)
+  ```
+</CodeGroup>
+
+### 2. Verify with a Live Dashboard Call
+
+Confirm your webhook works in end-to-end production:
+1. Open the Tavly dashboard and navigate to your agent.
+2. Click **Test Call → Web Call** to initiate a live conversation in your browser.
+3. Speak a few phrases, then hang up the call.
+4. Verify in your server logs or ngrok web console (`http://127.0.0.1:4040`) that `call_started`, `call_ended`, and `call_analyzed` events arrive with valid signatures.
+
+### 3. IP Allowlisting
+
+For enhanced defense-in-depth, configure your firewall or reverse proxy to allowlist Tavly's outbound webhook delivery IP address:
+* **Allowlist IP**: `100.20.5.228`
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why must I use the raw request body when calculating webhook signatures?">
+    Parsing JSON before hashing changes whitespace, key ordering, and character escapes. Cryptographic HMAC hashes require bit-for-bit equivalence with the original transmitted payload; always compute the hash over the raw body buffer.
+  </Accordion>
+
+  <Accordion title="How does the timestamp parameter prevent replay attacks?">
+    The signature header includes a timestamp (`v=<timestamp>`). By validating that this timestamp is within 5 minutes of current server time, attackers cannot record and retransmit valid payloads at a later time.
+  </Accordion>
+
+  <Accordion title="What IP address should I allowlist for incoming Tavly webhooks?">
+    Allowlist IP address `100.20.5.228` on your firewall, gateway, or ingress controller to permit incoming Tavly webhook traffic while filtering untrusted sources.
+  </Accordion>
+
+  <Accordion title="Can I test webhook handlers on my local machine without deploying to cloud?">
+    Yes. Run tunneling software such as ngrok to expose your local port (e.g., `localhost:8080`) to a public HTTPS URL, which can then be entered into the Tavly dashboard settings.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Webhooks overview guide](/monitor/webhook-overview): Learn about all supported voice and chat lifecycle event schemas.
+* [Register webhook guide](/monitor/register-webhook): Step-by-step instructions for registering account and agent endpoints.
+* [Dynamic variables guide](/build/context/dynamic-variables): Configure dynamic parameters for webhook URLs.
+* [API keys overview](/accounts/keys/api-key-overview): Secure and manage the API keys used for HMAC signature verification.

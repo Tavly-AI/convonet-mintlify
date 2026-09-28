@@ -1,0 +1,211 @@
+---
+title: 'Website Widget: Embed Chat, Voice, and Callbacks'
+sidebarTitle: 'Website Widget'
+description: 'Embed the Tavly website widget with a single script tag: deploy interactive text chat, WebRTC voice calls, and phone callbacks with reCAPTCHA bot protection.'
+seo:
+  title: 'Website Widget | Embed Chat, Voice & Callback UI | Tavly AI'
+  description: 'Embed the Tavly website widget with a single script tag: deploy interactive text chat, WebRTC voice calls, and phone callbacks with reCAPTCHA bot protection.'
+og:title: 'Website Widget: Embed Chat, Voice, and Callbacks'
+og:description: 'Embed the Tavly website widget with a single script tag: deploy interactive text chat, WebRTC voice calls, and phone callbacks with reCAPTCHA bot protection.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'window'
+keywords: ['website widget', 'embed chat widget', 'WebRTC voice widget', 'callback widget', 'Tavly website widget', 'public key authentication', 'reCAPTCHA v3 widget']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What modes does the Tavly website widget support?'
+    answer: 'The widget supports Chat mode (text messaging), Voice mode (real-time WebRTC browser calling), Hybrid mode (chooser screen switching between chat and voice), and Callback mode (collects user phone numbers and triggers an automated outbound call).'
+  - question: 'Do you need a backend server to embed the Tavly widget?'
+    answer: 'No. The widget uses Tavly''s secure public key system to authenticate directly from the client browser, eliminating the need to set up or maintain a backend proxy server.'
+  - question: 'Which versions of reCAPTCHA are supported?'
+    answer: 'The widget strictly supports Google reCAPTCHA v3. Older versions like reCAPTCHA v2 (checkbox) are not supported.'
+  - question: 'How does color theming work in the chat widget?'
+    answer: 'You can define data-theme-color for widget background/containers, data-component-color for action buttons/links, or use data-color as a shorthand that configures both simultaneously.'
+---
+
+## What is the Tavly website widget?
+
+The **Tavly website widget** is a drop-in, client-side conversational interface embedded into web applications using a single HTML script tag. Utilizing Tavly public key architecture, the widget connects directly to backend AI agents without requiring server-side proxies, supporting interactive text chat, WebRTC voice streaming, and automated phone callback requests.
+
+The widget supports two operational modalities depending on your deployment goals:
+
+* **Chat & Voice Widget**: Provides real-time text-based chat and browser-based WebRTC voice conversations powered by Tavly chat and voice agents.
+* **Callback Widget**: Displays a contact intake form that prompts users for their telephone number and automatically dispatches an outbound voice agent call.
+
+If you prefer building a completely custom user interface instead of embedding our ready-to-use widget, use the Web SDK via the [make a web call](/deploy/web-call) guide.
+
+<Frame>
+  <img width="300" src="https://mintcdn.com/retellai/uiWtPSQXWyH0QdKf/images/retell_widget.png?fit=max&auto=format&n=uiWtPSQXWyH0QdKf&q=85&s=83a090e03c34b5a2397d78c6eaf53103" alt="Tavly Website Widget" data-path="images/retell_widget.png" />
+</Frame>
+
+### Video Walkthrough
+
+Watch the video tutorial below to see how to embed the widget and configure chat, voice, and callback modes:
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/w8W4AuheIms" title="How to use Tavly AI Widget" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+### Prerequisites
+
+Before embedding either widget mode, verify that you have:
+
+1. **Created Your Agents**:
+   * For **Chat Mode**: Configure a chat agent following the [Create Chat Agent](/build/create-chat-agent) guide.
+   * For **Voice or Callback Mode**: Configure a [voice agent](/build/overview) to handle audio conversations.
+2. **Retrieved Your Credentials**:
+   * Your [Tavly Public Key](/accounts/public-keys) for frontend API authorization.
+   * Your target Tavly Agent IDs (`agent_id` for chat, `voice_agent_id` for voice).
+   * Your active Tavly phone number (required only for the callback widget).
+
+---
+
+## How do you configure and embed the chat and voice widget?
+
+To **configure and embed the chat and voice widget**, add the Tavly widget script tag to your HTML head section, specify your public key, and define your chat or voice agent IDs. The widget renders a floating action button that opens either text chat, WebRTC voice, or a hybrid chooser.
+
+Add the following `<script>` tag within your document's `<head>`:
+
+```html theme={"dark"}
+<script
+    id="retell-widget"
+    src="https://dashboard.retellai.com/retell-widget-v2.js"
+    type="module"
+    data-public-key="YOUR_TAVLY_PUBLIC_KEY"
+    data-agent-id="YOUR_CHAT_AGENT_ID"
+    data-voice-public-key="YOUR_VOICE_PUBLIC_KEY"
+    data-voice-agent-id="YOUR_VOICE_AGENT_ID"
+    data-agent-version="YOUR_AGENT_VERSION"
+    data-title="Customer Support"
+    data-logo-url="https://yourdomain.com/logo.png"
+    data-color="#3E6AEF"
+    data-theme-color="#071a3e"
+    data-component-color="#3E6AEF"
+    data-fab-text="Need support?"
+    data-bot-name="AI Assistant"
+    data-popup-message="Hi there! How can we assist you today?"
+    data-show-ai-popup="true"
+    data-show-ai-popup-time="5"
+    data-auto-open="false"
+    data-dynamic='{"source": "website"}'
+    data-white-label="YOUR_WHITE_LABEL_TOKEN"
+    data-recaptcha-key="YOUR_GOOGLE_RECAPTCHA_SITE_KEY"
+></script>
+```
+
+### Chat Widget Configuration Attributes
+
+| Attribute | Required / Optional | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data-public-key` | **Required** (or voice key) | — | Your Tavly public key used for chat session authentication. |
+| `data-voice-public-key` | Optional | — | Separate public key for WebRTC voice session authentication. |
+| `data-agent-id` | Optional | — | Your chat agent ID (enables interactive text chat). |
+| `data-voice-agent-id` | Optional | — | Your voice agent ID (enables browser-based WebRTC voice calls). |
+| `data-agent-version` | Optional | Latest | Pins the conversation to a specific agent version. |
+| `data-dynamic` | Optional | — | JSON string of dynamic prompt variables (e.g. `'{"plan": "Pro"}'`). |
+| `data-title` | Optional | `"Chat"` | Custom header title displayed in the widget window. |
+| `data-logo-url` | Optional | — | Public URL to an avatar or company logo image. |
+| `data-theme-color` | Optional | `#071a3e` | Background and main structural theme color (hex code). |
+| `data-component-color` | Optional | `#3E6AEF` | Accent color for buttons, links, and active elements. |
+| `data-color` | Optional | — | Shorthand that sets both `data-theme-color` and `data-component-color`. |
+| `data-fab-text` | Optional | `"Need support?"` | Call-to-action text displayed beside the floating button. |
+| `data-popup-message` | Optional | — | Teaser popup message displayed before the user opens chat. |
+| `data-show-ai-popup` | Optional | `"true"` | Controls whether teaser popups appear automatically. |
+| `data-show-ai-popup-time` | Optional | `5` | Delay in seconds before displaying the teaser popup. |
+| `data-auto-open` | Optional | `"false"` | Auto-expands the widget window immediately upon page load. |
+| `data-recaptcha-key` | Optional | — | Google reCAPTCHA v3 site key for bot verification. |
+| `data-white-label` | Optional | — | White-label token to conceal "Powered by Tavly" branding. |
+
+### Color Customization Hierarchy
+
+The widget resolves styling using an intelligent fallback hierarchy:
+
+```
+data-theme-color (Default: #071a3e)  ──────> Falls back to data-color
+data-component-color (Default: #3E6AEF) ───> Falls back to data-color
+```
+
+Use `data-color` alone for rapid single-color theming, or define `data-theme-color` and `data-component-color` independently for granular brand customization.
+
+---
+
+## How does the voice and chat hybrid mode work?
+
+The **voice and chat hybrid mode** activates automatically whenever both a chat agent ID and a voice agent ID are provided in the script tag attributes. Users see an initial modal chooser screen and bottom tab navigation, allowing seamless real-time switching between typed messages and WebRTC voice conversations.
+
+When both `data-agent-id` and `data-voice-agent-id` are declared, the widget exposes full omnichannel flexibility:
+
+1. **Chooser Screen**: Upon expanding the widget, visitors can select either "Voice Assistant" or "Chat Assistant".
+2. **Tab Bar Navigation**: A persistent bottom navigation bar allows callers to transition between text messaging and voice calls mid-session.
+3. **WebRTC Voice Stream**: Real-time microphone audio streams over low-latency WebRTC with an active visualizer.
+4. **Local State Persistence**: Chat messages persist in browser `localStorage`, allowing users to navigate between pages without losing context.
+
+If only `data-agent-id` is configured, the widget opens directly into text chat. If only `data-voice-agent-id` is set, it opens directly into the voice call interface.
+
+---
+
+## How do you configure the phone callback widget?
+
+To **configure the phone callback widget**, set the widget attribute to callback, provide your voice agent ID, and specify your verified Tavly outbound phone number. When visitors submit the popup contact form with their telephone details, Tavly automatically triggers an immediate outbound call connecting them to your conversational voice agent.
+
+The callback widget presents a lead generation modal that captures contact details and immediately connects the visitor over standard PSTN telephony:
+
+<Frame>
+  <img width="300" src="https://mintcdn.com/retellai/uiWtPSQXWyH0QdKf/images/retell_callback_widget.png?fit=max&auto=format&n=uiWtPSQXWyH0QdKf&q=85&s=97440968fd8edff9a9efa0394d7cad18" alt="Tavly Callback Widget" data-path="images/retell_callback_widget.png" />
+</Frame>
+
+### Callback Script Setup
+
+```html theme={"dark"}
+<script
+  id="retell-widget"
+  src="https://dashboard.retellai.com/retell-widget-v2.js"
+  type="module"
+  data-public-key="YOUR_TAVLY_PUBLIC_KEY"
+  data-agent-id="YOUR_VOICE_AGENT_ID"
+  data-widget="callback"
+  data-phone-number="YOUR_TAVLY_PHONE_NUMBER"
+  data-title="Request a Call"
+  data-countries="US,CA,GB"
+  data-tc="https://yourdomain.com/terms"
+  data-color="#3E6AEF"
+  data-recaptcha-key="YOUR_GOOGLE_RECAPTCHA_SITE_KEY"
+  data-fab-text="Get a call from us"
+></script>
+```
+
+### Callback Attribute Reference
+
+| Attribute | Required / Optional | Description |
+| :--- | :--- | :--- |
+| `data-widget="callback"` | **Required** | Enables the callback modal mode instead of the chat interface. |
+| `data-public-key` | **Required** | Your Tavly public key for client-side API authentication. |
+| `data-agent-id` | **Required** | Your Tavly **voice agent ID** (not a chat agent ID). |
+| `data-phone-number` | **Required** | The Tavly-managed number that dials the customer (e.g. `+15551234567`). |
+| `data-countries` | Optional | Comma-separated ISO country codes for country code selection (e.g. `"US,CA,GB"`). |
+| `data-tc` | Optional | URL to your organization's terms and privacy conditions page. |
+
+---
+
+## How do you secure the widget with Google reCAPTCHA v3?
+
+To **secure the widget with Google reCAPTCHA v3**, load Google reCAPTCHA script in your document head, supply your reCAPTCHA site key in the data-recaptcha-key attribute, and enable bot verification in your Tavly public key settings. This shields your agents against automated spam without presenting friction to legitimate users.
+
+Tavly supports frictionless bot mitigation exclusively through Google reCAPTCHA v3. Older challenge-based implementations (such as reCAPTCHA v2 checkbox challenges) are not supported.
+
+### Implementation Checklist
+
+1. **Load reCAPTCHA v3 in `<head>`**:
+   ```html theme={"dark"}
+   <script src="https://www.google.com/recaptcha/api.js?render=YOUR_GOOGLE_RECAPTCHA_SITE_KEY"></script>
+   ```
+2. **Attach Site Key to Widget**:
+   Add the attribute `data-recaptcha-key="YOUR_GOOGLE_RECAPTCHA_SITE_KEY"` to your widget `<script>` tag.
+3. **Enforce in Dashboard**:
+   Navigate to the [Public Keys settings](/accounts/public-keys) in your Tavly dashboard and enable reCAPTCHA verification. Incoming chat and voice requests lacking valid tokens will be rejected automatically.
+
+## Related Resources
+
+* [Create chat agent](/build/create-chat-agent): Configure response prompts, models, and tool integrations.
+* [Make a web call](/deploy/web-call): Build custom browser-based voice calling interfaces using our Web SDK.
+* [Public keys management](/accounts/public-keys): Create and restrict client-side public authentication keys.
+* [Make outbound calls](/deploy/outbound-call): Explore backend APIs powering automated callback telephony.

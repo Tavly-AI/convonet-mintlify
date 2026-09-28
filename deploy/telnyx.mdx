@@ -1,0 +1,142 @@
+---
+title: 'Telnyx Integration: Connect Elastic SIP Trunking'
+sidebarTitle: 'Telnyx'
+description: 'Connect Telnyx phone numbers to Tavly via elastic SIP trunking: configure FQDN routing, outbound auth credentials, custom SIP headers, and import numbers.'
+seo:
+  title: 'Telnyx Integration | Elastic SIP Trunking Setup | Tavly AI'
+  description: 'Connect Telnyx phone numbers to Tavly via elastic SIP trunking: configure FQDN routing, outbound auth credentials, custom SIP headers, and import numbers.'
+og:title: 'Telnyx Integration: Connect Elastic SIP Trunking'
+og:description: 'Connect Telnyx phone numbers to Tavly via elastic SIP trunking: configure FQDN routing, outbound auth credentials, custom SIP headers, and import numbers.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone'
+keywords: ['Telnyx integration', 'elastic SIP trunking', 'Telnyx FQDN routing', 'SIP credentials', 'X-Telnyx-Username header', 'Tavly AI Telnyx', 'voice AI telephony']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you connect a Telnyx phone number to Tavly AI?'
+    answer: 'Create an FQDN trunk in Telnyx pointing to Tavly''s SIP server (sip.tavlyai.com) with SRV records, set up credential-based authentication, assign numbers to the trunk, and import the number with your credentials and termination FQDN into Tavly.'
+  - question: 'Why is the X-Telnyx-Username SIP header required for outbound calls?'
+    answer: 'Telnyx requires the X-Telnyx-Username: <username> header in SIP INVITE requests when credential authentication is enabled so the carrier can match outbound sessions to your specific SIP trunk credentials.'
+  - question: 'Which network transport and audio codecs are recommended for Telnyx trunks?'
+    answer: 'Telnyx and Tavly recommend TCP over UDP for transport reliability, E.164 number formatting, and standard audio codecs including G.722, G.711u (PCMU), and G.711a (PCMA).'
+  - question: 'How do you troubleshoot failed Telnyx inbound or outbound calls?'
+    answer: 'Check that the inbound FQDN points to sip.tavlyai.com with SRV records, verify regional termination FQDN and credentials, ensure the X-Telnyx-Username header is configured, and review PCAP traces in Wireshark.'
+---
+
+Connect a Telnyx number to Tavly with [elastic SIP trunking](/deploy/custom-telephony), so your agents can make and receive calls on numbers you own in Telnyx. Create an FQDN trunk, configure routing and codecs, set up outbound auth, then import the number into Tavly.
+
+## What is Telnyx Elastic SIP Trunking integration?
+
+**Telnyx Elastic SIP Trunking integration** links your Telnyx phone numbers and private voice network directly with Tavly conversational AI agents. Through fully qualified domain name (FQDN) routing, SRV record lookups, credential authentication, and TCP transport, teams execute inbound and outbound AI voice calls while preserving carrier infrastructure and negotiated rates.
+
+Connecting Telnyx with Tavly provides enterprise-grade telephony controls with global low-latency media processing:
+
+| Configuration Component | Recommended Setting | Protocol / Specification | Description |
+| :--- | :--- | :--- | :--- |
+| **Inbound FQDN (Origination)** | `sip.tavlyai.com` | DNS SRV Record | Routes inbound PSTN calls from Telnyx to Tavly voice agents |
+| **Transport Protocol** | `TCP` | RFC 3261 | Ensures reliable packet delivery for SIP signaling streams |
+| **Audio Codecs** | `G.722`, `G.711U`, `G.711A` | Wideband / Narrowband Audio | Provides high-fidelity audio for accurate speech recognition |
+| **Number Format** | `+E.164` | ITU-T E.164 | Canonical international phone number formatting |
+| **Outbound Authentication** | Credentials (Username/Password) | Digest Authentication | Secures outbound SIP termination requests |
+| **Mandatory SIP Header** | `X-Telnyx-Username: <username>` | Custom SIP Header | Identifies credential owner on outbound calls |
+
+## How do you configure a Telnyx Elastic SIP Trunk step by step?
+
+To configure a **Telnyx Elastic SIP Trunk**, provision an FQDN trunk in the Telnyx Portal pointing to Tavly SIP gateway, establish credential authentication, set inbound transport to TCP with standard codecs, assign an outbound voice profile, associate numbers to the trunk, and import your numbers into Tavly console.
+
+Follow these step-by-step instructions to complete the setup:
+
+<Steps>
+  <Step title="Create elastic SIP trunking">
+    1. Create the trunk, select **FQDN** as the connection type, and assign a descriptive name:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/create.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=a0b5c74d7b0f9d0a27d6a2fb903b232b" data-path="images/custom-telephony/telnyx/create.jpeg" />
+
+    2. Add Tavly FQDN:
+
+    Add the FQDN of Tavly's SIP server: `sip.tavlyai.com`. Select `SRV` as the DNS record type:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/setting.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=5c21b0780b66885597c416d98dd8fe1e" data-path="images/custom-telephony/telnyx/setting.jpeg" />
+
+    3. Set up outbound calls authentication:
+
+    Select **Credentials** as the authentication method, and specify the username and password. You will need to use this username and password when importing the number into Tavly:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/outbound-auth.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=87ba94312ebb879e7dc9b19ed27e5bf6" data-path="images/custom-telephony/telnyx/outbound-auth.jpeg" />
+
+    <Note>
+      Telnyx requires the header `X-Telnyx-Username: <username>` to be included in outbound calls when using credentials as the authentication mechanism. See Telnyx [documentation](https://support.telnyx.com/en/articles/5271423-guide-to-sip-anchorsite-settings#h_0b59d6992a) for more details. You can find details on adding [custom SIP headers](/build/telephony/sip-headers), or on the [Make outbound calls](/deploy/outbound-call#step-2-make-outbound-calls) page.
+    </Note>
+
+    4. Set up inbound settings:
+
+    * Select `+E.164` as the number format.
+    * Select `G722`, `G711U`, and `G711A` as the active audio codecs.
+    * Select `TCP` as the transport method (TCP is strongly recommended over UDP for signaling reliability).
+    * Select your preferred SIP region.
+
+    <img height="200" src="https://mintcdn.com/retellai/TRHbNQLLwdXdtkVi/images/custom-telephony/telnyx/inbound-setting.jpeg?fit=max&auto=format&n=TRHbNQLLwdXdtkVi&q=85&s=202c89ac9ebd5fe08ae5e24a9698541c" data-path="images/custom-telephony/telnyx/inbound-setting.jpeg" />
+
+    5. Set up outbound settings:
+
+    Create a new outbound voice profile in the Telnyx portal:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/voice-profile.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=eb72458506714003dab29aec2140cdbb" data-path="images/custom-telephony/telnyx/voice-profile.jpeg" />
+
+    Assign that profile in the trunk outbound settings:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/outbound-setting.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=7a33bb6784839e1e0dbb662c4064c5bd" data-path="images/custom-telephony/telnyx/outbound-setting.jpeg" />
+  </Step>
+
+  <Step title="Move numbers to elastic SIP trunking">
+    Once you have created the elastic SIP trunk, purchase new numbers or move existing Telnyx numbers to this trunk:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/assign-number.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=a7118a51ec9841b2bed9c3d62d5b6a86" data-path="images/custom-telephony/telnyx/assign-number.png" />
+  </Step>
+</Steps>
+
+## How do you import Telnyx numbers into Tavly?
+
+To **import Telnyx numbers into Tavly**, enter your phone number in E.164 format, specify Telnyx regional termination FQDN, input your trunk authentication credentials, and inject the mandatory custom SIP header. Once registered, agents initiate and receive calls directly through the Tavly dashboard or programmatic telephony REST APIs.
+
+Follow these steps to import and manage your Telnyx phone numbers:
+
+<Steps>
+  <Step title="Import numbers via dashboard or API">
+    Now that the number is configured with your elastic SIP trunk, import it into Tavly so our gateway knows how to route incoming and outgoing calls:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/import-number.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=19c4a219923eb0adc03c807cb8d767c3" data-path="images/custom-telephony/import-number.png" />
+
+    Supply Telnyx's FQDN as the termination SIP URI. You can find your FQDN based on your choice of SIP region in the [Telnyx SIP documentation](https://sip.telnyx.com/) (for example, `sip.telnyx.com`). Supply the username, password, and any additional SIP headers configured earlier during outbound authentication:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/import-number-detail-telnyx.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=bdd4e9d406b74aa12a779c94c9d8697d" data-path="images/custom-telephony/import-number-detail-telnyx.png" />
+
+    You can also import numbers programmatically using the [Import Number API](/api-references/import-phone-number).
+  </Step>
+  <Step title="Manage and test active numbers">
+    Once the number is imported, you can make and receive calls with it identically to numbers purchased directly from Tavly:
+
+    * **Place calls immediately**: View the number in your dashboard and initiate calls directly from the console interface.
+    * **Automate via API**: Use the [Create Phone Call API](/api-references/create-phone-call) to dispatch calls programmatically.
+    * **Disconnect or delete**: To disconnect the number from Tavly routing, delete it from the dashboard or execute the [Delete Number API](/api-references/delete-phone-number).
+  </Step>
+</Steps>
+
+## How do you troubleshoot Telnyx SIP trunking issues?
+
+To troubleshoot **Telnyx SIP trunking issues**, verify that inbound routing uses SRV records pointing to Tavly gateway over TCP transport, validate outbound credential accuracy, and ensure the username header is included in termination requests. Inspect SIP INVITE handshakes and download Wireshark PCAP logs to isolate signaling failures.
+
+Examine the following diagnostics when encountering call connectivity errors:
+
+* **Inbound Call Failures**: Verify that the FQDN in your Telnyx trunk settings points to `sip.tavlyai.com` with `SRV` selected as the DNS record type. Check that inbound transport is set to `TCP` and that the assigned number format matches `+E.164`.
+* **Outbound Call Failures**: Confirm that the regional termination FQDN matches your assigned Telnyx anchor site, check the validity of your SIP username and password, and verify that the `X-Telnyx-Username` header is included in the outbound request payload.
+* **SIP Signaling Diagnostics**: Refer to [Debug outbound call](/reliability/debug-outbound-call) for common SIP error codes (e.g., 401 Unauthorized, 403 Forbidden, 408 Request Timeout), or review [debug SIP calls with PCAP files](/reliability/debug-calls-pcap) to inspect the packet signaling directly in Wireshark.
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Overview of elastic SIP trunking vs. direct SIP URI routing.
+* [Twilio integration guide](/deploy/twilio): Connect numbers from Twilio via elastic SIP trunking.
+* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls directly to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your custom SIP numbers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session context across SIP carriers.

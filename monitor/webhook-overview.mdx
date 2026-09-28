@@ -1,0 +1,316 @@
+---
+title: 'Tavly Webhooks: Real-Time Call and Chat Event Subscriptions'
+sidebarTitle: 'Webhooks Overview'
+description: 'Configure Tavly webhooks to stream real-time voice and chat lifecycle events, transfer states, live transcripts, and post-call analyses to your endpoints.'
+seo:
+  title: 'Real-Time Voice & Chat Webhooks API | Tavly AI Documentation'
+  description: 'Configure Tavly webhooks to stream real-time voice and chat lifecycle events, transfer states, live transcripts, and post-call analyses to your endpoints.'
+og:title: 'Tavly Webhooks: Real-Time Call and Chat Event Subscriptions'
+og:description: 'Configure Tavly webhooks to stream real-time voice and chat lifecycle events, transfer states, live transcripts, and post-call analyses to your endpoints.'
+og:image: 'https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png'
+twitter:card: 'summary_large_image'
+icon: 'webhook'
+keywords: ['Tavly webhooks', 'call_started webhook', 'call_ended webhook', 'call_analyzed event', 'live transcript webhook', 'telephony transfer webhook', 'HMAC webhook signature']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What happens if a call fails to connect or encounters dial errors?'
+    answer: 'If an outbound or inbound call fails to connect (such as dial_failed, dial_no_answer, or dial_busy), the call_started event is omitted. However, the call_ended and call_analyzed webhooks will still dispatch normally.'
+  - question: 'What is the webhook delivery timeout and retry policy?'
+    answer: 'Tavly expects an HTTP 2xx response within 10 seconds. If your server times out or responds with a non-2xx status code, Tavly retries the delivery up to 3 times with exponential backoff.'
+  - question: 'How can developers prevent duplicate execution from webhook retries?'
+    answer: 'Implement idempotent event consumption by caching a composite key of event and call_id in Redis or a database. If the key already exists, return HTTP 200 immediately without reprocessing.'
+  - question: 'How long do call recording URLs remain accessible when sensitive data opt-out is enabled?'
+    answer: 'When sensitive data storage opt-out is enabled, audio recording links delivered via webhooks remain valid for exactly 10 minutes before permanent deletion from storage servers.'
+---
+
+## What are Tavly Webhooks and when should you use them?
+
+**Tavly Webhooks** deliver real-time HTTP event notifications directly to your application servers as voice calls and digital chat interactions occur. Instead of polling REST endpoints, webhooks immediately push lifecycle triggers, turn-by-turn transcripts, transfer updates, and structured post-call analysis payloads, enabling rapid automation across CRMs, analytics engines, and database systems.
+
+### Core Automation Use Cases
+
+* **Real-Time Data Ingestion & Analytics**: Capture conversational volumes, customer sentiment trends, latency telemetry, and termination codes as they happen.
+* **Bi-Directional CRM Synchronization**: Automatically write structured post-call summaries, sentiment scores, and extracted entity fields to Salesforce, HubSpot, or custom databases upon call termination.
+* **Supervisory Escalation & Monitoring**: Trigger alerts when cold or warm telephony transfers bridge or fail, or receive notifications for unhandled error disconnections.
+* **Longitudinal Data Warehousing**: Export transcripts, function tool invocations, and stereo audio recordings to external S3 buckets or data lakes.
+
+---
+
+## What voice, chat, and transfer event types are supported?
+
+Tavly triggers **eleven distinct event types** partitioned across voice telephony and digital chat channels. Voice events include call initiation, completion, post-call analysis, turn-by-turn transcripts, and four telephony transfer states (`transfer_started`, `transfer_bridged`, `transfer_cancelled`, `transfer_ended`). Chat channels dispatch dedicated started, ended, and analyzed events with complete message history.
+
+<Warning>
+  If a phone call does not successfully connect (e.g., `dial_failed`, `dial_no_answer`, or `dial_busy`), the `call_started` event **will not be triggered**. However, `call_ended` and `call_analyzed` events will still dispatch with complete metadata.
+</Warning>
+
+### Voice Telephony Webhook Events
+
+| Event Type | Trigger Lifecycle Point | Payload Content |
+| :--- | :--- | :--- |
+| `call_started` | Dispatched when a telephone or web voice call establishes connection. | Baseline call identifier, agent ID, and metadata. |
+| `call_ended` | Dispatched immediately upon call termination, transfer, or disconnect error. | Full [Call Object](/api-references/get-call) excluding the asynchronous `call_analysis`. |
+| `call_analyzed` | Dispatched when post-call LLM analysis and extraction complete. | Comprehensive call data including the complete `call_analysis` schema. |
+| `transcript_updated` | Dispatched incrementally on conversational turn-taking, plus a final update at call end. | Complete call object alongside `transcript_with_tool_calls`. |
+| `transfer_started` | Dispatched when an agent initiates a SIP or PSTN call transfer. | Call metadata plus `transfer_destination` and configured `transfer_option`. |
+| `transfer_bridged` | Dispatched when the transferee successfully answers and bridges audio. | Call metadata plus `transfer_destination` and configured `transfer_option`. |
+| `transfer_cancelled` | Dispatched if a transfer leg fails to answer, times out, or cancels. | Call metadata plus `transfer_destination` and failure diagnostic details. |
+| `transfer_ended` | Dispatched when the transferred call leg terminates. | Comprehensive call record for the completed transfer leg. |
+
+### Digital Chat Webhook Events
+
+| Event Type | Trigger Lifecycle Point | Payload Content |
+| :--- | :--- | :--- |
+| `chat_started` | Dispatched when a digital chat session is initiated. | Baseline chat ID, agent ID, and conversation metadata. |
+| `chat_ended` | Dispatched when a chat conversation reaches conclusion or error. | Complete [Chat Object](/api-references/get-chat) excluding `chat_analysis`. |
+| `chat_analyzed` | Dispatched when post-chat NLP evaluation pipeline finalizes. | Full chat data including structured `chat_analysis` entities. |
+
+### Granular Event Filtering
+
+You can restrict event subscriptions per agent using the `webhook_events` parameter during agent creation or updates:
+* **Voice Agent Defaults**: `call_started`, `call_ended`, `call_analyzed`
+* **Chat Agent Defaults**: `chat_started`, `chat_ended`, `chat_analyzed`
+
+Restricting events to required triggers minimizes network overhead and simplifies ingestion logic.
+
+---
+
+## How do you register account-level and agent-level webhooks?
+
+To **register and configure webhook endpoints**, navigate to the Webhooks tab in the Tavly dashboard for account-level events, or assign a specific `webhook_url` when creating individual agents. Account-level endpoints capture events workspace-wide, while agent-level URLs override global settings and support dynamic URL path parameter interpolation per interaction.
+
+### 1. Account-Level Webhooks (Workspace Default)
+
+Configured through the Tavly dashboard under **Settings → Webhooks**, account-level webhooks receive lifecycle events for every agent across your workspace that lacks a specific agent-level endpoint.
+
+<Frame caption="Account-level webhook URL configuration in the dashboard settings">
+  <img height="200" src="https://mintcdn.com/retellai/lFgxod3Z4ow1Jkgv/images/webhook.png?fit=max&auto=format&n=lFgxod3Z4ow1Jkgv&q=85&s=ad640e6141ba063dd7f6d33d43f36435" alt="Account-level webhook URL configuration in the dashboard settings" data-path="images/webhook.png" />
+</Frame>
+
+### 2. Agent-Level Webhooks (Specific Overrides)
+
+When invoking the [Create Agent API](/api-references/create-agent) or editing an agent in the dashboard, populate the `webhook_url` field.
+* **Precedence**: When an agent-level webhook URL is configured, all events for that agent route exclusively to that endpoint, bypassing the account-level URL.
+* **Dynamic Variable Interpolation**: Webhook URLs support runtime [dynamic variables](/build/context/dynamic-variables). For example, setting `webhook_url` to `https://api.yourdomain.com/hooks?customer={{customer_id}}` dynamically evaluates `{{customer_id}}` before dispatching.
+
+<Note>
+  **Network Reachability**: Webhook endpoints must be publicly accessible HTTPS destinations. Tavly strictly blocks dispatching to `localhost`, internal RFC 1918 private IP ranges, and cloud metadata endpoints (`169.254.169.254`). For local testing, use a secure tunnel such as [ngrok](https://ngrok.com/).
+</Note>
+
+---
+
+## How do you verify and handle inbound webhook payloads?
+
+To **verify and securely handle inbound webhooks**, compute an HMAC-SHA256 hash using your Tavly API key against the raw request body and compare it with the `x-tavly-signature` header. Endpoints must respond with an HTTP `2xx` status code within **10 seconds** before Tavly initiates automated retries.
+
+### Webhook Request Specifications
+* **HTTP Method**: `POST`
+* **Content-Type**: `application/json`
+* **Signature Header**: `x-tavly-signature` (HMAC-SHA256 digest)
+* **Ingress IP Allowlist**: Allow traffic from `100.20.5.228`
+* **Timeout Limit**: **10 seconds** maximum execution window
+* **Retry Policy**: Up to **3 automated retries** upon timeout or non-2xx status codes
+
+### Standard Call Object Payload Example
+
+```json sample_call_ended.json theme={"dark"}
+{
+  "event": "call_ended",
+  "call": {
+    "call_type": "phone_call",
+    "from_number": "+12137771234",
+    "to_number": "+12137771235",
+    "direction": "inbound",
+    "call_id": "Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6",
+    "agent_id": "oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD",
+    "call_status": "registered",
+    "metadata": {},
+    "retell_llm_dynamic_variables": {
+      "customer_name": "John Doe"
+    },
+    "start_timestamp": 1714608475945,
+    "end_timestamp": 1714608491736,
+    "disconnection_reason": "user_hangup",
+    "transcript": "Agent: Hello! Caller: Hi there.",
+    "transcript_object": [
+      { "role": "agent", "content": "Hello!" },
+      { "role": "user", "content": "Hi there." }
+    ],
+    "transcript_with_tool_calls": [],
+    "opt_out_sensitive_data_storage": false
+  }
+}
+```
+
+### Transfer Event Payload Example
+
+```json sample_transfer.json theme={"dark"}
+{
+  "event": "transfer_started",
+  "call": {
+    "call_id": "Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6"
+  },
+  "transfer_destination": {
+    "number": "+12137771235",
+    "extension": "1234"
+  },
+  "transfer_option": {
+    "type": "warm_transfer",
+    "showTransfereeAsCaller": true,
+    "publicHandoffOption": {
+      "type": "static_message",
+      "message": "Connecting you with human support now."
+    },
+    "agentDetectionTimeoutMs": 15000,
+    "onHoldMusic": { "type": "default" },
+    "enableBridgeAudioCue": true
+  }
+}
+```
+
+### Verification Implementation Examples
+
+<CodeGroup>
+  ```typescript Node.js theme={"dark"}
+  import express from "express";
+  import crypto from "crypto";
+
+  const app = express();
+  // IMPORTANT: Capture the raw request body buffer for signature calculation
+  app.use(express.raw({ type: "application/json" }));
+
+  function verifyTavlySignature(rawBody: string, apiKey: string, signature: string): boolean {
+    const computed = crypto.createHmac("sha256", apiKey).update(rawBody).digest("hex");
+    return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature));
+  }
+
+  app.post("/webhook", async (req, res) => {
+    const rawBody = req.body.toString("utf-8");
+    const signature = (req.headers["x-tavly-signature"] || req.headers["x-retell-signature"]) as string;
+
+    if (!signature || !verifyTavlySignature(rawBody, process.env.TAVLY_API_KEY!, signature)) {
+      return res.status(401).json({ error: "Invalid signature verification" });
+    }
+
+    const { event, call } = JSON.parse(rawBody);
+
+    switch (event) {
+      case "call_started":
+        console.log("Call initialized:", call.call_id);
+        break;
+      case "call_ended":
+        console.log("Call completed:", call.call_id);
+        break;
+      case "call_analyzed":
+        console.log("Analysis finalized:", call.call_id, call.call_analysis);
+        break;
+      case "transcript_updated":
+        console.log("Streaming turn updated:", call.call_id);
+        break;
+      case "transfer_started":
+      case "transfer_bridged":
+      case "transfer_cancelled":
+      case "transfer_ended":
+        console.log("Transfer state:", event, call.call_id);
+        break;
+    }
+
+    // Acknowledge receipt immediately with a 2xx status code
+    res.status(204).send();
+  });
+  ```
+
+  ```python Python theme={"dark"}
+  import os
+  import json
+  import hmac
+  import hashlib
+  from fastapi import FastAPI, Request
+  from fastapi.responses import JSONResponse
+
+  app = FastAPI()
+
+  def verify_signature(raw_body: bytes, api_key: str, signature: str) -> bool:
+      computed = hmac.new(api_key.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
+      return hmac.compare_digest(computed, signature)
+
+  @app.post("/webhook")
+  async def handle_webhook(request: Request):
+      raw_body = await request.body()
+      signature = request.headers.get("x-tavly-signature") or request.headers.get("x-retell-signature")
+
+      if not signature or not verify_signature(raw_body, os.environ["TAVLY_API_KEY"], signature):
+          return JSONResponse(status_code=401, content={"error": "Unauthorized"})
+
+      payload = json.loads(raw_body.decode("utf-8"))
+      event = payload.get("event")
+      call = payload.get("call", {})
+
+      if event == "call_started":
+          print(f"Call started: {call.get('call_id')}")
+      elif event == "call_ended":
+          print(f"Call ended: {call.get('call_id')}")
+      elif event == "call_analyzed":
+          print(f"Call analyzed: {call.get('call_id')}")
+      elif event == "transcript_updated":
+          print(f"Transcript update: {call.get('call_id')}")
+
+      return JSONResponse(status_code=204)
+  ```
+</CodeGroup>
+
+---
+
+## How do you ensure idempotency, handle retries, and protect caller privacy?
+
+To **manage delivery retries, idempotency, and data privacy**, store processed event signatures combining event types and unique session identifiers in an in-memory cache or database. Tavly retries failed requests up to three times. For privacy-sensitive deployments, opt-out policies purge audio recordings from permanent storage after ten minutes.
+
+### Idempotency and Deduplication Strategies
+
+Because network partitions or downstream latency can cause delivery timeouts and subsequent retries, design your webhook handler to be strictly idempotent:
+
+* **Lifecycle Events (`call_started`, `call_ended`, `call_analyzed`, `chat_*`)**: Form a unique idempotency key using `event + call_id` (or `chat_id`). Because lifecycle events dispatch at most once per interaction, store this key in Redis with a 24-hour TTL and ignore subsequent deliveries.
+* **Transfer Events (`transfer_*`)**: A call may execute multiple warm or cold transfers. Form a compound key using `event + call_id + start_timestamp` to track distinct transfer attempts.
+* **Turn Streaming (`transcript_updated`)**: This event dispatches incrementally during live conversations. Do not deduplicate by call ID; instead, upsert the latest payload or listen specifically for the final payload sent upon call termination.
+* **Immediate Acknowledgment**: Return HTTP `200` or `204` immediately after queuing the payload to an asynchronous job queue (such as Celery, SQS, or RabbitMQ). Performing long-running database transactions before responding triggers the 10-second timeout.
+
+### Data Privacy & Storage Opt-Out
+
+When configuring an agent with **Opt-Out of Personal and Sensitive Data Storage**:
+* **Post-Call Retention**: Transcripts, audio recordings, and raw LLM parameters are purged from Tavly servers post-call.
+* **Webhook Delivery Window**: Transcripts and recording URLs remain accessible inside webhook payloads. The provided `recording_url` remains valid for **exactly 10 minutes** before the link expires and media files are permanently deleted. Ingest and persist media files to your own encrypted storage immediately upon webhook delivery.
+
+### Video Implementation Walkthrough
+
+<iframe width="360" height="200" src="https://www.youtube.com/embed/jlOba8q0PbA?si=pE-X-IOXq8bckQ_l" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why was call_started not delivered for an outbound call attempt?">
+    The `call_started` webhook event triggers only when telephony audio successfully connects. If a call encounters connection failures such as `dial_failed`, `dial_no_answer`, or `dial_busy`, the initial start event is omitted. The subsequent `call_ended` and `call_analyzed` events will still trigger with error diagnostic codes.
+  </Accordion>
+
+  <Accordion title="What happens if our endpoint takes longer than 10 seconds to respond?">
+    Tavly enforces a strict 10-second connection timeout. If your endpoint does not respond with an HTTP `2xx` status code within this window, the delivery attempt is marked as failed and enters an automated retry queue (retrying up to 3 times). Offload heavy work to asynchronous task queues to guarantee fast responses.
+  </Accordion>
+
+  <Accordion title="Can I test webhook handlers on my local development machine?">
+    Yes. Because Tavly requires publicly accessible HTTPS endpoints and blocks local or internal IP ranges, use a tunneling solution like [ngrok](https://ngrok.com/) to expose a local development port to a public URL.
+  </Accordion>
+
+  <Accordion title="How can I filter webhooks so I only receive completed call analysis?">
+    Specify the `webhook_events` property on the agent to include only `call_analyzed`. This prevents `call_started`, `call_ended`, and transcript streaming events from dispatching to your endpoint.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Secure webhook signature verification](/features/secure-webhook): In-depth HMAC-SHA256 signature verification code and security best practices.
+* [Get call API reference](/api-references/get-call): Explore the full Call Object schema delivered in webhook payloads.
+* [Post-call analysis overview](monitor/post-call-analysis-overview): Configure custom structured extraction variables to ingest via webhooks.
+* [Dynamic variables guide](/build/context/dynamic-variables): Inject runtime call parameters into agent-level webhook URLs.
+* [Community templates and guides](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Explore pre-built community webhook workflows and integrations.

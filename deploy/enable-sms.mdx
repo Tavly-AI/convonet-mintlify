@@ -1,0 +1,231 @@
+---
+title: 'Enable SMS: A2P 10DLC, In-Call Messaging, and Two-Way Text'
+sidebarTitle: 'Enable SMS'
+description: 'Enable SMS messaging on Tavly phone numbers: complete A2P 10DLC registration, send and receive mid-call MMS, and deploy two-way AI text chat agent workflows.'
+seo:
+  title: 'Enable SMS Messaging | A2P 10DLC Setup & AI Chat | Tavly AI'
+  description: 'Enable SMS messaging on Tavly phone numbers: complete A2P 10DLC registration, send and receive mid-call MMS, and deploy two-way AI text chat agent workflows.'
+og:title: 'Enable SMS: A2P 10DLC, In-Call Messaging, and Two-Way Text'
+og:description: 'Enable SMS messaging on Tavly phone numbers: complete A2P 10DLC registration, send and receive mid-call MMS, and deploy two-way AI text chat agent workflows.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'message'
+keywords: ['enable SMS', 'A2P 10DLC registration', 'two-way SMS chat', 'in-call SMS', 'mid-call MMS', 'Tavly AI SMS', 'Twilio SMS integration']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Do you need to complete an A2P application to receive SMS during phone calls?'
+    answer: 'No. Receiving SMS and MMS mid-call works out of the box for Tavly Twilio numbers without A2P registration. An approved A2P 10DLC application is only required to send SMS from your own number or conduct two-way chat.'
+  - question: 'Can you send SMS messages from a US toll-free number?'
+    answer: 'No. The A2P 10DLC SMS add-on is restricted to standard US local numbers and is disabled for non-US and toll-free phone lines.'
+  - question: 'How long does the A2P 10DLC brand and campaign approval process take?'
+    answer: 'Manual review by upstream telephony carriers typically takes 2 to 3 weeks. You will receive an automated email notification once approved or if revisions are required.'
+  - question: 'How does Tavly voice agents interpret photos and MMS sent mid-call?'
+    answer: 'When a caller sends an image or document via MMS while on a call, Tavly analyzes the media attachment in real time and passes the descriptive context into the voice agent prompt so it can discuss the content immediately.'
+---
+
+## What is Tavly SMS capability and how does it work?
+
+**Tavly SMS capability** equips conversational AI agents with bidirectional cellular text messaging. Voice agents can dispatch confirmations during live phone calls, receive caller photos or documents via MMS mid-conversation, and conduct autonomous two-way text conversations through dedicated chat agents using Twilio-backed numbers or compliant A2P 10DLC registration.
+
+Tavly supports multiple conversational text architectures:
+
+* **In-Call SMS Dispatch**: Voice agents text booking links, address confirmations, or receipts during active calls.
+* **Mid-Call MMS Ingestion**: Callers text screenshots, IDs, or damage photos during a voice call; Tavly parses the image so the agent can respond contextually.
+* **Two-Way Text Chat**: Autonomous text messaging powered by conversational [chat agents](/build/create-chat-agent).
+
+<Warning>
+  SMS is available for Tavly Twilio numbers and custom telephony numbers that have passed carrier A2P 10DLC review; Telnyx SMS is not supported currently. SMS is strictly limited to United States local phone numbers, excluding toll-free lines. The SMS add-on is automatically disabled for non-US numbers in the console.
+</Warning>
+
+---
+
+## How do you enable SMS on Tavly Twilio numbers via A2P 10DLC?
+
+To **enable SMS on Tavly Twilio numbers via A2P 10DLC**, complete three regulatory verification phases in your console: register an approved business profile, select a Low-Volume or Standard brand type, and submit an SMS campaign application with explicit sample messages, use case descriptions, and end-user opt-in workflows.
+
+Enabling outbound SMS and two-way conversations on a Tavly Twilio number requires compliance approval from US cellular carriers:
+
+### Application Overview and Fee Schedule
+
+| Phase | Application Step | Fee Structure | Details |
+| :--- | :--- | :--- | :--- |
+| **Step 1** | Business Profile Registration | Free | Verified legal business identity and EIN |
+| **Step 2** | Brand Registration | $4 (Low-Volume) or $45 (Standard) | One-time carrier fee based on message throughput |
+| **Step 3** | Campaign Registration | $15 one-time fee | Defines use case, sample texts, and consent mechanism |
+| **Ongoing** | Number SMS Add-On | $20/month per number + $0.01/SMS | Monthly maintenance and segment transmission fee |
+
+<Frame caption="The SMS add-on under Advanced Add-Ons on the phone number page — click it to start the application.">
+  <img src="https://mintcdn.com/retellai/5MK89Yey4iR4zlyL/images/sms/sms-application-start.png?fit=max&auto=format&n=5MK89Yey4iR4zlyL&q=85&s=61273ede1af8ca1837e35f43947fa1c3" alt="Phone number detail page in the Tavly dashboard showing the Advanced Add-Ons section, with the SMS add-on highlighted" width="1600" height="900" data-path="images/sms/sms-application-start.png" />
+</Frame>
+
+The review process requires **2–3 weeks** due to carrier manual verification. Tavly notifies you via email upon approval or rejection.
+
+### Video Walkthrough: A2P Application Process
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/jdCmCMkOdnI" title="Enable SMS on Tavly: A2P application walkthrough" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+### Sequential Registration Steps
+
+<Steps>
+  <Step title="Get approved for a business profile">
+    Create a new business profile or select an existing approved record. Follow the guidelines in the [Business Profile documentation](/build/telephony/business-profile) to ensure tax identification numbers and business addresses match government filings.
+  </Step>
+
+  <Step title="Select a brand type and get approved">
+    <Warning>
+      Only one brand can be registered per business profile. If rejected, you may edit details and resubmit, but the brand tier (Low-Volume vs. Standard) is locked once submitted.
+    </Warning>
+
+    Choose your operational brand tier:
+
+    * **Low-Volume Brand**:
+      * One-time application fee: **$4**
+      * Daily throughput limit: Up to **6,000 message segments/day** to US carriers (2,000/day to T-Mobile)
+    * **Standard Brand**:
+      * One-time application fee: **$45**
+      * Daily throughput limit: Between **6,000 and 400,000 message segments/day** (2,000–200,000 to T-Mobile)
+  </Step>
+
+  <Step title="Submit the SMS campaign application">
+    <Frame caption="The campaign application form: use case, description, sample messages, end-user consent, and privacy/terms URLs.">
+      <img src="https://mintcdn.com/retellai/mE3ueFGwO7zT6Bs5/images/sms/sms-campaign-application.png?fit=max&auto=format&n=mE3ueFGwO7zT6Bs5&q=85&s=8a516766194f042aee191636e3fff434" alt="Add Campaign Application dialog with required fields for Application Name, Use Case, Description for the use of sms, two Sample Message boxes, How do end-users consent to receive messages, Privacy Policy URL, and Terms and Conditions URL" style={{ maxHeight: 560 }} width="650" height="899" data-path="images/sms/sms-campaign-application.png" />
+    </Frame>
+
+    Complete the campaign configuration fields carefully:
+
+    * **Use Case Description**: Clearly state why your organization sends SMS.
+    * **Sample Messages**: Provide two realistic message templates illustrating opt-out clauses (e.g. *"Reply STOP to unsubscribe"*).
+    * **End-User Consent**: Detail how users opt in (e.g. online forms, verbal agreement during calls).
+    * **Privacy Policy and Terms URLs**: Public web links explicitly confirming customer numbers will not be shared or sold to third parties.
+
+    Refer to [SMS campaign application guidelines](/deploy/sms-campaign-application) to avoid rejections.
+  </Step>
+</Steps>
+
+---
+
+## How do you integrate your own Twilio number for SMS?
+
+To **integrate your own Twilio number for SMS**, navigate to phone number settings, open Setup SMS Function, and supply your Twilio Account SID and Auth Token. After credentials verify, configure your Twilio Messaging Service inbound webhook to point toward Tavly to process incoming text and multimedia messages.
+
+If you maintain existing SMS-enabled Twilio numbers, integrate them directly into your Tavly workspace:
+
+<Steps>
+  <Step title="Open Setup SMS Function">
+    In the Tavly dashboard, select your phone number and click **Setup SMS Function** under the **Advanced Add-Ons** section.
+  </Step>
+
+  <Step title="Provide your Twilio API credentials">
+    Input your credentials located in the Twilio Console under Account Info:
+
+    * **Account SID**: Your unique alphanumeric Twilio account identifier.
+    * **Twilio Auth Token**: Your primary secret authorization token.
+
+    <Frame caption="The Setup SMS Function dialog asking for the Twilio Account SID and Auth Token.">
+      <img src="https://mintcdn.com/retellai/_y-iu8M6jQ67ZrqV/images/custom-twilio.png?fit=max&auto=format&n=_y-iu8M6jQ67ZrqV&q=85&s=4963b87c5017b0a13c2e7748e4ccdb3c" alt="Setup SMS Function dialog with SMS Provider set to Twilio and empty fields for Account SID and Twilio Auth Token" style={{ maxHeight: 560 }} width="1062" height="1046" data-path="images/custom-twilio.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Update Twilio Messaging Service routing">
+    After verification, update your Twilio Messaging Service configuration so incoming messages are routed via the phone number's webhook setting (`useInboundWebhookOnNumber`), allowing Tavly to ingest incoming texts.
+  </Step>
+</Steps>
+
+<Note>
+  Ensure your external Twilio number has passed A2P 10DLC campaign registration within your own Twilio account prior to connecting. Consult [Twilio A2P 10DLC documentation](https://www.twilio.com/docs/proxy/flex-a2p-10dlc).
+</Note>
+
+---
+
+## How do you use a pre-approved Tavly SMS pool without A2P?
+
+To **use a pre-approved Tavly SMS pool without A2P**, select the Tavly shared number pool option in your agent SMS node or tool configuration. This allows voice agents to immediately dispatch standardized in-call notification templates without carrier registration fees, though custom text prompts and inbound two-way conversations remain unsupported.
+
+If your team only needs to text callers links or receipts during an active phone conversation, bypass the weeks-long A2P approval process entirely using Tavly's pre-approved carrier number pool:
+
+* **Instant Availability**: No registration forms, setup delays, or carrier application fees.
+* **Automated Selection**: A compliant number is selected dynamically for each call; all texts sent during that call originate from that same number.
+* **Standardized Templates**: Content is restricted to preset transactional templates to adhere to cellular carrier anti-spam regulations.
+
+<Warning>
+  Shared pool numbers do not support custom freeform text prompts, custom variables, or inbound two-way SMS conversations.
+</Warning>
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/jJus-KuWMyc" title="How to send SMS from Tavly numbers" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+---
+
+## How do in-call SMS and mid-call MMS reception work?
+
+**In-call SMS and mid-call MMS reception** allow voice agents to dispatch text confirmations or ingest caller multimedia during active conversations. When callers text photos, screenshots, or receipts to your Twilio number, Tavly processes the attachment in real time and injects visual context directly into ongoing voice dialogues.
+
+### In-Call Outbound SMS
+
+Configure your agent to trigger text messages during conversations:
+
+* **Conversation Flow Agents**: Add and configure the [SMS Node](/build/conversation-flow/sms-node).
+* **Single / Multi Prompt Agents**: Attach the [Send SMS Tool](/build/single-multi-prompt/send-sms).
+
+### Mid-Call Inbound MMS Reception
+
+Agents can receive incoming texts and media attachments mid-call, even if the agent has not initiated an SMS. Callers can send insurance photos, error screenshots, or identification cards while remaining on the line:
+
+<Frame caption="A call transcript where the caller texted a photo mid-call and the voice agent analyzes the damage in real time.">
+  <img src="https://mintcdn.com/retellai/aS6kWND7Eh5Z5FzB/images/sms/receive-sms-example.png?fit=max&auto=format&n=aS6kWND7Eh5Z5FzB&q=85&s=abb4a12ef299ea6e2e3e3a8b7b638184" alt="Call transcript showing the agent asking for a photo of a car collision, followed by an In-Call SMS entry with the received image link and the agent's detailed description of the damage" width="1164" height="582" data-path="images/sms/receive-sms-example.png" />
+</Frame>
+
+* **Carrier Support**: Supports text, photos, audio clips, and documents delivered via carrier MMS.
+* **Vision Integration**: Image content is interpreted by multimodal models and fed directly into the active prompt context.
+* **Out-of-the-Box Operation**: Inbound MMS reception functions automatically on Tavly Twilio numbers without requiring separate A2P campaign approval.
+
+---
+
+## How do you configure two-way SMS conversations with chat agents?
+
+To **configure two-way SMS conversations with chat agents**, open your phone number settings and bind separate AI chat agents to the Inbound SMS Agent and Outbound SMS Agent selectors. Incoming texts trigger the chat agent immediately, while outbound SMS conversations launch programmatically via API or dashboard.
+
+Once your phone number has an active A2P SMS add-on or connected Twilio credentials, attach [chat agents](/build/create-chat-agent) to automate two-way text messaging:
+
+<Frame caption="The Inbound SMS agent and Outbound SMS agent selectors on the phone number page.">
+  <img src="https://mintcdn.com/retellai/5MK89Yey4iR4zlyL/images/sms/sms-set-agent.png?fit=max&auto=format&n=5MK89Yey4iR4zlyL&q=85&s=190e4217b0727596baeaef81f3b25ab2" alt="Phone number detail page with the Inbound SMS agent and Outbound SMS agent dropdown sections highlighted below the call agent fields, and the SMS add-on marked as Added under Advanced Add-Ons" width="1600" height="900" data-path="images/sms/sms-set-agent.png" />
+</Frame>
+
+### Routing Controls
+
+* **Inbound Handling**: Assign a chat agent to **Inbound SMS Agent** to respond automatically to incoming texts.
+* **Outbound Initiation**: Dispatch proactive outbound SMS via the dashboard or through the [Create Outbound SMS API](/api-references/create-sms-chat).
+* **Dynamic Interception**: Use the [Inbound Call and SMS Webhook](/deploy/inbound-call-webhook) to filter numbers, inject customer context, or decline messages dynamically.
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Do I need to complete an A2P application to receive SMS during phone calls?">
+    No. Receiving SMS and MMS during active voice calls works out of the box for Tavly Twilio numbers without A2P application. An approved A2P 10DLC campaign is only required to send SMS from your own number or conduct two-way text chat.
+  </Accordion>
+
+  <Accordion title="Is Telnyx supported for SMS messaging?">
+    Not currently. SMS capabilities are supported exclusively on Tavly Twilio numbers and custom Twilio telephony integrations that have completed A2P 10DLC registration.
+  </Accordion>
+
+  <Accordion title="Can I send SMS from a toll-free telephone number?">
+    No. Under US cellular carrier standards, A2P 10DLC is restricted to 10-digit local phone numbers and excludes toll-free lines. The SMS add-on is disabled for toll-free numbers.
+  </Accordion>
+
+  <Accordion title="Can I send custom message prompts without going through A2P?">
+    No. If you skip A2P registration and send from Tavly's shared pool of approved numbers, message content is restricted to preset, unmodifiable transactional templates.
+  </Accordion>
+
+  <Accordion title="How long does the A2P review process take?">
+    Carrier manual review typically takes 2 to 3 weeks. You will receive an automated email when your application is approved or if revisions are requested.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [SMS campaign application templates](/deploy/sms-campaign-application): Review sample messages and opt-in copy to pass carrier review.
+* [Create chat agent](/build/create-chat-agent): Configure response engine models, prompts, and tool access for text agents.
+* [Inbound call and SMS webhook](/deploy/inbound-call-webhook): Programmatically filter incoming texts and inject CRM variables.
+* [Purchase and manage numbers](/deploy/purchase-number): Acquire SMS-capable US phone numbers directly in your dashboard.

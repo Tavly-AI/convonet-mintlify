@@ -1,0 +1,267 @@
+---
+title: 'Custom Telephony: Connect SIP Trunks & Private Carriers'
+sidebarTitle: 'Custom Telephony'
+description: 'Connect Tavly voice agents to custom telephony: integrate your own carrier via elastic SIP trunking or direct SIP URI dialing with TLS and mTLS encryption.'
+seo:
+  title: 'Custom Telephony | SIP Trunking & Carrier Setup | Tavly AI'
+  description: 'Connect Tavly voice agents to custom telephony: integrate your own carrier via elastic SIP trunking or direct SIP URI dialing with TLS and mTLS encryption.'
+og:title: 'Custom Telephony: Connect SIP Trunks & Private Carriers'
+og:description: 'Connect Tavly voice agents to custom telephony: integrate your own carrier via elastic SIP trunking or direct SIP URI dialing with TLS and mTLS encryption.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'network-wired'
+keywords: ['custom telephony', 'elastic SIP trunking', 'SIP URI dialing', 'carrier integration', 'Twilio Telnyx SIP', 'mTLS voice security', 'Tavly AI SIP']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the difference between Elastic SIP Trunking and Dial to SIP URI in Tavly?'
+    answer: 'Elastic SIP trunking is the recommended approach where your carrier trunk points directly to Tavly''s SIP URI (sip:sip.tavly.ai.com), supporting native agent-to-agent and PSTN transfers; Dial to SIP URI registers individual calls via API and dials to a dynamic call_id SIP address.'
+  - question: 'What IP addresses and transport protocols must be whitelisted for Tavly SIP traffic?'
+    answer: 'Whitelist Tavly''s IP blocks: 18.98.16.120/30, 3.42.144.0/23, 153.57.128.0/18 across all regions, plus 143.223.88.0/21 and 161.115.160.0/19 for specific US traffic. Supported transports include TCP (recommended), UDP, TLS (with SRTP media encryption), and mutual TLS (mTLS).'
+  - question: 'Does Tavly support in-dialog SIP re-INVITEs and codec renegotiation?'
+    answer: 'Yes, Tavly answers in-dialog re-INVITEs according to RFC 3261 and RFC 3264 without dropping active calls, accommodating session refreshes, media re-anchoring, codec changes (PCMU, PCMA, G.722), hold/unhold states, and SDES SRTP re-keying (RFC 4568).'
+  - question: 'How does mutual TLS (mTLS) work for custom telephony connections?'
+    answer: 'mTLS enforces two-way cryptographic authentication between your SIP server and Tavly. Both sides exchange and verify certificates, requiring you to install Tavly''s AWS PCA root certificate in your SIP server trust store before establishing connections.'
+---
+
+Integrate Tavly voice agents with your own telephony provider using elastic SIP trunking or imported numbers from Twilio, Telnyx, and Vonage. This guide shows how to integrate Tavly agents with your telephony provider and use your own numbers across any agent architecture.
+
+## What is custom telephony integration in Tavly?
+
+**Custom telephony integration** allows organizations to connect proprietary carriers, PBXs, and communication platforms directly to Tavly conversational voice agents. By leveraging **Elastic SIP Trunking** or **Direct SIP URI Dialing**, teams retain existing telecom contracts, utilize international numbers across any jurisdiction, and maintain complete control over carrier routing and security infrastructure.
+
+There are two primary ways to integrate custom telephony:
+
+1. **Elastic SIP trunking**: The **recommended** option if your telephony provider supports elastic SIP trunking. You set up a SIP trunk, configure your number to point to it, and import that number to Tavly.
+2. **Dial to SIP URI**: If your provider does not support elastic SIP trunking, or you have a more complex telephony setup, you can dial the call to a specific SIP URI.
+
+<Note>
+  * **Tavly SIP server URI**: `sip:sip.tavly.ai.com`
+  * **IP blocks for traffic**: `18.98.16.120/30` (All regions), `3.42.144.0/23` (All regions), `153.57.128.0/18` (All regions), `143.223.88.0/21` (certain United States traffic), `161.115.160.0/19` (certain United States traffic)
+
+  Use these IP blocks to whitelist traffic to Tavly's SIP server. Many telephony providers require this.
+</Note>
+
+| Protocol Parameter | Supported Options / Specifications |
+| :--- | :--- |
+| **SIP Server URI** | `sip:sip.tavly.ai.com` (append `;transport=tcp`, `;transport=udp`, or `;transport=tls`) |
+| **Signaling Transports** | **TCP** (Recommended), **UDP**, **TLS 1.2+**, **mTLS** |
+| **Media Encryption** | **SRTP** (requires TLS transport) |
+| **Audio Codecs** | **PCMU** (G.711 u-law), **PCMA** (G.711 a-law), **G.722** (HD Voice) |
+| **Re-INVITE Support** | RFC 3261 §14, RFC 3264 (session refresh, media re-anchor, hold/unhold) |
+| **Key Exchange** | SDES SRTP re-keying (RFC 4568) |
+
+To use a different transport for inbound calls, append the transport method to the SIP server URL:
+
+* For TCP, the SIP server URL needs to be `sip:sip.tavly.ai.com;transport=tcp`
+* For UDP, the SIP server URL needs to be `sip:sip.tavly.ai.com;transport=udp`
+* For TLS, the SIP server URL needs to be `sip:sip.tavly.ai.com;transport=tls`
+
+## How does Elastic SIP Trunking work?
+
+**Elastic SIP Trunking** is the recommended custom telephony method, connecting your carrier or PBX infrastructure to Tavly's SIP gateway over the internet. You configure inbound origination to point to Tavly's SIP server, supply your provider's outbound termination URI when importing the number, and route calls with full PSTN transfer support.
+
+Elastic SIP trunking connects Tavly's VoIP with PSTN so your agents can [make outbound calls](/deploy/outbound-call) and [receive inbound calls](/deploy/inbound-call). All telephony features supported by Tavly numbers work here too, as long as your provider supports them.
+
+### Origination vs Termination
+
+A SIP trunk has two distinct directions, each configured independently:
+
+* **Origination (inbound)**: Calls flowing from your provider into Tavly. In your provider's trunk settings, set the origination SIP URI to Tavly's SIP server, `sip:sip.tavlyai.com`.
+* **Termination (outbound)**: Calls flowing from Tavly out through your provider. Your provider gives you a termination SIP URI for the trunk. You supply that URI (plus credentials, if used) to Tavly when you import the number, and Tavly dials it for outbound calls.
+
+Tavly does not have a termination SIP URI of its own. `sip:sip.tavlyai.com` is Tavly's only SIP address, and it is used as the origination URI on your provider's side.
+
+Here are detailed guides for supported telephony providers:
+
+* [Twilio](/deploy/twilio)
+* [Telnyx](/deploy/telnyx)
+* [Vonage](/deploy/vonage)
+
+Other telephony providers that support SIP trunks work too; use these guides as a reference. Using a contact center platform instead? See the dedicated guides for [Avaya](/deploy/avaya), [Genesys Cloud](/deploy/genesys), [Five9](/deploy/five9), and [Amazon Connect](/deploy/amazon-connect).
+
+### Elastic SIP Trunking FAQ
+
+<AccordionGroup>
+  <Accordion title="Will it throw errors if the details or configuration is incorrect?">
+    No, Tavly will not be able to know if the setup you provide works or not until a call is made.
+  </Accordion>
+
+  <Accordion title="My inbound call is not connecting, what should I do?">
+    Please check your origination setting in your SIP trunking provider. Also check the logs in your telephony provider, and perhaps open a ticket with them.
+  </Accordion>
+
+  <Accordion title="My outbound call is not connecting, what should I do?">
+    Please check your termination setting in your SIP trunking provider, and make sure you provide the right termination URL to Tavly. Also check the logs in your telephony provider, and perhaps open a ticket with them. See [Debug outbound call](/reliability/debug-outbound-call) for common SIP failures, and [Debug SIP calls with PCAP files](/reliability/debug-calls-pcap) to inspect the signaling in Wireshark.
+  </Accordion>
+
+  <Accordion title="Will I be able to transfer call using SIP trunking?">
+    Yes you can use the transfer call feature with SIP trunking. Please note that if you intend to use SIP REFER (cold transfer with the transferee's number), you will need to configure that in your SIP trunking provider to allow SIP REFER and PSTN transfer, with the transferee's number showing as caller id. To pass call metadata over the trunk, see [custom SIP headers](/build/telephony/sip-headers).
+  </Accordion>
+
+  <Accordion title="Will I be able to press digit using SIP trunking?">
+    Yes, you can. See [Capture DTMF input](/build/user-dtmf) to read digits the caller presses.
+  </Accordion>
+
+  <Accordion title="Does Tavly handle SIP re-INVITEs from my carrier or SBC?">
+    Yes. Tavly answers in-dialog re-INVITEs to renegotiate a live call without interrupting it: session refreshes, media re-anchoring (RTP address/port changes), codec changes, SRTP re-keys, hold and unhold, and offerless (no-SDP) re-INVITEs. This follows the SIP re-INVITE and SDP offer/answer model ([RFC 3261 §14](https://datatracker.ietf.org/doc/html/rfc3261#section-14), [RFC 3264](https://datatracker.ietf.org/doc/html/rfc3264)), with SDES SRTP re-keying per [RFC 4568](https://datatracker.ietf.org/doc/html/rfc4568).
+  </Accordion>
+
+  <Accordion title="Can I view and manage the numbers I import using SIP trunking?">
+    Yes, you can manage imported numbers directly within the Phone Numbers dashboard.
+  </Accordion>
+
+  <Accordion title="I need to change the configuration of the imported number, how can I do that?">
+    Right now you'd need to delete and re-import the number.
+  </Accordion>
+</AccordionGroup>
+
+## How do you integrate using the Dial to SIP URI method?
+
+The **Dial to SIP URI method** connects calls when your telephony provider cannot establish an elastic SIP trunk. To use this method, call the **Register Phone Call API** to generate a dynamic `call_id`, then have your application dial the call directly to `sip:{call_id}@sip.tavlyai.com` within **5 minutes**.
+
+When using this method, Tavly does not directly make or receive calls, but instead relies on your system to dial the call to the respective SIP URI. This requires code in your backend to handle integration with your telephony provider. All traffic appears as inbound to Tavly, so it is up to you to specify the call direction in the registration request.
+
+<Warning>
+  When using this method, you will not be able to use Tavly's native transfer call feature, as we do not have access or control over the telephony provider and number, and cannot initiate transfers for you. You can however implement your own transfer logic and use a custom function to trigger a call transfer.
+</Warning>
+
+To obtain the SIP URI for the call, invoke the [Register Phone Call API](/api-references/register-phone-call) to receive a unique `call_id`:
+
+<Note>
+  **SIP URI format**: `sip:{call_id}@sip.tavlyai.com`
+</Note>
+
+<Warning>
+  You must dial the call to the SIP URI within **5 minutes** of calling Register Phone Call. If the call is not connected within that window, it disconnects with `registered_call_timeout`. See [Debug call disconnection](/reliability/debug-call-disconnect) for disconnection reasons.
+</Warning>
+
+### Implementation Example
+
+Here is a simplified example that handles an inbound voice webhook from Twilio and dials into the Tavly SIP URI:
+
+```typescript Node theme={"dark"}
+import { Tavly } from "tavly";
+import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
+
+const client = new Tavly({
+  apiKey: 'YOUR_Tavly_API_KEY',
+});
+
+server.app.post(
+  "/voice-webhook",
+  async (req: Request, res: Response) => {
+    // Register the phone call to get call id
+    const phoneCallResponse = await client.call.registerPhoneCall({
+      agent_id: 'oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD',
+      from_number: "+12137771234", // optional
+      to_number: "+12137771235", // optional
+      direction: "inbound", // optional
+    });
+
+    // Start phone call via Twilio TwiML
+    const voiceResponse = new VoiceResponse();
+    const dial = voiceResponse.dial();
+    dial.sip(
+      `sip:${phoneCallResponse.call_id}@sip.tavlyai.com`,
+    );
+    res.set("Content-Type", "text/xml");
+    res.send(voiceResponse.toString());
+  },
+);
+```
+
+### Dial to SIP URI FAQ
+
+<AccordionGroup>
+  <Accordion title="How to transfer call/end call using dial to SIP method?">
+    You will need to handle the transfer call/end call logic yourself, meaning that you will need to write a custom function which internally interacts with your telephony provider to transfer or terminate the call.
+  </Accordion>
+
+  <Accordion title="Will I be able to press digit using dial to SIP method?">
+    Yes, DTMF digit collection functions normally.
+  </Accordion>
+
+  <Accordion title="Two entries created for a single dial?">
+    Check your code that interacts with the telephony provider. Some providers like Twilio can call the webhook multiple times for a single call. In those cases, deduplicate webhook requests in your application server.
+  </Accordion>
+
+  <Accordion title="Can I use telephony provider's other features like AMD detection using this method?">
+    Yes, using this method gives you full control over telephony functionalities, allowing you to leverage external provider features. Tavly also provides built-in [voicemail and IVR detection](/build/handle-voicemail) if you prefer native detection on our side.
+  </Accordion>
+</AccordionGroup>
+
+## How do you configure SIP security, TLS, and Mutual TLS (mTLS)?
+
+Secure your SIP communications by enforcing **TLS 1.2 or higher** and **SRTP media encryption** across all signaling and audio streams. For zero-trust compliance, Tavly supports **Mutual TLS (mTLS)**: both client and server present cryptographic certificates, requiring developers to add Tavly's AWS PCA root certificate into their server trust store.
+
+To establish a secure TLS connection with Tavly's SIP server, you may need to add Tavly's server-side root CA to your trust store. You can download it [here](https://www.amazontrust.com/repository/G2-RootCA1.pem).
+
+### Mutual TLS (mTLS) Architecture
+
+Mutual TLS (mTLS) is an extension of the standard TLS protocol that provides two-way authentication between a client and a server. Unlike standard TLS — where only the server presents a certificate to prove its identity to the client — mTLS requires **both sides** to present and verify certificates. This ensures that only trusted, authenticated parties can establish a connection, significantly reducing the risk of man-in-the-middle attacks and unauthorized access.
+
+In a typical TLS handshake:
+
+1. The server presents its certificate to the client.
+2. The client verifies the server's certificate and the connection is established.
+
+With mTLS, an additional step is added:
+
+1. The server presents its certificate to the client.
+2. The **client also presents its certificate** to the server.
+3. Both parties verify each other's certificates before the connection is established.
+
+This mutual verification makes mTLS particularly valuable for SIP-based voice infrastructure, where securing signaling and media traffic between trusted systems is critical.
+
+**Tavly supports Mutual TLS (mTLS)** for SIP connections. If you require mTLS for your setup, reach out to us via the [Customer Support Portal](https://support.tavlyai.com/) or at [support@tavlyai.com](mailto:support@tavlyai.com) to get it configured for your account.
+
+Tavly uses a client certificate issued by AWS Private Certificate Authority (PCA). To validate Tavly's TLS client certificate, you **must** add the [root certificate](https://tavly-trust-store.s3.us-west-2.amazonaws.com/pca/client-root-ca.pem) to your SIP server's trusted certificate store — without this, your server will reject incoming connections from Tavly.
+
+## Video Tutorials
+
+### Elastic SIP Trunking Guides
+
+<div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+  Twilio
+</div>
+
+<div style={{ marginBottom: "24px" }}>
+  <iframe width="360" height="200" src="https://www.youtube.com/embed/JC3PV_R-Z1Y?si=JCV66VZwhtutLrWG" title="Twilio SIP Trunking Integration with Tavly" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+</div>
+
+<div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+  Telnyx
+</div>
+
+<div style={{ marginBottom: "24px" }}>
+  <iframe width="360" height="200" src="https://www.loom.com/embed/780f5eafbb0d4e4cbe7d6f68bd371a4f?autoplay=false&hide_owner=true&hide_share=true&hide_title=true" title="Telnyx SIP Trunking Integration with Tavly" frameBorder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+</div>
+
+<div style={{ marginBottom: "8px", fontWeight: "bold" }}>
+  Vonage
+</div>
+
+<div style={{ marginBottom: "24px" }}>
+  <iframe width="360" height="200" src="https://www.loom.com/embed/4cb20655656c4415896b2a0e6e8fa1fa?autoplay=false&hide_owner=true&hide_share=true&hide_title=true" title="Vonage SIP Trunking Integration with Tavly" frameBorder="0" allowFullScreen style={{ border: "none" }} />
+</div>
+
+### Dial to SIP URI Guide
+
+<div style={{ marginBottom: "24px" }}>
+  <iframe width="360" height="200" src="https://www.youtube.com/embed/1_BdZA8o1h0?si=IGuaBg8pArbrLNzA" title="Custom Telephony Integration Demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+</div>
+
+## Telephony Partners
+
+If you need to manipulate the SIP call flow or have custom needs Tavly doesn't directly support, check our telephony partners to see if they can help:
+
+* [Jambonz](https://www.tavlyai.com/app-partner/jambonz): Jambonz is an open-source SIP server that supports static IP addressing and connects to Tavly's SIP server to manipulate custom SIP call flows. A dedicated Slack support channel is available for Tavly users.
+* [Cloudonix](https://www.tavlyai.com/app-partner/cloudonix): Cloudonix is a CPaaS platform that integrates directly with Tavly's SIP infrastructure to control and route complex voice topologies.
+
+## Related Resources
+
+* [Inbound call routing](/deploy/inbound-call): Route inbound calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-call): Dispatch outbound voice campaigns.
+* [Capture DTMF input](/build/user-dtmf): Read touch-tone keypad input from callers.
+* [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session tokens over SIP trunks.

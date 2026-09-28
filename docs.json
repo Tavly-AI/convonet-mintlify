@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme":"sequoia",
+  "theme": "sequoia",
   "name": "Tavly AI",
   "search": {
     "prompt": "Search or ask AI..."
@@ -18,6 +18,10 @@
     {
       "source": "/",
       "destination": "/get-started/introduction"
+    },
+    {
+      "source": "/integrations/hubspot-marketplace",
+      "destination": "/marketplace/hubspot"
     }
   ],
   "navigation": {
@@ -28,7 +32,7 @@
           {
             "group": "Getting Started",
             "boost": 3,
-            "icon":"briefcase",
+            "icon": "briefcase",
             "pages": [
               "get-started/introduction",
               "get-started/build-agent-in-10"
@@ -204,7 +208,7 @@
               {
                 "group": "Connect to custom telephony providers via SIP",
                 "pages": [
-                  "deploy/connect-tavly-voice-agents-to-custom-telephony",
+                  "deploy/custom-telephony",
                   {
                     "group": "Connect via SIP trunking",
                     "pages": [
@@ -217,8 +221,8 @@
                     "group": "Connect to CCaaS",
                     "pages": [
                       "deploy/avaya",
-                      "deploy/connect-genesys-cloud-to-tavly",
-                      "deploy/connect-five9-to-tavly",
+                      "deploy/genesys",
+                      "deploy/five9",
                       "deploy/amazon-connect"
                     ]
                   }
@@ -227,19 +231,19 @@
               {
                 "group": "Make & receive phone calls",
                 "pages": [
-                  "deploy/make-outbound-calls",
+                  "deploy/outbound-calls",
                   {
                     "group": "Inbound calls",
                     "pages": [
                       "deploy/receive-calls",
-                      "deploy/inbound-call-and-sms-webhook"
+                      "deploy/inbound-call-webhook"
                     ]
                   },
-                  "deploy/international-calling"
+                  "deploy/international-call"
                 ]
               },
-              "deploy/implement-chat-with-create-chat-completion",
-              "deploy/tavly-website-widget",
+              "deploy/create-chat-completion",
+              "deploy/chat-widget",
               {
                 "group": "Send & receive SMS",
                 "pages": [
@@ -247,18 +251,18 @@
                   "deploy/sms-campaign-application"
                 ]
               },
-              "deploy/set-up-versioning-and-tags-for-agents",
-              "deploy/compare-agent-versions",
-              "deploy/create-and-schedule-batch-calls",
+              "deploy/agents/version",
+              "deploy/agents/version-comparison",
+              "deploy/agents/batch-calls",
               {
                 "group": "Increase call pickup rate",
                 "pages": [
-                  "deploy/spam-likely-overview",
-                  "deploy/add-a-business-profile",
-                  "deploy/apply-for-verified-phone-number",
-                  "deploy/apply-for-branded-call",
-                  "deploy/handle-application-rejection",
-                  "deploy/stop-caller-id-service"
+                  "deploy/calls/spam-likely-overview",
+                  "deploy/calls/business-profile",
+                  "deploy/calls/verified-phone",
+                  "deploy/calls/branded-calls",
+                  "deploy/calls/branded-call-rejection",
+                  "deploy/calls/delete-service"
                 ]
               },
               "deploy/web-call",
@@ -277,46 +281,46 @@
             "group": "Monitor",
             "icon": "square-activity",
             "pages": [
-              "monitor/monitor-live-calls",
+              "monitor/live-calls",
               "monitor/analytics-dashboard",
-              "monitor/alert-rules-for-call-and-chat-metrics",
+              "monitor/alerting-overview",
               {
                 "group": "Register & handle webhooks",
                 "pages": [
                   {
                     "group": "Call Event Webhook",
                     "pages": [
-                      "monitor/tavly-webhooks-overview",
-                      "monitor/register-and-set-up-a-tavly-webhook"
+                      "monitor/webhook-overview",
+                      "monitor/register-webhook"
                     ]
                   },
-                  "monitor/secure-the-webhook"
+                  "monitor/secure-webhook"
                 ]
               },
               {
                 "group": "Post Call Extraction",
                 "pages": [
-                  "monitor/post-call-extraction-overview-and-categories",
-                  "monitor/define-the-information-you-want-to-extract",
-                  "monitor/consume-the-analysis-data",
-                  "monitor/rerun-post-call-chat-extraction"
+                  "monitor/post-call-analysis-overview",
+                  "monitor/post-call-analysis-create",
+                  "monitor/post-call-analysis-consumption",
+                  "monitor/rerun-call-analysis"
                 ]
               },
               {
                 "group": "AI Quality Assurance",
                 "pages": [
-                  "monitor/ai-quality-assurance",
+                  "monitor/ai-qa/overview",
                   {
                     "group": "Create QA",
                     "pages": [
-                      "monitor/access-ai-qa",
-                      "monitor/define-a-qa-cohort",
-                      "monitor/define-resolution-criteria"
+                      "monitor/ai-qa/get-started",
+                      "monitor/ai-qa/create-cohort",
+                      "monitor/ai-qa/resolution-criteria"
                     ]
                   },
-                  "monitor/view-qa-results",
-                  "monitor/ai-qa-metrics",
-                  "monitor/address-metric-issues"
+                  "monitor/ai-qa/view-qa-results",
+                  "monitor/ai-qa/metrics",
+                  "monitor/ai-qa/address-metric-issues"
                 ]
               }
             ]
@@ -329,19 +333,25 @@
               {
                 "group": "Latency",
                 "pages": [
-                  "reliability/latency/replace-me"
+                  "reliability/latency/check-estimated-latency",
+                  "reliability/latency/check-actual-latency",
+                  "reliability/latency/troubleshoot-latency"
                 ]
               },
               {
                 "group": "Fix agent behaviors",
                 "pages": [
-                  "reliability/fix-agent-behaviors/replace-me"
+                  "reliability/wrong-transcript",
+                  "reliability/wrong-response"
                 ]
               },
               {
                 "group": "Debug phone call issues",
                 "pages": [
-                  "reliability/debug-phone-call-issues/replace-me"
+                  "reliability/call-performance",
+                  "reliability/debug-call-disconnect",
+                  "reliability/debug-outbound-call",
+                  "reliability/debug-calls-pcap"
                 ]
               },
               "reliability/prevent-abuse",
@@ -352,21 +362,175 @@
             "group": "Accounts and Workspace",
             "icon": "circle-user",
             "pages": [
-              "accounts/create-and-manage-tavly-workspaces",
-              "accounts/manage-your-tavly-ai-account",
+              "accounts/workspace",
+              "accounts/account",
               "accounts/access-control",
-              "accounts/kyc-verification"
+              "accounts/kyc",
+              {
+                "group": "Billing",
+                "pages": [
+                  "accounts/billing",
+                  "accounts/billing-exception",
+                  "accounts/add-payment",
+                  "accounts/fail-payment"
+                ]
+              },
+              {
+                "group": "Keys",
+                "pages": [
+                  "accounts/keys/api-key-overview",
+                  "accounts/keys/manage-keys",
+                  "accounts/keys/public-keys"
+                ]
+              },
+              {
+                "group": "Privacy and Compliance",
+                "pages": [
+                  "accounts/privacy/data-storage",
+                  "accounts/privacy/data-retention",
+                  "accounts/privacy/secure-url",
+                  "accounts/privacy/security-compliance"
+                ]
+              }
             ]
           },
           {
-            "group": "Agent ready",
+            "group": "Integrations",
+            "icon": "plug",
             "pages": [
-              "agent-ready/prompt",
-              "agent-ready/visibility",
-              "agent-ready/contextual",
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "integrations/integrations-overview",
+              {
+                "group": "CRM",
+                "pages": [
+                  "integrations/crm/crm-integrations",
+                  "integrations/crm/crm-data-mappings",
+                  "integrations/crm/persistent-memory",
+                  {
+                    "group": "HubSpot",
+                    "pages": [
+                      "integrations/crm/hubspot/connect",
+                      "integrations/crm/hubspot/contact-sync",
+                      "integrations/crm/hubspot/agent-functions"
+                    ]
+                  },
+                  {
+                    "group": "Salesforce",
+                    "pages": [
+                      "integrations/crm/salesforce/connect",
+                      "integrations/crm/salesforce/contact-sync",
+                      "integrations/crm/salesforce/agent-functions"
+                    ]
+                  },
+                  {
+                    "group": "Microsoft Dynamics 365",
+                    "pages": [
+                      "integrations/crm/dynamics/connect",
+                      "integrations/crm/dynamics/contact-sync",
+                      "integrations/crm/dynamics/agent-functions"
+                    ]
+                  },
+                  {
+                    "group": "GoHighLevel",
+                    "pages": [
+                      "integrations/crm/gohighlevel/connect",
+                      "integrations/crm/gohighlevel/contact-sync",
+                      "integrations/crm/gohighlevel/agent-functions"
+                    ]
+                  },
+                  {
+                    "group": "Zoho CRM",
+                    "pages": [
+                      "integrations/crm/zoho/connect",
+                      "integrations/crm/zoho/contact-sync",
+                      "integrations/crm/zoho/agent-functions"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Helpdesk",
+                "pages": [
+                  {
+                    "group": "Zendesk",
+                    "pages": [
+                      "integrations/helpdesk/zendesk/connect",
+                      "integrations/helpdesk/zendesk/agent-functions"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Knowledge Base",
+                "pages": [
+                  {
+                    "group": "Google Drive",
+                    "pages": [
+                      "integrations/knowledge-base/google-drive/connect",
+                      "integrations/knowledge-base/google-drive/knowledge-base-sync"
+                    ]
+                  },
+                  {
+                    "group": "Microsoft OneDrive",
+                    "pages": [
+                      "integrations/knowledge-base/onedrive/connect",
+                      "integrations/knowledge-base/onedrive/knowledge-base-sync"
+                    ]
+                  },
+                  {
+                    "group": "Notion",
+                    "pages": [
+                      "integrations/knowledge-base/notion/connect",
+                      "integrations/knowledge-base/notion/knowledge-base-sync"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Calendar",
+                "pages": [
+                  {
+                    "group": "Calendly",
+                    "pages": [
+                      "integrations/calendar/calendly/connect",
+                      "integrations/calendar/calendly/agent-functions"
+                    ]
+                  },
+                  {
+                    "group": "Cal.com",
+                    "pages": [
+                      "integrations/calendar/caldotcom/connect",
+                      "integrations/calendar/caldotcom/agent-functions"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Marketplace",
+            "icon": "store",
+            "pages": [
+              "marketplace/hubspot",
+              "marketplace/zoho",
+              "marketplace/slack",
+              "marketplace/notion"
+            ]
+          },
+          {
+            "group": "Other Topics",
+            "pages": [
+              {
+                "group": "Custom LLM",
+                "pages": [
+                  "integrate-llm/overview",
+                  "integrate-llm/setup-websocket-server",
+                  "integrate-llm/integrate-llm",
+                  "integrate-llm/integrate-function-calling",
+                  "integrate-llm/troubleshooting",
+                  "integrate-llm/llm-best-practice"
+                ]
+              },
+              "knowledge/audio-basics"
             ]
           }
         ]
@@ -396,7 +560,7 @@
   },
   "logo": {
     "light": "/logo/tavly-dark.svg",
-    "dark": "/logo/tavly-light.svg"
+    "dark": "/logo/tavlyy-light.png"
   },
   "navbar": {
     "links": [

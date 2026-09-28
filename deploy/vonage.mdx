@@ -1,0 +1,117 @@
+---
+title: 'Vonage Integration: Connect Elastic SIP Trunking'
+sidebarTitle: 'Vonage'
+description: 'Connect Vonage phone numbers to Tavly via elastic SIP trunking: configure origination, outbound termination URIs, credential auth, and import active numbers.'
+seo:
+  title: 'Vonage Integration | Elastic SIP Trunking Setup | Tavly AI'
+  description: 'Connect Vonage phone numbers to Tavly via elastic SIP trunking: configure origination, outbound termination URIs, credential auth, and import active numbers.'
+og:title: 'Vonage Integration: Connect Elastic SIP Trunking'
+og:description: 'Connect Vonage phone numbers to Tavly via elastic SIP trunking: configure origination, outbound termination URIs, credential auth, and import active numbers.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'phone'
+keywords: ['Vonage integration', 'elastic SIP trunking', 'Vonage termination URI', 'Vonage origination SIP', 'SIP credentials', 'Tavly AI Vonage', 'voice agent telephony']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you connect a Vonage phone number to Tavly AI?'
+    answer: 'Create a custom SIP trunk in Vonage, specify Tavly''s SIP server (sip.tavlyai.com) as the origination URI, configure termination credentials, link your Vonage phone numbers to the trunk, and import the number with your credentials into Tavly.'
+  - question: 'What is the difference between origination and termination in Vonage SIP?'
+    answer: 'Origination routes inbound calls from callers on the PSTN through Vonage to Tavly''s voice server, whereas termination routes outbound calls from Tavly agents back through Vonage to PSTN destination numbers.'
+  - question: 'What should you check if outbound calls fail on a Vonage SIP trunk?'
+    answer: 'Ensure that the termination SIP URI, username, and password configured in Vonage match the credentials supplied in Tavly exactly, and verify that your Vonage account balance and dialing permissions permit the destination call.'
+  - question: 'Can you bind Tavly voice agents directly to imported Vonage numbers?'
+    answer: 'Yes. Once imported into your Tavly console, Vonage numbers function identically to native numbers, allowing you to bind conversational agents for inbound answering or trigger outbound campaigns via REST API.'
+---
+
+Connect a Vonage number to Tavly with [SIP trunking](/deploy/custom-telephony), so your agents can make and receive calls on numbers you own in Vonage. Set up termination (outbound) and origination (inbound), add credentials, then import the number into Tavly.
+
+## What is Vonage SIP Trunking integration?
+
+**Vonage SIP Trunking integration** connects phone numbers provisioned in your Vonage dashboard to Tavly conversational voice agents via Session Initiation Protocol (SIP). By configuring bidirectional origination and termination routing with credential authentication, teams preserve their existing Vonage carrier infrastructure while automating interactive inbound customer calls and outbound contact center campaigns.
+
+Connecting Vonage with Tavly provides carrier-grade voice infrastructure with flexible call routing:
+
+| SIP Route Direction | Traffic Direction | Configuration Endpoint | Authentication Mechanism |
+| :--- | :--- | :--- | :--- |
+| **Origination (Inbound)** | Vonage PSTN → Tavly Agent | `sip.tavlyai.com` | Open gateway routing |
+| **Termination (Outbound)** | Tavly Agent → Vonage PSTN | Vonage Termination SIP URI | Digest Authentication (Username & Password) |
+
+## How do you configure a Vonage Elastic SIP Trunk step by step?
+
+To configure a **Vonage Elastic SIP Trunk**, navigate to the Vonage SIP dashboard, select custom provider settings, define outbound termination credentials, and set Tavly SIP gateway as the origination URI. Then, assign numbers to the trunk and import credentials into Tavly to activate bidirectional voice routing.
+
+Follow these step-by-step instructions to configure your trunk in the Vonage dashboard:
+
+<Steps>
+  <Step title="Create elastic SIP trunking">
+    1. Locate the **SIP** section in the Vonage dashboard, and select **"Something else"** for the provider type:
+
+    <img height="200" src="https://mintcdn.com/retellai/S_iZ2qGP5QpXG6x_/images/custom-telephony/vonage/sip.jpeg?fit=max&auto=format&n=S_iZ2qGP5QpXG6x_&q=85&s=2a11ea60d2f68dae2e2271c2e6d78209" data-path="images/custom-telephony/vonage/sip.jpeg" />
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/vonage/choose-provider.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=91a84549630ea9efba5c877f5c945102" data-path="images/custom-telephony/vonage/choose-provider.jpeg" />
+
+    2. Set up termination (for outbound calls):
+
+    * The **termination SIP URI**, **username**, and **password** configured here are critical; you will need them when importing the number into Tavly in later steps, so record them securely:
+
+    <img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/custom-telephony/vonage/termination.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=ae07c26cab48ca1ddd1b0eb357695600" data-path="images/custom-telephony/vonage/termination.jpeg" />
+
+    3. Set up origination (for inbound calls):
+
+    * Specify Tavly's SIP server address as your origination SIP URI: `sip.tavlyai.com`:
+
+    <img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/custom-telephony/vonage/origination.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=2358642d1db6f27324c64a9a0ab67f58" data-path="images/custom-telephony/vonage/origination.jpeg" />
+  </Step>
+
+  <Step title="Move numbers to elastic SIP trunking">
+    Now that you have created the elastic SIP trunk, purchase new phone numbers or link existing Vonage numbers to this trunk:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/vonage/add-number.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=00328c683a6c52c135d59b0ecf13c396" data-path="images/custom-telephony/vonage/add-number.jpeg" />
+  </Step>
+</Steps>
+
+## How do you import Vonage phone numbers into Tavly?
+
+To **import Vonage phone numbers into Tavly**, enter your phone number in E.164 format, supply your Vonage termination SIP URI, and provide the authentication username and password created during trunk configuration. Once imported, agents immediately place and receive calls through Tavly console or programmatic telephony REST APIs.
+
+Follow these steps to import and manage your numbers:
+
+<Steps>
+  <Step title="Import numbers via dashboard or API">
+    Now that the number is configured with your elastic SIP trunk, import it into Tavly so our platform knows how to route incoming and outgoing traffic:
+
+    Supply the termination SIP URI, username, and password configured during Step 1:
+
+    <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/vonage/import.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=f1938fc65d930aa91376966506137078" data-path="images/custom-telephony/vonage/import.jpeg" />
+
+    You can also import numbers programmatically via the [Import Number API](/api-references/import-phone-number).
+  </Step>
+
+  <Step title="Bind agents and place calls">
+    Now that the number is imported, you can make and receive calls with it identically to a number purchased directly from Tavly:
+
+    * **Dashboard management**: The number displays in your dashboard, where you can bind AI voice agents and initiate test calls directly from the user interface.
+    * **Inbound calls**: Review the [Receive inbound calls](/deploy/inbound-call) guide to assign an AI conversational agent to your number.
+    * **Outbound campaigns**: Check out the [Make outbound calls](/deploy/outbound-call) guide to learn how to dispatch automated calls via API or dashboard.
+    * **Number disconnection**: To release the number from Tavly routing, delete it from the dashboard or execute the [Delete Number API](/api-references/delete-phone-number).
+  </Step>
+</Steps>
+
+## How do you troubleshoot Vonage SIP trunking issues?
+
+To troubleshoot **Vonage SIP trunking issues**, verify that your origination URI points to Tavly gateway, validate outbound termination credentials against Vonage console settings, and confirm that assigned phone numbers are linked to the trunk. Inspect SIP response codes and packet captures to isolate carrier authentication or routing failures.
+
+Check the following diagnostic steps if call connectivity encounters errors:
+
+* **Inbound Call Failures**: If an inbound call fails, verify that the origination SIP URI on your Vonage trunk matches `sip.tavlyai.com` exactly and that the inbound number is correctly assigned to the trunk.
+* **Outbound Call Failures**: If an outbound call fails, verify the termination SIP URI, authentication username, and password that you supplied to Tavly. Confirm that your Vonage account balance and dialing permissions support the destination number.
+* **SIP Error Diagnostics**: Consult [Debug outbound call](/reliability/debug-outbound-call) for common SIP error status codes, or review [debug SIP calls with PCAP files](/reliability/debug-calls-pcap) to inspect the signaling handshakes in Wireshark.
+
+## Related Resources
+
+* [Custom telephony overview](/deploy/custom-telephony): Learn about elastic SIP trunking vs. direct SIP URI routing.
+* [Twilio integration guide](/deploy/twilio): Connect numbers from Twilio via elastic SIP trunking.
+* [Telnyx integration guide](/deploy/telnyx): Connect numbers from Telnyx via FQDN elastic SIP trunking.
+* [Inbound call routing](/deploy/inbound-call): Route incoming telephone calls to voice agents.
+* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.

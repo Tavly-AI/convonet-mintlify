@@ -1,0 +1,92 @@
+---
+title: 'Handle Failed Payments: Troubleshooting & Card Resolution'
+sidebarTitle: 'Failed Payments'
+description: 'Resolve failed Tavly AI payments: contact your bank to allowlist transactions, provide authorization proof, or switch payment methods to restore active calls.'
+seo:
+  title: 'Handle Failed Payments in Tavly AI | Billing Dispute & Resolution'
+  description: 'Resolve failed Tavly AI payments: contact your bank to allowlist transactions, provide authorization proof, or switch payment methods to restore active calls.'
+og:title: 'Handle Failed Payments: Troubleshooting & Card Resolution'
+og:description: 'Resolve failed Tavly AI payments: contact your bank to allowlist transactions, provide authorization proof, or switch payment methods to restore active calls.'
+og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b2.png'
+twitter:card: 'summary_large_image'
+icon: 'credit-card-slash'
+keywords: ['handle failed payments', 'Tavly billing error', 'Stripe payment declined', 'bank allowlist Tavly', 'failed payment voice AI', 'change payment method Tavly', 'service interruption billing']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why did my Tavly AI payment or auto recharge fail?'
+    answer: 'Payments commonly fail due to bank fraud protection triggers on international SaaS charges, expired card details, daily spending caps, or insufficient funds on the default payment method.'
+  - question: 'How do you allowlist Tavly transactions with your issuing bank?'
+    answer: 'Contact your bank or card issuer, notify them that transactions from Tavly are legitimate, request that they explicitly allowlist the merchant, and retry the payment in the Tavly dashboard.'
+  - question: 'What documentation is required if a payment repeatedly fails after allowlisting?'
+    answer: 'Obtain an official statement on bank letterhead confirming transactions from Tavly are approved, and email it along with your workspace ID and account details to support@tavlyai.com.'
+  - question: 'How do you add an alternative payment method to restore service?'
+    answer: 'Navigate to the Billing tab in the Tavly dashboard, select Change payment methods to open the Stripe portal, add a backup credit or debit card, and set it as your primary payment method.'
+---
+
+## Why do payments fail and how does it affect your Tavly agents?
+
+Payments fail primarily due to **issuing bank fraud filters**, automated **international transaction blocks**, expired card credentials, or **insufficient credit balances**. A failed transaction prevents prepaid credit recharges and invoice settlements, causing Tavly to **block new incoming and outgoing calls** until account balances are restored.
+
+When a payment fails on your default payment method, Tavly cannot execute automated auto-recharge top-ups or settle end-of-month subscription invoices for active phone numbers, knowledge bases, and concurrency tiers.
+
+<Warning>
+  **Service Interruption Risk**: For credit-based workspaces, calls are halted immediately when the prepaid balance hits **\$0.00**. For legacy accounts, overdue invoices risk account suspension. Promptly resolve failed charges to maintain production telephony availability.
+</Warning>
+
+### Common Payment Failure Root Causes
+
+| Failure Symptom | Most Common Root Cause | Recommended Action |
+| :--- | :--- | :--- |
+| **Card Declined: Generic** | Issuing bank automated fraud prevention or cross-border payment restriction. | Contact your bank to explicitly allowlist transactions from Tavly. |
+| **Auto-Recharge Failed** | Card expired, credit limit reached, or temporary bank outage during the recharge trigger. | Update card details in the Stripe portal or add a backup card. |
+| **3D Secure / OTP Challenge** | Bank mandates interactive authentication that unattended background recharges cannot complete. | Request that your bank exempt recurring charges from Tavly from step-up authentication. |
+| **Subscription Invoice Failed** | End-of-cycle card charge declined for phone numbers, CPS, or concurrency tiers. | Settle the invoice manually via the Billing tab after updating payment info. |
+
+***
+
+## How do you resolve a failed payment step-by-step?
+
+To resolve a failed payment, **contact your card-issuing bank** to authorize charges from Tavly, retry the transaction in the **Billing tab**, and provide **written bank authorization** to support if blocks persist. Alternatively, add a secondary credit or debit card via the **Stripe Customer Portal**.
+
+Execute the following troubleshooting steps in sequence:
+
+<Steps>
+  <Step title="Check with Your Bank and Request Allowlisting">
+    1. **Contact Your Card Issuer**: Call the phone number on the back of your card and speak with the fraud or authorizations department.
+    2. **Verify Blocked Transactions**: Ask the representative to locate the blocked charge attempts from Tavly (processed via Stripe).
+    3. **Request Merchant Allowlisting**: Instruct the bank to permanently allowlist and pre-authorize future transactions from Tavly.
+    4. **Retry the Payment**: Return to the **Billing** tab in your Tavly dashboard and retry purchasing credits or paying the open invoice.
+  </Step>
+
+  <Step title="Submit Bank Written Confirmation if Failures Persist">
+    If payment attempts continue to decline despite verbal confirmation from your bank:
+    1. **Obtain Official Documentation**: Request written confirmation from your bank verifying that Tavly transactions are approved.
+       * The statement must appear on official bank letterhead.
+       * The document must explicitly state that transactions from Tavly are approved and unblocked.
+    2. **Email Support**: Forward the confirmation document to [support@tavlyai.com](mailto:support@tavlyai.com).
+    3. **Include Workspace Details**: Include your Tavly account email, workspace ID, and the transaction amount.
+  </Step>
+
+  <Step title="Add an Alternative Payment Method">
+    If your primary card issuer cannot process the transaction, configure a secondary payment method immediately:
+    1. Navigate to the **Billing** tab in the Tavly dashboard.
+    2. Click **Change payment methods** to access the secure Stripe billing interface.
+    3. Click **Add payment method** and enter credentials for an alternate corporate credit card or debit card.
+    4. Set the new card as your default payment method and reprocess pending charges. Review [Add payment methods](/accounts/add-payment) for a detailed walkthrough.
+  </Step>
+</Steps>
+
+***
+
+## How do you prevent future payment declines and service interruptions?
+
+Prevent future payment failures by configuring a **secondary backup payment method** in Stripe, maintaining a buffer in your **auto-recharge threshold**, and verifying that your corporate card permits **recurring automated international charges**. Regularly monitor billing notification emails to resolve card expirations before invoices fail.
+
+Implement these proactive measures to ensure uninterrupted uptime:
+
+* **Configure Generous Auto-Recharge Buffers**: Set your auto-recharge trigger threshold high enough (e.g., trigger at \$20, replenish to \$100) so high call volume spikes do not exhaust credits before a payment completes.
+* **Maintain Updated Expiration Dates**: Review card expiration dates ahead of time; replace expiring corporate cards before end-of-month invoicing cycles.
+* **Designate a Billing Admin**: Assign a dedicated billing contact within your organization to immediately receive and action automated decline notifications.
+
+If you continue to experience billing issues after following these steps, contact our support team through the [Customer Support Portal](https://support.tavlyai.com/) or via email at [support@tavlyai.com](mailto:support@tavlyai.com) for direct engineering assistance.

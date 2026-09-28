@@ -1,0 +1,82 @@
+---
+title: 'Increase Transcription Accuracy: Boosted Keywords & ASR Tuning'
+sidebarTitle: 'Increase Transcription Accuracy'
+description: 'Increase Tavly transcription accuracy: configure boosted keywords for specialized terms, adjust denoising thresholds, and tune speech recognition modes.'
+seo:
+  title: 'Increase Transcription Accuracy | ASR & Boosted Keywords | Tavly AI'
+  description: 'Increase Tavly transcription accuracy: configure boosted keywords for specialized terms, adjust denoising thresholds, and tune speech recognition modes.'
+og:title: 'Increase Transcription Accuracy: Boosted Keywords & ASR Tuning'
+og:description: 'Increase Tavly transcription accuracy: configure boosted keywords for specialized terms, adjust denoising thresholds, and tune speech recognition modes.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/boosted_keywords.png'
+twitter:card: 'summary_large_image'
+icon: 'spell-check'
+keywords: ['transcription accuracy', 'boosted keywords', 'speech recognition', 'ASR tuning', 'denoising mode', 'transcription mode', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'The agent is missing short responses like "sure" or "yes". How do I fix this?'
+    answer: 'If background noise is relatively low, aggressive noise suppression may filter out low-energy responses. Set denoising mode to No Denoising to preserve the raw audio signal for brief utterances.'
+  - question: 'What is the limit for boosted keywords in Tavly AI?'
+    answer: 'Tavly AI supports up to 100 custom boosted keywords per agent to enhance speech recognition vocabulary for domain-specific terminology, technical jargon, and brand names.'
+  - question: 'How do you fix sentences getting cut off prematurely?'
+    answer: 'Switch the agent transcription mode to accuracy-optimized, which extends the endpointing buffer (~200ms) so the model captures the complete thought before finalizing the transcript.'
+---
+
+## How does Tavly AI ensure high speech transcription accuracy?
+
+Tavly AI ensures high transcription precision by deploying **state-of-the-art speech recognition AI models** carefully balanced between **acoustic accuracy** and **ultra-low processing latency**. To resolve transcription discrepancies in live telephony environments, developers can leverage **boosted keywords**, calibrate ambient **denoising modes**, and switch to **accuracy-optimized transcription modes**.
+
+Transcription accuracy forms the bedrock of reliable voice agent interactions. When speech-to-text models decode incoming audio accurately, downstream language models adhere strictly to prompts and trigger external tools with correct parameters.
+
+| Transcription Symptom | Root Cause | Recommended Configuration | Impact on Conversational Turn |
+| :--- | :--- | :--- | :--- |
+| **Missing Brand / Domain Terms** | Niche jargon or phonemes absent from standard acoustic lexicon | Add **Boosted Keywords** (up to 100 entries) in agent speech settings | Biases acoustic model recognition toward targeted vocabulary |
+| **Missing Short Replies ('yes' / 'sure')** | Background noise suppression clipping low-energy speech | Set **Denoising Mode** to `No Denoising` in relatively quiet rooms | Preserves raw audio waveforms, restoring brief conversational confirmations |
+| **Excessive Noise Artifacts / Hallucinations** | Ambient office chatter, cafe babble, or street traffic | Enable **Denoising Mode** ([handle background noise](/build/understanding/handle-background-noise)) | Strips out non-vocal audio frequencies prior to speech-to-text processing |
+| **Sentences Cut Off Prematurely** | Premature sentence finalization before thought completion | Enable **Transcription Mode (Accuracy)** ([transcription mode](/build/understanding/transcription-mode)) | Extends acoustic confirmation window by ~200ms for complete sentences |
+
+## How do you fix incorrect transcription for specialized words or terms?
+
+To resolve missing or corrupted domain terminology—such as brand names like **'tavly'** or complex medical and technical terms—configure **Boosted Keywords** in your agent speech settings. Tavly supports adding **up to 100 custom vocabulary keywords**, heavily biasing acoustic speech-to-text models toward correctly recognizing niche phonemes.
+
+### Common Symptom & Remediation
+* **The Issue**: Highly specialized brand names (such as "Tavly"), alphanumeric product codes, medical terms, or localized geographical jargon are misrecognized or replaced with phonetically similar common words.
+* **The Solution**: Configure Boosted Keywords in the agent configuration dashboard:
+  * Manually input custom keywords to dynamically expand the ASR model's runtime vocabulary.
+  * Define **up to 100 custom keywords** per agent.
+  * Prioritize terms that are mission-critical for proper prompt understanding and entity extraction.
+
+<Frame caption="Configuring Boosted Keywords in the agent speech settings.">
+  <img height="700" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/boosted_keywords.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=c5c601a35e7783783215a1b26c0626c3" alt="Boosted Keywords Configuration" data-path="reliability/images/boosted_keywords.png" />
+</Frame>
+
+## How do you resolve transcription errors caused by background noise?
+
+To resolve transcription failures caused by acoustic interference, adjust the agent's **denoising mode setting**. When background babble or ambient room sound obscures spoken utterances, enabling aggressive background noise filtering isolates vocal audio; conversely, setting it to **No Denoising** prevents the filter from discarding short, quiet replies.
+
+Adjust the [denoising mode setting](/build/understanding/handle-background-noise) based on your caller deployment profile:
+* **High-Noise Environments**: In call center deployments or mobile on-the-go scenarios with pronounced background noise (traffic, crowd babble, keyboard clatter), enable noise suppression to remove extraneous acoustic interference before audio reaches the transcription pipeline.
+* **Low-Noise Environments**: If callers dial from quiet environments, aggressive noise filters may mistakenly treat low-amplitude speech as background noise. Switching to **No Denoising** ensures low-energy utterances pass through unclipped.
+
+## How do you prevent transcription sentences from cutting off prematurely?
+
+If an agent finalizes sentences prematurely—emitting truncated transcripts before a caller finishes speaking—enable the **accuracy-optimized transcription mode**. This configuration extends acoustic confirmation windows, allowing speech recognition models to capture complete contextual thoughts rather than prematurely finalizing partial sentence fragments during natural conversational pauses.
+
+Sentence truncation typically occurs when conversational pauses trigger early endpointing:
+1. **Premature Finalization**: The transcription engine outputs a finalized sentence segment before the user completes their intended phrasing.
+2. **Enable Accuracy Mode**: Toggle [transcription mode](/build/understanding/transcription-mode) to **Accuracy**.
+3. **Operational Trade-off**: The accuracy-optimized mode deliberately introduces approximately **200ms** of additional confirmation buffer. While this slightly increases turnaround latency, it drastically improves transcription cohesion for compound sentences and hesitant speakers.
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="The agent is missing short responses like 'sure' or 'yes'. How do I fix this?">
+    If the background noise level is not particularly high, this is often caused by the denoising mode filtering out short, low-energy responses. Try setting the [denoising mode](/build/understanding/handle-background-noise) to **No Denoising** — this preserves more of the raw audio signal and can significantly improve ASR accuracy for brief utterances when the environment is relatively quiet.
+  </Accordion>
+  <Accordion title="How many boosted keywords can I configure per agent?">
+    Tavly AI supports up to 100 boosted keywords per agent. These can be configured directly within the agent speech settings to ensure proper spelling and phonetic recognition for critical business nomenclature.
+  </Accordion>
+  <Accordion title="What is the latency impact of accuracy-optimized transcription mode?">
+    Accuracy-optimized transcription mode intentionally introduces approximately 200ms of extra silence buffering (endpointing) to verify that the speaker has finished their sentence, preventing sentence truncation at the expense of slight response delay.
+  </Accordion>
+</AccordionGroup>

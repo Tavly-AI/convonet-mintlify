@@ -1,0 +1,131 @@
+---
+title: "KYC Verification for Tavly Accounts"
+sidebarTitle: "KYC Verification"
+description: "Complete Tavly KYC verification using automatic review, Persona ID scanning, or manual approval to unlock outbound voice calling, phone purchases, and SMS."
+seo:
+  title: "KYC Identity Verification Guide | Tavly AI"
+  description: "Complete Tavly KYC verification using automatic review, Persona ID scanning, or manual approval to unlock outbound voice calling, phone purchases, and SMS."
+og:title: "KYC Identity Verification Guide | Tavly AI"
+og:description: "Complete Tavly KYC verification using automatic review, Persona ID scanning, or manual approval to unlock outbound voice calling, phone purchases, and SMS."
+og:image: "https://mintcdn.com/retellai/-G8sA2JI_c6ZNsu7/images/kyc.png?fit=max&auto=format&n=-G8sA2JI_c6ZNsu7&q=85&s=46a0ff507e56f663f17b058c8483d0d0"
+twitter:card: "summary_large_image"
+icon: "shield-check"
+keywords:
+  - "KYC verification"
+  - "Tavly identity verification"
+  - "Persona ID verification"
+  - "unlock outbound calling"
+  - "telephony KYC compliance"
+  - "purchase phone numbers"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why is KYC verification mandatory on Tavly?"
+    answer: "KYC verification prevents telecommunications fraud, ensures compliance with carrier regulations, and protects against telephony abuse before granting access to outbound dialing, SMS messaging, and phone number provisioning."
+  - question: "How long does Persona identity verification take?"
+    answer: "Persona automated identity verification typically processes in under two minutes once you submit a valid government-issued ID and complete biometric facial verification."
+  - question: "What should I do if my country is not among the 83 supported regions?"
+    answer: "Contact Tavly support at support@tavly.it with your legal company name, intended use case, and corporate documentation to request country-specific manual onboarding."
+  - question: "Can I verify multiple Tavly accounts with the same ID?"
+    answer: "No. Tavly enforces a strict one account per person limit. Attempting to use different IDs for the same individual will be flagged by automated duplicate detection systems."
+---
+
+> Complete KYC verification — automatic, Persona-based, or manual review — to unlock outbound calling, phone number purchases, and SMS on your Tavly account.
+
+Before you can make outbound calls with Tavly, you'll need to complete KYC (Know Your Customer) verification. Depending on your account information, there are a few ways to pass KYC.
+
+---
+
+## Why is KYC verification required for your Tavly account?
+
+Tavly requires KYC (Know Your Customer) verification to prevent telecom fraud, comply with international telecommunications carrier regulations, and maintain network integrity. Completing identity verification unlocks essential platform capabilities, including placing outbound voice calls, purchasing virtual telephone numbers, provisioning SMS messaging services, and testing live telephony infrastructure across your workspace.
+
+Telecommunications carriers and regulatory bodies mandate strict subscriber identity verification to eliminate spoofing, illegal robocalling, and fraudulent outbound voice campaigns. Without verified identity records, outbound calling capabilities remain restricted:
+
+| Platform Capability | Unverified Account Status | KYC-Verified Account Status |
+| :--- | :--- | :--- |
+| **Inbound Call Handling** | Enabled (WebRTC & test numbers) | Enabled (PSTN, SIP trunking, & WebRTC) |
+| **Outbound Voice Calling** | Blocked | Full international dialing access |
+| **Phone Number Purchasing** | Restricted | Unlimited domestic & international purchasing |
+| **SMS Messaging Services** | Disabled | Fully operational for registered numbers |
+| **Telephony Testing Triggers** | Simulated web audio only | Live PSTN carrier testing enabled |
+
+---
+
+## How do you complete KYC verification on Tavly?
+
+You complete KYC verification through automatic account approval, Persona government ID verification, or manual compliance review. If registration data satisfies risk checks, Tavly verifies accounts automatically. Otherwise, initiate Persona ID verification in your dashboard under Phone Numbers across 83 supported countries, or submit corporate credentials for expedited manual review.
+
+Depending on your organization's profile and initial sign-up credentials, your account will follow one of three verification pathways:
+
+<Steps>
+  <Step title="Automatic Verification">
+    Tavly evaluates account metadata provided during initial registration. If your business profile satisfies automated risk and compliance checks, your account is approved instantly without requiring additional documentation or identity submissions.
+  </Step>
+
+  <Step title="Persona Government ID Verification">
+    If automatic verification cannot be completed, you will be prompted to submit identity credentials through **Persona** using a government-issued photo ID (passport, national identity card, or driver's license).
+    
+    To initiate the verification flow:
+    1. Navigate to **Phone Numbers** in your Tavly dashboard.
+    2. Click on any of your assigned phone numbers.
+    3. The dashboard displays the interactive verification modal where you can begin the Persona verification flow.
+
+    <Frame caption="Screenshot showing the UI to start the KYC process">
+      <img height="400" src="https://mintcdn.com/retellai/-G8sA2JI_c6ZNsu7/images/kyc.png?fit=max&auto=format&n=-G8sA2JI_c6ZNsu7&q=85&s=46a0ff507e56f663f17b058c8483d0d0" alt="KYC verification section on the phone number page" data-path="images/kyc.png" />
+    </Frame>
+
+    Tavly supports Persona-based verification in **83 countries**. If your country of residence or incorporation is not supported in the dropdown list, contact [our support team](mailto:support@tavly.it) with:
+    - Your registered legal company name
+    - Detailed commercial use case description
+    - Verifiable proof that you legally represent the business (articles of incorporation, utility bills, or executive authorization)
+
+    Our compliance team reviews unlisted jurisdiction requests based on risk analysis and business needs, and may enable verification for your country.
+  </Step>
+
+  <Step title="Manual Compliance Review">
+    If neither automatic verification nor Persona submission applies to your account, your profile is routed to manual compliance review. Because manual reviews require human document inspection, turnaround takes longer than automated paths.
+
+    If your manual verification is delayed, expedite review by contacting [support@tavly.it](mailto:support@tavly.it) with:
+    - Your Tavly **Workspace ID**
+    - Legal company name
+    - Production voice agent use case description
+    - Documentation confirming your corporate representation
+  </Step>
+</Steps>
+
+---
+
+## What identity restrictions and duplicate account policies apply?
+
+Tavly enforces a strict one account per person policy to prevent fraud and multi-account abuse. Automated compliance algorithms detect duplicate identities, meaning alternate government IDs from the same individual are rejected. If you previously deleted a verified account, contact support with workspace details to request a manual review.
+
+To ensure regulatory integrity across public telephone networks, Tavly enforces stringent identity boundaries:
+
+- **Single Identity Binding**: Each verified individual is permitted to hold and verify only **one Tavly account**.
+- **Cross-ID Duplicate Recognition**: Tavly's automated fraud detection systems cross-reference facial biometrics, birth dates, and document registries. Submitting an alternative government ID (such as using a passport after previously submitting a driver's license) will be detected and flagged as a duplicate.
+- **Recovering Deleted Accounts**: If your previously verified account was closed or deleted and you require a new account, do not attempt to re-verify independently through Persona. Instead, reach out directly to [our support team](mailto:support@tavly.it) with your prior account details to arrange a manual review and clear the duplicate hold.
+
+---
+
+## Frequently asked questions about Tavly KYC verification
+
+Tavly KYC verification validates developer and organization identities before granting access to telecom infrastructure. By supporting automatic background checks, automated Persona ID scanning across 83 nations, and dedicated manual reviews, Tavly ensures legitimate businesses quickly activate outbound calling, phone numbers, and messaging while preventing telephony abuse.
+
+<AccordionGroup>
+  <Accordion title="Why is KYC verification mandatory on Tavly?">
+    KYC verification prevents telecommunications fraud, ensures compliance with carrier regulations, and protects against telephony abuse before granting access to outbound dialing, SMS messaging, and phone number provisioning.
+  </Accordion>
+
+  <Accordion title="How long does Persona identity verification take?">
+    Persona automated identity verification typically processes in under two minutes once you submit a valid government-issued ID and complete biometric facial verification.
+  </Accordion>
+
+  <Accordion title="What should I do if my country is not among the 83 supported regions?">
+    Contact Tavly support at [support@tavly.it](mailto:support@tavly.it) with your legal company name, intended use case, and corporate documentation to request country-specific manual onboarding.
+  </Accordion>
+
+  <Accordion title="Can I verify multiple Tavly accounts with the same ID?">
+    No. Tavly enforces a strict one account per person limit. Attempting to use different IDs for the same individual will be flagged by automated duplicate detection systems.
+  </Accordion>
+</AccordionGroup>

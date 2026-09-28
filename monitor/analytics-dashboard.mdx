@@ -1,0 +1,254 @@
+---
+title: 'Analytics Dashboard: Visualizing Call and Chat Metrics'
+sidebarTitle: 'Analytics Dashboard'
+description: 'Build custom Tavly analytics dashboards to track call and chat performance: analyze success rates, latency, costs, and concurrency with real-time charts.'
+seo:
+  title: 'AI Agent Analytics & Telephony Dashboard Metrics | Tavly AI'
+  description: 'Build custom Tavly analytics dashboards to track call and chat performance: analyze success rates, latency, costs, and concurrency with real-time charts.'
+og:title: 'Analytics Dashboard: Visualizing Call and Chat Metrics'
+og:description: 'Build custom Tavly analytics dashboards to track call and chat performance: analyze success rates, latency, costs, and concurrency with real-time charts.'
+og:image: 'https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/dashboard-overview.png'
+twitter:card: 'summary_large_image'
+icon: 'chart-mixed'
+keywords: ['analytics dashboard', 'call metrics', 'chat analytics', 'AI agent success rate', 'end-to-end latency tracking', 'telephony concurrency', 'Tavly AI analytics']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How frequently does the Tavly Analytics Dashboard refresh session data?'
+    answer: 'Charts query call and chat records directly upon session completion and analysis pipeline finalization. There is no scheduled delay or batch sync window; metrics update as soon as each interaction finishes.'
+  - question: 'What causes the "too many data points" warning on analytics charts?'
+    answer: 'Individual charts are limited to rendering a maximum of 3,000 data points. To resolve this warning, reduce the selected date range, select a broader time bucket (such as Day instead of Hour), or remove high-cardinality breakdowns.'
+  - question: 'Do per-chart filters override or merge with global dashboard filters?'
+    answer: 'Per-chart filters merge with global dashboard filters rather than replacing them. Both sets of constraints apply concurrently, allowing you to isolate specific metrics without altering workspace-wide views.'
+  - question: 'Can a single Tavly dashboard combine voice call and chat metrics?'
+    answer: 'No. Dashboard channel scope is permanently fixed to either Call data or Chat data upon creation. You can create separate dedicated dashboards for calls and chats within your workspace limit of 10 dashboards.'
+---
+
+## What is the Analytics Dashboard and when should you use it?
+
+The **Tavly Analytics Dashboard** aggregates voice call and chat interaction data into visual reports, tracking key operational metrics including success rates, latency, concurrency, and spend over time. It allows engineering and operations teams to spot cross-session patterns, benchmark agent versions, evaluate financial costs, and correlate business outcomes alongside conversational volumes.
+
+<Frame caption="A call dashboard with number, line, and donut charts.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/dashboard-overview.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=2d27d95f915313e9b2d3ef02b807860a" alt="Analytics page in the Tavly dashboard with Call Dashboard and Chat Dashboard tabs, the date range picker, Filter and Breakdown controls, and an Add Chart button, above charts for call counts, call duration, call latency, concurrency used, call successful, disconnection reason, user sentiment, and phone inbound versus outbound." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/dashboard-overview.png" />
+  </div>
+</Frame>
+
+### Key Use Cases
+
+* **Tracking Longitudinal Performance**: Monitor macro shifts in conversational success rates, average duration, or latency across days and weeks following system prompt updates or LLM model switches.
+* **A/B Version Benchmarking**: Group metrics across agent versions to measure variance in user sentiment, resolution rates, and transfer percentages.
+* **Financial Governance**: Monitor aggregate telephony and language model expenditures across agents and campaign days to forecast operational spend.
+* **Correlating Business Outcomes**: Chart [custom Post-Call Extraction](/features/post-call-analysis-create) variables (e.g., appointment confirmations, qualified leads) directly against raw call volumes.
+
+### Operational Boundaries
+
+Analytics dashboards are purpose-built for multi-session aggregate analysis. To review granular conversational audio, inspect full debug transcripts, or analyze raw LLM payloads, navigate to [Call and Chat History](/features/session-history). To receive automated notifications when performance thresholds breach defined tolerances, configure [Alerting](/features/alerting-overview). To monitor in-flight calls as they happen, use [Live Monitoring](/features/live-monitoring).
+
+<Tip>
+  To generate or refine an analytics dashboard using natural language prompts, use [Conductor for Analytics Dashboards](/conductor/analytics-dashboards).
+</Tip>
+
+---
+
+## How do you create and manage dashboards?
+
+To **create and manage dashboards**, open the overflow menu beside Add Chart, select Add Dashboard, and designate either Call or Chat scope. Each workspace supports up to **10 concurrent dashboards**. You can rename tabs, drag to reorder them, duplicate dashboards to test variations, and delete unneeded views.
+
+<Steps>
+  <Step title="Add the dashboard">
+    Open the overflow menu next to **Add Chart**, choose **Add Dashboard**, and select either **Call** or **Chat**. The scope determines available metrics and cannot be altered once created.
+
+    <Frame caption="Add Dashboard, where the call or chat scope is set for good.">
+      <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/add-dashboard.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=d48468c06c73da653474e9d12867888c" alt="Dashboard overflow menu open with Duplicate and Delete above Add Dashboard, whose submenu offers Call and Chat." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/add-dashboard.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Assign a descriptive name">
+    Click the tab title and enter a meaningful identifier (such as "Inbound Triage" or "Outbound Collections" rather than default tab labels) to help team members quickly differentiate workspaces.
+  </Step>
+
+  <Step title="Organize, clone, or delete tabs">
+    Drag dashboard tabs horizontally across the header to establish your preferred navigation sequence. Use **Duplicate** in the overflow menu to clone a dashboard with all associated charts, filters, and breakdowns. Select **Delete** (available when more than one dashboard exists) to retire obsolete views.
+  </Step>
+</Steps>
+
+---
+
+## How do you add and configure a chart?
+
+To **add and configure a chart**, click Add Chart, select your visualization style, pick your primary metric, and configure aggregation measurements. You can align time windows to dashboard defaults or set custom ranges, apply granular property filters, introduce up to five breakdown dimensions, and drag charts into customized row layouts.
+
+<Steps>
+  <Step title="Open the chart configuration drawer">
+    Select **Add Chart** in the dashboard header.
+  </Step>
+
+  <Step title="Choose the graph visualization type">
+    Designate your chart layout:
+    * **Column**: Categorical comparisons across discrete time intervals or groupings.
+    * **Bar**: Horizontal comparisons for categorical rankings.
+    * **Line**: Continuous trend tracking over temporal horizons.
+    * **Donut**: Proportional distribution across dimensions (such as disconnection reasons or sentiment).
+    * **Number**: High-level executive KPI summary cards displaying a single aggregated metric.
+  </Step>
+
+  <Step title="Select metric and measurement function">
+    Under **Call Source Metrics** (or **Chat Source Metrics**), choose a telemetry variable. Select the aggregation calculation: count metrics support **count**, while numerical metrics (such as duration, latency, and cost) support **avg**, **median**, **p90**, **sum**, **min**, and **max**. Click **+ Add** to plot multiple comparative metrics within a single chart.
+  </Step>
+
+  <Step title="Define time range, grouping, and comparison">
+    Choose **Follow dashboard time range** to link with the global date picker, or specify an independent chart window. Select temporal aggregation intervals (**Hour**, **Day**, **Week**, **Month**). Enable **Previous period comparison** to plot an overlay of preceding period data.
+  </Step>
+
+  <Step title="Apply isolated filters and breakdowns">
+    Optionally configure up to five dimensional breakdowns and granular filters scoped strictly to this visualization.
+  </Step>
+
+  <Step title="Save and arrange visualization">
+    Click **Save**. The new chart appends to the bottom row of your dashboard, where you can reposition or resize it.
+  </Step>
+</Steps>
+
+<Frame caption="The chart editor, with a live preview of the chart you're building.">
+  <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/chart-editor.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=fce2c285ddc025ab7e3f70f5295b6450" alt="Chart editor showing Graph Type set to Column, Call Source Metrics set to Call Counts, Filter and Breakdown sections with Add buttons, a Last 4 weeks range with an Hour, Day, Week, Month toggle and a Previous period comparison checkbox, and a live preview of the resulting chart." width="1600" height="1037" data-path="images/analytics/chart-editor.png" />
+</Frame>
+
+---
+
+## What call and chat metrics can you chart?
+
+Tavly provides specialized **call and chat source metrics** categorized by operational performance, telephony reliability, and conversational quality. Call dashboards track call counts, completion statuses, inbound versus outbound direction, disconnection reasons, user sentiment, durations, p50 end-to-end latency, peak concurrency, and total combined costs. Chat dashboards measure message counts, statuses, sentiment, and expenses.
+
+### Available Call Metrics
+
+| Metric | Supported Measurements | Telemetry & Operational Scope |
+| :--- | :--- | :--- |
+| **Call Counts** | `count` | Total quantity of initiated voice calls. |
+| **Call Successful / Unsuccessful** | `count` | Voice sessions partitioned by post-call evaluation outcome. |
+| **Call Status** | `count` | Calls segmented by operational state (e.g., registered, ongoing, ended). |
+| **Phone Inbound / Outbound** | `count` | Total call volume divided by telephony stream direction. |
+| **Disconnection Reason** | `count` | Distribution of termination triggers (e.g., user hung up, agent hung up, timeout). |
+| **User Sentiment** | `count` | Calls classified by detected caller sentiment (Positive, Neutral, Negative). |
+| **Call Successful Rate** | `avg` | Percentage of total calls meeting predefined evaluation success criteria. |
+| **Call Picked Up Rate** | `avg` | Proportion of outbound attempts answered by a remote participant. |
+| **Call Transfer Rate** | `avg` | Percentage of calls escalated to external telephone lines or human agents. |
+| **Voicemail Rate** | `avg` | Share of outbound calls intercepted by [voicemail detection](/build/handle-voicemail). |
+| **Call Duration** | `avg`, `median`, `p90`, `sum`, `min`, `max` | Total elapsed conversation duration in seconds. |
+| **End to End Latency** | `avg`, `median`, `p90`, `min`, `max` | Round-trip p50 voice [latency](/reliability/check-actual-latency) aggregated across interactions. |
+| **Concurrency Used** | `max` | Peak concurrent active call channels consumed against [concurrency limits](/deploy/concurrency). |
+| **Combined Cost** | `avg`, `sum`, `median`, `p90`, `min`, `max` | Total monetary spend combining telephony carrier, LLM inference, and voice synthesis costs. |
+
+### Available Chat Metrics
+
+| Metric | Supported Measurements | Telemetry & Operational Scope |
+| :--- | :--- | :--- |
+| **Chat Counts** | `count` | Total number of digital chat sessions processed. |
+| **Chat Successful / Unsuccessful** | `count` | Sessions partitioned by whether post-chat analysis verified successful resolution. |
+| **Chat Status** | `count` | Chat interactions categorized by operational status. |
+| **User Sentiment** | `count` | Chat interactions classified by post-session sentiment scoring. |
+| **Chat Successful Rate** | `avg` | Proportion of chat sessions that met resolution targets. |
+| **Combined Cost** | `avg`, `sum`, `median`, `p90`, `min`, `max` | Total cost of chat sessions, including LLM token consumption. |
+
+---
+
+## How do you configure time ranges, filters, and breakdowns?
+
+To **configure time ranges, filters, and breakdowns**, use the top navigation controls to define analysis intervals, isolate specific agent criteria, and slice metrics across custom dimensions. The date picker supports calendar intervals and independent timezones, while filter panels combine base telemetry with post-call extraction variables and custom dynamic metadata.
+
+### Global Date Range Picker
+
+The header date picker applies to all charts configured to follow dashboard time:
+* **Quick Presets**: Today, Last 7 days, Last 4 weeks, Last 3 months, Week to date, Month to date, Year to date, and All time.
+* **Custom Calendar Range**: Set explicit start and end dates with independent start and end timezones to match operational business hours. Future dates are strictly disabled.
+
+<Frame caption="The dashboard date range, with presets, a calendar, and per-end timezones.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/date-range.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=0b7e9af211209109d65791a636304f85" alt="Date range picker open on the analytics dashboard showing presets from Today to All time down the left, two month calendars with a selected range, and start and end time fields each with a UTC-07 timezone selector, above Cancel and Apply buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/date-range.png" />
+  </div>
+</Frame>
+
+### Filtering Telemetry Data
+
+Filters are organized into four functional categories:
+1. **Base**: Native system parameters including agent ID, call ID, batch call ID, direction type, duration, from number, to number, user sentiment, disconnection reason, status, success flag, latency, and cost. A chat dashboard offers agent, chat ID, chat status, chat successful, combined cost, and user sentiment.
+2. **Post-Call Extraction**: Custom structured extraction keys created via [Post-Call Analysis](/features/post-call-analysis-create).
+3. **Metadata**: Custom key-value pairs attached during call initialization.
+4. **Dynamic Variables**: Runtime variables populated during conversational agent flows.
+
+<Frame caption="Filters, grouped into base fields and everything your agents produce.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/filter.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=f2f92afb29ad16d3b188f4a967414205" alt="Filter panel open on the analytics dashboard with tabs for Base, Post Call Extraction, Metadata, and Dynamic Variables, and base filters listed for agent, call ID, batch call ID, type, duration, from, to, user sentiment, disconnection reason, call status, call successful, and E2E latency." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/filter.png" />
+  </div>
+</Frame>
+
+### Dimensional Breakdowns
+
+Breakdowns partition chart series across distinct categorical values:
+* **Call Dimensions**: Agent ID, agent version, disconnection reason, call status, call success status, call direction, and custom post-call extraction fields.
+* **Chat Dimensions**: Agent ID, agent version, disconnection reason, chat status, chat success status, and post-chat extraction fields.
+
+<Frame caption="Breakdowns split each chart by a dimension such as agent or version.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/breakdown.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=2487694a69a5748a40bbb0981a1753a9" alt="Breakdown menu open on the analytics dashboard listing Agent, Agent Version, Disconnection Reason, Call Status, Call Successful, Call Type, and Post Call Extraction Field." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/breakdown.png" />
+  </div>
+</Frame>
+
+### Managing Unsaved Filter State & Grid Layout
+
+When header filters or breakdowns are modified, the navigation bar enters an unsaved modification state displaying **Save** and **Cancel** buttons. Select **Save** to persist the filter configuration as default for future team visits, or **Cancel** to revert to the last saved dashboard state.
+
+<Frame caption="Changing a filter or breakdown puts the header into its unsaved state.">
+  <div style={{ aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <img src="https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/save-cancel.png?fit=max&auto=format&n=2HwuM2BExfFOy7pJ&q=85&s=675d27c85d7b3961a82addac1ae6d43f" alt="Analytics dashboard after adding an agent breakdown, with Cancel and Save buttons shown in the header where Add Chart normally sits." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1600" height="900" data-path="images/analytics/save-cancel.png" />
+  </div>
+</Frame>
+
+#### Customizing Grid Layout
+* **Repositioning**: Drag charts within a row or across different rows. Each horizontal row accommodates up to **5 charts**.
+* **Resizing Widths**: Drag vertical dividers between charts to reallocate horizontal space.
+* **Resizing Heights**: Drag the lower handle of any row to adjust vertical height.
+* **Creating New Rows**: Drag an existing chart below the current grid into empty space to instantiate a new row. Moving and resizing operations persist automatically without requiring manual saving.
+
+### Role Permissions and Governance
+
+Viewing and editing are governed as independent access levels. Users with view access can inspect dashboards, adjust session-specific filter views, and evaluate metrics. Creating new charts, adjusting global presets, or persisting layout configurations requires write permissions. See [Access Control](/accounts/access-control) for workspace permission assignments.
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How fresh is the data in the Analytics Dashboard?">
+    Charts read your workspace call and chat records directly upon interaction completion. Once a session ends and its post-call extraction pipeline finishes processing, the record is immediately indexed in dashboard queries without requiring manual cache invalidation or batch syncs.
+  </Accordion>
+
+  <Accordion title="Why does my chart display a 'too many data points' error?">
+    A single chart visualization supports a rendering limit of **3,000 data points**. If your chart exceeds this threshold, narrow the time range, choose a coarser grouping unit (e.g., switch from Hour to Day or Week), or remove high-cardinality breakdown dimensions.
+  </Accordion>
+
+  <Accordion title="How can I inspect the individual call records behind a chart?">
+    Click on any chart segment or expand its dimensional breakdown to view the corresponding subset parameters. To inspect the full conversational audio, transcripts, and telemetry for those sessions, open [Call and Chat History](/features/session-history) and apply matching filters.
+  </Accordion>
+
+  <Accordion title="Do individual chart filters override global dashboard filters?">
+    No. Chart-level filters are merged with dashboard-level filters using logical AND semantics. For example, if the dashboard filters for calls from "Last 7 days" and a chart filters for a specific "Agent A", the visualization displays data exclusively for Agent A during the last 7 days.
+  </Accordion>
+
+  <Accordion title="Can a single dashboard display both call and chat metrics?">
+    No. Channel scope (Call vs. Chat) is locked upon dashboard creation and cannot be modified. To analyze both channels, create two dedicated dashboards within your workspace (up to the 10 dashboard limit).
+  </Accordion>
+
+  <Accordion title="Is there a REST API endpoint to programmatically query dashboard charts?">
+    Dashboard configurations are managed directly through the web UI. To extract raw interaction metrics and analysis fields programmatically, query the [List Calls API](/api-references/list-calls) and [List Chats API](/api-references/list-chats).
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Call and chat history guide](/features/session-history): Search, filter, and inspect completed call transcripts and recordings.
+* [Post-call analysis overview](monitor/post-call-analysis-overview): Configure custom structured extraction variables to chart in analytics.
+* [Alerting overview](/features/alerting-overview): Set automated thresholds and notification triggers for operational metrics.
+* [Live monitoring console](/monitor/live-calls): Supervise active in-flight calls and execute real-time human interventions.

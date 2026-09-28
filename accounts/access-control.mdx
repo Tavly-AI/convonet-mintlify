@@ -1,0 +1,196 @@
+---
+title: "Role-Based Access Control (RBAC) in Tavly Workspaces"
+sidebarTitle: "Access Control"
+description: "Configure Tavly role-based access control (RBAC): assign Admin, Developer, and Member roles, manage workspace permissions, and secure team collaboration."
+seo:
+  title: "Tavly RBAC Guide: Admin, Developer & Member Permissions"
+  description: "Configure Tavly role-based access control (RBAC): assign Admin, Developer, and Member roles, manage workspace permissions, and secure team collaboration."
+og:title: "Tavly RBAC Guide: Admin, Developer & Member Permissions"
+og:description: "Configure Tavly role-based access control (RBAC): assign Admin, Developer, and Member roles, manage workspace permissions, and secure team collaboration."
+og:image: "https://mintcdn.com/retellai/1CfiInukE0_eM7O7/images/invite_user.jpeg?fit=max&auto=format&n=1CfiInukE0_eM7O7&q=85&s=ac2463d85c7db215ff309f553ddec6a5"
+twitter:card: "summary_large_image"
+icon: "shield-keyhole"
+keywords:
+  - "role based access control"
+  - "Tavly RBAC permissions"
+  - "workspace admin developer member"
+  - "invite team members"
+  - "manage user roles"
+  - "raw call transcript permissions"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Can Developers manage billing or view invoices in Tavly?"
+    answer: "No. The Developer role is restricted strictly to agent engineering, testing, and telephony configuration. Developers cannot access payment methods, view billing invoices, or add account credits."
+  - question: "What is the difference between raw and scrubbed data access?"
+    answer: "Admins and Developers can view raw call audio recordings and complete transcripts. Members can only view scrubbed call histories with Personally Identifiable Information (PII) masked or redacted."
+  - question: "Can a workspace have multiple Admins?"
+    answer: "Yes. Workspaces can have multiple Admins with identical permissions. At least one active Admin must remain in the workspace before an existing Admin can leave or be removed."
+  - question: "Do RBAC permissions carry over across different workspaces?"
+    answer: "No. Role assignments are scoped strictly to the individual workspace. A user can be an Admin in one workspace, a Developer in another, and a Member in a third."
+---
+
+> Manage your Tavly workspace with role-based access control: invite members, assign Admin, Developer, or Member roles, and control permissions.
+
+To keep your workspace secure and enforce the principle of least privilege, Tavly provides a built-in **Role-Based Access Control (RBAC)** system for all team members.
+
+---
+
+## What is role-based access control (RBAC) in Tavly?
+
+Tavly role-based access control (RBAC) safeguards enterprise workspace resources by restricting administrative, developmental, and observational privileges according to assigned user roles. Through three distinct permission tiers—Admin, Developer, and Member—organizations enforce the principle of least privilege, ensuring collaborators access only the specific telephony assets, billing records, and agent tools necessary for their duties.
+
+Every user belonging to a [workspace](/accounts/workspace) is assigned a single active role. Role assignments determine feature visibility, API key management rights, and access to sensitive customer telephony data:
+
+- **Security Governance**: Protects sensitive payment methods, invoices, and credit card balances from unauthorized operational changes.
+- **Data Privacy & Compliance**: Restricts access to raw call audio recordings and customer transcripts, ensuring compliance with HIPAA, GDPR, and SOC 2 standards.
+- **Development Agility**: Empowers engineers to build, iterate, and deploy voice agents rapidly without exposing company-level billing or organizational administration.
+
+---
+
+## What permissions and capabilities define each Tavly system role?
+
+Tavly provides three specialized system roles: Admin, Developer, and Member. Admins maintain unrestricted authority over billing, team governance, telephony settings, and workspace deletion. Developers build, test, and deploy agents while managing API keys and raw call logs. Members receive strictly read-only access to configurations, scrubbed histories, and performance analytics without execution rights.
+
+### Detailed Role Specifications
+
+#### Admin
+
+The **Admin** role provides full administrative authority over the workspace, its resources, financial transactions, and user memberships.
+
+- **Permissions Granted**:
+  - Invite, remove, and update roles for all workspace members.
+  - View and manage billing: credit purchases, auto-recharge thresholds, invoice downloads, payment methods, and subscriptions.
+  - Create, configure, test, and delete voice agents, conversation flow graphs, Tavly LLMs, knowledge bases, custom voices, and folders.
+  - Configure developer settings, create and rotate private [API keys](/accounts/keys/api-key-overview), and manage webhook listeners.
+  - Access all call data, including raw audio recordings, unredacted transcripts, and telemetry logs.
+  - Manage telephony carrier connections, buy phone numbers, and configure SIP trunking.
+  - Modify workspace settings or initiate workspace deletion.
+- **Permissions Restricted**:
+  - None — Admins possess complete, unrestricted authority within the workspace.
+
+#### Developer
+
+The **Developer** role provides full operational access to construct, test, and integrate voice agents while strictly walling off financial, billing, and membership controls.
+
+- **Permissions Granted**:
+  - Build, update, and manage agents, conversation flows, custom LLMs, knowledge bases, and custom voices.
+  - Access the LLM Playground, execute simulated calls, create test cases, and manage test suites.
+  - View raw call logs, unredacted conversational transcripts, audio recordings, and operational analytics.
+  - Generate call data exports and run manual or batch outbound calling campaigns.
+  - Provision and rotate API keys, public keys, and webhook endpoints; adjust concurrency limits and calls-per-second (CPS).
+- **Permissions Restricted**:
+  - Cannot access billing pages, purchase credits, view invoices, or update payment methods.
+  - Cannot invite, remove, or modify roles for team members.
+  - Cannot modify workspace name or delete the workspace.
+
+#### Member
+
+The **Member** role is an observational, read-only tier designed for stakeholders, analysts, and support staff who need visibility into agent performance without edit permissions.
+
+- **Permissions Granted**:
+  - Inspect agent configurations, prompts, and knowledge bases in read-only mode.
+  - View completed test results, playground sessions, and aggregated performance analytics dashboards.
+  - Review scrubbed session history, batch call reports, and provisioned phone resource inventories.
+  - View the workspace member directory.
+- **Permissions Restricted**:
+  - Cannot create, modify, publish, or delete agents, tools, knowledge bases, or voices.
+  - Cannot trigger live calls, start chat sessions, run simulations, or modify playground parameters.
+  - Cannot view private API keys, configure webhooks, or access raw unredacted call recordings and transcripts.
+  - Cannot manage billing, workspace settings, or team member assignments.
+
+### Role Permission Matrix
+
+| Capability Category | Specific Action / Resource | Admin | Developer | Member |
+| :--- | :--- | :---: | :---: | :---: |
+| **Workspace Governance** | Update workspace settings or delete workspace | Yes | No | No |
+| **Team Management** | Invite members, change roles, or remove users | Yes | No | No |
+| **Billing & Payments** | Manage credit balance, invoices, & payment methods | Yes | No | No |
+| **Agent Engineering** | Create, edit, and publish voice & chat agents | Yes | Yes | Read-Only |
+| **Context & Knowledge** | Upload documents, URLs, and manage knowledge bases | Yes | Yes | Read-Only |
+| **Telephony & Numbers** | Purchase numbers, configure SIP trunks & concurrency | Yes | Yes | Read-Only |
+| **Credentials & Hooks** | Create/view private API keys & webhooks | Yes | Yes | No |
+| **Testing & Playground** | Execute simulations, test calls, and playground tests | Yes | Yes | No |
+| **Call Data & Privacy** | View raw unredacted transcripts and audio recordings | Yes | Yes | Scrubbed Only |
+| **Analytics & Reporting** | View aggregate performance dashboards and metrics | Yes | Yes | Yes |
+
+---
+
+## How do you invite new team members to a Tavly workspace?
+
+Workspace Admins invite new collaborators by opening Settings, navigating to Workspace Users, and clicking Invite a member. Enter the teammate's corporate email address, select an appropriate role (Admin, Developer, or Member), and send the invitation. The recipient receives an onboarding email granting instant access upon registration or logging into their account.
+
+Follow these steps to invite a colleague:
+
+<Steps>
+  <Step title="Navigate to the Users Panel">
+    From the dashboard sidebar, navigate to **Settings** → **Workspace** → **Users**.
+  </Step>
+
+  <Step title="Open the Invitation Dialog">
+    Click the **Invite a member** button in the upper-right corner of the user management table.
+
+    <Frame caption="Invite user to workspace">
+      <img height="700" src="https://mintcdn.com/retellai/1CfiInukE0_eM7O7/images/invite_user.jpeg?fit=max&auto=format&n=1CfiInukE0_eM7O7&q=85&s=ac2463d85c7db215ff309f553ddec6a5" alt="Invite user to workspace" data-path="images/invite_user.jpeg" />
+    </Frame>
+  </Step>
+
+  <Step title="Assign Role and Dispatch">
+    Enter the user's email address, select their role (**Admin**, **Developer**, or **Member**), and click **Invite**. An email notification containing a secure onboarding link will be sent to the recipient immediately.
+  </Step>
+</Steps>
+
+<Note>
+  If an invited colleague does not receive their invitation link, an Admin can resend the invite at any time by repeating the process with the identical email address.
+</Note>
+
+---
+
+## How do you update user roles and modify workspace permissions?
+
+To update an active user's permissions, an Admin opens Settings, selects Workspace Users, locates the team member in the roster, and changes their role via the role dropdown menu. Permission modifications apply immediately, altering API key visibility, billing access, agent editing capabilities, and sensitive transcript viewing rights across the workspace.
+
+<Frame caption="Change user role">
+  <img height="700" src="https://mintcdn.com/retellai/ql-QUtpW4EfxaGjq/images/update_user_role.jpeg?fit=max&auto=format&n=ql-QUtpW4EfxaGjq&q=85&s=d3a70efab1471b8ab0421dc57c9b3dc0" alt="Change user role in workspace" data-path="images/update_user_role.jpeg" />
+</Frame>
+
+Role changes take effect in real time during active sessions:
+1. Locate the collaborator in the **Users** list.
+2. Click the role selector dropdown adjacent to their name.
+3. Select the new role (**Admin**, **Developer**, or **Member**).
+4. The user's active session permissions update automatically without requiring re-authentication.
+
+---
+
+## How do you remove a team member from a Tavly workspace?
+
+To remove a collaborator, an Admin opens Settings, navigates to Workspace Users, locates the user, and clicks Remove User from the action menu. The user's workspace session and credentials are revoked instantly, blocking access to agents, call transcripts, and phone configurations without impacting their access to other unrelated workspaces.
+
+### Safeguards for Admin Removal
+
+- **Last Admin Protection**: If only one user holds the **Admin** role in the workspace, that Admin cannot be removed or demoted. You must promote an existing Developer or Member to Admin before removing the outgoing Admin.
+- **Session Revocation**: Removing a user immediately invalidates their active dashboard session tokens for that specific workspace. Any API keys generated by that individual that belong to the workspace remain active unless rotated.
+
+---
+
+## Frequently asked questions about Tavly access control
+
+Tavly access control provides granular governance to protect conversational AI workflows, telecom assets, and sensitive customer call data. By assigning distinct Admin, Developer, and Member roles, organizations streamline collaborative agent engineering while safeguarding payment methods, raw audio recordings, and production telephony infrastructure against unauthorized modifications or credential exposure.
+
+<AccordionGroup>
+  <Accordion title="Can Developers manage billing or view invoices in Tavly?">
+    No. The Developer role is restricted strictly to agent engineering, testing, and telephony configuration. Developers cannot access payment methods, view billing invoices, or add account credits.
+  </Accordion>
+
+  <Accordion title="What is the difference between raw and scrubbed data access?">
+    Admins and Developers can view raw call audio recordings and complete transcripts. Members can only view scrubbed call histories with Personally Identifiable Information (PII) masked or redacted.
+  </Accordion>
+
+  <Accordion title="Can a workspace have multiple Admins?">
+    Yes. Workspaces can have multiple Admins with identical permissions. At least one active Admin must remain in the workspace before an existing Admin can leave or be removed.
+  </Accordion>
+
+  <Accordion title="Do RBAC permissions carry over across different workspaces?">
+    No. Role assignments are scoped strictly to the individual workspace. A user can be an Admin in one workspace, a Developer in another, and a Member in a third.
+  </Accordion>
+</AccordionGroup>

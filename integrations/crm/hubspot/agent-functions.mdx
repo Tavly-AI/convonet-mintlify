@@ -1,0 +1,154 @@
+---
+title: 'HubSpot Agent Functions: Live Tools for Deals, Contacts & Tasks'
+sidebarTitle: 'Agent Functions'
+description: 'Equip Tavly AI voice agents with HubSpot CRM tools: look up callers, manage deals and companies, create follow-up tasks, and log real-time call engagements.'
+seo:
+  title: 'HubSpot Agent Functions & Tools | Tavly AI Documentation'
+  description: 'Equip Tavly AI voice agents with HubSpot CRM tools: look up callers, manage deals and companies, create follow-up tasks, and log real-time call engagements.'
+og:title: 'HubSpot Agent Functions: Live Tools for Deals, Contacts & Tasks'
+og:description: 'Equip Tavly AI voice agents with HubSpot CRM tools: look up callers, manage deals and companies, create follow-up tasks, and log real-time call engagements.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/hubspot-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'wrench'
+keywords: ['HubSpot agent functions', 'HubSpot CRM voice AI tools', 'Tavly AI HubSpot functions', 'HubSpot deal lookup tool', 'voice agent task creation', 'HubSpot call engagement tool', 'CRM function calling']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Do HubSpot agent functions require two-way contact sync to be enabled?'
+    answer: 'No. Agent functions execute via direct live API calls to your HubSpot portal as soon as the connection is established. Contact synchronization, analysis mapping, and automated background activity logging are independent features that you opt into separately.'
+  - question: 'What is the operational difference between "Log Call Activity" and "Log activities automatically"?'
+    answer: '"Log Call Activity" is an on-demand tool invoked intentionally by the agent mid-call with custom summaries and notes. "Log activities automatically" is a background sync setting that publishes standard call records to HubSpot for every synced contact without prompt intervention.'
+  - question: 'How does an agent handle a missing OAuth scope error during a live call?'
+    answer: 'HubSpot rejects calls lacking required permissions with an HTTP 403 error specifying MISSING_SCOPES. The agent gracefully falls back based on your prompt instructions, and adding the missing scope in HubSpot resolves the issue immediately without disconnecting.'
+---
+
+## What are HubSpot agent functions and how do they empower AI agents?
+
+**HubSpot agent functions** are pre-built API integration tools that empower Tavly voice and chat agents to interact directly with your HubSpot CRM during conversations. Agents can identify callers by phone number, retrieve contact attributes, inspect associate deals or companies, generate follow-up tasks, and log call records without requiring background contact synchronization.
+
+Equipping your conversational agents with direct portal access transforms conversations from scripted dialogues into dynamic, context-aware customer engagements:
+
+* **Zero-Touch Caller Identification**: Search your portal by incoming caller ID to greet customers by name and verify security PINs instantly.
+* **Contextual Revenue Intelligence**: Inspect associated deal amounts, sales pipeline stages, and company records before providing answers.
+* **Closed-Loop Task Automation**: Instantly schedule follow-up tasks for human sales representatives or append conversation notes to the contact record.
+* **Flexible Execution Timing**: Trigger functions mid-call, as pre-call setup hooks, or as post-call data persistence operations via [agent workflows](/build/agent-workflow).
+
+<Tip>
+  Integration tools operate on-demand via direct REST API calls to HubSpot. They function independently from [HubSpot contact sync](/integrations/crm/hubspot/contact-sync), allowing you to deploy live lookup tools even if persistent contact synchronization is disabled.
+</Tip>
+
+***
+
+<a id="available-tools" />
+
+## Which HubSpot function tools are available for conversational agents?
+
+Tavly provides twelve native HubSpot tools across four functional domains: **contact management** (Search, Get, Create, Update Contact), **deal management** (List Contact Deals, Get Deal, Update Deal), **company intelligence** (List Contact Companies, Get Company, Update Company), and **activity execution** (List Contact Tasks, Create Task, Create Note, Log Call Activity).
+
+These tools appear in your agent configuration menu once a [HubSpot connection](/integrations/crm/hubspot/connect) is authenticated:
+
+### Complete Tool Directory
+
+| Tool Name | Operational Functionality | Primary Use Case |
+| :--- | :--- | :--- |
+| **Search Contact** | Look up a contact record using a phone number string. | Identify incoming callers automatically from caller ID metadata. |
+| **Get Contact** | Retrieve full property values for a specific HubSpot Contact ID. | Fetch deep profile attributes such as lifecycle stage or lead status. |
+| **Create Contact** | Generate a brand-new contact record in HubSpot. | Register first-time callers directly into your CRM database. |
+| **Update Contact** | Modify specific contact properties based on conversation context. | Update corrected email addresses, mailing addresses, or phone numbers. |
+| **List Contact Deals** | Retrieve up to 50 deals associated with a target contact record. | Inspect open opportunities, purchase orders, or pipeline stages. |
+| **Get Deal** | Fetch detailed properties for a specific deal by ID. | Read deal amount, close date, or current sales owner. |
+| **Update Deal** | Modify deal attributes, stages, or custom properties. | Advance deal stages or log buyer confirmation values. |
+| **List Contact Companies** | Fetch up to 50 companies associated with a contact. | Identify corporate accounts, domain associations, and parent companies. |
+| **Get Company** | Retrieve properties and metadata for a specific company by ID. | Read annual revenue, company tier, or headquarters location. |
+| **Update Company** | Modify company properties based on customer disclosures. | Keep firmographic records current without manual rep data entry. |
+| **List Contact Tasks** | Fetch up to 50 active follow-up tasks associated with a contact. | Check whether outstanding action items or meetings exist. |
+| **Create Task** | Schedule a new follow-up task on the contact record. | Assign callback actions or demo follow-ups to account executives. |
+| **Create Note** | Append an engagement note directly to the contact activity feed. | Persist free-form conversation takeaways, sentiments, or memos. |
+| **Log Call Activity** | Create an explicit Call engagement on the contact timeline. | Post custom agent-authored summaries and call outcomes on demand. |
+
+<Tip>
+  **Agent-Driven vs. Automated Logging**: **Log Call Activity** is the agent-initiated tool where the LLM decides dynamically when to log and structures the summary payload. In contrast, **Log activities automatically** in your [contact sync settings](/integrations/crm/hubspot/contact-sync) records every session with a synced contact in the background. You can deploy either model or combine both for comprehensive audit trails.
+</Tip>
+
+***
+
+## What OAuth scopes are required to execute HubSpot agent functions?
+
+Agent functions authenticate via your HubSpot private app and require specific scopes mapped to object actions: contact tools require `crm.objects.contacts.read/write`, deal tools require `crm.objects.deals.read/write`, and company tools require `crm.objects.companies.read/write`. Property schema read scopes (`crm.schemas.*.read`) are mandatory for dynamic argument parsing and response introspection.
+
+Ensure your private app possesses the following scopes, configured in [Step 2 of the connection guide](/integrations/crm/hubspot/connect#what-scopes-are-required-for-contact-sync-activity-logging-and-tools):
+
+### Scope Matrix by Tool Category
+
+| Scope Identifier | Required Agent Functions |
+| :--- | :--- |
+| `crm.objects.contacts.read` | **Search Contact**, **Get Contact**, **List Contact Tasks** |
+| `crm.objects.contacts.write` | **Create Contact**, **Update Contact**, **Create Task**, **Create Note**, **Log Call Activity** |
+| `crm.objects.deals.read` | **List Contact Deals** (requires `crm.objects.contacts.read`), **Get Deal** |
+| `crm.objects.deals.write` | **Update Deal** |
+| `crm.objects.companies.read` | **List Contact Companies** (requires `crm.objects.contacts.read`), **Get Company** |
+| `crm.objects.companies.write` | **Update Company** |
+| `crm.schemas.contacts.read` | Reads contact property definitions when rendering tool schemas and arguments. |
+| `crm.schemas.deals.read` | Reads deal property schemas when mapping input and output parameters. |
+| `crm.schemas.companies.read` | Reads company schema structures during dynamic field introspection. |
+
+HubSpot routes tasks, notes, and call engagements through the standard contact write permission; no dedicated engagement scope is required. If a tool fails due to an omitted scope, HubSpot returns an HTTP `403` error containing `MISSING_SCOPES`. Granting the scope under [**Edit app**](/integrations/crm/hubspot/connect#how-do-you-rotate-access-tokens-and-manage-private-app-scopes) immediately activates the tool without requiring reconnection.
+
+***
+
+## How do you configure and trigger HubSpot functions within agent workflows?
+
+To deploy HubSpot functions, navigate to your agent editor and add tools under **Functions** (prompt agents) or within a **Function Node** (conversation flows). Bind each tool to your authenticated HubSpot connection, configure input parameters using literal values or conversational descriptions, and extract response payloads into **dynamic variables**.
+
+Follow these operational guidelines to configure tools across agent types:
+
+### Configuration Across Agent Surfaces
+
+* **Single-Prompt & Multi-Prompt Agents**: Open your agent settings, locate the **Functions** section, click **+ Add Function**, and choose your HubSpot connection. Select target tools (e.g., *Search Contact* or *Create Task*) and configure argument extraction parameters (detailed in [tools for prompt agents](/build/setup/single-multi-prompt/integration-tools)).
+* **Conversation Flow Agents**: In the visual canvas, drag a **Function Node** into the logic stream. Select your HubSpot connection, choose the tool, and establish deterministic branch conditions based on the output payload (detailed in [tools in conversation flows](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow)).
+
+### Dynamic Variable Extraction
+
+When an integration tool executes during a conversation, its response can be saved into [dynamic variables](/build/context/dynamic-variables) (e.g., `deal_amount`, `company_name`) to personalize subsequent dialogue turns or pass into downstream API calls.
+
+Review the [Integration Tools Configuration Guide](/integrations/integrations-overview#use-integration-tools-in-an-agent) for test-panel workflows, response field pruning, and schema introspection.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Do HubSpot agent functions require two-way contact sync to be enabled?">
+    No. Agent functions execute via direct live API calls to your HubSpot portal as soon as the connection is established. Contact synchronization, analysis mapping, and automated background activity logging are independent features that you opt into separately.
+  </Accordion>
+
+  <Accordion title="What is the operational difference between 'Log Call Activity' and 'Log activities automatically'?">
+    `Log Call Activity` is an on-demand tool invoked intentionally by the agent mid-call with custom summaries and notes. `Log activities automatically` is a background sync setting that publishes standard call records to HubSpot for every synced contact without prompt intervention.
+  </Accordion>
+
+  <Accordion title="How does an agent handle a missing OAuth scope error during a live call?">
+    HubSpot rejects calls lacking required permissions with an HTTP `403` error specifying `MISSING_SCOPES`. The agent gracefully falls back based on your prompt instructions, and adding the missing scope in HubSpot resolves the issue immediately without disconnecting.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Integration Tools for Prompt Agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Configure tool schemas and execute live test requests in single- or multi-prompt agents.
+  </Card>
+
+  <Card title="Integration Tools in Conversation Flows" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Add HubSpot tool calls to visual function nodes and branch conditionally on API results.
+  </Card>
+
+  <Card title="HubSpot Contact Sync" icon="arrows-rotate" href="/integrations/crm/hubspot/contact-sync">
+    Import HubSpot contacts, write post-call analysis back to properties, and log call timelines.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Map tool output fields to dynamic runtime variables referenced across conversational prompts.
+  </Card>
+</CardGroup>

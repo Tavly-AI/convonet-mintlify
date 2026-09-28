@@ -1,0 +1,227 @@
+---
+title: 'Connect HubSpot: Private App Token, Scopes & CRM Setup'
+sidebarTitle: 'Connect HubSpot'
+description: 'Connect HubSpot to Tavly AI with a private app access token: configure OAuth scopes, enable two-way contact sync, log call activities, and manage credentials.'
+seo:
+  title: 'Connect HubSpot to Tavly AI | Private App & Scope Guide'
+  description: 'Connect HubSpot to Tavly AI with a private app access token: configure OAuth scopes, enable two-way contact sync, log call activities, and manage credentials.'
+og:title: 'Connect HubSpot: Private App Token, Scopes & CRM Setup'
+og:description: 'Connect HubSpot to Tavly AI with a private app access token: configure OAuth scopes, enable two-way contact sync, log call activities, and manage credentials.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/hubspot-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'hubspot'
+keywords: ['connect HubSpot to Tavly AI', 'HubSpot voice agent integration', 'HubSpot private app token', 'HubSpot contact sync', 'HubSpot call logging', 'CRM OAuth scopes', 'AI agent CRM tools']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Can I connect more than one HubSpot portal to a Tavly workspace?'
+    answer: 'Yes. You can establish multiple distinct HubSpot connections. However, only one CRM connection across all providers can drive automated contact synchronization for your workspace at any given time.'
+  - question: 'Does this CRM connection replace the HubSpot Marketplace app?'
+    answer: 'No. The CRM integration handles contact sync, analysis mapping, and activity logging. The HubSpot Marketplace app adds a "Make a Phone Call" action to HubSpot workflows for triggering outbound calls. Both can operate concurrently.'
+  - question: 'Why did an agent tool fail with an HTTP 403 Forbidden error?'
+    answer: 'A 403 error indicating MISSING_SCOPES occurs when an agent attempts to execute a deal or company tool whose scope was not granted. Add the missing scope in HubSpot app settings to fix it without generating a new token.'
+---
+
+## What is the Tavly AI HubSpot integration and when should you use it?
+
+The **Tavly AI HubSpot integration** connects your HubSpot CRM portal to Tavly via a private app access token. Connect HubSpot when it serves as your core system of record to greet existing contacts by name, enrich CRM properties with **Post Call Extraction**, log calls to activity timelines, and trigger live deals tools.
+
+Authenticating a connection links your portal's contacts, deals, and companies to conversational voice agents while maintaining synchronized CRM records:
+
+* **Instant Customer Identification**: Contacts sync automatically into Tavly, empowering agents to greet callers by name and reference their lifecycle stage without discovery friction.
+* **Autonomous Property Enrichment**: Analysis metrics extracted from each call or chat write back directly to contact properties.
+* **Unified Engagement Timelines**: Every conversation logs to the customer's timeline as a Call engagement or Communication activity with duration and transcript summaries.
+* **Real-Time Enterprise Function Calling**: Dedicated [agent function tools](/integrations/crm/hubspot/agent-functions) look up deals, retrieve company details, and schedule follow-up tasks mid-conversation.
+
+<Note>
+  This guide covers configuring HubSpot as a **CRM data source**. If you want to trigger outbound voice calls directly from HubSpot enrollment workflows, consult the [HubSpot Marketplace app guide](/marketplace/hubspot). Both integrations operate independently and can be used together.
+</Note>
+
+***
+
+## What prerequisites and permissions are required to connect HubSpot?
+
+Connecting HubSpot requires a HubSpot account with **Super Admin** privileges. Only Super Admins can create private apps, configure API scopes, and generate secret access tokens. Before beginning setup, ensure administrative access to your target portal and review required contact, deal, and engagement scopes.
+
+### Video Walkthrough: Connecting HubSpot End-to-End
+
+<iframe className="w-full aspect-video rounded-xl" src="https://www.youtube.com/embed/nE6y7xrPKZk" title="How to Connect HubSpot with Retell built-in CRM" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+
+***
+
+## How do you create a private app and configure scopes in HubSpot?
+
+To create a private app, navigate to **Development → Legacy Apps** (or **Settings → Integrations → Private Apps**) in HubSpot and select **Create legacy app**. Assign a descriptive name, navigate to the **Scopes** tab, and grant necessary contact, deal, and company permissions. Finally, click **Create app** and copy your token.
+
+<Steps>
+  <Step title="Navigate to Legacy Apps">
+    In HubSpot, click **Development** at the bottom of the left navigation sidebar, then select **Legacy Apps**. Click the orange **Create legacy app** button in the top-right corner, then choose **Private** in the dialog.
+
+    <Frame caption="HubSpot Legacy Apps console located under the Development navigation category.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/hubspot-new-app.png?fit=max&auto=format&n=M9dkUq1iShh05WLW&q=85&s=340314861d186ce1cdbeb9151bcea4b7" alt="The HubSpot Legacy Apps page. Development is highlighted at the bottom of the left sidebar, Legacy Apps is highlighted in the Development sub-navigation, and the orange Create legacy app button is highlighted at the top right. The empty state reads No legacy apps available, with a note encouraging developers to build on the newer projects platform." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="3456" height="1828" data-path="images/integration/hubspot-new-app.png" />
+      </div>
+    </Frame>
+
+    <Note>
+      HubSpot classifies private apps as **Legacy Apps** to highlight its newer developer project platform. Private apps remain the fully supported, stable method to connect HubSpot to Tavly. If your portal does not display **Development** in the sidebar, open **Settings → Integrations → Private Apps**.
+    </Note>
+  </Step>
+
+  <Step title="Define basic application metadata">
+    Under the **Basic Info** tab, enter:
+    * **Name**: A distinct identifier, such as `Tavly AI Integration`.
+    * **Description**: An operational summary, such as *"Syncs contacts, maps analysis data, and logs call engagements for Tavly AI agents."*
+  </Step>
+</Steps>
+
+***
+
+## What scopes are required for contact sync, activity logging, and tools?
+
+Contact sync and timeline logging require three foundational scopes: `crm.objects.contacts.read`, `crm.schemas.contacts.read`, and `crm.objects.contacts.write`. Enabling deal and company tools requires complementary read/write scopes (`crm.objects.deals.read/write`, `crm.objects.companies.read/write`, and their corresponding schema read scopes). Note and task creation endpoints authenticate through contact scopes without separate permissions.
+
+On the **Scopes** tab, click **Add new scope**, search for each required permission, check the box, and click **Update**.
+
+### Core Contact Synchronization & Activity Logging Scopes
+
+| Scope Identifier | Operational Necessity |
+| :--- | :--- |
+| `crm.objects.contacts.read` | Ingests contacts, runs the connection validation test, and executes contact lookup tools. |
+| `crm.schemas.contacts.read` | Reads contact property definitions for field mapping, tool inputs, and record queries. |
+| `crm.objects.contacts.write` | Enables outbound sync, timeline engagement logging, and contact/note/task tool execution. |
+
+### Optional Deal and Company Agent Function Scopes
+
+If your agents will use deal or company [integration tools](/integrations/crm/hubspot/agent-functions#available-tools), grant the following complementary scopes:
+
+| Scope Identifier | Required Agent Functionality |
+| :--- | :--- |
+| `crm.objects.deals.read` | Enables the **Get Deal** and **List Contact Deals** functions. |
+| `crm.objects.deals.write` | Enables the **Update Deal** tool. |
+| `crm.objects.companies.read` | Enables the **Get Company** and **List Contact Companies** functions. |
+| `crm.objects.companies.write` | Enables the **Update Company** tool. |
+| `crm.schemas.deals.read`, `crm.schemas.companies.read` | Reads custom property definitions when configuring and running deal/company tools. |
+
+HubSpot routes call logs, tasks, and notes through standard contact write permissions; no dedicated engagement scope is needed. If an agent executes a function lacking scopes, HubSpot returns an HTTP `403` specifying the `MISSING_SCOPES` category. Granting the scope under [**Edit app**](#change-scopes) immediately resolves the error without generating a new token.
+
+<Warning>
+  **Configure Complete Scopes During Initial Setup**: A missing scope does not trigger a connection error badge in Tavly because HubSpot responds with an HTTP `403` rather than an authentication rejection. The specific function simply halts silently. The sole exception is `crm.objects.contacts.read`: because the handshake test queries contacts, missing this scope causes connection creation to fail outright.
+</Warning>
+
+***
+
+## How do you connect and verify the HubSpot integration in Tavly?
+
+To connect HubSpot, navigate to **Integrations → Available** in the Tavly dashboard, select **HubSpot**, and paste your private app access token into the **API Key** field. Tavly immediately tests authentication by requesting a contact batch; once verified, the card displays on the **Connected** tab ready for synchronization.
+
+<Steps>
+  <Step title="Generate and reveal the access token">
+    In HubSpot, click **Create app** in the upper right corner. Review the confirmation prompt and click **Continue creating**. On the subsequent **Auth** tab, click **Show token** and copy the string.
+  </Step>
+
+  <Step title="Initiate connection in the Tavly dashboard">
+    Open **Integrations** in Tavly, navigate to the **Available** tab, locate **HubSpot**, and click **Connect** (or **Add Account** if another portal exists).
+  </Step>
+
+  <Step title="Supply connection credentials">
+    Configure the connection fields:
+
+    | Parameter | Specification |
+    | :--- | :--- |
+    | **Connection name** | Workspace alias; defaults to `HubSpot - API key`. |
+    | **API Key** | The secret private app access token generated in Step 1. |
+
+    <Frame caption="The HubSpot configuration dialog: enter the private app access token into the API Key input.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/hubspot-config-integration.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=f205dd10bf02fd0a7c8055fce2d94932" alt="Retell's HubSpot connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with HubSpot - API key and an API Key field with the placeholder Enter your API key, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1204" height="1004" data-path="images/integration/hubspot-config-integration.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Validate and finalize connection">
+    Click **Connect** (or **Add Account**). Tavly initiates an immediate verification test by fetching a sample contact batch from HubSpot. Upon success, the modal confirms verification and offers **Set up contact sync**. If validation fails, Tavly presents the raw HubSpot API error.
+  </Step>
+
+  <Step title="Verify on the Connected tab">
+    The verified portal appears under the **Connected** tab. Proceed to configure [contact sync](/integrations/crm/hubspot/contact-sync) or attach [agent functions](/integrations/crm/hubspot/agent-functions) to your agents.
+  </Step>
+</Steps>
+
+***
+
+<a id="change-scopes" />
+
+## How do you rotate access tokens and manage private app scopes?
+
+To rotate tokens safely, select **Rotate and expire later** under your app's **Legacy Apps** settings in HubSpot, preserving the previous token for 7 days. In Tavly, open connection settings and click **Reconnect** with the new token. Scope modifications take effect instantly in HubSpot without requiring token re-generation.
+
+### Token Rotation Workflow
+
+<Steps>
+  <Step title="Rotate the token in HubSpot">
+    In HubSpot, open **Development → Legacy Apps** and select your Tavly integration app. Beside the access token, click **Rotate**, then select **Rotate and expire later**. This maintains previous token validity for **7 days**, preventing active call interruptions while you update Tavly.
+  </Step>
+
+  <Step title="Reconnect the portal in Tavly">
+    Navigate to **Integrations → Connected** in Tavly and open the HubSpot connection settings. Paste the new token into the masked credential field and click **Reconnect**. Tavly validates the new credential immediately; all existing field mappings and contact records remain intact.
+  </Step>
+</Steps>
+
+### Modifying Scopes
+
+To modify permissions, navigate to **Development → Legacy Apps**, select your app, and click **Edit app** in the upper right. Adding new scopes takes effect immediately without generating a new token or reconnecting. Removing a scope immediately disables dependent Tavly agent functions without flagging the connection as severed.
+
+***
+
+## How do you troubleshoot common HubSpot connection errors?
+
+If initial connection fails, confirm you pasted the private app **access token** rather than a legacy API key or client secret, and verify `crm.objects.contacts.read` is granted. If an active connection errors with an HTTP 401, the token was deleted or expired; paste a freshly rotated token to reconnect.
+
+### Diagnostic Matrix
+
+* **Initial Connection Authorization Error**: Verify that the supplied string begins with the private app token prefix rather than an OAuth client secret or deprecated API key. Ensure `crm.objects.contacts.read` is enabled on the app.
+* **HTTP 401 Unauthorized Error on Active Connection**: Occurs when a token is rotated with immediate expiration or deleted in HubSpot. Open connection settings in Tavly, input the valid token, and select **Reconnect**.
+* **Silent Tool Execution Failures**: When agent function calls fail while the connection is green, inspect recent tool call logs for HTTP `403` status codes (`MISSING_SCOPES`). Add the missing deal or company scopes in HubSpot to restore functionality.
+
+Review the [Integrations Overview FAQ](/integrations/integrations-overview#frequently-asked-questions) for workspace health specifications.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Can I connect more than one HubSpot portal to a Tavly workspace?">
+    Yes. You can establish multiple distinct HubSpot connections. However, only one CRM connection across all providers can drive automated contact synchronization for your workspace at any given time.
+  </Accordion>
+
+  <Accordion title="Does this CRM connection replace the HubSpot Marketplace app?">
+    No. The CRM integration handles contact sync, analysis mapping, and activity logging. The [HubSpot Marketplace app](/marketplace/hubspot) adds a "Make a Phone Call" action to HubSpot workflows for triggering outbound calls. Both can operate concurrently.
+  </Accordion>
+
+  <Accordion title="Why did an agent tool fail with an HTTP 403 Forbidden error?">
+    A 403 error indicating `MISSING_SCOPES` occurs when an agent attempts to execute a deal or company tool whose scope was not granted. Add the missing scope in HubSpot app settings to fix it without generating a new token.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="HubSpot Contact Sync" icon="arrows-rotate" href="/integrations/crm/hubspot/contact-sync">
+    Import HubSpot contacts, write post-call analysis back to properties, and log call timelines.
+  </Card>
+
+  <Card title="HubSpot Agent Functions" icon="wrench" href="/integrations/crm/hubspot/agent-functions">
+    Configure agent tools to query callers, inspect open deals, and create follow-up tasks mid-call.
+  </Card>
+
+  <Card title="Trigger Outbound Calls via Workflow" icon="bolt" href="/marketplace/hubspot">
+    Use the HubSpot Marketplace app to trigger AI phone calls directly from HubSpot workflows.
+  </Card>
+
+  <Card title="CRM Integrations Overview" icon="database" href="/integrations/crm/crm-integrations">
+    Learn how two-way contact sync, analysis mappings, and activity logging work across all CRMs.
+  </Card>
+</CardGroup>

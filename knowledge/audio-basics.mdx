@@ -1,0 +1,225 @@
+---
+title: "Audio Engineering Fundamentals for Voice AI"
+sidebarTitle: "Audio Basics"
+description: "Explore digital audio fundamentals for voice AI, covering sampling, quantization, PCM encoding, codecs, audio buffers, and real-time telephony streaming specs."
+seo:
+  title: "Audio Basics for Voice AI: Sampling, Quantization, Codecs & PCM"
+  description: "Explore digital audio fundamentals for voice AI, covering sampling, quantization, PCM encoding, codecs, audio buffers, and real-time telephony streaming specs."
+og:title: "Audio Basics for Voice AI: Sampling, Quantization, Codecs & PCM"
+og:description: "Explore digital audio fundamentals for voice AI, covering sampling, quantization, PCM encoding, codecs, audio buffers, and real-time telephony streaming specs."
+twitter:card: "summary_large_image"
+icon: "waveform"
+keywords:
+  - "voice AI audio basics"
+  - "sampling and quantization"
+  - "PCM audio encoding"
+  - "Nyquist theorem audio"
+  - "telephony codecs G.711"
+  - "audio bit depth sample rate"
+  - "Float32 to Uint8 conversion"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "What is the Nyquist theorem and why does voice AI care about it?"
+    answer: "The Nyquist theorem dictates that an analog signal must be sampled at twice its highest frequency component to prevent aliasing and ensure accurate signal reconstruction."
+  - question: "What is the difference between an audio encoding and an audio file format?"
+    answer: "An audio encoding specifies how raw sound waveform samples are digitized and compressed, whereas an audio file format includes file headers, container wrappers, and metadata."
+  - question: "Why is Float32Array used in web browsers while Uint8Array is used in network transmission?"
+    answer: "Web Audio APIs process audio data in 32-bit floating-point numbers between -1.0 and 1.0, while network sockets transmit compact raw 16-bit PCM byte buffers."
+  - question: "How does Tavly AI handle audio codec conversion for telephony and web calls?"
+    answer: "Tavly automatically converts carrier-specific telephony codecs like G.711 μ-law and WebRTC streams into high-quality PCM for speech-to-text and AI model inference."
+---
+
+# Audio Basics
+
+> Audio fundamentals for building voice AI — sampling, quantization, codecs, sample rates, and how audio is represented digitally in telephony systems.
+
+This guide explores how sound waves are converted into digital data streams for voice artificial intelligence, detailing sampling mechanics, quantization depth, popular compression codecs, memory buffer conversions, and real-time telephony specifications.
+
+---
+
+## How is analog sound represented digitally in voice AI systems?
+
+Microphones convert acoustic sound pressure waves into analog electrical voltages, which an **analog-to-digital converter (ADC)** digitizes through **sampling** and **quantization**. Sampling measures continuous signal amplitudes at fixed time intervals defined by the sample rate, while quantization maps those continuous measurements into discrete numerical values determined by system bit depth.
+
+Together, sampling and quantization transform infinite analog waveforms into discrete binary data that digital computers, speech-to-text (STT) models, and large language models (LLMs) can process in real time.
+
+```
++------------------+      +--------------------+      +--------------------+      +---------------------+
+| Acoustic Energy  | ---> | Electrical Voltage | ---> | ADC: Sampling      | ---> | ADC: Quantization   |
+| (Sound Waveform) |      | (Analog Signal)    |      | (Measure Interval) |      | (Assign Bit Values) |
++------------------+      +--------------------+      +--------------------+      +---------------------+
+```
+
+### The two core conversion processes
+
+<CardGroup cols={2}>
+  <Card title="Sampling" icon="wave-pulse">
+    * **Definition**: Measuring the amplitude of a continuous analog signal at uniform time intervals. Intervals are measured in Hertz (Hz). For example, 44.1 kHz captures 44,100 measurements per second.
+    * **Purpose**: Generates a discrete sequence of time-domain data points approximating the continuous waveform.
+    * **Nyquist-Shannon Theorem**: The sampling rate must equal or exceed twice the highest frequency component present in the analog signal ($f_s \ge 2 f_{max}$) to reconstruct the original waveform without aliasing distortion. Because human hearing extends up to 20 kHz, standard consumer audio uses 44.1 kHz or 48 kHz.
+  </Card>
+
+  <Card title="Quantization" icon="binary">
+    * **Definition**: Converting each sampled continuous amplitude into a finite digital numerical value (quantization level).
+    * **Purpose**: Divides the continuous vertical amplitude range into discrete steps. The system **bit depth** governs the total number of available quantization steps. A 16-bit system provides $2^{16} = 65,536$ distinct levels.
+    * **Quantization Noise**: Rounding continuous amplitude measurements to the nearest discrete quantization level introduces minor mathematical errors known as quantization noise. Higher bit depths yield superior signal-to-noise ratios (SNR).
+  </Card>
+</CardGroup>
+
+---
+
+## What core terminology defines digital audio streams and recordings?
+
+Digital audio streams are governed by three primary characteristics: **sample rate** (the number of discrete amplitude samples captured per second in Hertz), **channel count** (the number of distinct audio paths such as single-channel mono or dual-channel stereo), and **bit depth** (the digital bit resolution assigned to quantify each individual sample amplitude).
+
+Understanding these parameters is essential when configuring speech recognition pipelines, telephony bridges, and conversational voice bots.
+
+### Digital audio parameters reference
+
+| Parameter | Unit of Measurement | Common Voice AI Values | Impact on Performance & Processing |
+| :--- | :--- | :--- | :--- |
+| **Sample Rate** | Hertz (Hz) / Kilohertz (kHz) | 8,000 Hz (PSTN), 16,000 Hz (Standard AI), 24,000 Hz, 48,000 Hz | Determines frequency fidelity. Speech recognition models commonly standardize on 16 kHz mono. |
+| **Bit Depth** | Bits per sample (bits) | 8-bit (PSTN companded), 16-bit (Linear PCM), 32-bit (Web Float) | Dictates dynamic range and quantization accuracy. 16-bit delivers a theoretical dynamic range of ~96 dB. |
+| **Channel Count** | Number of channels | 1 (Mono), 2 (Stereo) | Voice agents operate almost exclusively in single-channel mono to conserve transmission bandwidth and simplify acoustic modeling. |
+| **Bitrate** | Kilobits per second (kbps) | 64 kbps (G.711), 256 kbps (16-bit 16 kHz PCM) | Measures throughput required for streaming. Calculated as: $\text{Sample Rate} \times \text{Bit Depth} \times \text{Channels}$. |
+
+---
+
+## What is audio encoding and how do common voice codecs compare?
+
+Audio encoding converts raw digitized sound into structured digital data formats for optimized storage and transmission across networks. While uncompressed **PCM** preserves pristine waveform fidelity, lossy codecs like **Opus**, **AAC**, and **MP3** compress bandwidth using psychoacoustic modeling, and telecommunication standards like **μ-law (G.711)** optimize dynamic range specifically for human speech clarity.
+
+Encoding algorithms balance three competing requirements: **computational complexity**, **network latency**, and **acoustic perceptual quality**.
+
+### Common audio codecs and voice standards
+
+| Codec / Algorithm | Compression Type | Latency Profile | Primary Voice AI & Telephony Use Case |
+| :--- | :--- | :--- | :--- |
+| **PCM (Pulse Code Modulation)** | Uncompressed | Zero algorithmic latency | Standard raw digital representation in computer memory, digital signal processing (DSP), and STT model inputs. |
+| **Opus** | Lossy (Adaptive) | Ultra-low (5–20 ms) | Modern WebRTC browser calls, interactive conferencing, VoIP, and low-latency bidirectional AI audio streaming. |
+| **μ-law (G.711 u-law)** | Companded (Non-linear) | Near-zero ($< 1$ ms) | Core telephony standard across North American and Japanese PSTN carriers; compresses 14-bit linear samples into 8-bit frames. |
+| **A-law (G.711 a-law)** | Companded (Non-linear) | Near-zero ($< 1$ ms) | European and international PSTN carrier telecommunications standard under ITU-T G.711 specifications. |
+| **AAC (Advanced Audio Coding)** | Lossy (Perceptual) | Moderate (100–200 ms) | High-fidelity media streaming, static recording playback, podcasts, and video platform audio distribution. |
+| **MP3 (MPEG Audio Layer III)** | Lossy (Perceptual) | Moderate (100–200 ms) | Legacy recorded audio playback and storage; rarely utilized in low-latency conversational real-time systems. |
+
+---
+
+## What is the difference between audio encoding algorithms and container formats?
+
+An **audio encoding** defines the specific mathematical algorithm used to represent or compress raw acoustic samples (such as PCM, Opus, or μ-law). Conversely, an **audio format** (or container) defines the file wrapper structure containing headers, chunk metadata, channel specifications, sample rates, and timestamps (such as WAV, MP4, or OGG).
+
+Developers frequently confuse the two concepts because container formats often default to particular encodings:
+
+* **WAV (`.wav`) Container**: Typically wraps raw, uncompressed linear **PCM** encoding with a 44-byte RIFF header defining sample rate, channel count, and bit depth.
+* **OGG (`.ogg`) Container**: Serves as a versatile container standard frequently bundling compressed **Opus** or Vorbis bitstreams.
+* **MP4 / M4A (`.m4a`) Container**: Bundles MPEG-4 stream chunks, typically wrapping **AAC** encoded voice or music frames.
+* **Raw Stream (`.raw` / `.pcm`)**: Headerless binary data consisting purely of raw numerical sample bytes without file headers or metadata tags. Streaming voice systems transmit raw PCM directly over WebSocket connections to minimize protocol overhead.
+
+---
+
+## How is PCM audio represented and converted between Float32 and Uint8 buffers?
+
+In memory, digital systems represent **Pulse Code Modulation (PCM)** either as **Float32Array** buffers (normalized decimal values between `-1.0` and `1.0` for web audio processing) or as **Uint8Array** byte streams (serialized binary integer buffers used in low-level transmission). Code conversions scale these values against 16-bit integer boundaries.
+
+When capturing microphone input via the HTML5 Web Audio API (`AudioWorklet` or `ScriptProcessorNode`), the browser delivers audio frames as 32-bit floating-point arrays (`Float32Array`). However, network WebSockets and speech recognition engines anticipate 16-bit signed integers serialized into byte arrays (`Uint8Array`).
+
+### Buffer conversion implementation in TypeScript / JavaScript
+
+The following utility functions convert between browser `Float32Array` structures and network-ready 16-bit little-endian `Uint8Array` byte buffers:
+
+```typescript
+/**
+ * Converts a raw Uint8Array byte buffer containing 16-bit little-endian PCM
+ * samples into a normalized Float32Array (-1.0 to 1.0) for browser playback.
+ */
+export function convertUnsigned8ToFloat32(array: Uint8Array): Float32Array {
+  const targetArray = new Float32Array(array.byteLength / 2);
+
+  // A DataView is used to read 16-bit little-endian samples from the byte buffer
+  const sourceDataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
+
+  // Normalize 16-bit signed integers (-32768 to 32767) into float range (-1.0 to 1.0)
+  for (let i = 0; i < targetArray.length; i++) {
+    targetArray[i] = sourceDataView.getInt16(i * 2, true) / 32768.0;
+  }
+  return targetArray;
+}
+
+/**
+ * Converts a normalized Float32Array (-1.0 to 1.0) captured from the Web Audio API
+ * into a serialized Uint8Array containing 16-bit little-endian signed PCM samples.
+ */
+export function convertFloat32ToUnsigned8(array: Float32Array): Uint8Array {
+  const buffer = new ArrayBuffer(array.length * 2);
+  const view = new DataView(buffer);
+
+  for (let i = 0; i < array.length; i++) {
+    // Clamp floating point value between -1.0 and 1.0 to prevent integer overflow
+    const clampedValue = Math.max(-1.0, Math.min(1.0, array[i]));
+    const int16Value = clampedValue < 0 ? clampedValue * 32768 : clampedValue * 32767;
+    view.setInt16(i * 2, int16Value, true); // true sets little-endian byte ordering
+  }
+
+  return new Uint8Array(buffer);
+}
+```
+
+---
+
+## How does Tavly AI process and abstract audio across telephony and web applications?
+
+Tavly AI abstracts audio engineering complexity by natively handling carrier-specific codecs across public switched telephone networks and SIP trunks. For browser environments, Tavly's client SDK captures user microphone input in linear PCM format and streams serialized audio over WebSockets directly to backend speech-to-text models with sub-second latency.
+
+Developers do not need to manually configure transcoding pipelines, resample rates, or decode telephony payloads when deploying Tavly conversational voice agents.
+
+### Channel protocol architecture
+
+* **Telephony and PSTN Calls**: Traditional cellular and landline networks operate on legacy telecommunications codecs (predominantly G.711 μ-law in North America and G.711 A-law internationally) at an 8 kHz sample rate. Tavly's telephony gateway automatically transcodes carrier audio streams into high-resolution linear PCM buffers for acoustic model ingestion, while downsampling synthesized speech back into carrier-compliant telephony frames.
+* **Web and Mobile Browser Calls**: The client-side JavaScript SDK interacts directly with browser Web Audio APIs. It records user speech, resamples audio into linear 16-bit PCM (at 16 kHz or 24 kHz), and transmits chunks over a full-duplex WebSocket connection. Inbound synthesized agent speech is streamed back to the browser and scheduled into the local audio output buffer for gapless, natural conversational flow.
+
+---
+
+## Frequently asked questions about digital audio in voice AI
+
+Voice AI architectures rely on high-fidelity digital audio pipelines spanning sampling, quantization, and codec negotiation. Telephony environments historically leverage G.711 μ-law at 8 kHz mono, whereas modern web agents utilize 16 kHz or 24 kHz linear PCM streams, balancing low transmission latency with maximum speech-to-text transcription accuracy.
+
+<AccordionGroup>
+  <Accordion title="Why is 16 kHz mono considered the standard for speech recognition models?">
+    Human speech frequencies vital for intelligibility sit between 300 Hz and 3,400 Hz, with sibilant sounds reaching up to 7,000 Hz. Under the Nyquist theorem, a 16 kHz sample rate captures frequencies up to 8,000 Hz, capturing all relevant acoustic phonemes without incurring the bandwidth overhead of 44.1 kHz music audio.
+  </Accordion>
+
+  <Accordion title="What is the difference between G.711 μ-law and linear PCM?">
+    Linear PCM uses evenly spaced quantization steps, giving identical resolution to loud and quiet sounds. G.711 μ-law is a logarithmic companding algorithm that applies smaller quantization steps to quiet sounds and wider steps to loud sounds, allowing 8-bit telephony audio to achieve the perceived dynamic range of 14-bit linear audio.
+  </Accordion>
+
+  <Accordion title="What causes audio clipping and distortion during buffer conversion?">
+    Audio clipping occurs when normalized floating-point values exceed the range of `-1.0` to `1.0`. When multiplied by 32,768 into a 16-bit signed integer, values exceeding `+32767` or `-32768` overflow the integer boundary, producing harsh acoustic crackling. Clamping the float values before conversion prevents this distortion.
+  </Accordion>
+
+  <Accordion title="Does Tavly AI support custom audio streaming endpoints?">
+    Yes. You can connect custom telephony trunks (via SIP trunking) or establish direct WebSocket audio streaming connections to Tavly agents, transmitting and receiving bidirectional 16-bit linear PCM or μ-law audio frames.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build an Agent in 10 Minutes" icon="bolt" href="/get-started/build-agent-in-10">
+    Create, configure, and deploy your first voice AI agent using Tavly's visual prompt builder.
+  </Card>
+
+  <Card title="Agent Architecture Overview" icon="sitemap" href="/build/overview">
+    Explore the end-to-end voice pipeline connecting speech-to-text, LLMs, and text-to-speech engines.
+  </Card>
+
+  <Card title="Custom LLM WebSocket Server" icon="server" href="/integrate-llm/setup-websocket-server">
+    Implement a custom WebSocket server to power conversational logic with your own LLM backend.
+  </Card>
+
+  <Card title="Slack Marketplace App" icon="slack" href="/marketplace/slack">
+    Trigger outbound voice agent phone calls directly from Slack channels using slash commands.
+  </Card>
+</CardGroup>

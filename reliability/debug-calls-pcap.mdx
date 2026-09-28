@@ -1,0 +1,328 @@
+---
+title: 'Debug SIP Calls Using PCAP Files: Wireshark & Telephony Analysis'
+sidebarTitle: 'Debug Calls with PCAP'
+description: 'Analyze PCAP files in Wireshark and tshark to diagnose Tavly SIP calls: troubleshoot codec negotiation, one-way audio, packet jitter, and RFC 2833 DTMF tones.'
+seo:
+  title: 'Debug SIP Calls Using PCAP Files | Wireshark Telephony Guide | Tavly AI'
+  description: 'Analyze PCAP files in Wireshark and tshark to diagnose Tavly SIP calls: troubleshoot codec negotiation, one-way audio, packet jitter, and RFC 2833 DTMF tones.'
+og:title: 'Debug SIP Calls Using PCAP Files: Wireshark & Telephony Analysis'
+og:description: 'Analyze PCAP files in Wireshark and tshark to diagnose Tavly SIP calls: troubleshoot codec negotiation, one-way audio, packet jitter, and RFC 2833 DTMF tones.'
+og:image: 'https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_ladder.png'
+twitter:card: 'summary_large_image'
+icon: 'file-spreadsheet'
+keywords: ['SIP PCAP debugging', 'Wireshark SIP filter', 'RTP stream analysis', 'RFC 2833 DTMF Wireshark', 'SIP ladder diagram', 'one way audio fix', 'tshark commands', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is a PCAP file and when should you use it to debug Tavly calls?'
+    answer: 'A PCAP file captures packet-level network signaling and media packets, used to diagnose complex SIP errors like one-way audio, codec negotiation mismatches, RTP packet loss, and missing DTMF tones.'
+  - question: 'How do you filter for SIP signaling and RTP media in Wireshark?'
+    answer: 'Enter sip in the display filter bar for signaling messages (INVITE, 200 OK, BYE), rtp for audio media streams, or combine them using sip or rtp. Isolate single calls with sip.Call-ID == "value".'
+  - question: 'What causes one-way audio or missing audio in SIP call captures?'
+    answer: 'One-way audio occurs when RTP packets stream in only one direction due to NAT or firewall blocks. Total audio absence occurs when SDP m=audio port is 0 (hold) or media packets fail to reach the gateway.'
+  - question: 'How do you inspect RFC 2833 DTMF digits in Wireshark?'
+    answer: 'Confirm that the INVITE SDP includes a=rtpmap:101 telephone-event/8000, filter by rtp.p_type == 101, and inspect the RFC 2833 RTP Event header to verify the Event ID, duration, and end-of-event flag.'
+---
+
+## What is a PCAP file and why is it used for SIP debugging?
+
+A **PCAP (Packet Capture)** file records raw, packet-level network traffic between telecommunications carriers, PBXs, and Tavly servers. In telephony debugging, PCAP analysis provides unfiltered visibility into **SIP signaling handshakes** (`INVITE`, `200 OK`, `BYE`), **SDP codec negotiations**, **RTP media streaming**, jitter buffers, and **RFC 2833 DTMF dual-tone events**.
+
+Packet-level analysis serves as the definitive diagnostic tool when troubleshooting media or signaling anomalies that dashboard summaries cannot fully explain. If you are investigating a call that terminated unexpectedly, first verify its high-level [disconnection reason](/reliability/debug-call-disconnect); for unestablished outbound dials, refer to [debug outbound connection issues](/reliability/debug-outbound-call).
+
+### Prerequisites & Tool Installation
+Install the necessary packet inspection tools on your workstation:
+* **[Wireshark](https://www.wireshark.org/download.html)**: Graphical packet analyzer (includes the bundled `tshark` command-line utility).
+
+Verify your local terminal installation:
+
+```bash theme={"dark"}
+wireshark --version
+tshark --version
+```
+
+## How do you open and filter SIP traffic in Wireshark?
+
+To inspect a telephony capture, open the file in **Wireshark** and apply the display filter **`sip`** to isolate signaling messages like `INVITE`, `180 Ringing`, and `200 OK`. To drill down further, filter by unique **`sip.Call-ID`**, isolate media with **`rtp`**, or combine both using **`sip or rtp`**.
+
+Launch the file in Wireshark from your desktop or execute:
+
+```bash theme={"dark"}
+wireshark call_capture.pcap
+```
+
+### Essential Display Filters
+
+* **Filter All SIP Signaling**: Enter `sip` in the Display Filter bar to isolate SIP request and response messages (`INVITE`, `100 Trying`, `180 Ringing`, `200 OK`, `ACK`, `BYE`, `CANCEL`).
+
+<Frame caption="Wireshark displaying SIP signaling messages after applying the 'sip' filter.">
+  <img src="https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_ib.png?fit=max&auto=format&n=KEvoWX9YmGG7-v6t&q=85&s=648afe2c10e1bc3121b019a13dd04582" alt="Wireshark displaying SIP traffic after applying the sip display filter" width="3444" height="1738" data-path="images/pcap_wshark_ib.png" />
+</Frame>
+
+* **Filter by Unique Call-ID**: Isolate a single call conversation from concurrent trunk traffic by filtering on the `Call-ID` header:
+
+```
+sip.Call-ID == "abc123@192.168.1.1"
+```
+
+* **Filter for Audio Media**: Display raw Real-Time Transport Protocol (RTP) audio packets:
+
+```
+rtp
+```
+
+* **Combine Signaling and Media**: View synchronized signaling events alongside voice packets:
+
+```
+sip or rtp
+```
+
+### Quick Reference: Wireshark Filter Cheatsheet
+
+| Diagnostic Goal | Wireshark Filter Syntax |
+| :--- | :--- |
+| **All SIP Traffic** | `sip` |
+| **Specific Call Identifier** | `sip.Call-ID == "id@host"` |
+| **SIP INVITE Requests Only** | `sip.Method == "INVITE"` |
+| **SIP Error Responses (4xx, 5xx, 6xx)** | `sip.Status-Code >= 400` |
+| **All RTP Audio Streams** | `rtp` |
+| **RFC 2833 DTMF Packets** | `rtp.p_type == 101` |
+| **Synchronized SIP + RTP** | `sip or rtp` |
+| **Traffic from Specific IP Endpoint** | `ip.src == 192.168.1.10 and (sip or rtp)` |
+
+## How do you reconstruct the SIP call flow and ladder diagram?
+
+To visualize full message sequencing, navigate to **Telephony → VoIP Calls** in Wireshark, select the desired call session, and click **Flow Sequence**. Wireshark renders a synchronized **SIP ladder diagram** illustrating bidirectional signaling exchanges (`INVITE` → `100 Trying` → `180 Ringing` → `200 OK` → `ACK` → `BYE`) alongside precise packet timestamps.
+
+### Step-by-Step Flow Reconstruction
+
+1. Select **Telephony → VoIP Calls** from the top application menu:
+
+<Frame caption="Navigate to Telephony → VoIP Calls to inspect detected voice sessions.">
+  <img src="https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_telephony_voip.png?fit=max&auto=format&n=KEvoWX9YmGG7-v6t&q=85&s=24fd79f324526bb308fde07ddda90d5a" alt="Wireshark Telephony menu with VoIP Calls option selected" width="1634" height="1064" data-path="images/pcap_wshark_telephony_voip.png" />
+</Frame>
+
+2. Highlight the target call from the VoIP Calls list and click **Flow Sequence**:
+
+<Frame caption="Select the target call and click Flow Sequence to generate the ladder diagram.">
+  <img src="https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_calls.png?fit=max&auto=format&n=KEvoWX9YmGG7-v6t&q=85&s=f9a324a635bd317be1839b84552c99d2" alt="VoIP Calls popup with Flow Sequence button" width="2740" height="1302" data-path="images/pcap_wshark_calls.png" />
+</Frame>
+
+3. The generated ladder diagram displays the chronological signaling progression between endpoints (`INVITE` → `100 Trying` → `180 Ringing` → `200 OK` → `ACK` → `BYE`):
+
+<Frame caption="SIP ladder diagram showing the sequential message exchange between endpoints.">
+  <img src="https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_ladder.png?fit=max&auto=format&n=KEvoWX9YmGG7-v6t&q=85&s=1bce820a421ccd883ce8ec79d267428b" alt="SIP flow sequence ladder diagram with INVITE, 100 Trying, 180 Ringing, 200 OK, ACK, and BYE messages" width="3404" height="1552" data-path="images/pcap_wshark_ladder.png" />
+</Frame>
+
+### Inspecting SIP INVITE and SDP Headers
+Click on the initial `INVITE` packet and expand the **Session Initiation Protocol** tree in the packet detail pane:
+
+<Frame caption="Wireshark packet detail view of a SIP INVITE showing Request-URI, headers, and SDP.">
+  <img src="https://mintcdn.com/retellai/KEvoWX9YmGG7-v6t/images/pcap_wshark_invite.png?fit=max&auto=format&n=KEvoWX9YmGG7-v6t&q=85&s=3106a42c6cda182036c87d5fe5b1b270" alt="Wireshark packet detail view of a SIP INVITE showing Request-URI, SIP headers, and SDP parameters including codecs and DTMF negotiation" width="3432" height="2006" data-path="images/pcap_wshark_invite.png" />
+</Frame>
+
+| Header / SDP Attribute | What to Inspect |
+| :--- | :--- |
+| **`Request-URI`** | Target SIP routing address and dialed number destination |
+| **`From` / `To`** | Caller ID display number and callee address |
+| **`Call-ID`** | Globally unique session identifier |
+| **`SDP → m=audio`** | Inbound/outbound RTP port and advertised audio codec list |
+| **`SDP → a=rtpmap`** | Dynamic payload type mappings (e.g., `0` = PCMU, `8` = PCMA, `9` = G.722, `101` = telephone-event) |
+| **`SDP → a=fmtp`** | Codec-specific operating parameters (sample rates, packetization time) |
+
+## What are the most common SIP symptoms and diagnostics?
+
+Common SIP failure symptoms include **one-way audio** (unidirectional RTP packets), **codec mismatches** (`a=rtpmap` discrepancies in SDP negotiations), **dropped calls** (unexpected `BYE` or `CANCEL` triggers), and **telephony authentication failures** (`401`/`407`/`403`). Diagnosing these requires inspecting SDP port bindings, RTP packet flows, and SIP response codes.
+
+| Telephony Symptom | Root Cause in PCAP | Inspection Workflow & Verification |
+| :--- | :--- | :--- |
+| **One-Way Audio** | RTP packets flow in only one direction | Verify both directional streams in **RTP Streams**; check SBC firewall NAT traversal. |
+| **No Audio at All** | `m=audio` port in SDP is `0` (call on hold), or RTP is completely absent | Check if port is bound to `0`; inspect firewall UDP port blocks on range 10000–20000. |
+| **DTMF Not Recognized** | Payload type mismatch between SDP and actual RTP packets | Check if SDP advertises `a=rtpmap:101` while carrier transmits DTMF on `100` or in-band. |
+| **Audio Choppy or Robotic** | High packet loss or excessive network jitter | Review jitter and lost packet percentages in **RTP Streams** (see thresholds below). |
+| **Call Drops Unexpectedly** | Premature `BYE` or `CANCEL` sent by endpoint | Identify which endpoint IP initiated the `BYE` and inspect preceding SIP response codes. |
+| **Call Hung Up Mid-Conversation** | Media inactivity timeout or callee hangup | Inspect whether carrier terminated session due to missing RTP keep-alive packets. |
+| **Codec Mismatch** | SDP `200 OK` `a=rtpmap` differs from `INVITE`, or RTP payload not in SDP | Verify mutually supported codecs between caller and Tavly gateway. |
+| **SIP Authentication Failure** | `401 Unauthorized`, `407 Proxy Auth Required`, or `403 Forbidden` in SIP flow | Verify trunk digest credentials, authorized domain names, and IP allowlists. |
+| **`408` / `477` Response to INVITE** | Remote SIP infrastructure unreachable or transport failed | Verify IP reachability, firewall rules, SIP ports (`5060` UDP/TCP or `5061` TLS), and URI. |
+| **`486` Response to INVITE** | Callee line is busy or rejected | Recipient actively rejected call; queue for automated retry. |
+| **`500` / `503` / `603` Response to INVITE** | Server internal error, service unavailable, or carrier decline | Downstream carrier trunk failure or delivery block; contact [Tavly Support](/general/support). |
+
+<a id="common-sip-response-code-reference" />
+
+### Common SIP Response Code Reference
+
+| Status Code | Standard Definition | Diagnostic Meaning in Tavly Workflows |
+| :--- | :--- | :--- |
+| **`100`** | Trying | PBX or carrier has received request and is processing call routing. |
+| **`180`** | Ringing | Destination endpoint has received INVITE and is alerting the callee. |
+| **`200`** | OK | Request succeeded; two-way media session established. |
+| **`401` / `407`** | Authentication Required | SIP trunk credentials required by gateway or proxy server. |
+| **`403`** | Forbidden | Authentication failure or insufficient dialing permissions for target destination. |
+| **`404`** | Not Found | Dialed phone number or destination SIP URI does not exist. |
+| **`408`** | Request Timeout | SIP message over UDP could not be delivered or the SIP response was lost in transit. |
+| **`477`** | Send Failed | Underlying TCP socket or TLS transport handshake failed. |
+| **`486`** | Busy Here | Callee rejected the incoming call or is currently on an active call. |
+| **`487`** | Request Terminated | Call was cancelled by originator before callee answered (e.g., caller hung up during ringing). |
+| **`500`** | Server Internal Error | Downstream PBX or gateway suffered an internal software failure. |
+| **`503`** | Service Unavailable | Carrier trunk is temporarily overloaded or experiencing service outage. |
+| **`603`** | Decline | Callee explicitly declined call and no alternate forwarding destination exists. |
+
+<a id="analyze-rtp-streams" />
+
+## How do you analyze RTP media streams and packet jitter?
+
+To analyze voice stream health, select **Telephony → RTP → RTP Streams** in Wireshark to review **packet loss**, **inter-packet jitter**, and **codec payload IDs**. Jitter exceeding **30ms** or packet loss over **3%** causes audible distortion and robotic audio; use **Play Streams** to audition captured audio directly.
+
+<Note>
+  RTP stream analysis is available only when your PCAP file contains media packets. PCAP traces downloaded from the [Tavly dashboard](/features/session-history) may contain SIP signaling only when media is handled over dedicated secure tunnels.
+</Note>
+
+### Reviewing RTP Stream Statistics
+Navigate to **Telephony → RTP → RTP Streams**. Wireshark catalogues every detected directional stream:
+
+| Column | Description & Diagnostic Focus |
+| :--- | :--- |
+| **Source / Destination** | IP addresses and port bindings for transmitting and receiving endpoints |
+| **SSRC** | Synchronization Source Identifier uniquely distinguishing each audio track |
+| **Payload Type** | Negotiated audio codec ID (e.g., `0` = PCMU / G.711u, `8` = PCMA / G.711a, `111` = Opus) |
+| **Packets** | Cumulative count of media packets transmitted in the stream |
+| **Lost** | Total lost packets and calculated packet loss percentage |
+| **Max Jitter** | Maximum inter-packet delay variance recorded in milliseconds |
+
+<Warning>
+  **Performance Thresholds**: High packet loss (>3%) or excessive jitter (>30ms) introduces robotic audio, stuttering, and speech dropouts. Review [troubleshoot choppy audio](/reliability/latency/troubleshoot-latency#choppy-or-unstable-audio) for network mitigation steps.
+</Warning>
+
+### Audio Playback and Export Workflows
+1. **Audition Stream**: In the **RTP Streams** dialog, highlight the stream and select **Analyze → Play Streams** to listen directly to the decoded audio.
+2. **Export Raw Payload**: Click **Save Payload** to export raw audio for acoustic analysis in tools like [Audacity](https://www.audacityteam.org/).
+3. **Convert to WAV via FFmpeg**: Convert exported raw G.711 mu-law audio to standard WAV:
+
+```bash theme={"dark"}
+# Convert raw PCMU (G.711 ulaw, 8kHz, mono) to WAV
+ffmpeg -f mulaw -ar 8000 -ac 1 -i rtp_payload.raw output.wav
+```
+
+## How do you extract and inspect RFC 2833 DTMF tones?
+
+To inspect dual-tone digits, verify that the `INVITE` SDP advertises **`telephone-event/8000`** on payload type `101`, then apply the Wireshark filter **`rtp.p_type == 101`**. Inspect the **RFC 2833 RTP Event** header to confirm the pressed digit (`0–9`, `*`, `#`), duration in milliseconds, and signal volume.
+
+### 1. Verify SDP Negotiation
+In the SIP `INVITE` and `200 OK` SDP payloads, verify that RFC 2833 DTMF is explicitly negotiated:
+
+```
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+```
+
+If this attribute is missing, the carrier may attempt to transmit DTMF in-band (audio frequencies) or via SIP INFO.
+
+### 2. Inspect RFC 2833 / RFC 4733 RTP Packets
+Apply the Wireshark display filter:
+
+```
+rtp.p_type == 101
+```
+
+Click any matched packet and expand **Real-Time Transport Protocol → RFC 2833 RTP Event**:
+
+| Field | Description |
+| :--- | :--- |
+| **`Event ID`** | Numerical key pressed: `0–9`, `*` = 10, `#` = 11, `A–D` = 12–15 |
+| **`End of event`** | Set to `True` on the final retransmission packet for that keystroke |
+| **`Volume`** | Signal power level measured in dBm0 |
+| **`Duration`** | Tone duration in timestamp units (divide by clock rate `8000` to convert to ms) |
+
+### 3. Alternative DTMF Transports
+* **SIP INFO Method**: Filter by `sip.Method == "INFO"`. Inspect packet body for `Signal=5` and `Duration=160`.
+* **In-Band DTMF**: Audio tones mixed directly into conversational voice waveforms. Filter and export the RTP audio to inspect frequency peaks (dual frequencies at 697–1633 Hz) in a spectrogram.
+
+<Note>
+  Tavly captures RFC 2833 telephone-events by default. To configure completion keys, digit limits, and timeouts, consult [Capture DTMF input from user](/build/telephony/user-dtmf).
+</Note>
+
+## How do you capture PCAP traces and analyze via CLI?
+
+To capture network traffic live, execute **`tcpdump`** on your SIP gateway listening on UDP port `5060` and RTP port ranges `10000–20000`. For headless servers and automated CI pipelines, process captures via **`tshark`** CLI commands or visualize real-time terminal ladder diagrams using the interactive **`sngrep`** utility.
+
+### Option A: Capture Network Packets with `tcpdump`
+Capture SIP signaling and RTP media on your gateway interface:
+
+```bash theme={"dark"}
+sudo tcpdump -i eth0 -w call_capture.pcap \
+  'udp port 5060 or (udp portrange 10000-20000)'
+```
+
+| Flag | Purpose |
+| :--- | :--- |
+| `-i eth0` | Network interface to capture (use `any` to capture across all interfaces) |
+| `-w call_capture.pcap` | Output destination file path |
+| `udp port 5060` | Standard SIP signaling port |
+| `udp portrange 10000-20000` | Common RTP media streaming port range |
+
+Terminate the capture with `Ctrl+C` once your test call concludes.
+
+### Option B: Capture in Wireshark GUI
+1. Open Wireshark and choose your active network adapter.
+2. In the Capture Filter bar, enter: `udp port 5060 or udp portrange 10000-20000`.
+3. Click the blue **Start** shark-fin icon.
+4. Execute the test phone call, then click **Stop**.
+5. Save the capture via **File → Save As** as `.pcap` or `.pcapng`.
+
+<Note>
+  If connecting Tavly via Custom SIP Trunks, capture traffic on your Session Border Controller (SBC) or IP-PBX gateway that terminates SIP, rather than a local client laptop. See [Custom Telephony](/deploy/custom-telephony) for Tavly server IP addresses.
+</Note>
+
+### Option C: Automate Extraction with `tshark` CLI
+Extract diagnostic data in headless terminal environments:
+
+```bash theme={"dark"}
+# Extract all SIP messages with timestamps and Call-IDs
+tshark -r call_capture.pcap -Y sip -T fields \
+  -e frame.time \
+  -e ip.src \
+  -e ip.dst \
+  -e sip.Method \
+  -e sip.Status-Code \
+  -e sip.Call-ID
+
+# Summarize all RTP streams with loss and jitter statistics
+tshark -r call_capture.pcap -q -z rtp,streams
+
+# Extract all RFC 2833 DTMF digit events
+tshark -r call_capture.pcap \
+  -Y "rtp.p_type == 101" \
+  -T fields \
+  -e frame.time \
+  -e ip.src \
+  -e rtpevent.event_id \
+  -e rtpevent.end_of_event
+
+# Export RTP audio payloads
+tshark -r call_capture.pcap --export-objects rtp,/tmp/rtp_streams/
+```
+
+### Option D: Real-Time Terminal Inspection with `sngrep`
+Install and launch `sngrep` for interactive terminal-based SIP ladder diagrams:
+
+```bash theme={"dark"}
+# Install sngrep
+brew install sngrep        # macOS
+sudo apt install sngrep    # Debian/Ubuntu
+
+# Inspect existing PCAP capture
+sngrep -I call_capture.pcap
+
+# Live capture on SIP interface
+sudo sngrep -d eth0 port 5060
+```
+
+Select any active session with the arrow keys and press **Enter** to inspect the interactive ladder diagram and raw SDP payloads.
+
+## Related Resources
+
+* [Debug Call Disconnection](/reliability/debug-call-disconnect): Comprehensive list of call statuses and disconnection reason codes.
+* [Debug Outbound Connection Issues](/reliability/debug-outbound-call): Resolve unestablished outbound calls and carrier blocks.
+* [Troubleshoot High Latency](/reliability/latency/troubleshoot-latency): Identify and resolve packet jitter, delay spikes, and network lag.
+* [Capture User DTMF Input](/build/telephony/user-dtmf): Configure DTMF recognition, digit limits, and IVR menu routing.

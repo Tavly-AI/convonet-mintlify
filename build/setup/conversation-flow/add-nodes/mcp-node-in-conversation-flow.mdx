@@ -51,7 +51,7 @@ You must globally register your external MCP server with Tavly before you can de
 
     Headers and query parameters are the **exclusive** mechanism Tavly uses for authentication. The most common implementation is an authorization header like `Authorization: Bearer <token>`. Tavly fundamentally does not handle interactive OAuth flows on your behalf; you must programmatically fetch your own OAuth access tokens and inject them via headers.
 
-    <Tip> **Dynamic Authentication:** Header values securely support [Dynamic Variables](/build/dynamic-variables). This allows you to pass a unique, session-specific token per individual call, such as `{{access_token}}`.</Tip>
+    <Tip> **Dynamic Authentication:** Header values securely support [Dynamic Variables](/build/context/dynamic-variables). This allows you to pass a unique, session-specific token per individual call, such as `{{access_token}}`.</Tip>
 
     <Warning> **Security Best Practice:** To strictly restrict your MCP server so it only accepts traffic from Tavly, explicitly whitelist Tavly's static outbound IP address: `100.20.5.228`.</Warning>
 

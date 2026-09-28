@@ -1,0 +1,148 @@
+---
+title: 'Handle Telephony Application Rejections: Troubleshooting and Resubmission'
+sidebarTitle: 'Handle Rejection'
+description: 'Resolve rejected Tavly business profiles, verified phone numbers, and branded call applications: inspect carrier reviewer feedback and resubmit for approval.'
+seo:
+  title: 'Resolve Telephony Application Rejection | Carrier Vetting Remediation | Tavly AI'
+  description: 'Resolve rejected Tavly business profiles, verified phone numbers, and branded call applications: inspect carrier reviewer feedback and resubmit for approval.'
+og:title: 'Handle Telephony Application Rejections: Troubleshooting and Resubmission'
+og:description: 'Resolve rejected Tavly business profiles, verified phone numbers, and branded call applications: inspect carrier reviewer feedback and resubmit for approval.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/rejection.png'
+twitter:card: 'summary_large_image'
+icon: 'triangle-exclamation'
+keywords: ['handle application rejection', 'telephony verification rejection', 'business profile rejection', 'branded call rejection', 'carrier vetting review', 'Tavly AI telephony troubleshooting', 'STIR SHAKEN remediation']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is the most common reason for business profile rejection?'
+    answer: 'The most frequent rejection cause is a discrepancy between the registered legal entity name and IRS CP 575 or Secretary of State records, or listing an unverified virtual VoIP phone number instead of a direct physical line.'
+  - question: 'Why does a rejected business profile cause SMS and branded call rejections?'
+    answer: 'Telephony vetting enforces hierarchical dependency. When a top-level business profile is rejected, downstream A2P 10DLC brands, campaigns, and branded caller ID services are automatically marked as rejected until the root profile is repaired.'
+  - question: 'Does resubmitting a corrected telephony application incur additional carrier fees?'
+    answer: 'No. Correcting rejected business profiles, verified numbers, or branded call applications and resubmitting under the same entity details is completely free of charge.'
+  - question: 'How long does carrier re-evaluation take after resubmitting an application?'
+    answer: 'Carrier vetting registries typically review corrected applications within 3 to 5 business days, after which status updates are emailed and reflected in your dashboard.'
+---
+
+## Why do telephony verification and branded calling applications get rejected?
+
+Telecommunications verification applications are **rejected by carrier vetting registries** when submitted corporate credentials fail strict algorithmic or manual compliance checks. Primary failure points include discrepancies between registered entity names and IRS tax filings, inaccessible corporate website domains, unverified virtual VoIP phone numbers, or character-limit violations in branded caller ID requests.
+
+Carrier registries (such as The Campaign Registry and Aegis Mobile) conduct rigorous cross-referencing against federal and state databases. Even minor typographical errors between your dashboard entry and state records can prompt automated denials.
+
+<Frame caption="A rejected telephony service alert displayed within the Tavly dashboard banner.">
+  <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/rejection.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=8b4fffb74963eb2754b7f7f57d6b6c4f" alt="Rejection status" style={{ maxHeight: 560 }} width="1348" height="166" data-path="images/rejection.png" />
+</Frame>
+
+---
+
+## How does a business profile rejection cascade to downstream services?
+
+A **business profile rejection cascades downward** across your entire telephony architecture. Because telecommunication compliance enforces strict parent-child verification trees, a failure at the foundational business profile level automatically invalidates associated phone number verifications, branded calling displays, and upstream A2P 10DLC SMS brand and campaign registrations until the root profile is resolved.
+
+The compliance vetting structure operates hierarchically:
+
+```mermaid
+graph TD
+  A[1. Business Profile] -->|Rejection Cascades Downward| B[2. Verified Phone Number]
+  A -->|Rejection Cascades Downward| C[3. Branded Call Service]
+  A -->|Rejection Cascades Downward| D[4. A2P 10DLC Brand & Campaign]
+
+  style A fill:#fee2e2,stroke:#ef4444,stroke-width:2px;
+  style B fill:#fef3c7,stroke:#f59e0b,stroke-width:1px;
+  style C fill:#fef3c7,stroke:#f59e0b,stroke-width:1px;
+  style D fill:#fef3c7,stroke:#f59e0b,stroke-width:1px;
+```
+
+<Note>
+  If your phone number is configured for both voice and SMS, a rejection at the [Business Profile](/deploy/calls/business-profile) level automatically flags your A2P 10DLC brand and campaigns as rejected. Always repair and resubmit the root business profile first, then re-verify downstream configurations following the [SMS campaign rejection procedures](/deploy/sms-campaign-application#if-your-campaign-is-rejected).
+</Note>
+
+---
+
+## How do you inspect carrier rejection reasons in the Tavly dashboard?
+
+To **inspect carrier rejection reasons**, navigate to the Phone Numbers page in your Tavly console, locate the affected phone line displaying a Rejected badge, and click the status label. The interface opens an audit drawer displaying the exact reviewer feedback and specific data fields requiring rectification.
+
+Review reviewer feedback following these systematic steps:
+
+<Steps>
+  <Step title="Locate the rejected service in the dashboard">
+    Navigate to the **Phone Numbers** inventory tab. Locate the targeted line where the **Verified Phone Number** or **Branded Call** service badge indicates a red `Rejected` status.
+
+    <Frame caption="The Phone detail view showing a Rejected status badge on the Verified Phone service.">
+      <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/rejection_1.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=d4b094f06c00571e5492572d7ec890bc" alt="Rejection status" style={{ maxHeight: 560 }} width="1116" height="544" data-path="images/rejection_1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Open the detailed rejection diagnostic modal">
+    Click directly on the **Rejected** status badge to launch the carrier diagnostic modal. The dialog presents the official telecommunication reviewer rationale:
+
+    <Frame caption="Carrier rejection feedback modal detailing specific compliance issues.">
+      <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/rejection_2.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=8d31b85ceb75411e46a9e9e67b27a1a2" alt="Rejection details" style={{ maxHeight: 560 }} width="1136" height="587" data-path="images/rejection_2.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Inspect business profile discrepancies">
+    If the rejection references organizational identity mismatch, click your associated business profile link to review entity-level validation feedback:
+
+    <Frame caption="Business Profile audit drawer displaying entity discrepancies and correction fields.">
+      <img src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/rejection_3.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=78402d1a71d66b2fd0ca01693a68e733" alt="Business profile rejection" style={{ maxHeight: 560 }} width="761" height="895" data-path="images/rejection_3.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you resolve discrepancies and resubmit your application?
+
+To **resolve discrepancies and resubmit your application**, update the flagged records in your Business Profile—such as legal naming, EIN tax records, or public website domains—save the corrected profile, and click Resubmit on your Verified Phone Number or Branded Call panel to initiate automated carrier re-review.
+
+### Common Rejection Reasons and Remediation Matrix
+
+| Carrier Review Feedback | Underlying Root Cause | Precise Remediation Action |
+| :--- | :--- | :--- |
+| **"Legal Name / Tax ID Mismatch"** | Legal entity name differs from official IRS records. | Re-enter legal name exactly as shown on Form CP 575 or state registration. |
+| **"Website Inaccessible or Incomplete"** | Website domain is offline, under construction, or lacks company identity. | Ensure website is live via `https://` and prominently displays the legal business name. |
+| **"Invalid Contact Phone Number"** | Contact number is a VoIP line or unassigned number. | Provide a verified direct physical mobile or landline phone number. |
+| **"Physical Address Not Verifiable"** | Address is a PO Box, virtual office, or commercial mail receiving agency. | Enter the physical commercial headquarters address registered with the state. |
+| **"Branded Name Length Exceeded"** | Branded display exceeds carrier character limits. | Provide both Short Name ($\le 15$ chars for Verizon) and Long Name ($\le 32$ chars for AT&T/T-Mobile). |
+
+### Resubmission Workflow
+
+1. **Update Root Records**: Open [Business Profile](/deploy/calls/business-profile) and edit the fields identified by the carrier feedback. Click **Save**.
+2. **Re-trigger Carrier Evaluation**: Return to your phone number's setup tab, open the [Verified Phone Number](/deploy/calls/verified-phone) or [Branded Call](/deploy/calls/branded-calls) application, and click **Resubmit**.
+3. **Turnaround Window**: Carrier vetting agencies review corrected submissions within **3 to 5 business days**.
+
+<Tip>
+  Resubmitting a corrected application under the same business identity and use case is completely free of charge. You will receive an automated confirmation email once carrier approval completes.
+</Tip>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Does an application rejection interrupt my active phone calls?">
+    No. Inbound calls and standard unverified outbound calls continue to function normally. Rejection only prevents the application of premium verified STIR/SHAKEN trust badges or branded caller ID displays.
+  </Accordion>
+
+  <Accordion title="How many times can I edit and resubmit a rejected application?">
+    There is no limit on resubmissions. You can update your business profile and re-apply as many times as necessary to satisfy upstream carrier compliance criteria.
+  </Accordion>
+
+  <Accordion title="Why was my business profile approved previously but rejected upon adding a new service?">
+    Different telecommunications services enforce varying vetting stringencies. While basic profile setup uses automated registry lookups, branded calling and A2P messaging trigger manual reviewer audits that scrutinize website domains and corporate affiliations more rigorously.
+  </Accordion>
+
+  <Accordion title="What should I do if the rejection reason appears incorrect?">
+    Verify that your government tax documentation (IRS CP 575 or Form 147C) perfectly matches your dashboard submission down to punctuation (e.g., "LLC" vs "L.L.C."). If discrepancies persist, contact Tavly support with supporting tax documents for escalation.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Business profile setup guide](/deploy/calls/business-profile): Configure verified organizational credentials and tax IDs.
+* [Verified phone numbers guide](/deploy/calls/verified-phone): Provision authenticated STIR/SHAKEN caller ID.
+* [Branded calling configuration](/deploy/calls/branded-calls): Display verified enterprise names across mobile carriers.
+* [SMS campaign rejection troubleshooting](/deploy/sms-campaign-application#if-your-campaign-is-rejected): Rectify opt-in workflows and sample messages for A2P 10DLC.

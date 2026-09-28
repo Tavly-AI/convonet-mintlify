@@ -1,0 +1,160 @@
+---
+title: 'Data Storage Privacy Settings: Storage Tiers & PII Scrubbing'
+sidebarTitle: 'Data Storage'
+description: 'Configure Tavly AI data storage privacy settings: control call recordings, transcripts, logs, and automated PII scrubbing across voice agents and webhooks.'
+seo:
+  title: 'Data Storage Privacy & PII Scrubbing | HIPAA & GDPR Compliance | Tavly AI'
+  description: 'Configure Tavly AI data storage privacy settings: control call recordings, transcripts, logs, and automated PII scrubbing across voice agents and webhooks.'
+og:title: 'Data Storage Privacy Settings: Storage Tiers & PII Scrubbing'
+og:description: 'Configure Tavly AI data storage privacy settings: control call recordings, transcripts, logs, and automated PII scrubbing across voice agents and webhooks.'
+og:image: 'https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/data_storage_management.png'
+twitter:card: 'summary_large_image'
+icon: 'database'
+keywords: ['data storage privacy', 'PII scrubbing voice AI', 'call recording privacy', 'HIPAA compliance VoIP', 'GDPR voice data retention', 'Tavly data storage settings', 'redact audio recording']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What data storage tiers does Tavly AI offer for call privacy?'
+    answer: 'Tavly offers three per-agent storage tiers: Everything (stores recordings, transcripts, and logs), Everything except PII (scrubs sensitive personal identifiers post-call), and Basic Attributes Only (stores only metadata).'
+  - question: 'How does automated PII scrubbing redact transcripts and call recordings?'
+    answer: 'Selected PII categories are replaced with placeholders (e.g., [email 1]) in transcripts and logs, while corresponding audio intervals in recordings are muted and replaced with beeps.'
+  - question: 'What happens to webhook payloads when sensitive data storage is turned off?'
+    answer: 'Real-time webhook events still deliver raw transcripts and recording URLs. However, call recording URLs expire 10 minutes after dispatch, and subsequent GET /get-call API requests return no sensitive artifacts.'
+  - question: 'How do you announce a mandatory call recording disclaimer?'
+    answer: 'Include your recording disclaimer in the agent Begin Message (single/multi-prompt) or configure an initial Conversation Node with Skip Response and Block Interruptions enabled.'
+---
+
+## What data does Tavly AI store by default and how can you control it?
+
+By default, Tavly AI retains call transcripts, **audio recordings**, caller IDs, knowledge base retrieval logs, and **dynamic variables**. Organizations can configure per-agent **Data Storage Settings** to store everything, automatically **redact Personally Identifiable Information (PII)**, or store **Basic Attributes Only** for strict privacy and regulatory compliance.
+
+Tavly default storage includes the following operational and conversational artifacts:
+
+* **Conversational Audio**: Stereo and mono call recordings.
+* **Transcripts & Logs**: Real-time speech-to-text transcripts and public system logs.
+* **Telephony Identifiers**: Inbound caller ID (`from_number`) and outbound dialed callee ID (`to_number`).
+* **Context & Retrieval Logs**: Injected knowledge base chunks and dynamic variables.
+* **Analytical Metadata**: Latency statistics, call duration, user sentiment, and disconnection reasons.
+
+### Per-Agent Storage Tiers
+
+Configure storage behavior in your agent configuration under **Security & Fallback Settings → Data Storage Settings**:
+
+| Storage Tier | Transcripts & Logs | Audio Recordings | PII Handling | Best For |
+| :--- | :--- | :--- | :--- | :--- |
+| **Everything** (Default) | Full retention | Full retention | Unmodified | Standard QA, model fine-tuning, and general analytics. |
+| **Everything except PII** | Retained with redactions | Audio replaced with beeps | Redacted via configured `pii_config` | HIPAA, PCI-DSS, GDPR, and sensitive enterprise customer workflows. |
+| **Basic Attributes Only** | Not stored | Not stored | All artifacts purged immediately | Zero-retention mandates, strict defense/financial compliance. |
+
+<Frame caption="Select per-agent privacy options in the Data Storage Settings menu.">
+  <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/data_storage_management.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=61dc39248b211a316e7f17fa031139ae" alt="Privacy settings showing Data Storage Settings options" data-path="images/data_storage_management.png" />
+</Frame>
+
+<Note>
+  **Automated Data Expiration**: To automatically purge records after a defined timeframe instead of turning off storage completely, configure a retention window. Refer to our [Data Retention Policy](/accounts/privacy/data-retention) guide.
+</Note>
+
+***
+
+## What happens to call artifacts and webhooks when you change storage settings?
+
+Modifying storage settings changes what artifacts persist in Tavly's database and queryable APIs. Even with storage restrictions enabled, **real-time webhook events** still deliver call data to your backend; however, recording URLs in webhooks **expire after 10 minutes**, and REST retrieval APIs return empty fields for restricted attributes.
+
+When managing compliance workflows, understand how data delivery differs between real-time push webhooks and downstream REST queries:
+
+### Delivery Comparison by Storage Setting
+
+* **Webhook Events**: When opting out of storage, Tavly still posts real-time [call event webhooks](/monitor/webhook-overview) containing transcript and recording payloads so your private backend can ingest the data.
+  * **10-Minute URL Expiry**: The `recording_url` provided in webhook payloads expires exactly **10 minutes** after event delivery. Download recordings immediately to your private storage.
+* **Storage Tier Impact on REST APIs**:
+  * **Everything**: All artifacts (transcripts, recordings, public logs, variables) remain permanently accessible via `GET /v2/get-call/{call_id}`.
+  * **Everything except PII**: REST queries return sanitized transcripts and `scrubbed_recording_url`. Raw original files are deleted permanently post-processing.
+  * **Basic Attributes Only**: No transcripts, recordings, or execution logs are written to disk. Subsequent `GET /v2/get-call/{call_id}` queries omit these fields entirely.
+
+***
+
+<a id="pii-scrubbing" />
+
+## How does automated PII scrubbing redact sensitive call data?
+
+When set to **Everything except PII**, Tavly detects sensitive entities immediately post-call, replacing transcript mentions with **bracketed placeholders** (e.g., `[email 1]`) and muting audio with **beeps over redacted intervals**. Raw unscrubbed files are deleted permanently, retaining only sanitized transcripts, audio, logs, and analysis payloads.
+
+Scrubbing policies are configured directly on the agent through the `pii_config` object and apply universally across speech, text, metadata, and tool executions.
+
+### Supported PII Entity Categories
+
+Select from 13 granular content categories to trigger automated entity detection and replacement:
+
+| Entity Category | Scrubbed Placeholder Example | Applicable Data Surfaces |
+| :--- | :--- | :--- |
+| `person_name` | `[person_name 1]` | User & agent dialogue, metadata, tool arguments. |
+| `email` | `[email 1]` | Email addresses in speech, dynamic variables, summaries. |
+| `address` | `[address 1]` | Street addresses, cities, postal codes. |
+| `ssn` | `[ssn 1]` | Social Security Numbers and national identification digits. |
+| `passport` | `[passport 1]` | Passport numbers across international formats. |
+| `driver_license` | `[driver_license 1]` | State/provincial driver's license numbers. |
+| `credit_card` | `[credit_card 1]` | Full Primary Account Numbers (PANs). |
+| `bank_account` | `[bank_account 1]` | Checking/savings account numbers, routing strings. |
+| `password` | `[password 1]` | Spoken authentication phrases and credentials. |
+| `pin` | `[pin 1]` | Personal Identification Numbers and keypad entries. |
+| `medical_id` | `[medical_id 1]` | Healthcare member IDs, insurance policy numbers. |
+| `date_of_birth` | `[date_of_birth 1]` | Spoken calendar dates representing birth dates. |
+| `customer_account_number` | `[customer_account_number 1]` | Internal customer identifiers and alphanumeric IDs. |
+
+### Redaction Across Artifact Surfaces
+
+When content categories are active, Tavly writes sanitized data across all downstream surfaces:
+
+* **Transcripts**: Spoken entity instances are replaced with numbered placeholders.
+* **Audio Recordings**: Audio corresponding to the entity interval is replaced with an acoustic tone/beep (accessible as `scrubbed_recording_url`).
+* **System Logs**: Console logs are filtered before persistent indexing.
+* **Dynamic Variables**: System variables (`retell_llm_dynamic_variables`), collected variables, and override parameters are stored as `scrubbed_*` fields.
+* **Metadata & Call Summaries**: Call analysis (`call_analysis.call_summary`) and custom schema extractions are scrubbed before storage (`scrubbed_call_analysis`).
+* **Tool Call Records**: Tool execution arguments and return payloads are filtered.
+* **DTMF Touch-Tone Digits**: Whenever **any** PII category is activated, DTMF digit captures are automatically masked as `[PII INFO]` to protect keypad PINs.
+* **SMS Messages**: Inbound and outbound chat agent SMS message text is sanitized.
+
+### Directional `phone_number` Scrubbing
+
+The `phone_number` category behaves directionally to protect customer caller privacy while maintaining enterprise telephony identity:
+
+* **Inbound Telephony**: Removes the customer's calling number (`from_number`).
+* **Outbound Telephony**: Removes the dialed customer number (`to_number`).
+* **Web & SMS Chats**: Removes the customer identifier (`user_number`).
+
+<Note>
+  **Number Redaction Behavior**: Unlike content categories that insert bracketed placeholders, enabling `phone_number` removes the attribute entirely from the call JSON object. The business's own Tavly phone number is preserved.
+</Note>
+
+### Preserved Operational Telephony Metadata
+
+To maintain telemetry, billing reconciliation, and SLA tracking, the following operational fields are **never** removed by PII scrubbing:
+
+* **Identifiers**: `call_id`, `agent_id`
+* **Timestamps & Latency**: `start_timestamp`, `end_timestamp`, `duration_ms`, `call_latency`
+* **Call Outcomes**: `call_status`, `disconnection_reason`, `call_successful`, `user_sentiment`, `in_voicemail`
+* **Telephony Routing**: `direction`, `transfer_destination`, `cost_metadata`, `call_cost`, `custom_attributes`
+* **Tool Invocation Metadata**: Tool name, execution timestamps, and success boolean (only arguments and results are scrubbed).
+
+<Frame caption="Select entity categories to redact in the agent PII configuration menu.">
+  <img height="700" src="https://mintcdn.com/retellai/DGnfvdLhVMzG4Tv7/images/pii_feature.png?fit=max&auto=format&n=DGnfvdLhVMzG4Tv7&q=85&s=9de281cd8cff982620fdaa2cfafc77eb" alt="PII scrubbing configuration" data-path="images/pii_feature.png" />
+</Frame>
+
+<Frame caption="Scrubbed transcript result showing bracketed entity placeholders.">
+  <img height="700" src="https://mintcdn.com/retellai/RVRzjZ2dvixKK3Kb/images/pii_result.png?fit=max&auto=format&n=RVRzjZ2dvixKK3Kb&q=85&s=753e2f7aa95b6329b095869473b8c5b5" alt="Example of PII scrubbing result" data-path="images/pii_result.png" />
+</Frame>
+
+***
+
+## How do you configure a call recording disclaimer for legal compliance?
+
+To announce a legal recording disclaimer, configure the agent to state the notice during its initial conversational turn. In single or multi-prompt agents, add the notice to the **Begin Message**; in conversation flows, place a dedicated **Conversation Node** at the entry point with **Skip Response** and **Block Interruptions** enabled.
+
+Because Tavly initializes audio recording immediately upon SIP media negotiation, any disclaimer spoken by the agent is naturally preserved in the recording file:
+
+* **Single or Multi-Prompt Agents**: Enter the mandatory legal disclaimer into the agent's **Begin Message** field (e.g., *"This call may be recorded for quality assurance and compliance purposes."*). The agent speaks this text immediately when the callee answers before listening for user speech.
+* **Conversation Flow Agents**: Add a [Conversation Node](/build/setup/conversation-flow/add-nodes/conversation-node) at the root of the flow. Set the node text to your recording disclaimer, enable **Skip Response** so the agent automatically transitions to the next conversational state without pausing, and enable **Block Interruptions** to guarantee the complete disclaimer is delivered.
+
+<Tip>
+  **Zero-Retention Compliance**: If regulatory compliance prohibits retaining recording audio after the announcement, set the agent's storage policy to **Basic Attributes Only**. The agent will speak the disclaimer live during the call, but zero audio files will be stored on Tavly servers.
+</Tip>

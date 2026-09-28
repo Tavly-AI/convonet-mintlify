@@ -1,0 +1,183 @@
+---
+title: "Connect Cal.com"
+sidebarTitle: "Connect"
+description: "Connect Cal.com to Tavly AI using an API key: configure cal.com or cal.eu domains, enable persistent credentials, and deploy real-time voice agent booking."
+seo:
+  title: "Connect Cal.com to Tavly AI | Calendar Integration Setup"
+  description: "Connect Cal.com to Tavly AI using an API key: configure cal.com or cal.eu domains, enable persistent credentials, and deploy real-time voice agent booking."
+og:title: "Connect Cal.com to Tavly AI | Calendar Integration Setup"
+og:description: "Connect Cal.com to Tavly AI using an API key: configure cal.com or cal.eu domains, enable persistent credentials, and deploy real-time voice agent booking."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/cal-com-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=9c646a3cc81c14afb7b35e646c41b00a"
+twitter:card: "summary_large_image"
+icon: "calendar"
+keywords:
+  - "Cal.com integration"
+  - "Tavly AI Cal.com connect"
+  - "Cal.com API key setup"
+  - "voice agent calendar integration"
+  - "cal.com domain configuration"
+  - "cal.eu sunset migration"
+  - "real-time appointment booking"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How does Tavly AI authenticate with Cal.com?"
+    answer: "Tavly authenticates using a persistent, workspace-level Cal.com API key paired with your regional hosting domain (cal.com or cal.eu)."
+  - question: "Does Tavly support self-hosted Cal.com instances?"
+    answer: "No. Tavly connects exclusively to hosted cloud endpoints on cal.com and cal.eu; self-hosted installations are not supported."
+  - question: "What should I do if my Cal.com account is hosted on cal.eu?"
+    answer: "Select the Cal.eu domain in your connection modal. Because cal.eu sunsets on November 1, 2026, plan to migrate to cal.com and reconnect prior to that date."
+  - question: "What happens to legacy built-in Cal.com tools?"
+    answer: "Legacy tools remain active until October 31, 2026, when Tavly automatically migrates valid keys to this unified workspace integration."
+---
+
+# Connect Cal.com
+
+> Connect Cal.com to Tavly AI with an API key: create a never-expiring key, pick the cal.com or cal.eu domain, and verify the workspace connection.
+
+## What is the Tavly AI Cal.com integration and when should you use it?
+
+**Tavly AI Cal.com integration** links your Cal.com scheduling infrastructure to Tavly using a single workspace-level API key, giving voice and chat agents direct access to live scheduling tools. Agents check real-time availability, confirm and book appointments, or reschedule and cancel existing reservations directly during caller conversations without maintaining duplicate calendars.
+
+Connecting Cal.com takes one API key and provisions [Cal.com agent functions](/integrations/calendar/caldotcom/agent-functions) across your entire workspace: your agents check real-time openings, book appointments, and look up, reschedule, or cancel existing reservations. A single workspace-level connection covers every agent, eliminating the need to paste individual API keys into separate tool configurations.
+
+<Note>
+  This integration replaces legacy built-in Cal.com tools. The Tavly dashboard no longer offers built-in tools, the API stops creating and updating them on **September 30, 2026**, and on **October 31, 2026**, Tavly will automatically migrate existing tools to this unified integration. Review the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) before that date: tools whose Cal.com API keys have expired will be skipped and will halt operation.
+</Note>
+
+### When to connect Cal.com
+
+Connect Cal.com when customer bookings and consultations are managed within Cal.com and you require voice agents to handle scheduling end to end:
+
+* **Present live calendar openings**: The conversational agent inspects real-time event type availability and offers valid, unbooked time slots directly to the caller.
+* **Instant in-call booking**: Once the caller selects an open time, the agent confirms details, submits the reservation, and triggers Cal.com's automated confirmation workflows.
+* **Autonomous reschedule and cancellation**: The agent queries upcoming appointments by attendee email, confirms the target reservation, and moves it to a new slot or marks it canceled.
+
+> **Real-World Implementation:** A regional dental practice configures an inbound scheduling agent. When an existing patient calls to adjust an appointment, the agent queries upcoming cleanings via the caller's email, presents open slots for the following week, and reschedules the booking to Friday at 10:00 AM—all within a single two-minute phone call.
+
+---
+
+## What prerequisites are required before connecting Cal.com?
+
+Connecting Cal.com requires an **active Cal.com account** with configured event types and knowledge of your hosted domain instance (**cal.com** or **cal.eu**). Users must be authorized to generate persistent API keys. EU accounts should note that cal.eu is scheduled for sunset on November 1, 2026, necessitating cal.com migration.
+
+* **Cal.com Workspace Ownership**: A Cal.com user or team account with administrative rights to create API keys and manage target event types.
+* **Regional Domain Awareness**: Confirm whether your account resides on the global instance (**cal.com**) or the European instance (**cal.eu**). You must generate the key on that specific instance and select the corresponding domain in Tavly.
+
+<Note>
+  Cal.com has announced that **cal.eu shuts down on November 1, 2026** (enterprise customers retain access through their contracted term). Transitioning to cal.com is opt-in. When migrating, generate a new key on cal.com and reconnect in Tavly using the `Cal.com` domain option.
+</Note>
+
+---
+
+## How do you generate a never-expiring Cal.com API key?
+
+To generate an API key, log in to Cal.com, navigate to **Settings → Developer → API keys**, and click **+ New**. Assign a recognizable key name (such as `Tavly AI`), ensure the **Never expires** toggle is activated to avoid unexpected service disruptions, click **Create**, and immediately copy the generated token.
+
+<Steps>
+  <Step title="Navigate to Developer Settings in Cal.com">
+    Sign in to your Cal.com dashboard. In the left navigation sidebar, navigate to **Settings**, scroll to the **Developer** section, and select **API keys**.
+  </Step>
+
+  <Step title="Create a new persistent API token">
+    Click **+ New** to open the key generation dialog. Ensure the **API key** tab is selected, and enter a descriptive name such as `Tavly AI`.
+  </Step>
+
+  <Step title="Toggle Never expires and copy token">
+    Turn on the **Never expires** switch. Expiring keys cause sudden connection terminations when the expiration date lapses. Click **Create** and copy the secret token immediately; Cal.com displays the key string only once.
+
+    <Frame caption="Cal.com's Create an API key dialog, with Never expires turned on.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/cal-com-api-key-never-expires.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=8b7b7cd8e3a4ea4f4bf7d2d0201fa1fd" alt="Cal.com settings with API keys highlighted under Developer in the left sidebar. The Create an API key dialog is open on the API key tab, with a Name this key field, the Never expires toggle switched on and highlighted with a blue ring, and Cancel and Create buttons. Behind the dialog, an existing key named test shows as Active with no expiration date." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1728" height="972" data-path="images/integration/cal-com-api-key-never-expires.png" />
+      </div>
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you authenticate and connect Cal.com in the Tavly Dashboard?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, select **Cal.com**, and click **Connect**. Specify an internal connection name, paste your never-expiring API key, select your regional domain (**Cal.com** or **Cal.eu**), and click **Connect** to run automated API verification and activate tools for all workspace agents.
+
+<Steps>
+  <Step title="Initiate connection in the Tavly dashboard">
+    In the Tavly Dashboard, select **Integrations** from the primary menu, click the **Available** tab, locate **Cal.com**, and click **Connect** (or click **Add Account** if an existing connection is registered).
+  </Step>
+
+  <Step title="Configure connection parameters">
+    Complete the connection modal fields:
+
+    | Parameter | Setting / Value | Description |
+    | :--- | :--- | :--- |
+    | **Connection name** | `Cal.com - API key` | Descriptive internal alias distinguishing this connection within your workspace. |
+    | **API Key** | `cal_...` secret token | The never-expiring API key generated in Step 1. |
+    | **Domain** | `Cal.com` or `Cal.eu` | Matches the regional hosting environment of your Cal.com organization. |
+
+    <Frame caption="The Cal.com connection dialog: API key plus the domain your account lives on.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/cal-com-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=9c646a3cc81c14afb7b35e646c41b00a" alt="Retell's Cal.com connection dialog on its Connect tab, with a Functions tab beside it. It has a Connection name field prefilled with Cal.com - API key, an API Key field with the placeholder Enter your API key, and a Domain dropdown set to Cal.com, above a Need help finding your credentials link and Cancel and Add Account buttons." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1206" height="1006" data-path="images/integration/cal-com-connect-dialog.png" />
+      </div>
+    </Frame>
+
+    Click **Connect** (or **Add Account**). Tavly issues a live validation handshake against the Cal.com API to verify token permissions.
+  </Step>
+
+  <Step title="Confirm verification status">
+    Upon successful validation, the connection transitions to the **Connected** tab with an active status. All conversational agents within the Tavly workspace can now attach Cal.com tools. Review [Cal.com agent functions](/integrations/calendar/caldotcom/agent-functions) for instructions on attaching tools and configuring event type IDs.
+  </Step>
+</Steps>
+
+---
+
+## How do you troubleshoot common Cal.com connection errors?
+
+Resolve Cal.com authentication issues by confirming your API key has not expired and that your selected domain (**Cal.com** or **Cal.eu**) matches your account's regional hosting. If a connection displays an error tag after prior operation, generate a new persistent API key in Cal.com and reconnect within the Tavly dashboard.
+
+<AccordionGroup>
+  <Accordion title="Connecting fails with an authorization error">
+    Verify that your API key string was copied in its entirety without trailing whitespace. Ensure the **Domain** setting strictly corresponds to the instance hosting your account (`cal.com` vs. `cal.eu`). If your key was created without enabling **Never expires**, verify whether the token reached its expiration date in Cal.com settings.
+  </Accordion>
+
+  <Accordion title="The connection displays an error tag after prior successful operation">
+    Tavly marks a connection as errored when subsequent API calls are rejected by Cal.com. This typically indicates that an administrator revoked the API key in Cal.com or that a time-limited key expired. Open connection settings on the **Connected** tab, paste a newly generated persistent API key, and click **Reconnect**.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about connecting Cal.com
+
+Cal.com connects via secure API keys targeting hosted cloud endpoints. Self-hosted instances are not supported. Legacy built-in tools remain operational until **October 31, 2026**, when Tavly automatically migrates valid keys to this workspace-level integration. Alternative scheduling platforms such as **Calendly** are also natively supported.
+
+<AccordionGroup>
+  <Accordion title="Does Tavly support self-hosted or open-source Cal.com instances?">
+    No. The integration interfaces directly with Cal.com's hosted SaaS API infrastructure on `cal.com` and `cal.eu`. Custom self-hosted server deployments are not supported (as of September 2026).
+  </Accordion>
+
+  <Accordion title="How does the legacy built-in tool migration work?">
+    Tavly automatically analyzes workspace agents using legacy built-in Cal.com tools. On **October 31, 2026**, Tavly provisions unified workspace connections for detected API keys and updates tool pointers while maintaining exact function signatures, ensuring existing prompt templates continue executing without interruption.
+  </Accordion>
+
+  <Accordion title="Can I connect multiple Cal.com accounts to a single Tavly workspace?">
+    Yes. You can add multiple Cal.com connections under **Integrations → Available → Add Account**, allowing different agents to book appointments across distinct team accounts or department calendars.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Cal.com agent functions" icon="wrench" href="/integrations/calendar/caldotcom/agent-functions">
+    Inspect live availability, book meetings, and handle reschedules during voice conversations.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the complete catalog of external integrations and automation tools supported by Tavly.
+  </Card>
+
+  <Card title="Connect Calendly" icon="calendar" href="/integrations/calendar/calendly/connect">
+    Configure scheduling workflows using Calendly's native API integration.
+  </Card>
+</CardGroup>

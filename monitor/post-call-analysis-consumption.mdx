@@ -1,0 +1,170 @@
+---
+title: 'Consume Post Call Extraction Data: Dashboard, Webhook, and API'
+sidebarTitle: 'Consume Analysis Data'
+description: 'Consume Tavly Post Call Extraction data across your stack: inspect visual records in the dashboard, stream real-time webhooks, or query the REST Get Call API.'
+seo:
+  title: 'How to Consume Post Call Extraction Data | Tavly AI Documentation'
+  description: 'Consume Tavly Post Call Extraction data across your stack: inspect visual records in the dashboard, stream real-time webhooks, or query the REST Get Call API.'
+og:title: 'Consume Post Call Extraction Data: Dashboard, Webhook, and API'
+og:description: 'Consume Tavly Post Call Extraction data across your stack: inspect visual records in the dashboard, stream real-time webhooks, or query the REST Get Call API.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-history.png'
+twitter:card: 'summary_large_image'
+icon: 'database'
+keywords: ['consume post call extraction', 'call_analyzed webhook', 'get call API analysis', 'post call analysis dashboard', 'Tavly call analysis object', 'sync CRM call analysis', 'structured call extraction']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why does the call_ended webhook return null for custom extraction fields?'
+    answer: 'Post Call Extraction executes asynchronously via LLM after call audio terminates. The call_ended webhook confirms call completion before analysis begins; custom extraction properties are delivered exclusively via the subsequent call_analyzed webhook.'
+  - question: 'How do I handle missing extraction fields for uncompleted or failed calls?'
+    answer: 'Tavly omits custom extraction keys for calls that failed to connect (e.g., dial_failed, dial_no_answer) or where no verbal conversation occurred. Applications must check property existence before parsing values.'
+  - question: 'Can I export post-call extraction data directly to spreadsheets or CRMs?'
+    answer: 'Yes. You can route the call_analyzed webhook into workflow automation platforms like Make.com or Zapier to append structured rows into Google Sheets, Microsoft Excel, Salesforce, or HubSpot automatically.'
+  - question: 'Which API endpoint provides on-demand access to call analysis results?'
+    answer: 'The Get Call API (GET /get-call/{call_id}) returns the complete call object containing telephony telemetry alongside the fully populated call_analysis JSON structure.'
+---
+
+## What is Post Call Extraction consumption and what methods are available?
+
+**Post Call Extraction consumption** allows organizations to ingest structured conversational intelligence—such as summaries, sentiments, success ratings, and custom business parameters—into downstream systems. Tavly provides three distinct access methods: visual review in the dashboard history tab, automated real-time event streaming via the `call_analyzed` webhook, and on-demand programmatic querying via the Get Call API.
+
+<Note>
+  Tavly will not populate custom Post Call Extraction fields for calls that were not connected or where no spoken conversation took place. Always verify that specific properties exist before attempting to parse them in your application logic.
+</Note>
+
+### Ingestion Methods Overview
+
+| Consumption Method | Primary Mechanism | Recommended Use Case |
+| :--- | :--- | :--- |
+| **1. Dashboard History** | Web Console Visualizer | Manual quality audits, spot-checking, and interactive multi-dimensional filtering. |
+| **2. Real-Time Webhook** | Asynchronous HTTP `POST` (`call_analyzed`) | Automated CRM synchronization, immediate database ingestion, and webhook workflows. |
+| **3. REST API** | Programmatic Request (`GET /get-call/{call_id}`) | On-demand retrieval, backend microservice integration, and batch reporting scripts. |
+
+---
+
+## How do you access analysis results visually in the dashboard?
+
+To **access analysis results visually in the dashboard**, navigate to the Call and Chat History view. The interactive interface displays every completed conversation alongside a dedicated Conversation Analysis column, allowing operators and managers to inspect structured categories, review sentiment classifications, filter interactions by operational success, and drill down into full transcripts.
+
+<Frame caption="Post Call Extraction history view displaying the Conversation Analysis column">
+  <img height="200" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-history.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=dc7c5451ebd16b48ca8fc2e007888462" alt="Post Call Extraction history view" data-path="images/post-call-analysis-history.png" />
+</Frame>
+
+### Key Dashboard Capabilities
+* **Interactive Filtering**: Filter conversations by built-in parameters (`call_successful`, `user_sentiment`, `in_voicemail`) and custom extraction tags.
+* **Rapid Conversation Review**: Inspect high-level summaries and categorized extraction chips directly from the main directory without opening each individual transcript drawer.
+* **Full Transcript Context**: Click on any session row to inspect the time-aligned dialogue, tool execution traces, audio playback, and complete extracted metadata side-by-side.
+
+---
+
+## How do you ingest real-time analysis data via the call_analyzed webhook?
+
+To **ingest analysis data via webhooks**, register an endpoint to subscribe specifically to the asynchronous `call_analyzed` event. Because post-call LLM processing completes after call termination, only `call_analyzed` contains the populated `call_analysis` object; reading from `call_ended` returns null. Ingested payloads can automatically update external CRMs like Salesforce, HubSpot, or data warehouses.
+
+### Webhook Event Payload Schema
+
+When LLM analysis finishes, Tavly dispatches an HTTP `POST` request with the complete `call_analysis` payload:
+
+```json call_analyzed_payload.json theme={"dark"}
+{
+  "event": "call_analyzed",
+  "call": {
+    "call_id": "call_119c3f8e47135a29e65947eeb34cf12d",
+    "call_type": "phone_call",
+    "agent_id": "agent_abc123",
+    "start_timestamp": 1714608475945,
+    "end_timestamp": 1714608491736,
+    "disconnection_reason": "user_hangup",
+    "call_analysis": {
+      "call_summary": "Customer called regarding billing discrepancies on invoice #402. Agent explained fee structure and resolved dispute.",
+      "user_sentiment": "Positive",
+      "call_successful": true,
+      "in_voicemail": false,
+      "custom_analysis_data": {
+        "user_reached": true,
+        "detailed_call_summary": "Customer verified account, reviewed fee breakdown, agreed to automated monthly plan.",
+        "purchase_intent_amount": 120,
+        "issue_category": "Billing Question"
+      }
+    }
+  }
+}
+```
+
+<Warning>
+  **Important Lifecycle Distinction**: Analysis data lives exclusively inside the `call_analysis` object. The preceding `call_ended` webhook payload explicitly excludes `call_analysis`. Always listen for `call_analyzed` to process fields such as `call_summary`, `user_sentiment`, `call_successful`, and custom extracted variables. Attempting to parse them from `call_ended` yields `null` or `undefined`.
+</Warning>
+
+To register webhook endpoints and configure HMAC-SHA256 signature verification, review the [Webhook Overview](/monitor/webhook-overview) and [Secure Webhook Guide](/monitor/secure-webhook).
+
+---
+
+## How do you retrieve structured call analysis programmatically via API?
+
+To **retrieve structured call analysis programmatically via API**, execute an authenticated GET request against the Get Call API endpoint using the unique call identifier. Tavly returns the comprehensive call object containing telephony telemetry alongside the nested `call_analysis` JSON block, enabling backend microservices to fetch historical analytics and custom extraction fields.
+
+### API Request Example
+
+```bash fetch_call.sh theme={"dark"}
+curl --request GET   --url https://api.tavly.ai/v2/get-call/call_119c3f8e47135a29e65947eeb34cf12d   --header 'Authorization: Bearer YOUR_TAVLY_API_KEY'
+```
+
+### JSON Response Structure
+
+```json call_response.json theme={"dark"}
+{
+  "call_id": "call_119c3f8e47135a29e65947eeb34cf12d",
+  "call_status": "ended",
+  "call_analysis": {
+    "call_summary": "Customer called to inquire about renewal discounts. Agent provided upgraded plan quote.",
+    "user_sentiment": "Positive",
+    "call_successful": true,
+    "in_voicemail": false,
+    "custom_analysis_data": {
+      "user_reached": true,
+      "purchase_intent_amount": 250,
+      "issue_category": "Sales Inquiry"
+    }
+  }
+}
+```
+
+For complete endpoint parameters, response schemas, and error codes, refer to the [Get Call API Reference](/api-references/get-call).
+
+### Integration Tutorial: Syncing Post Call Extraction to Excel with Make.com
+
+Watch the video tutorial below to learn how to capture `call_analyzed` webhook events and automatically populate extracted fields into Microsoft Excel or Google Sheets using Make.com:
+
+<iframe width="360" height="200" src="https://www.youtube.com/embed/qzBeNczxxFE?si=T49YHHVJ6FHRdoOu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+
+Explore additional workflow templates and blueprints in the [community documentation guide](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope).
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why does the call_ended webhook return null for custom extraction fields?">
+    Post Call Extraction executes asynchronously via LLM after call audio terminates. The `call_ended` webhook confirms call completion before analysis begins; custom extraction properties are delivered exclusively via the subsequent `call_analyzed` webhook.
+  </Accordion>
+
+  <Accordion title="How do I handle missing extraction fields for uncompleted or failed calls?">
+    Tavly omits custom extraction keys for calls that failed to connect (e.g., `dial_failed`, `dial_no_answer`) or where no verbal conversation occurred. Applications must check property existence before parsing values.
+  </Accordion>
+
+  <Accordion title="Can I export post-call extraction data directly to spreadsheets or CRMs?">
+    Yes. You can route the `call_analyzed` webhook into workflow automation platforms like Make.com or Zapier to append structured rows into Google Sheets, Microsoft Excel, Salesforce, or HubSpot automatically.
+  </Accordion>
+
+  <Accordion title="Which API endpoint provides on-demand access to call analysis results?">
+    The Get Call API (`GET /get-call/{call_id}`) returns the complete call object containing telephony telemetry alongside the fully populated `call_analysis` JSON structure.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Post Call Extraction overview](/monitor/post-call-analysis-overview): Understand built-in fields and asynchronous processing pipelines.
+* [Define custom extraction fields](/monitor/post-call-analysis-create): Configure tailored Boolean, Text, Number, and Selector schema definitions.
+* [Rerun call analysis](/monitor/rerun-call-analysis): Regenerate extraction fields across historical call archives.
+* [Webhooks overview guide](/monitor/webhook-overview): Review the full lifecycle event matrix and JSON schemas.
+* [Get call API reference](/api-references/get-call): Explore the full schema and parameters of the Get Call API.

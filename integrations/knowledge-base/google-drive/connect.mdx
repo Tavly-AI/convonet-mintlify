@@ -1,0 +1,164 @@
+---
+title: "Connect Google Drive"
+sidebarTitle: "Connect"
+description: "Connect Google Drive to Tavly AI via OAuth: grant granular drive.file permissions, sync live Docs and Sheets, and power voice agent knowledge bases securely."
+seo:
+  title: "Connect Google Drive to Tavly AI | Knowledge Base Setup"
+  description: "Connect Google Drive to Tavly AI via OAuth: grant granular drive.file permissions, sync live Docs and Sheets, and power voice agent knowledge bases securely."
+og:title: "Connect Google Drive to Tavly AI | Knowledge Base Setup"
+og:description: "Connect Google Drive to Tavly AI via OAuth: grant granular drive.file permissions, sync live Docs and Sheets, and power voice agent knowledge bases securely."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/google-drive-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=eeade44f4a48b764ac2b8b538129f33b"
+twitter:card: "summary_large_image"
+icon: "arrow-trend-up"
+keywords:
+  - "Google Drive integration"
+  - "Tavly AI Google Drive"
+  - "drive.file scope"
+  - "knowledge base sync"
+  - "Google Docs voice agent"
+  - "Google Sheets AI sync"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Can Tavly AI read or access all the files in my Google Drive?"
+    answer: "No. Tavly uses Google's drive.file scope, granting access strictly to individual files you choose in the Google file picker. It cannot browse, list, or access other files in your Drive."
+  - question: "What happens to my knowledge base if I disconnect or delete Google Drive?"
+    answer: "All previously synchronized documents remain preserved in your knowledge bases and continue answering caller questions; however, automated background document updates will stop."
+  - question: "Can I connect multiple Google accounts to Tavly AI?"
+    answer: "Yes. You can connect multiple Google accounts within a single workspace, allowing different departments to feed knowledge bases from separate Google Drives."
+---
+
+# Connect Google Drive
+
+> Connect Google Drive to Tavly AI with one OAuth sign-in. The drive.file scope grants per-file access only, so agents answer from files you pick.
+
+## What is the Tavly AI Google Drive integration and when should you use it?
+
+**Tavly AI Google Drive integration** connects your Google workspace to Tavly via OAuth to synchronize live Google Docs, Sheets, and files directly into conversational knowledge bases. It operates using Google's restrictive `drive.file` scope, granting per-file read access exclusively to explicitly chosen documents while leaving the rest of your Drive untouched.
+
+Connecting Google Drive allows you to [add Drive files to knowledge bases](/integrations/knowledge-base/google-drive/knowledge-base-sync), equipping your voice and chat agents to deliver accurate responses from Google Docs, Google Sheets, and PDFs that your operational teams actively maintain. Tavly accesses only the specific files you authorize via the Google file picker—never your complete Drive directory.
+
+Google Drive adds no function tools to your agent configuration. Like [Microsoft OneDrive](/integrations/knowledge-base/onedrive/connect) and [Notion](/integrations/knowledge-base/notion/connect), its sole operational purpose is feeding self-updating knowledge sources into agent knowledge bases.
+
+### Architecture: Ingesting Drive files into knowledge bases
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│        Google Workspace         │                 │            Tavly AI             │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Selected Google Docs        │ │                 │ │ Conversational Agents       │ │
+│ │ & Live Google Sheets        │ │                 │ │ (Voice & Digital Support)   │ │
+│ └──────────────┬──────────────┘ │                 │ └──────────────▲──────────────┘ │
+│                │                │                 │                │                │
+│                │ OAuth Handshake│                 │                │ Real-Time RAG  │
+│                │ (`drive.file`) │                 │                │ Query Retrieval│
+│                ▼                │                 │                │                │
+│ ┌─────────────────────────────┐ │                 │ ┌──────────────┴──────────────┐ │
+│ │ Google Drive API            │ │ ── Dynamic ────►│ │ Knowledge Base Store        │ │
+│ │ (Per-File Scoped Read)      │ │    Refresh Poll │ │ (Vectorized Text & Tables)  │ │
+│ └─────────────────────────────┘ │                 │ └─────────────────────────────┘ │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+### When to connect Google Drive
+
+Connect Google Drive when your company's operational guidelines, policies, and product documentation live in dynamic Google Docs or Sheets that undergo continuous updates:
+
+* **Eliminate manual document re-uploads**: A pricing catalog or operational policy doc connected from Google Drive refreshes automatically whenever the source document changes, keeping your knowledge base synchronized without manual re-uploads.
+* **Empower non-technical teams**: Subject matter experts, operations personnel, and support managers update the Google Docs they already use daily; no PDF exports or dashboard updates are required to keep the AI agent accurate.
+* **Ingest structured spreadsheet data directly**: Google Sheets sync tabular cell values natively, providing reliable access to complex numerical grids without requiring CSV conversions.
+
+> **Real-World Implementation:** A residential property management firm maintains leasing policies in a shared Google Doc edited weekly by the operations staff. Because the Doc is linked as a knowledge base source, conversational leasing agents quote real-time pet deposits, parking fees, and rental terms without requiring engineers to redeploy the agent.
+
+---
+
+## What prerequisites are required to connect Google Drive?
+
+Connecting Google Drive requires an active Google account with view permissions on the specific documents you intend to ingest. Tavly recommends connecting through a shared corporate service account rather than a personal user profile to prevent automated document refreshes from stopping if an individual employee leaves the organization or loses access.
+
+* **Google Account with Document Access**: An active Google account holding read access to the target Google Docs, Google Sheets, or uploaded files.
+* **Shared Service Account (Recommended)**: Because Tavly maintains a persistent OAuth refresh token for continuous file indexing, we recommend authorizing with a shared team account (e.g., `knowledge-base@yourcompany.com`). If an individual employee leaves or their Google account is deactivated, automated document refreshes will cease.
+* **Third-Party App Permissions**: Ensure your Google Workspace domain administrator allows third-party OAuth integrations to request the `drive.file` API scope.
+
+---
+
+## How do you authenticate and connect Google Drive in Tavly?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, locate **Google Drive**, and click **Connect**. Enter a descriptive connection name, proceed to Google's standard OAuth consent screen, select your account, and grant access. Tavly securely stores an OAuth refresh token, immediately making the account available across your knowledge base sources.
+
+<Steps>
+  <Step title="Add the Google Drive connection">
+    In the Tavly Dashboard, navigate to **Integrations**, open the **Available** tab, locate **Google Drive**, and click **Connect** (or click **Add Account** if an existing Google Drive connection is already present).
+
+    <Note>
+      You can also initiate this connection directly from inside any knowledge base: the **Add** menu displays **Connect Google Drive** when no account has been linked yet.
+    </Note>
+  </Step>
+
+  <Step title="Authenticate with Google OAuth">
+    The connection dialog requires only a descriptive **Connection name** (prefilled with `Google Drive - OAuth`).
+
+    <Frame caption="The Google Drive connection dialog, with only a connection name to fill in.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/google-drive-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=eeade44f4a48b764ac2b8b538129f33b" alt="Retell's Google Drive connection dialog on its Connect tab, with a Functions tab beside it. It has a single Connection name field prefilled with Google Drive - OAuth, and Cancel and Add Account buttons; connecting continues to a Google sign-in." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1202" height="1006" data-path="images/integration/google-drive-connect-dialog.png" />
+      </div>
+    </Frame>
+
+    Click **Connect** (or **Add Account**). Your browser redirects to Google's official sign-in screen. Select the appropriate Google account, approve the requested permissions, and you will be returned to the Tavly dashboard. Tavly stores an OAuth refresh token, eliminating the need to re-authenticate periodically.
+  </Step>
+
+  <Step title="Add documents to knowledge bases">
+    Once connected, the linked Google account appears inside the **Add** dropdown across all knowledge bases. Proceed to [Google Drive knowledge base sync](/integrations/knowledge-base/google-drive/knowledge-base-sync) for instructions on selecting specific files and configuring refresh frequencies.
+  </Step>
+</Steps>
+
+---
+
+## How does Tavly ensure privacy with the Google drive.file scope?
+
+Tavly exclusively requests Google's least-privilege `drive.file` OAuth scope, which limits application access strictly to the exact files you select in the Google file picker. Tavly cannot browse, search, or read other folders or documents in your Drive, and revoking authorization in your Google account settings terminates access immediately.
+
+### Security and scope boundaries
+
+| Security Dimension | Protocol Implementation | Operational Protection |
+| :--- | :--- | :--- |
+| **OAuth Scope** | `https://www.googleapis.com/auth/drive.file` | Per-file authorization granted only upon explicit file selection. |
+| **Drive Directory Visibility** | Restricted | Tavly cannot list root directories, browse folders, or search unselected files. |
+| **Revocation Control** | Instantaneous | Revoking Tavly in Google Account settings immediately revokes all file access. |
+
+Because access is scoped at the file level rather than the drive level, your broader corporate data remains completely inaccessible to Tavly AI.
+
+---
+
+## Frequently asked questions about connecting Google Drive
+
+Deleting a Google Drive connection preserves previously ingested content in your knowledge bases while pausing automated document refreshes until reconnection. You can connect multiple Google accounts across separate teams to source knowledge from distinct Drives. The integration operates with zero access to unselected private or organization-wide Drive contents.
+
+<AccordionGroup>
+  <Accordion title="What happens if I delete or disconnect the Google Drive connection?">
+    Any document content previously synchronized remains stored inside your Tavly knowledge bases, and your agents continue answering questions based on that content. However, automated background synchronizations will halt until you reconnect the account and re-authorize the files.
+  </Accordion>
+
+  <Accordion title="Can Tavly AI read my entire Google Drive?">
+    No. Tavly uses Google's granular `drive.file` scope. This scope limits application access strictly to files explicitly chosen via the Google file picker modal. Tavly has no permission to browse, list, or search the remainder of your Google Drive.
+  </Accordion>
+
+  <Accordion title="Can I connect multiple Google accounts?">
+    Yes. You can link multiple distinct Google accounts. Each connection appears as a selectable option inside the knowledge base **Add** menu, enabling different departments to link resources from their respective drives into shared or separate knowledge bases.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Google Drive knowledge base sync" icon="rotate" href="/integrations/knowledge-base/google-drive/knowledge-base-sync">
+    Select the Docs, Sheets, and files your agent answers from, and maintain continuous synchronization.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of external integrations and agent tools supported by Tavly.
+  </Card>
+</CardGroup>

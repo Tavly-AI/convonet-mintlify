@@ -49,7 +49,7 @@ You can configure the agent to either instantly terminate the line or hold in si
     * **Hang up if reaching voicemail:** Drops the call immediately upon detection, terminating even if the mailbox greeting is still actively playing.
     * **Leave a message if reaching voicemail:** Pauses until the recorded greeting completes and the beep/speaking turn is reached. It then recites one of two payload formats:
       * **Prompt:** Generates a dynamic message using LLM instructions (e.g., `Summarize the call and ask the user to call back.`).
-      * **Static Sentence:** Reads an exact, hardcoded text string (e.g., `Hey {{user_name}}, sorry we missed you. Please call back.`). Fully compatible with [dynamic variables](/build/dynamic-variables).
+      * **Static Sentence:** Reads an exact, hardcoded text string (e.g., `Hey {{user_name}}, sorry we missed you. Please call back.`). Fully compatible with [dynamic variables](/build/context/dynamic-variables).
   </Step>
 </Steps>
 

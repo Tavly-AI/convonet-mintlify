@@ -62,7 +62,7 @@ Adding an integration tool involves linking your provider at the workspace level
 
     * **Connection:** Select the appropriate account if you have authorized multiple instances of the same provider.
     * **Inputs:** Hardcode static IDs (e.g., a Cal.com event type ID) or write dynamic descriptions that instruct the agent to extract the value live from the conversation.
-    * **Response variables:** Map returned API fields to [dynamic variables](/build/dynamic-variables). For example, capture a contact ID from a Search Contact call and feed it directly into a Create Task call later in the prompt.
+    * **Response variables:** Map returned API fields to [dynamic variables](/build/context/dynamic-variables). For example, capture a contact ID from a Search Contact call and feed it directly into a Create Task call later in the prompt.
     * **Presentation:** Configure the agent to speak filler text while the tool executes, and fine-tune the LLM description so the model knows exactly when to trigger the integration.
 
     <Frame caption="Configuring Salesforce's Update Custom Object tool.">

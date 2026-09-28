@@ -1,0 +1,346 @@
+---
+title: "Trigger Tavly Calls from Notion Databases"
+sidebarTitle: "Notion App"
+description: "Connect Tavly AI to a Notion database to trigger outbound voice agent calls from database automations and sync call summaries and recording URLs back to rows."
+seo:
+  title: "Trigger Outbound Tavly AI Voice Calls from Notion Databases"
+  description: "Connect Tavly AI to a Notion database to trigger outbound voice agent calls from database automations and sync call summaries and recording URLs back to rows."
+og:title: "Trigger Outbound Tavly AI Voice Calls from Notion Databases"
+og:description: "Connect Tavly AI to a Notion database to trigger outbound voice agent calls from database automations and sync call summaries and recording URLs back to rows."
+og:image: "https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-1.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=7b5ae3f9e2ace4562685ff9019516582"
+twitter:card: "summary_large_image"
+icon: "notion"
+keywords:
+  - "Notion database automation"
+  - "Tavly AI Notion app"
+  - "trigger outbound calls from Notion"
+  - "Notion webhook automation"
+  - "call summary writeback"
+  - "Notion call recording URL"
+  - "voice agent Notion integration"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How does Notion trigger outbound phone calls in Tavly AI?"
+    answer: "Notion database automations execute a Send webhook action targeting Tavly's automation endpoint, transmitting row contact details and triggering agent dispatch."
+  - question: "Why is a dedicated consent property required in the Notion database?"
+    answer: "To prevent accidental or non-compliant dialing, Tavly verifies that the specified checkbox property (such as Call allowed) is marked before executing any call."
+  - question: "What data is written back to the Notion database after a call completes?"
+    answer: "Tavly writes structured AI conversation summaries, full audio recording URLs, call status updates, and sentiment analysis directly to the originating row."
+  - question: "Can Tavly connect to multiple Notion databases simultaneously?"
+    answer: "Yes. You can authorize access to multiple databases during the Notion OAuth setup and configure tailored automations for each individual call table."
+---
+
+# Trigger Tavly calls from Notion
+
+> Connect Tavly AI to a Notion database to trigger outbound voice agent calls and write call summaries and recordings back to the originating row.
+
+This guide details how to integrate **Tavly AI** with a **Notion database** so database automations can launch automated outbound phone calls. Once call analysis completes, Tavly automatically updates the originating Notion row with the conversation summary and audio recording link.
+
+---
+
+## What is the Tavly AI Notion database integration and how does it work?
+
+**Tavly AI Notion database integration** enables Notion database automations to initiate outbound voice agent phone calls whenever row conditions are met. Following call analysis, Tavly writes the conversation summary, audio recording URL, and execution status back to the originating Notion record, establishing a closed-loop customer communication workflow.
+
+When a Notion database row meets predefined trigger conditions (such as a status update or new phone entry), Notion fires a webhook to Tavly. Tavly validates caller consent, places the outbound call via your configured voice agent, and executes automated post-call writebacks when the conversation concludes.
+
+### Prerequisites before starting
+
+Before configuring the integration, ensure you have:
+* A **Tavly AI account** with an API key, an active conversational agent, and an outbound telephone number.
+* Administrative access to your target **Notion workspace and database**, with permission to authorize integrations and configure database automations.
+* The **Tavly setup wizard for Notion**, provided by your integration administrator.
+
+---
+
+## What database properties are required to support Tavly call automation?
+
+To support automated calling, your Notion database must include specific columns: **Name** (Title), **Phone** (Phone or text format with international country codes), **Call allowed** (Checkbox for compliance consent), **AI Summary** (Rich text for summaries), **Recording URL** (URL for audio playback), and an optional **Status** property.
+
+### Database schema specification
+
+| Property Name | Property Type | Operational Purpose | Configuration Notes |
+| :--- | :--- | :--- | :--- |
+| **Name** | Title | Identifies the customer or call recipient. | Default primary key in Notion databases. |
+| **Phone** | Phone or Text | Stores the recipient's destination phone number. | Must include international country code (e.g., `+15551234567`). |
+| **Call allowed** (example) | Checkbox | Controls calling consent and compliance checks. | The property name can be customized but must match the setup wizard exactly. |
+| **AI Summary** | Rich text | Receives the post-call conversational summary. | Populated automatically following post-call analysis. |
+| **Recording URL** | URL | Stores the clickable audio playback link. | Populated automatically following post-call analysis. |
+| **Status** | Select or Text | Tracks call progress or acts as an automation trigger. | e.g., "Ready to call", "Called", "Needs follow-up". |
+
+<Steps>
+  <Step title="Create the call database in Notion">
+    Open or create a Notion database containing the required properties outlined above. Format all phone numbers with a leading plus and country code (e.g., `+15551234567`), and insert your consent Checkbox property (e.g., `Call allowed`).
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-1.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=7b5ae3f9e2ace4562685ff9019516582" alt="Notion database with Name, Phone, and Call allowed properties" style={{ maxHeight: 560 }} width="1562" height="448" data-path="images/notion/screenshot-1.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you connect Tavly AI and grant permissions to your Notion database?
+
+To connect accounts, open the Tavly setup wizard for Notion, authenticate your Tavly account, and acknowledge data transfer guidelines. Click **Connect Notion**, select **Select pages** on the authorization screen, choose the specific page or database containing your call records, and grant permissions to establish a secure integration bridge.
+
+<Steps>
+  <Step title="Open the Notion setup wizard">
+    In the Tavly dashboard or your administrator deployment, open the Notion connection interface and select **Learn more**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/go-to-setup-wizard.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=516d6d4c1fc0df98dd5f198cf8ffd91e" alt="Retell Notion setup wizard with the Sign in option" style={{ maxHeight: 560 }} width="1546" height="746" data-path="images/notion/go-to-setup-wizard.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Authenticate with Tavly AI">
+    Open the setup wizard and click **Sign in**. Authenticate using the Tavly account that manages your calling agents.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-2.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=860c196afc9ba1a576e79f04084d1da0" alt="Retell Notion setup wizard with the Sign in option" style={{ maxHeight: 560 }} width="1899" height="907" data-path="images/notion/screenshot-2.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Connect your Notion workspace">
+    Review the data transfer terms, mark the consent acknowledgment checkbox, and select **Connect Notion**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-3.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=145a925323e856822898ea9645752a37" alt="Retell Notion setup wizard showing the Connect Notion button and data transfer acknowledgment" style={{ maxHeight: 560 }} width="1897" height="904" data-path="images/notion/screenshot-3.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review Notion workspace permissions">
+    On Notion's authorization screen, review the requested read and update permissions and click **Select pages**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-4.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=c76ed18d4b37d9b252568e629996f58a" alt="Notion permission screen showing the Select pages option" style={{ maxHeight: 560 }} width="638" height="821" data-path="images/notion/screenshot-4.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Authorize the target call database">
+    Select the specific page or database containing your call table, then click **Allow access**. Return to the wizard and confirm that the Notion status indicates **Connected**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-5.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=dc09942af183d50c13cf92952133747f" alt="Notion page selector showing the database selected for Retell access" style={{ maxHeight: 560 }} width="638" height="812" data-path="images/notion/screenshot-5.png" />
+    </Frame>
+
+    <Note>
+      Tavly can only inspect and update pages explicitly shared with the integration bot. Ensure your target database is selected during this authorization step.
+    </Note>
+  </Step>
+</Steps>
+
+---
+
+## How do you configure caller credentials, caller ID, and consent settings?
+
+In the setup wizard, configure your Tavly **Secret Key (Webhook)** designated from dashboard API settings, select an authorized outbound telephone number as your caller ID, and enter your exact Notion consent property name (**Call allowed**). Copy both the Retell webhook URL and Notion automation URL for subsequent configuration.
+
+<Steps>
+  <Step title="Designate a webhook API key in Tavly">
+    In the Tavly dashboard, navigate to **Settings → API Keys**. Select an existing API key or click **Add Key**. Open the key's **⋮** options menu, select **Set as webhook key**, and copy the secret token.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/api-key-webhook.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=e99d253f250516d4c630e61cf7dc965a" alt="Retell API Keys page with the key options menu open and Set as webhook key highlighted" style={{ maxHeight: 560 }} width="1915" height="893" data-path="images/notion/api-key-webhook.png" />
+    </Frame>
+
+    <Note>
+      The API key must have webhook routing enabled. Post-call analysis and recording URLs are only synchronized back to Notion when the key is designated as a webhook key.
+    </Note>
+  </Step>
+
+  <Step title="Save credentials in the setup wizard">
+    Paste the webhook key into **Retell API Key** in the wizard and select **Save API key**. Verify the status transitions to **Saved**.
+
+    <Note>
+      Tavly AI supports one active primary webhook integration at a time per workspace. If you have active webhooks for Zoho or Slack, verify which destination handles event dispatches.
+    </Note>
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-6.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=08b39b5e8f5ff528291c942b5d51c398" alt="Notion setup wizard showing the Retell API Key field and Save API key button" style={{ maxHeight: 560 }} width="1902" height="901" data-path="images/notion/screenshot-6.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Assign outbound caller ID">
+    Select your provisioned outbound phone number from the **From number** dropdown and click **Save caller ID**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-7.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=acec73ff36d1802c37b0cbbacb3b5dc0" alt="Notion setup wizard showing the From number selector and Save caller ID button" style={{ maxHeight: 560 }} width="1881" height="894" data-path="images/notion/screenshot-7.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure the consent property name">
+    Enter the exact property name of your Notion consent checkbox (e.g., `Call allowed`) and click **Save consent property**. Tavly inspects this field on every trigger; rows without an active checkbox are skipped automatically.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-8.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=f09c80b1e11abdb421cc0815ba6903e0" alt="Notion setup wizard showing the consent property field for Call allowed" style={{ maxHeight: 560 }} width="1891" height="898" data-path="images/notion/screenshot-8.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Copy the Tavly writeback webhook URL">
+    Click **Copy Retell webhook URL**. This webhook receiver processes post-call analysis events and writes data back to Notion.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-9.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=e13ffa30d4e8d4de7c38e0c31734845b" alt="Notion setup wizard showing the Copy Retell webhook URL button" style={{ maxHeight: 560 }} width="1896" height="909" data-path="images/notion/screenshot-9.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you register webhooks between Tavly agents and Notion?
+
+In the Tavly Dashboard, navigate to **Agents**, open your target agent's settings, and expand **Webhook Settings**. Paste the wizard's writeback URL into **Agent Level Webhook URL** and activate the `call_analyzed` event. Return to the wizard and copy the **Notion automation URL** to drive outbound database triggers.
+
+<Steps>
+  <Step title="Configure writeback events on your agent">
+    In the Tavly dashboard, navigate to **Agents**, select the agent configured for outbound Notion calling, and expand **Webhook Settings**.
+
+    Paste the copied URL into the **Agent Level Webhook URL** field. Under **Webhook Events**, ensure the `call_analyzed` event checkbox is enabled. Save changes.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-10.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=b0a67aa188d73a50389436f6138b9eae" alt="Retell agent Webhook Settings showing the Notion webhook URL and call_analyzed event" style={{ maxHeight: 560 }} width="493" height="461" data-path="images/notion/screenshot-10.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Obtain the Notion outbound automation URL">
+    Return to the setup wizard and click **Copy Notion automation URL**. This endpoint will receive database trigger notifications from Notion.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-11.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=21ffbd35a9f9fb5ebbb68456e933a8e1" alt="Notion setup wizard showing the Copy Notion automation URL button" style={{ maxHeight: 560 }} width="1893" height="902" data-path="images/notion/screenshot-11.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you create and trigger the Notion database automation?
+
+In your Notion database, create an automation named **Tavly Call Agent**. Set a trigger—such as **Phone is edited** or **Status becomes Call now**—and add a **Send webhook** action. Paste the Notion automation URL, include all database properties (specifically Phone and consent), and publish the automation to enable dialing.
+
+<Steps>
+  <Step title="Open database automations builder">
+    In your Notion call database, click the lightning bolt icon in the top header to open database automations. Create a new automation and title it **Tavly Call Agent**.
+  </Step>
+
+  <Step title="Define trigger criteria">
+    Select an event trigger that aligns with your operational pipeline:
+    * **Phone is edited**: Initiates a call whenever a new phone number is inserted.
+    * **Status becomes Call now**: Provides controlled, button-driven or status-driven call execution.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-12.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=f3d0a2b8a6749671e473291650825156" alt="Notion database automation setup showing the trigger configuration" style={{ maxHeight: 560 }} width="625" height="652" data-path="images/notion/screenshot-12.png" />
+    </Frame>
+
+    Confirm that the trigger targets the intended database table:
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-13.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=43d4580df7f729980bb620ee6411429c" alt="Notion database automation trigger configured for the call table" style={{ maxHeight: 560 }} width="626" height="650" data-path="images/notion/screenshot-13.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Add Send webhook action">
+    Under the **Do** action block, select **New action → Send webhook**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-14.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=2f8905250aa2a65dd9c9c2a4619bde36" alt="Notion automation action menu with Send webhook selected" style={{ maxHeight: 560 }} width="625" height="647" data-path="images/notion/screenshot-14.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure webhook payload properties">
+    Paste the **Notion automation URL** into the URL input. Under **Content**, select all database properties, making certain that **Phone** and your consent property (**Call allowed**) are checked.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-15.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=987301bd327a0a49e10e1ba71a0bcd56" alt="Notion Send webhook action showing the automation URL and database properties" style={{ maxHeight: 560 }} width="547" height="774" data-path="images/notion/screenshot-15.png" />
+    </Frame>
+
+    Click **Done** and activate the automation.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-16.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=8db4277db8336d89b2b6535ffed01f0b" alt="Notion automation configured with the Send webhook action and selected database properties" style={{ maxHeight: 560 }} width="1894" height="691" data-path="images/notion/screenshot-16.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you verify writeback activity and troubleshoot Notion call failures?
+
+Validate integration activity by adding a test row with your phone number and checking **Call allowed**. Trigger the automation and verify that **AI Summary** and **Recording URL** populate upon call termination. If calls fail, confirm webhook payloads contain valid E.164 phone numbers and active integration permissions.
+
+<Steps>
+  <Step title="Finalize wizard configuration">
+    Return to the setup wizard and click **Complete setup**. Confirm that the overall status indicates **Connected**.
+  </Step>
+
+  <Step title="Execute an end-to-end test call">
+    Insert a test row in Notion containing your verified phone number (e.g., `+15551234567`) and check **Call allowed**. Fire the trigger condition (e.g., set status to "Call now"). Answer the call and converse for at least 30 seconds before hanging up.
+  </Step>
+
+  <Step title="Inspect database row writeback">
+    Within 60 seconds of call completion, verify that the **AI Summary** and **Recording URL** properties update automatically on the test row.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-17.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=d5fe69685b50c59ddb1c776bf62da72e" alt="Notion database rows showing call results, summaries, and statuses written back after completed calls" style={{ maxHeight: 560 }} width="1433" height="383" data-path="images/notion/screenshot-17.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review integration audit logs">
+    Open the setup wizard dashboard and select **Activity**. Verify that a `retell_call_writeback` event appears, displaying Call ID, duration, disconnect disposition, and sentiment.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/notion/screenshot-18.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=afb3a3ad0291d0771207afdba9fa95e1" alt="Notion integration Activity view showing a retell_call_writeback event for the test call" style={{ maxHeight: 560 }} width="892" height="670" data-path="images/notion/screenshot-18.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+### Comprehensive troubleshooting guide
+
+| Failure Scenario | Root Cause | Corrective Action |
+| :--- | :--- | :--- |
+| **Notion connection fails** | OAuth token handshake interrupted | Reconnect and re-authorize the target database. Verify OAuth redirect endpoints. |
+| **Tavly cannot read rows** | Database excluded from page grant | In Notion, navigate to **Settings → Connections → Active Connections**, find Tavly, and share the database. |
+| **Automation does not fire** | Trigger criteria unmet or consent unchecked | Ensure the automation is toggled ON, the trigger condition fired, and **Call allowed** is checked. |
+| **Notion webhook errors** | Incomplete property payload | Edit the webhook action in Notion and ensure **Phone** and consent are included in payload properties. |
+| **No summary or recording link** | `call_analyzed` event disabled | Check Tavly agent settings to confirm the writeback URL is assigned and `call_analyzed` is active. |
+| **Phone number rejected** | Missing country code | Ensure phone numbers adhere to E.164 formatting with leading plus sign (e.g., `+15551234567`). |
+| **Data reaches wrong row** | Mismatched database association | Ensure the automation belongs to the exact database shared with the setup wizard. |
+
+---
+
+## Frequently asked questions about Notion call automation
+
+Notion database automations trigger Tavly outbound calls using configured webhook endpoints. Call writeback requires designating an API key as a webhook key and subscribing to `call_analyzed` events. Calls are restricted strictly to rows where the designated consent checkbox property is marked, preventing accidental or non-compliant dialing.
+
+<AccordionGroup>
+  <Accordion title="Can I pass dynamic variables from Notion to the Tavly agent?">
+    Yes. When you configure the **Send webhook** action in Notion, all selected row properties are forwarded in the webhook payload. You can reference these variables in your agent prompt to greet contacts by name or tailor conversational context.
+  </Accordion>
+
+  <Accordion title="What happens if the consent checkbox is left unchecked?">
+    Tavly strictly inspects the consent property before initiating any outbound call. If the designated checkbox (e.g., `Call allowed`) is false or empty, Tavly skips dialing to protect compliance.
+  </Accordion>
+
+  <Accordion title="How quickly are summaries and recordings written back to Notion?">
+    Writebacks occur asynchronously immediately after Tavly's post-call analysis engine finishes processing the conversation, typically within 15 to 45 seconds of call termination.
+  </Accordion>
+
+  <Accordion title="Does Tavly support multiple active webhook integrations?">
+    Tavly workspaces support one primary workspace webhook destination at a time. However, agent-level webhook URLs can be configured individually per agent, allowing distinct endpoints for Notion, CRMs, or internal databases.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Notion knowledge base sync" icon="rotate" href="/integrations/knowledge-base/notion/knowledge-base-sync">
+    Sync living Notion documentation directly into agent knowledge bases for real-time question answering.
+  </Card>
+
+  <Card title="Connect Notion" icon="link" href="/integrations/knowledge-base/notion/connect">
+    Configure internal connection tokens and manage workspace page sharing permissions.
+  </Card>
+</CardGroup>

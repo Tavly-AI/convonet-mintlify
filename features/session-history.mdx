@@ -1,137 +1,188 @@
 ---
-category: "Data"
-title : "Call & chat history"
-description: "Browse Tavly AI call and chat history in the dashboard: filter sessions, inspect transcripts and analysis, rerun analysis, and export to CSV."
+title: 'Call and Chat Session History: Analytics, Logs, and Auditing'
+sidebarTitle: 'Call & Chat History'
+description: 'Browse Tavly AI call and chat session history: filter records, inspect audio recordings and transcripts, audit detail logs, and export analytics data to CSV.'
+seo:
+  title: 'Call and Chat Session History | Analytics & Auditing | Tavly AI'
+  description: 'Browse Tavly AI call and chat session history: filter records, inspect audio recordings and transcripts, audit detail logs, and export analytics data to CSV.'
+og:title: 'Call and Chat Session History: Analytics, Logs, and Auditing'
+og:description: 'Browse Tavly AI call and chat session history: filter records, inspect audio recordings and transcripts, audit detail logs, and export analytics data to CSV.'
+og:image: 'https://mintcdn.com/retellai/2B3R6a7IdWxVRs_t/images/session-history-call-list.png'
+twitter:card: 'summary_large_image'
+icon: 'clock-rotate-left'
+keywords: ['call history', 'chat history', 'Tavly AI session analytics', 'post-call analysis', 'call recording playback', 'SIP packet capture', 'PII scrubbing']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How long does Tavly AI retain call recordings, transcripts, and chat logs?'
+    answer: 'By default, Tavly AI retains session history indefinitely without automatic deletion. Enterprise workspaces can configure custom data retention windows from 1 to 730 days on a per-agent basis to meet compliance and privacy mandates.'
+  - question: 'How do you inspect SIP packet captures (PCAP) and debug call disconnects?'
+    answer: 'Open the target session in Call History and navigate to the Packet Capture and Detail Logs tabs. You can analyze SIP signaling handshakes, latency benchmarks, and exact network error codes linked to disconnection reasons.'
+  - question: 'Can you rerun post-call or post-chat analysis on historical sessions?'
+    answer: 'Yes. You can rerun extraction individually by clicking Rerun in the Conversation Analysis card, or execute bulk backfills across thousands of filtered sessions using Backfill from Post-Call Data under the Actions dropdown.'
+  - question: 'How does PII scrubbing affect transcript inspection and CSV exports?'
+    answer: 'When PII scrubbing is active, transcripts, recordings, and extracted entities mask sensitive data by default. Authorized team members can toggle Show PII in the console or export raw unredacted data if role permissions permit.'
 ---
 
-The **Call History** and **Chat History** pages under **Data** in the dashboard show your sessions after they end, including transcripts, analysis results, costs, and outcomes. To follow a call that is still in progress, use [Live Monitoring](/features/live-monitoring).
+## What is call and chat session history and when should you use it?
 
-## When to use call and chat history
+**Call and chat session history** provides a comprehensive post-session observability dashboard for all voice and text interactions in Tavly AI. It enables engineering, product, and compliance teams to audit audio recordings, review synchronized transcripts, analyze LLM extraction outcomes, investigate disconnection reasons, and export structured operational datasets for business intelligence.
 
-Use these pages to:
+Located under **Data** in the Tavly dashboard, the **Call History** and **Chat History** pages aggregate real-time conversation records the moment a session terminates. For calls currently in progress, utilize [Live Monitoring](/features/live-monitoring) instead.
 
-* Investigate an unsuccessful or disconnected session.
-* Review a recording, transcript, post-session analysis, or call logs.
-* Compare sessions for an agent or agent version.
-* Find sessions that match analysis fields, metadata, dynamic variables, or custom attributes.
-* Export a filtered set of calls or chats for offline analysis.
+### Primary Operational Use Cases
 
-For example, if callers report that an outbound campaign is failing, filter Call History by batch call ID and an unsuccessful outcome. Open individual calls to compare their disconnection reasons, transcripts, and detail logs.
+* **Disconnect Diagnosis**: Isolate dropped or unsuccessful calls by analyzing carrier disconnection reasons and SIP codes.
+* **Conversational Auditing**: Listen to stereo audio recordings, review turn-by-turn transcripts, and examine tool call inputs/outputs.
+* **A/B Performance Benchmarking**: Compare conversion outcomes and latency figures across different agent versions.
+* **Targeted Cohort Extraction**: Filter sessions by dynamic CRM variables, user sentiment scores, or custom analysis fields.
+* **Compliance Archival**: Generate PII-scrubbed CSV data exports for external data warehousing and regulatory audits.
 
-## Browse and filter sessions
+---
 
-Both pages show one row per session with its time, cost, session ID, status, sentiment, phone numbers, and agent details. Call History also includes call-specific columns such as duration, channel type, direction, end reason, outcome, and end-to-end latency.
+## How do you browse, filter, and customize session logs?
+
+To **browse, filter, and customize session logs**, open Call History or Chat History under Data in the dashboard, apply date range boundaries, and filter across attributes like agent version, disconnection reason, or metadata. Click Customize View to configure visible columns and share your filtered URL directly with team members.
+
+Both pages provide a unified tabular view of interactions:
 
 <Frame caption="Call History controls and session table.">
   <img src="https://mintcdn.com/retellai/2B3R6a7IdWxVRs_t/images/session-history-call-list.png?fit=max&auto=format&n=2B3R6a7IdWxVRs_t&q=85&s=7e72f7f173e5181a7f11287144048c73" alt="Call History page with the Date Range, Filter, Customize View, Show PII, and Actions controls outlined in blue above the session table." width="1600" height="900" data-path="images/session-history-call-list.png" />
 </Frame>
 
-Use **Date Range** and **Filter** to narrow the list:
+### Supported Filter Dimensions
 
-* **Call History** supports agent and version, session ID, batch call ID, transfer agent, call type, direction, duration, phone number, status, outcome, sentiment, disconnection reason, end-to-end latency, cost, analysis fields, custom attributes, dynamic variables, and metadata.
-* **Chat History** supports agent and version, session ID, status, outcome, sentiment, disconnection reason, analysis fields, and custom attributes.
-
-Chat statuses are `ongoing`, `ended`, or `error`. An ongoing chat becomes `ended` when the agent or user ends it, when you call the [End Chat API](/api-references/end-chat), or when the [inactivity timeout](/build/create-chat-agent#chat-settings) expires. Calls also include pre-connection statuses such as `registered` and `not_connected`.
-
-Filters persist for each workspace in your browser and appear in the URL, so you can bookmark or share a filtered view with another workspace member. Use **Customize View** to show, hide, and reorder built-in columns, custom analysis fields, and workspace custom attributes. The table shows 50 rows by default, with options for 10, 20, 50, or 100 rows per page.
+| Filter Parameter | Call History Scope | Chat History Scope | Operational Application |
+| :--- | :--- | :--- | :--- |
+| **Identity & Version** | Agent ID, Agent Version, Session ID, Batch Call ID | Agent ID, Agent Version, Session ID | Audit specific release candidate deployments |
+| **Telephony Specs** | Phone Number, Direction, Channel Type, Duration | N/A | Compare inbound vs. outbound campaign performance |
+| **Session Lifecycle** | Status (`registered`, `not_connected`, `ended`) | Status (`ongoing`, `ended`, `error`) | Identify dialing bottlenecks and timeout drops |
+| **Quality & Latency** | End-to-End Latency, Disconnection Reason | Disconnection Reason | Track telecom performance and audio delivery delays |
+| **Semantic Intelligence** | Outcome, Sentiment, Custom Analysis Fields | Outcome, Sentiment, Custom Analysis Fields | Isolate negative user interactions or failed intents |
+| **Contextual Data** | Dynamic Variables, Custom Metadata | Custom Metadata | Filter by customer ID, order number, or CRM tags |
 
 <Frame caption="Chat History with session filters and view controls.">
   <img src="https://mintcdn.com/retellai/yfI-f20iptEBfJzl/images/chat-history-table.png?fit=max&auto=format&n=yfI-f20iptEBfJzl&q=85&s=8efe59999cac42396c789d54ee378a68" alt="Chat History page showing a session table with time, cost, session ID, status, sentiment, and phone number columns, plus Date Range, Filter, Customize View, Show PII, and Actions controls." width="1600" height="900" data-path="images/chat-history-table.png" />
 </Frame>
 
-To investigate several sessions together, click **Select**, check the rows, and open **Conductor**. The selected calls or chats become [context for your question](/conductor/overview#select-calls-and-chats-from-history).
+### View Customization and Navigation
 
-## Inspect a session
+* **Shareable URL Filtering**: Active filter parameters are automatically encoded into the dashboard URL, allowing team members to share exact session views instantly.
+* **Table Pagination**: Adjust page sizes between 10, 20, 50 (default), or 100 records per view.
+* **AI Conductor Deep Dives**: Check multiple rows and click **Conductor** to pass the selected conversation transcripts directly into the [AI Conductor Assistant](/conductor/overview#select-calls-and-chats-from-history) for cross-session synthesis.
 
-Select a row to open its details. Use the arrows at the top of the panel to move through sessions without closing it.
+---
 
-Every session can include:
+## How do you inspect session transcripts, recordings, and diagnostic logs?
 
-* **Conversation Analysis:** session outcome, status, user sentiment, disconnection reason, and custom analysis fields.
-* **Summary:** the generated session summary.
-* **Transcription:** messages, tool calls and results, state or node transitions, in-call SMS, and knowledge base retrievals. You can copy the transcript or open the conversation in the test playground.
-* **Data:** provided, overridden, and extracted dynamic variables, plus metadata.
-* **Contact:** the matching [contact](/features/contacts) and their previous conversations. See [contact memory](/integrations/build-contact-memory) for how contacts accumulate context across sessions.
+To **inspect session transcripts, recordings, and diagnostic logs**, select any session row to launch the comprehensive inspection drawer. You can listen to synchronized stereo recordings, audit tool execution payloads, trace conversation flow state transitions, examine extracted dynamic variables, and inspect raw SIP network packet captures for telephony troubleshooting.
 
-Call details can also include a recording player, end-to-end latency, **Detail Logs** for step-by-step execution, and **Packet Capture** for [debugging SIP connections](/reliability/debug-calls-pcap). Select a transcript timestamp to jump to that point in the recording. If an error disconnection reason links to a detail log, select the reason to open the matching error.
+Selecting a session opens an in-depth audit drawer with multi-tab navigation:
 
 <Frame caption="Call details with analysis and transcript tabs.">
   <img src="https://mintcdn.com/retellai/2B3R6a7IdWxVRs_t/images/session-history-call-details.png?fit=max&auto=format&n=2B3R6a7IdWxVRs_t&q=85&s=73d9ceb4d9b748f0631ad60ba84373c0" alt="Call details panel showing recording playback, Conversation Analysis, Summary, contact history, and the Transcription, Data, Detail Logs, and Packet Capture tabs outlined in blue. Real phone numbers are partially masked; resource IDs remain visible." width="1600" height="900" data-path="images/session-history-call-details.png" />
 </Frame>
 
-For the next debugging step, see [debug call disconnections](/reliability/debug-call-disconnect), [check call latency](/reliability/check-actual-latency), or [debug calls with PCAP](/reliability/debug-calls-pcap).
+### Diagnostic Inspection Tabs
+
+* **Conversation Analysis**: Displays post-session extraction outcomes, user sentiment ratings, explicit disconnection codes, and custom evaluation metrics.
+* **Audio Recording Playback**: Interactive media player with timestamp-scrubbing. Clicking any transcript turn automatically seeks the audio player to that exact millisecond.
+* **Transcription**: Complete turn-by-turn dialogue, including agent utterances, caller replies, tool calling parameters, knowledge base vector matches, and [conversation flow node transitions](/build/conversation-flow/overview).
+* **Data Variables**: Audit initial dynamic variables passed at call inception, variables overridden in-flight, and variables extracted post-session.
+* **Contact Memory**: View historical conversation timeline and persistent user memory profiles via [Contact Memory](/integrations/build-contact-memory).
+* **Detail Logs & Packet Capture**: In-depth trace of LLM prompt calls, speech recognition timing, and raw SIP network PCAP files for [SIP connection debugging](/reliability/debug-calls-pcap).
 
 <Frame caption="Chat details with analysis, summary, transcript, and contact history.">
   <img src="https://mintcdn.com/retellai/yfI-f20iptEBfJzl/images/chat-history-detail.png?fit=max&auto=format&n=yfI-f20iptEBfJzl&q=85&s=ec0dca89a905a2eb207652dde899e66e" alt="Chat detail panel showing the agent and session information, Conversation Analysis, Summary, Transcription and Data tabs, messages, and the matched contact's previous conversations." width="1600" height="900" data-path="images/chat-history-detail.png" />
 </Frame>
 
-## Rerun analysis
+---
 
-Select **Rerun** in Conversation Analysis to re-extract analysis fields for one session after changing the agent's analysis configuration. Rerunning incurs the analysis cost again and does not resend webhooks.
+## How do you rerun post-session analysis and execute bulk backfills?
 
-To rerun analysis for many sessions, filter Call History or Chat History, then open **Actions** and choose **Backfill from Post-Call Data** or **Backfill from Chat Data**. The backfill uses the latest draft agent configuration and the active filters.
+To **rerun post-session analysis and execute bulk backfills**, click Rerun inside the Conversation Analysis card for an individual session, or select Backfill from Post-Call Data under the Actions menu for filtered datasets. The extraction engine re-evaluates conversations against updated agent prompts without re-triggering telephony webhooks.
 
-You can also rerun analysis through the [Rerun Call Analysis API](/api-references/rerun-call-analysis) or [Rerun Chat Analysis API](/api-references/rerun-chat-analysis). See [rerun Post Call and Post Chat Extraction](/features/rerun-call-analysis) for filtering, transfer-agent behavior, and billing details.
+When prompt engineers refine extraction schemas or post-call evaluation logic, existing historical sessions can be reprocessed without placing new calls:
 
-## Export sessions to CSV
+```mermaid
+graph LR
+  A[Historical Session Record] --> B{Rerun Scope}
+  B -->|Single Session| C[Click 'Rerun' in Analysis Card]
+  B -->|Bulk Cohort| D[Actions > 'Backfill from Post-Call Data']
+  C --> E[Evaluate with Active Agent Schema]
+  D --> E
+  E --> F[Persist New Analysis & Extraction Data]
 
-Exporting uses the active filters, so narrow the history table before creating the export.
+  style C fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
+  style D fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+  style F fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+```
+
+### Operational Rules
+
+* **Billing Considerations**: Rerunning analysis incurs standard LLM token extraction costs.
+* **Webhook Isolation**: Rerunning analysis updates dashboard data and API records but deliberately suppresses outgoing webhook re-fires to prevent double-counting in downstream CRMs.
+* **Programmatic Execution**: Rerun analysis at scale using the [Rerun Call Analysis API](/api-references/rerun-call-analysis) or [Rerun Chat Analysis API](/api-references/rerun-chat-analysis).
+
+---
+
+## How do you export filtered session data and enforce PII privacy controls?
+
+To **export filtered session data and enforce PII privacy controls**, apply targeted filters, select Export from the Actions menu, and specify desired columns. To protect sensitive customer information, toggle PII scrubbing, restrict unmasked data access via role-based permissions, or permanently purge recorded artifacts using the granular delete options.
+
+### Exporting Filtered Records
 
 <Steps>
-  <Step title="Choose the export fields">
-    Open **Actions**, select **Export**, and choose the columns to include. Export-only fields include transcript data and PII-scrubbed transcripts. Call exports can also include recording and public log URLs.
+  <Step title="Configure export schema">
+    Apply required filters, click **Actions**, and select **Export**. Select standard metrics or include export-only columns such as full raw transcripts, scrubbed dialogue, and public recording audio URLs.
   </Step>
 
-  <Step title="Submit the export">
-    Submit the request. Tavly AI generates the CSV in the background. If the request exceeds your workspace's export limit, narrow the filters and try again.
+  <Step title="Background generation">
+    Tavly AI generates the CSV asynchronously. Large cohorts are batched in the cloud without impacting console responsiveness.
   </Step>
 
-  <Step title="Download the CSV">
-    Open **Actions → Export records** to check the request status and download the completed file.
+  <Step title="Download completed records">
+    Navigate to **Actions → Export records** to monitor progress and download the finalized CSV file. Export archives remain downloadable for **one week**.
   </Step>
 </Steps>
 
-Completed export records are kept for one week.
+### Privacy and Data Scrubbing Controls
 
-## Control sensitive data
-
-When [PII scrubbing](/accounts/privacy-disable) is enabled, the table and detail panel show scrubbed content by default. Members with permission to view raw data can use **Show PII** to reveal the original version. The setting applies wherever scrubbed copies are available, including transcripts, recordings, analysis, logs, dynamic variables, and metadata.
-
-Authorized members can open the trash menu in a call's detail panel to:
-
-* **Remove Sensitive Data**, which permanently removes sensitive call artifacts while keeping basic call attributes.
-* **Delete**, which permanently removes the call and its associated data.
+* **PII Redaction Toggling**: When [PII scrubbing](/accounts/privacy-disable) is active, credit card numbers, phone numbers, and addresses are masked in transcripts. Authorized personnel can click **Show PII** to reveal raw values.
+* **Permanent Data Purging**: Administrators can open the trash menu on individual sessions to execute:
+  * **Remove Sensitive Data**: Deletes audio recordings and transcripts permanently while retaining high-level duration and cost metadata.
+  * **Delete Call**: Completely purges the entire call record from Tavly servers.
+* **Programmatic Chat Purging**: Use the [Delete Chat API](/api-references/delete-chat) to remove chat sessions programmatically.
 
 <Warning>
-  Removing sensitive call data and deleting a call cannot be undone.
+  Executing "Remove Sensitive Data" or "Delete Call" permanently destroys underlying audio files and transcripts. This action is irreversible.
 </Warning>
 
-Chat History does not have the same delete menu. Use the [Delete Chat API](/api-references/delete-chat) to remove an individual chat. The agent's [data storage settings](/accounts/privacy-disable) and [data retention policy](/accounts/data-retention) determine which artifacts remain available for both calls and chats.
+---
 
-## FAQ
+## Frequently Asked Questions
 
 <AccordionGroup>
-  <Accordion title="How long are calls, chats, and recordings stored?">
-    By default, Tavly AI stores session data without automatic deletion. You can set a per-agent [data retention period](/accounts/data-retention) to delete data after 1–730 days. All session history is also permanently deleted if you [delete your account](/accounts/account#delete-your-account).
+  <Accordion title="How long are calls, chats, and audio recordings retained?">
+    By default, Tavly AI retains session history indefinitely. Enterprise workspaces can configure automated [data retention windows](/accounts/data-retention) ranging between 1 and 730 days on a per-agent basis.
   </Accordion>
 
-  <Accordion title="Why is a recording, transcript, or log missing?">
-    These artifacts become available after the session ends. They can also be unavailable because the call never connected, the agent stores only basic attributes, a retention period expired, sensitive data was removed, or your role cannot view the data.
-
-    Review the agent's [data storage settings](/accounts/privacy-disable) and ask a workspace admin to confirm your role.
+  <Accordion title="Why is a call recording or transcript missing?">
+    Artifacts become available immediately after the call terminates. If missing, verify that the call connected successfully, confirm that the agent's storage policy has not disabled recording, or check whether PII role permissions restrict access.
   </Accordion>
 
-  <Accordion title="Why does a chat still show as ongoing?">
-    A chat stays `ongoing` until the agent or user ends it, you call the [End Chat API](/api-references/end-chat), or the agent's [inactivity timeout](/build/create-chat-agent#chat-settings) expires. Long-running rows usually indicate a longer timeout.
+  <Accordion title="What audio format is used for call recordings?">
+    Recordings are encoded as high-fidelity WAV audio files. Calls can be retrieved as single-channel mixed tracks or dual-channel separated tracks via the [Get Call API](/api-references/get-call).
   </Accordion>
 
-  <Accordion title="What format are call recordings in?">
-    Tavly AI stores call recordings as WAV audio. A call can include a mixed single-channel recording, a recording with each party on a separate channel, and PII-scrubbed versions when configured.
-
-    Use the [Get Call API](/api-references/get-call) to retrieve the available recording fields.
-  </Accordion>
-
-  <Accordion title="Can I retrieve call and chat history through the API?">
-    Yes. Use the [List Calls API](/api-references/list-calls) to filter and paginate calls, then the [Get Call API](/api-references/get-call) for one call's complete details. Use [List Chats](/api-references/list-chats) and [Get Chat](/api-references/get-chat) for chats.
+  <Accordion title="Can I query session history programmatically?">
+    Yes. Query and paginate past calls using the [List Calls API](/api-references/list-calls) or [List Chats API](/api-references/list-chats), and retrieve exhaustive single-session details via [Get Call](/api-references/get-call) or [Get Chat](/api-references/get-chat).
   </Accordion>
 </AccordionGroup>
+
+## Related Resources
+
+* [Live call monitoring](/features/live-monitoring): Observe live audio, stream real-time transcripts, and whisper to active agents.
+* [Call disconnection debugging](/reliability/debug-call-disconnect): Decode SIP error responses and carrier termination codes.
+* [Actual call latency monitoring](/reliability/check-actual-latency): Audit turn-taking latency and voice synthesizer response times.
+* [SIP PCAP network debugging](/reliability/debug-calls-pcap): Download raw packet captures to investigate SIP trunking packet loss.

@@ -1,0 +1,613 @@
+---
+title: "Custom LLM Function Calling and Telephony Actions"
+sidebarTitle: "Function Calling"
+description: "Equip Tavly custom LLM agents with function calling to book appointments, transfer calls, trigger DTMF digits, and log structured tool events in transcripts."
+seo:
+  title: "Custom LLM Function Calling: Tools & Telephony Actions | Tavly AI"
+  description: "Equip Tavly custom LLM agents with function calling to book appointments, transfer calls, trigger DTMF digits, and log structured tool events in transcripts."
+og:title: "Custom LLM Function Calling: Tools & Telephony Actions | Tavly AI"
+og:description: "Equip Tavly custom LLM agents with function calling to book appointments, transfer calls, trigger DTMF digits, and log structured tool events in transcripts."
+twitter:card: "summary_large_image"
+icon: "code-branch"
+keywords:
+  - "custom LLM function calling"
+  - "Tavly voice agent tools"
+  - "call transfer WebSocket"
+  - "DTMF digit pressing"
+  - "end call response field"
+  - "voice agent idempotency key"
+  - "tool call invocation transcript"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Why does an agent hang up in silence when executing end_call?"
+    answer: "Most LLM providers return either a tool call or conversational text, not both. Without a message parameter passed into content, Tavly executes the hangup immediately without spoken words."
+  - question: "Why are pending call transfers or hangups discarded when a caller interrupts?"
+    answer: "If a caller interrupts before the agent finishes speaking the closing line, Tavly cancels the pending response action; set no_interruption_allowed to true to guarantee execution."
+  - question: "How do you prevent duplicate tool calls caused by caller speech barge-in?"
+    answer: "Enforce idempotency keys derived from the call ID and tool arguments on your server, ensuring re-prompted tool requests execute as no-ops."
+  - question: "Do tool_call_invocation and tool_call_result events affect tool execution?"
+    answer: "No, they do not affect execution logic, but omitting them excludes tool activity from call transcripts and post-call analytics, severely hindering observability."
+---
+
+# Add function calling
+
+> Give a Tavly custom LLM agent tools to book appointments, transfer to a human, press IVR digits, and end calls, all logged in the transcript.
+
+Callers frequently need to book calendar appointments, connect with a human representative, or query external operational databases. Function calling provides the mechanism through which the language model instructs your custom backend server to execute those real-world tasks.
+
+---
+
+## What is custom LLM function calling and how does it divide execution responsibilities?
+
+Custom LLM function calling allows conversational voice agents to interact with external databases and APIs during active phone conversations. Architecture responsibilities are strictly separated: **your LLM provider** determines *when* to invoke tools based on user utterances, while **Tavly's response fields** execute platform-level telephony actions such as ending calls, transferring callers, or transmitting DTMF digits.
+
+When engineering a custom LLM voice agent, you maintain two distinct layers:
+
+* **Your LLM's function calling layer**: Governed entirely by your model provider's tool-use API (such as OpenAI, Anthropic, or open-source vLLM). You supply JSON schema tool declarations, and the model evaluates conversation context to choose when to trigger a tool and what arguments to supply. Tavly is not involved in this decision loop.
+* **Tavly's response action layer**: Governs the physical telephone call lifecycle. You attach specific control flags (`end_call`, `transfer_number`, `digit_to_press`) to Tavly `response` WebSocket payloads. Tavly executes these instructions directly against the carrier trunk.
+
+External tasks—such as executing SQL queries, calling third-party payment gateways, or updating CRMs—are standard asynchronous functions executed directly on your application server.
+
+### A concrete production scenario
+
+Consider a dental clinic appointment line (Bright Smile Dental). An effective conversational agent must book appointments into the practice management system while the caller waits on the line, transfer callers to the front desk when an escalation occurs, and hang up cleanly when the patient concludes the conversation. This workflow requires three discrete tools: `book_appointment`, `transfer_to_front_desk`, and `end_call`.
+
+---
+
+## What native telephony actions does Tavly execute through response fields?
+
+Tavly supports five core telephony fields attached to `response` events: **`end_call`** (terminates the call after speech finishes), **`transfer_number`** (initiates a cold transfer), **`show_transferee_as_caller`** (preserves caller ID), **`digit_to_press`** (emits DTMF tones), and **`no_interruption_allowed`** (temporarily disables user barge-in). Telephony action fields are mutually exclusive and run sequentially after text finishes speaking.
+
+Set these parameters inside a standard `response` payload. Tavly dispatches the action **after the synthetic speech audio for that response has completely finished playing**, allowing your agent to pair the telephony action with a polite closing statement.
+
+### Telephony control parameters reference
+
+| Field | Type | Operational Behavior |
+| :--- | :--- | :--- |
+| **`end_call`** | `boolean` | Tavly terminates the telephone call once spoken content completes. If the caller interrupts before playback finishes, the hangup action is discarded. |
+| **`transfer_number`** | `string` | Initiates a cold transfer to the designated E.164 number after speech completes. Supported on native and imported phone numbers. (On custom SIP trunking, manage transfer on your SIP server). |
+| **`show_transferee_as_caller`** | `boolean` | During call transfers, displays the original caller's telephone number on the recipient's caller ID display rather than your Tavly agent number. Defaults to `false`. |
+| **`digit_to_press`** | `string` | Emits Dual-Tone Multi-Frequency (DTMF) tones for specified digits once audio playback concludes. Typically transmitted with empty speech content (`content: ""`). |
+| **`no_interruption_allowed`** | `boolean` | Disables caller barge-in for the duration of the current response by dropping speech interruption sensitivity to 0. Restores standard agent sensitivity afterward. |
+
+<Warning>
+  `end_call`, `transfer_number`, and `digit_to_press` are mutually exclusive. Tavly executes at most one action per `response_id`. If multiple flags are passed, `end_call` takes precedence, followed by `transfer_number`.
+</Warning>
+
+---
+
+## How do you implement the end_call tool in your custom LLM server?
+
+To implement call termination, define an `end_call` tool containing a mandatory **`message`** parameter so the model speaks a courteous closing remark before disconnection. In your server's streaming loop, capture the tool arguments, dispatch the closing sentence with **`end_call: true`**, and ensure the `finally` block resolves stalled responses.
+
+Most frontier LLM providers return either structured tool call fragments or standard conversational text deltas, but rarely both in a single response turn. Supplying a `message` argument within the tool definition ensures the agent speaks a natural farewell rather than hanging up abruptly in total silence.
+
+The implementation below augments the core streaming handler from [connecting your LLM](/integrate-llm/integrate-llm). It preserves two mission-critical safeguards: `isStale` immediately abandons requests superseded by caller interruptions, and a defensive `finally` block guarantees every `response_id` closes gracefully even if upstream LLM APIs throw errors.
+
+<CodeGroup>
+  ```typescript llm.ts theme={"dark"}
+  import WebSocket from "ws";
+  import OpenAI from "openai";
+
+  const openai = new OpenAI();
+  const TIME_ZONE = "America/New_York";
+  const SYSTEM_PROMPT = "You are a courteous clinic receptionist for Bright Smile Dental.";
+
+  const tools: OpenAI.Chat.ChatCompletionTool[] = [
+    {
+      type: "function",
+      function: {
+        name: "end_call",
+        description: "End the call. Only invoke when the caller has clearly said goodbye.",
+        parameters: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "The final polite remark to speak before hanging up.",
+            },
+          },
+          required: ["message"],
+        },
+      },
+    },
+  ];
+
+  export interface ToolResult {
+    id: string;
+    name: string;
+    arguments: string;
+    result: string;
+  }
+
+  export interface ResponseRequiredRequest {
+    interaction_type: "response_required" | "reminder_required";
+    response_id: number;
+    transcript: Array<{ role: "agent" | "user"; content: string }>;
+  }
+
+  function buildMessages(
+    request: ResponseRequiredRequest,
+    toolResult?: ToolResult,
+  ): OpenAI.Chat.ChatCompletionMessageParam[] {
+    const now = new Date().toLocaleString("en-US", { timeZone: TIME_ZONE });
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content: `${SYSTEM_PROMPT}\n\nThe current date and time is ${now} (${TIME_ZONE}).`,
+      },
+    ];
+
+    for (const utterance of request.transcript) {
+      messages.push({
+        role: utterance.role === "agent" ? "assistant" : "user",
+        content: utterance.content,
+      });
+    }
+
+    if (request.interaction_type === "reminder_required") {
+      messages.push({
+        role: "user",
+        content: "(The caller has gone quiet. Check in briefly.)",
+      });
+    }
+
+    // Replay prior tool call invocations and results into chat context
+    if (toolResult) {
+      messages.push({
+        role: "assistant",
+        content: null,
+        tool_calls: [
+          {
+            id: toolResult.id,
+            type: "function",
+            function: {
+              name: toolResult.name,
+              arguments: toolResult.arguments,
+            },
+          },
+        ],
+      });
+      messages.push({
+        role: "tool",
+        tool_call_id: toolResult.id,
+        content: toolResult.result,
+      });
+    }
+
+    return messages;
+  }
+
+  export async function draftResponse(
+    request: ResponseRequiredRequest,
+    ws: WebSocket,
+    isStale: () => boolean,
+    toolResult?: ToolResult,
+  ) {
+    let responseClosed = false;
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: buildMessages(request, toolResult),
+        stream: true,
+        temperature: 0, // Deterministic tool selection
+        max_tokens: 200,
+        tools,
+      });
+
+      let toolCallId = "";
+      let toolName = "";
+      let toolArguments = "";
+
+      for await (const chunk of stream) {
+        if (isStale()) {
+          responseClosed = true;
+          stream.controller.abort();
+          return;
+        }
+
+        const delta = chunk.choices[0]?.delta;
+        if (!delta) continue;
+
+        const toolCall = delta.tool_calls?.[0];
+
+        if (toolCall) {
+          // Tool metadata arrives on initial chunk; arguments stream in subsequently
+          if (toolCall.id) toolCallId = toolCall.id;
+          if (toolCall.function?.name) toolName = toolCall.function.name;
+          toolArguments += toolCall.function?.arguments ?? "";
+        } else if (delta.content) {
+          ws.send(
+            JSON.stringify({
+              response_type: "response",
+              response_id: request.response_id,
+              content: delta.content,
+              content_complete: false,
+            }),
+          );
+        }
+      }
+
+      if (toolName === "end_call") {
+        const { message } = JSON.parse(toolArguments);
+        ws.send(
+          JSON.stringify({
+            response_type: "response",
+            response_id: request.response_id,
+            content: message,
+            content_complete: true,
+            end_call: true,
+          }),
+        );
+        responseClosed = true;
+      }
+    } catch (err) {
+      console.error("LLM stream encountered failure:", err);
+    } finally {
+      // Guarantee response termination so Tavly does not stall waiting for audio
+      if (!responseClosed) {
+        ws.send(
+          JSON.stringify({
+            response_type: "response",
+            response_id: request.response_id,
+            content: "",
+            content_complete: true,
+          }),
+        );
+      }
+    }
+  }
+  ```
+
+  ```python llm.py theme={"dark"}
+  import json
+  from typing import Callable, AsyncGenerator
+  from openai import AsyncOpenAI
+
+  openai = AsyncOpenAI()
+
+  TOOLS = [
+      {
+          "type": "function",
+          "function": {
+              "name": "end_call",
+              "description": "End the call. Only invoke when the caller has clearly said goodbye.",
+              "parameters": {
+                  "type": "object",
+                  "properties": {
+                      "message": {
+                          "type": "string",
+                          "description": "The final polite remark to speak before hanging up.",
+                      },
+                  },
+                  "required": ["message"],
+              },
+          },
+      },
+  ]
+
+
+  async def draft_response(request, is_stale: Callable[[], bool]):
+      response_closed = False
+
+      try:
+          stream = await openai.chat.completions.create(
+              model="gpt-4o-mini",
+              messages=build_messages(request),
+              stream=True,
+              temperature=0,
+              max_tokens=200,
+              tools=TOOLS,
+          )
+
+          tool_call_id = ""
+          tool_name = ""
+          tool_arguments = ""
+
+          async for chunk in stream:
+              if is_stale():
+                  await stream.close()
+                  return
+
+              if not chunk.choices:
+                  continue
+
+              delta = chunk.choices[0].delta
+
+              if delta.tool_calls:
+                  tool_call = delta.tool_calls[0]
+                  if tool_call.id:
+                      tool_call_id = tool_call.id
+                  if tool_call.function and tool_call.function.name:
+                      tool_name = tool_call.function.name
+                  if tool_call.function:
+                      tool_arguments += tool_call.function.arguments or ""
+
+              elif delta.content:
+                  yield {
+                      "response_type": "response",
+                      "response_id": request.response_id,
+                      "content": delta.content,
+                      "content_complete": False,
+                  }
+
+          if tool_name == "end_call":
+              yield {
+                  "response_type": "response",
+                  "response_id": request.response_id,
+                  "content": json.loads(tool_arguments)["message"],
+                  "content_complete": True,
+                  "end_call": True,
+              }
+              response_closed = True
+      except Exception as err:
+          print(f"LLM stream encountered error: {err}")
+
+      if not response_closed:
+          yield {
+              "response_type": "response",
+              "response_id": request.response_id,
+              "content": "",
+              "content_complete": True,
+          }
+  ```
+</CodeGroup>
+
+<Note>
+  Always configure `temperature: 0` when exposing tools to the language model. Lower temperature dramatically reduces hallucinated function names and improves JSON parameter adherence.
+</Note>
+
+---
+
+## How do you execute backend API tasks while the voice agent speaks to the caller?
+
+To run asynchronous backend tasks without conversational dead air, send an initial holding message with **`content_complete: false`**. While Tavly synthesizes and speaks this holding phrase to the caller, your server executes the external API call, injects the result into model history, and streams the final confirmation under the same `response_id`.
+
+In real-world telephony, API queries often take between 400 milliseconds and 2 seconds. Leaving a caller in silence while fetching database records triggers confusion. Using `content_complete: false` lets the agent vocalize a natural bridging phrase (e.g., *"Let me check available openings for next Tuesday..."*) while your server fetches the necessary data.
+
+### 1. Declare the multi-turn tool schema
+
+Declare the tool alongside `end_call`, including a `message` parameter to contain the holding line:
+
+```typescript llm.ts theme={"dark"}
+{
+  type: "function",
+  function: {
+    name: "book_appointment",
+    description: "Book or reschedule a dental appointment once both date and time are confirmed.",
+    parameters: {
+      type: "object",
+      properties: {
+        date: { type: "string", description: "ISO date format (e.g., 2026-08-04)." },
+        time: { type: "string", description: "24-hour time format (e.g., 10:00)." },
+        message: {
+          type: "string",
+          description: "A short, natural line to speak while the booking system processes.",
+        },
+      },
+      required: ["date", "time", "message"],
+    },
+  },
+},
+```
+
+### 2. Implement resilient API client logic
+
+External integrations should return structured error states as data rather than throwing unhandled exceptions. This allows the LLM to understand the failure reason (such as a booked slot) and verbally suggest alternatives:
+
+```typescript llm.ts theme={"dark"}
+async function bookAppointment(date: string, time: string) {
+  try {
+    const res = await fetch("https://api.brightsmiledental.example.com/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, time }),
+    });
+
+    if (!res.ok) {
+      return { status: "failed", reason: "That specific time slot is no longer available." };
+    }
+    return { status: "confirmed", ...(await res.json()) };
+  } catch (error) {
+    return { status: "failed", reason: "The practice scheduling system is temporarily unreachable." };
+  }
+}
+```
+
+### 3. Handle asynchronous execution within draftResponse
+
+In your tool handling branch, transmit the holding phrase immediately, execute the backend call, notify Tavly of the tool invocation, and recurse into `draftResponse` with the tool result:
+
+```typescript llm.ts theme={"dark"}
+if (toolName === "book_appointment") {
+  const args = JSON.parse(toolArguments);
+
+  // 1. Speak the holding phrase while keeping the response channel open
+  ws.send(
+    JSON.stringify({
+      response_type: "response",
+      response_id: request.response_id,
+      content: `${args.message} `,
+      content_complete: false,
+    }),
+  );
+
+  // 2. Abort if user speech already superseded this response turn
+  if (isStale()) {
+    responseClosed = true;
+    return;
+  }
+
+  // 3. Inform Tavly that a tool started execution for transcript weaving
+  ws.send(
+    JSON.stringify({
+      response_type: "tool_call_invocation",
+      tool_call_id: toolCallId,
+      name: "book_appointment",
+      arguments: toolArguments,
+    }),
+  );
+
+  // 4. Perform the asynchronous backend work
+  const result = await bookAppointment(args.date, args.time);
+
+  // 5. Submit tool completion status to Tavly
+  ws.send(
+    JSON.stringify({
+      response_type: "tool_call_result",
+      tool_call_id: toolCallId,
+      content: JSON.stringify(result),
+      successful: result.status === "confirmed",
+    }),
+  );
+
+  // 6. Recurse into draftResponse to generate the final verbal response
+  responseClosed = true;
+  await draftResponse(request, ws, isStale, {
+    id: toolCallId,
+    name: "book_appointment",
+    arguments: toolArguments,
+    result: JSON.stringify(result),
+  });
+  return;
+}
+```
+
+<Note>
+  While a response remains open with `content_complete: false`, Tavly pauses turn-taking timeouts. It will not generate silence reminders until you emit `content_complete: true`. The only event that can abort pending work is user barge-in.
+</Note>
+
+---
+
+## How do you configure cold call transfers and DTMF digit pressing?
+
+Configure call transfers and IVR navigation by sending dedicated telephony parameters inside terminal `response` payloads. Setting **`transfer_number`** with an E.164 phone string initiates an immediate cold handoff once speech ends, while setting **`digit_to_press`** transmits dual-tone multi-frequency (DTMF) numeric keypad signals directly into automated phone trees.
+
+Both transfer and DTMF actions share the same lifecycle mechanics as `end_call`: Tavly waits for the accompanying speech audio to complete, then executes the carrier-level operation.
+
+<CodeGroup>
+  ```typescript Transfer to a human representative theme={"dark"}
+  ws.send(
+    JSON.stringify({
+      response_type: "response",
+      response_id: request.response_id,
+      content: "Let me get you connected with our front desk staff right away. Please hold.",
+      content_complete: true,
+      transfer_number: "+14155550123",
+      show_transferee_as_caller: true, // Forwards customer phone number to desk
+    }),
+  );
+  ```
+
+  ```typescript Press IVR keypad digits theme={"dark"}
+  ws.send(
+    JSON.stringify({
+      response_type: "response",
+      response_id: request.response_id,
+      content: "", // Transmit empty content for immediate DTMF execution
+      content_complete: true,
+      digit_to_press: "1", // Sends DTMF tone '1' to phone tree
+    }),
+  );
+  ```
+</CodeGroup>
+
+<Warning>
+  Transfers triggered via `transfer_number` are cold transfers: the customer is bridged to the new line and your agent is immediately disconnected. For warm transfers (consulting the agent before bridging), orchestrate the call leg using your own telephony switch or SIP infrastructure.
+</Warning>
+
+---
+
+## How do you record and weave tool call events into the call transcript?
+
+Record tool invocations into Tavly transcripts by emitting paired **`tool_call_invocation`** and **`tool_call_result`** WebSocket events sharing a matching `tool_call_id`. Tavly interweaves these events chronologically alongside spoken words, exposing full execution histories within real-time streaming updates and post-call analysis records for streamlined observability and debugging.
+
+Because your custom server executes tools independently, Tavly has no native visibility into external operations unless you broadcast these telemetry events:
+
+* **Real-time updates**: When `transcript_with_tool_calls: true` is configured in your initialization event, Tavly supplies interleaved tool actions within subsequent `update_only` and `response_required` event payloads.
+* **Post-call auditability**: Stored call logs and API transcripts show exact timestamps and payloads for every tool execution alongside what was spoken, enabling full tracing of agent decisions.
+
+### Telemetry event structure
+
+Transmit `tool_call_invocation` when starting work and `tool_call_result` when the task finishes, referencing the identical `tool_call_id`:
+
+```json theme={"dark"}
+{
+  "response_type": "tool_call_invocation",
+  "tool_call_id": "call_a1b2c3",
+  "name": "book_appointment",
+  "arguments": "{\"date\": \"2026-08-14\", \"time\": \"10:00\"}"
+}
+
+{
+  "response_type": "tool_call_result",
+  "tool_call_id": "call_a1b2c3",
+  "content": "{\"status\":\"confirmed\",\"appointment_id\":\"apt_9921\"}",
+  "successful": true
+}
+```
+
+* `arguments` must be a stringified JSON object.
+* `content` is a stringified representation of the tool output.
+* `successful` is an optional boolean flag explicitly recording whether the tool succeeded or failed. Setting this explicitly allows automated analytics to differentiate between expected application errors and smooth completions.
+
+---
+
+## How do you safeguard production voice agents against double-booking and concurrency bugs?
+
+Production deployments must guard against concurrent re-prompting and duplicated executions caused by caller barge-in. Implement deterministic **idempotency keys** derived from the unique call identifier and tool arguments, control available functions at each step using explicit **state machines**, and return structured error payloads so models can report issues gracefully.
+
+Production telephony introduces race conditions uncommon in asynchronous text chat:
+
+* **Enforce strict idempotency**: When a user continues speaking while an LLM is generating a tool call, Tavly discards the pending response and issues a new `response_required` event. Your server might trigger the booking tool twice in rapid succession. **Derive an idempotency key from `call_id + tool_name + tool_arguments`**. If a duplicate request arrives, return the cached result instead of executing a secondary database write.
+* **Employ state machines over prompt instructions**: As tool collections grow, models occasionally call functions out of order. Rather than relying solely on system prompts, restrict the active `tools` array to only those functions applicable to the current conversation phase. Review our guide on [LLM best practices](/integrate-llm/llm-best-practice) for architectural patterns.
+* **Report errors verbally**: If an API integration throws an error, feed the failure back to the model with `successful: false` so the agent can apologize and offer an alternative rather than stalling or hanging up.
+
+---
+
+## Frequently asked questions about custom LLM function calling
+
+Custom LLM agents rely on tool definitions to execute backend logic, book appointments, and control telephony events. By combining holding phrases with `content_complete: false`, enforcing idempotency keys against duplicate requests, and logging invocation events to the transcript, developers build responsive, robust, and fully auditable conversational voice systems.
+
+<AccordionGroup>
+  <Accordion title="Why does the agent hang up without saying goodbye?">
+    This happens when you emit `end_call: true` with empty speech content (`content: ""`), or when the model invokes an `end_call` tool without a `message` argument. Tavly terminates the call as soon as content finishes playing. Provide a `message` parameter in the tool schema and pass that text into `content`.
+  </Accordion>
+
+  <Accordion title="Why was my end_call or transfer ignored?">
+    If the caller interrupts before the agent finishes speaking the closing line, Tavly cancels the current response turn and discards any associated telephony actions. Alternatively, ensure you did not pass both `end_call` and `transfer_number` simultaneously. Setting `no_interruption_allowed: true` on the final utterance guarantees the action executes.
+  </Accordion>
+
+  <Accordion title="Why did my tool execute twice for a single caller request?">
+    If a caller speaks while a response is being drafted, Tavly supersedes the old request and emits a new `response_required` turn. If your server already commenced the first tool execution, it will receive the re-prompted turn and run it again. Enforce idempotency on backend writes keyed by call ID and argument hashes.
+  </Accordion>
+
+  <Accordion title="Are tool_call_invocation and tool_call_result events mandatory?">
+    No, they are optional telemetry events. Omitting them will not prevent your code from running, but the tool calls will not appear in Tavly call transcripts, making debugging and auditing substantially more difficult.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="LLM Best Practices" icon="lightbulb" href="/integrate-llm/llm-best-practice">
+    Techniques for optimizing latency, structured state management, and multi-tool routing.
+  </Card>
+
+  <Card title="Troubleshooting Custom LLMs" icon="triangle-exclamation" href="/integrate-llm/troubleshooting">
+    Diagnose silence bugs, network timeouts, and dropped WebSocket connections.
+  </Card>
+
+  <Card title="Setup WebSocket Server" icon="server" href="/integrate-llm/setup-websocket-server">
+    Set up the foundational WebSocket server connection and handle protocol events.
+  </Card>
+
+  <Card title="Connect Custom LLM" icon="plug" href="/integrate-llm/integrate-llm">
+    Connect your OpenAI, Anthropic, or open-source model directly to Tavly voice agents.
+  </Card>
+</CardGroup>

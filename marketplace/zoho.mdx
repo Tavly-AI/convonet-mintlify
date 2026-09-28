@@ -1,0 +1,298 @@
+---
+title: "Trigger Tavly Calls from Zoho CRM Workflows"
+sidebarTitle: "Zoho CRM App"
+description: "Install the Tavly AI Zoho CRM extension to trigger outbound voice agent calls from workflow rules and write call summaries and recordings back to CRM records."
+seo:
+  title: "Trigger Tavly Voice Agent Calls from Zoho CRM Workflows"
+  description: "Install the Tavly AI Zoho CRM extension to trigger outbound voice agent calls from workflow rules and write call summaries and recordings back to CRM records."
+og:title: "Trigger Tavly Voice Agent Calls from Zoho CRM Workflows"
+og:description: "Install the Tavly AI Zoho CRM extension to trigger outbound voice agent calls from workflow rules and write call summaries and recordings back to CRM records."
+og:image: "https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-1.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=9b18b95d826be3af00b63d51ae594d30"
+twitter:card: "summary_large_image"
+icon: "briefcase"
+keywords:
+  - "Zoho CRM workflow automation"
+  - "Tavly AI Zoho extension"
+  - "trigger outbound calls from Zoho"
+  - "Zoho CRM voice agent"
+  - "RetellOutboundCall action"
+  - "Zoho call recording note writeback"
+  - "voice agent CRM integration"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How does Zoho CRM trigger outbound phone calls in Tavly AI?"
+    answer: "Zoho CRM executes the RetellOutboundCall custom action whenever workflow rule criteria fire on Leads, Contacts, or custom module records."
+  - question: "Where are call summaries and recordings stored in Zoho CRM?"
+    answer: "Tavly writes structured conversational summaries, sentiment ratings, duration metrics, and audio recording links as Notes on the triggering record."
+  - question: "Can I pass dynamic variables from Zoho records into the voice agent?"
+    answer: "Yes, you can configure JSON payloads in the action modal containing Zoho merge fields like contact names and account details."
+  - question: "Is the Zoho CRM marketplace extension different from contact sync?"
+    answer: "Yes, the marketplace extension triggers outbound calls from workflow rules, while the CRM integration syncs contacts into Tavly; both can operate simultaneously."
+---
+
+# Trigger Tavly calls from Zoho CRM workflows
+
+> Install the Tavly AI Zoho CRM extension to trigger outbound voice agent calls from workflow rules and write summaries, results, and recordings back.
+
+This guide provides instructions for setting up and using the **Tavly AI** extension within **Zoho CRM** to automate outbound phone calls using voice agents.
+
+<Note>
+  This extension lets Zoho CRM trigger calls. If you want the reverse, Zoho contacts synced into Tavly and call activity written back to the record, set up the [Zoho CRM integration](/integrations/crm/zoho/connect) instead. The two are independent and can be used together.
+</Note>
+
+---
+
+## What is the Tavly AI Zoho CRM extension and how does it automate outbound calls?
+
+The **Tavly AI Zoho CRM extension** adds a native **RetellOutboundCall** custom action to Zoho CRM workflow automations, enabling automated outbound phone calls powered by conversational voice agents. Once calls conclude, Tavly automatically logs structured call summaries, duration metrics, sentiment analysis, disconnect reasons, and audio recording links as Notes on CRM records.
+
+When a record in Zoho CRM satisfies defined trigger criteria (such as a newly submitted lead or deal phase transition), Zoho CRM invokes the Tavly outbound call action. Tavly dispatches the call through your configured voice agent, processes post-call intelligence upon completion, and updates the record with an audit-ready timeline note.
+
+### Automated post-call Note fields logged to Zoho CRM
+
+| Logged Attribute | Data Type | Description |
+| :--- | :--- | :--- |
+| **Summary** | Rich Text | Comprehensive AI-generated summary capturing caller intent and outcomes |
+| **Call Duration** | Timestamp / Numeric | Total length of the conversation measured in seconds |
+| **Call Direction** | String | Identifies call origin (`outbound`) |
+| **Disconnect Reason** | Enum | Reason for call termination (`agent_hangup`, `user_hangup`, `call_transfer`) |
+| **User Sentiment** | Categorical | Evaluated emotional posture (`Positive`, `Neutral`, `Negative`) |
+| **Voicemail Detection** | Boolean | Indicates whether an answering machine or human answered |
+| **Call Success** | Boolean | Verification of whether prompt business objectives were achieved |
+| **Recording Link** | Secure URL | Direct hyperlink to stream or download audio playback |
+
+---
+
+## What prerequisites are required before configuring the Zoho CRM extension?
+
+Deploying the Zoho CRM extension requires an active **Zoho CRM enterprise account** with marketplace installation permissions, alongside a **Tavly AI account** configured with an API key, an outbound telephone number, and at least one voice agent. Destination phone numbers on Lead or Contact records must follow international **E.164 syntax**.
+
+### System prerequisites checklist
+
+Ensure the following system assets and credentials are prepared before starting installation:
+
+* **Zoho CRM permissions**: Administrative privileges to install third-party marketplace applications and create workflow automation rules.
+* **Tavly AI account**: A registered account with access to the Tavly dashboard, a generated API key, and provisioned telephony credits.
+* **Configured voice agent & caller ID**: At least one active agent prompt paired with a provisioned outbound phone number.
+* **E.164 phone formatting**: Destination contact phone fields must include a leading plus sign and country code (e.g., `+15551234567`).
+
+<Note>
+  You must have a Tavly AI account and an agent with a connected phone number before testing live outbound workflow executions.
+</Note>
+
+---
+
+## How do you install and authorize the Tavly AI extension in Zoho CRM?
+
+To install the extension, navigate to the **Zoho Marketplace**, locate the Tavly listing, and click **Install Now**. Accept the terms of service, open the **Retell - Settings** page within Zoho, click **Connect** under step 1, review requested OAuth permissions, check the consent authorization box, and select **Accept**.
+
+<Steps>
+  <Step title="Install the extension from Zoho Marketplace">
+    From the Zoho Marketplace, open the Tavly listing and select **Install Now**. Accept the terms of service and authorize Tavly to access and process your CRM data.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-1.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=9b18b95d826be3af00b63d51ae594d30" alt="Zoho Marketplace install prompt for the Tavly extension, showing extension details and the Install Now button" width="1917" height="941" data-path="images/zoho/screenshot-1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Connect Zoho CRM in extension settings">
+    On the **Retell - Settings** page, select **Connect** under step 1, **Connect Zoho CRM**. A pop-up window opens for Zoho login and consent.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-2.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=a13fc374d0f8e87d0f5dfac8ae22384a" alt="Tavly Settings page in Zoho CRM showing step 1 Connect Zoho CRM with a Connect button, and step 2 Enter your API Key" width="1917" height="936" data-path="images/zoho/screenshot-2.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Authorize OAuth permission scopes">
+    Review the requested data scopes, mark **I allow Retell to access the above data from my Zoho account**, and select **Accept**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-3.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=7abd5be4ac6abf810cb118a34e4cae90" alt="Zoho OAuth consent screen listing the permissions Tavly requests, with the consent checkbox and Accept button" width="1914" height="1033" data-path="images/zoho/screenshot-3.png" />
+    </Frame>
+
+    When the authorization handshake completes, the settings page status automatically updates to **Connected**.
+  </Step>
+</Steps>
+
+---
+
+## How do you configure Tavly API credentials and register agent webhooks?
+
+In the Tavly dashboard under **Settings → API Keys**, generate or designate an API key as a **webhook key**. In Zoho's extension settings, paste this token into **Retell API Key**, click **Save API key**, copy the issued webhook URL, and paste it into your agent's **Webhook Settings**.
+
+<Steps>
+  <Step title="Generate and designate a webhook key">
+    Sign up on the Tavly AI website to access your dashboard if you do not already have an account.
+
+    Go to **Settings → API Keys** in the Tavly dashboard. Copy an existing key or select **Add Key** to create one. Open the key's **⋮** options menu and select **Set as webhook key**, then copy the key value.
+
+    Tavly AI supports only one active webhook integration at a time per workspace. If you are also using Notion or Slack, choose which integration receives webhook events.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/Vxpd5tqftNa5nweS/images/zoho/api-key-webhook.png?fit=max&auto=format&n=Vxpd5tqftNa5nweS&q=85&s=4430d05393c93d2bd7b46506146ad206" alt="Tavly API Keys page with the key options menu open and Set as webhook key highlighted" width="1915" height="893" data-path="images/zoho/api-key-webhook.png" />
+    </Frame>
+
+    <Note>
+      The API key must have the webhook option enabled. Post-call analysis data is only written back to Zoho CRM when the key is designated as a webhook key.
+    </Note>
+  </Step>
+
+  <Step title="Save the API key in Zoho CRM">
+    Back in Zoho CRM, paste the webhook key into **Retell API Key** under step 2 and select **Save API key**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-5.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=2b98f48d0253403896a85feb7a9c83e9" alt="Tavly Settings page in Zoho CRM with the connected status, the API Key field showing Not saved, and the Register the Webhook URL section showing Issued" width="1916" height="940" data-path="images/zoho/screenshot-5.png" />
+    </Frame>
+
+    Select **Copy webhook URL**. Copy the full URL without modifying its token or query parameters.
+  </Step>
+
+  <Step title="Register the webhook URL with your agent">
+    Once the API key is saved, the page shows the status as **Saved** and exposes the **Webhook** section with a **Copy URL** button.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-6.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=87a84da62ac0dd5dbbc33fafce6934a7" alt="Tavly Settings page in Zoho CRM showing the saved API key, the Webhook section with a Copy URL button, and the Uninstall app button" width="1917" height="941" data-path="images/zoho/screenshot-6.png" />
+    </Frame>
+
+    Navigate to your [Tavly dashboard](https://dashboard.retellai.com), open **Agents**, select your calling agent, expand **Webhook Settings**, paste the URL into **Agent Level Webhook URL**, and ensure `call_analyzed` is active.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-7.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=70ec037fac3bc4f3cffb37e4652efdb8" alt="Tavly agent dashboard with Webhook Settings expanded, showing the Agent Level Webhook URL field with the Zoho webhook pasted in" width="1914" height="897" data-path="images/zoho/screenshot-7.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you create Zoho CRM workflow rules to trigger outbound voice calls?
+
+In Zoho CRM, navigate to **Setup → Automation → Workflow Rules** and select **Create Rule**. Choose your trigger module (such as **Leads** or **Contacts**), configure the execution criteria (e.g., **On a record action → Create**), add criteria ensuring destination numbers exist, and select **RetellOutboundCall(retell)** under Instant Actions.
+
+### Operational workflow triggers and common use cases
+
+* **New lead qualification**: Call leads immediately upon creation to qualify buying interest while intent is high.
+* **New contact outreach**: Welcome new contacts added manually or synced from inbound marketing campaigns.
+* **Deal stage progression**: Trigger automated discovery or check-in calls whenever a deal advances to a designated pipeline stage.
+* **Stale account re-engagement**: Re-engage dormant contacts who have shown no activity over 30 to 60 days.
+* **Appointment reminders & confirmations**: Place automated confirmation calls 24 hours prior to scheduled meetings or demos.
+
+<Steps>
+  <Step title="Create a new workflow rule">
+    In Zoho CRM, go to **Setup → Automation → Workflow Rules**. Select **Create Rule**, choose the target module (such as **Leads** or **Contacts**), and name the rule.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-8.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=9c701435e421eeef58e4f57b29412054" alt="Zoho CRM Create New Rule dialog with Module set to Leads and Rule Name set to Retell-Outbound-Call" width="1909" height="938" data-path="images/zoho/screenshot-8.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Define trigger timing and conditions">
+    Configure when the rule executes, such as **On a record action → Create**. Add a filter condition such as **Mobile is not empty** or **Phone is not empty** to prevent calls to blank destination records.
+
+    Under **Instant Actions**, select **RetellOutboundCall(retell)** from the action dropdown menu.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-9.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=b4d740eab323adf5d9604c614bb6f3ff" alt="Zoho CRM workflow rule builder showing a When condition for lead created, a Mobile is not empty condition, and the Instant Actions menu with RetellOutboundCall(retell) selected" width="1909" height="940" data-path="images/zoho/screenshot-9.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you map dynamic fields and test outbound call execution?
+
+Configure the custom action modal by selecting your CRM module, assigning the destination merge field (e.g., `#Leads.Mobile`), choosing your outbound caller ID, and optionally supplying JSON dynamic variables. Save and activate the rule, then create a test record with a valid **E.164 number** to verify execution and note writebacks.
+
+### RetellOutboundCall field mapping reference
+
+| Parameter | Configuration Example | Purpose & Requirement |
+| :--- | :--- | :--- |
+| **CRM module** | `Leads`, `Contacts` | The Zoho CRM module containing the triggering record. |
+| **To number** | `#Leads.Mobile` (merge field) | Destination phone number formatted in E.164 standard. |
+| **From number (Retell)** | Provisioned Tavly number | The outbound caller ID number assigned in your Tavly account. |
+| **Dynamic variables (JSON)** | `{"customer_name":"${!Contacts.First_Name}"}` | Optional contextual JSON variables passed to the agent prompt. |
+| **Override agent id** | `agent_xxxxxxxxxxxx` | Optional parameter overriding your default Tavly voice agent. |
+
+<Steps>
+  <Step title="Configure outbound call parameters">
+    Map the required phone and agent parameters in the configuration modal.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-10.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=28bae11407dbcd9f063b2cd293332017" alt="RetellOutboundCall configuration modal in Zoho CRM with CRM module set to Leads, To number set to a Mobile merge field, From number set to a Tavly phone number, and Dynamic variables and Override agent id fields" width="1916" height="947" data-path="images/zoho/screenshot-10.png" />
+    </Frame>
+
+    Select **Save**, then save and activate the entire workflow rule.
+  </Step>
+
+  <Step title="Create a test CRM record">
+    Open the module configured in your rule (such as **Leads**), and create a record satisfying the trigger conditions. Populate the mapped Mobile or Phone field with an E.164 test number, then save the record.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-11.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=f89c2d3abdccb53d0d6c41f8d03346ee" alt="Zoho CRM Leads list showing a test record named Retell Testing lead" width="1916" height="942" data-path="images/zoho/screenshot-11.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Verify post-call Note writeback">
+    After the call completes and processing finishes, open the record and inspect **Notes**. The Tavly AI note includes the conversation summary, duration, direction, disconnect reason, user sentiment, voicemail detection, call success, and a recording playback link.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/iemHR0daxPhaV3TO/images/zoho/screenshot-12.png?fit=max&auto=format&n=iemHR0daxPhaV3TO&q=85&s=17c7c7f1e67eb37145007a0029c3bc16" alt="Zoho CRM Notes section on a lead record showing a Tavly AI outbound call note with summary, call duration, direction, and a recording link" width="1347" height="596" data-path="images/zoho/screenshot-12.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you uninstall the Tavly AI extension from Zoho CRM?
+
+To remove the application, navigate to the **Retell - Settings** page in Zoho CRM and click **Uninstall app**. This action unregisters the outbound calling action, unlinks active webhooks, and removes integration permissions. Note that stored extension configuration data is permanently deleted from Tavly synchronization records upon confirmation.
+
+<Warning>
+  Your data will be deleted from Tavly AI records and the extension will be removed from Zoho CRM.
+</Warning>
+
+---
+
+## Frequently asked questions about triggering Tavly calls from Zoho CRM
+
+The Zoho CRM extension enables event-driven outbound calling from CRM records, writing call results and recordings directly to record Notes. It functions independently of contact synchronization, supports E.164 phone formatting and dynamic JSON variables, and requires dedicating an API key as a webhook key for reliable post-call data synchronization.
+
+<AccordionGroup>
+  <Accordion title="How does the extension handle dynamic variables in agent prompts?">
+    You can map any Zoho CRM field into the **Dynamic variables (JSON, optional)** parameter using Zoho merge syntax (e.g., `{"lead_name":"${!Leads.First_Name}"}`). Tavly injects these variables directly into the voice agent's system prompt prior to conversation initiation.
+  </Accordion>
+
+  <Accordion title="What happens if a contact record has an invalid phone number?">
+    Tavly strictly requires valid international E.164 phone numbers (e.g., `+15551234567`). If the destination field contains invalid characters or lacks a country code, the call fails to dispatch and a note indicating the dialing failure is logged.
+  </Accordion>
+
+  <Accordion title="Can I trigger calls from custom Zoho CRM modules?">
+    Yes. When creating your workflow rule, select your custom module and ensure the record contains an E.164 formatted phone property mapped into the **To number** field in the action configuration.
+  </Accordion>
+
+  <Accordion title="How does this extension differ from the Zoho CRM contact sync integration?">
+    The marketplace extension provides workflow actions to place outbound calls triggered by CRM events and writes results back to record Notes. The [Zoho CRM integration](/integrations/crm/zoho/contact-sync) continuously syncs contacts and bi-directional CRM properties into Tavly's internal contact database.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Zoho CRM Connection" icon="link" href="/integrations/crm/zoho/connect">
+    Configure internal API tokens and OAuth access scopes for bi-directional Zoho CRM data synchronization.
+  </Card>
+
+  <Card title="Zoho Contact Sync" icon="rotate" href="/integrations/crm/zoho/contact-sync">
+    Synchronize contact tables, field mappings, and automated writeback criteria with Tavly agents.
+  </Card>
+
+  <Card title="Zoho Agent Functions" icon="bolt" href="/integrations/crm/zoho/agent-functions">
+    Empower conversational voice agents to look up, create, and update Zoho CRM records in real time.
+  </Card>
+
+  <Card title="Slack Marketplace App" icon="slack" href="/marketplace/slack">
+    Trigger outbound voice agent calls and receive post-call summary notifications directly in Slack.
+  </Card>
+</CardGroup>

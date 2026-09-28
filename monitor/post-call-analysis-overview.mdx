@@ -1,0 +1,120 @@
+---
+title: 'Post Call Extraction Overview and Custom Categories'
+sidebarTitle: 'Overview & Categories'
+description: 'Tavly Post Call Extraction automatically scores and structures customer calls post-completion: extract summaries, sentiment, success, and custom CRM data.'
+seo:
+  title: 'Post Call Extraction & Structured Conversation Analytics | Tavly AI'
+  description: 'Tavly Post Call Extraction automatically scores and structures customer calls post-completion: extract summaries, sentiment, success, and custom CRM data.'
+og:title: 'Post Call Extraction Overview and Custom Categories'
+og:description: 'Tavly Post Call Extraction automatically scores and structures customer calls post-completion: extract summaries, sentiment, success, and custom CRM data.'
+og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-dashboard.png'
+twitter:card: 'summary_large_image'
+icon: 'file-magnifying-glass'
+keywords: ['post call extraction', 'call analysis categories', 'call summary LLM', 'user sentiment analysis', 'call success criteria', 'Tavly AI analytics', 'structured CRM export']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is the call_analysis object missing from the initial call_ended webhook?'
+    answer: 'Post Call Extraction executes asynchronously after call termination using an LLM. Because processing takes several seconds, the call_ended payload only contains baseline telephony metrics, while the subsequent call_analyzed webhook contains the complete analysis object.'
+  - question: 'Are custom post-call extraction fields generated for missed or failed calls?'
+    answer: 'No. Tavly suppresses custom field extraction for calls that did not connect (such as busy or unanswered dials) or where no actual dialogue occurred. Downstream applications should verify field existence before referencing.'
+  - question: 'What is the difference between transcript sentiment and AI QA sentiment?'
+    answer: 'Post Call Extraction infers user_sentiment directly from conversational transcript text using an LLM. In contrast, AI Quality Assurance evaluates comprehensive audio signals (including tone and pitch) alongside textual context.'
+  - question: 'Can I retroactively update extraction schemas on past historical calls?'
+    answer: 'Yes. After updating custom extraction field prompts or success definitions, you can trigger batch re-analysis across historical call archives via the dashboard or API to regenerate structured results.'
+---
+
+## What is Post Call Extraction and how does it work?
+
+**Tavly Post Call Extraction** is an automated intelligence pipeline that evaluates conversational transcripts using large language models immediately after calls terminate. It populates structured data into the call object, providing high-level summaries, sentiment scoring, objective success evaluations, and custom business parameters for seamless CRM synchronization and downstream analytics without manual review.
+
+<Frame caption="Post Call Extraction dashboard showing various analytics categories and metrics">
+  <img height="200" src="https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-dashboard.png?fit=max&auto=format&n=M9QYKZE4hbt00HfL&q=85&s=c5ba16aa27f7b48edff11d06e6928d31" alt="Post Call Extraction dashboard showing various analytics categories and metrics" data-path="images/post-call-analysis-dashboard.png" />
+</Frame>
+
+### Processing Lifecycle Pipeline
+
+1. **Call Termination (`call_ended`)**: The voice or chat session completes, disconnecting audio and emitting the `call_ended` webhook.
+2. **Asynchronous LLM Extraction**: The extraction engine ingests the raw conversational transcript and evaluates it against your agent's configured extraction schemas and custom prompts.
+3. **Delivery & Ingestion (`call_analyzed`)**: Tavly populates the structured `call_analysis` object onto the session and dispatches the `call_analyzed` webhook to your registered endpoints.
+
+<Note>
+  Because analysis runs asynchronously post-call, the `call_ended` payload does not contain the `call_analysis` block. Always read finalized structured results from the `call_analyzed` webhook or the [Get Call API](/api-references/get-call).
+</Note>
+
+<Warning>
+  Tavly does not populate custom Post Call Extraction fields for calls that failed to connect (`dial_failed`, `dial_busy`, `dial_no_answer`) or where zero conversation took place. Always verify property existence in your backend code before parsing.
+</Warning>
+
+---
+
+## What are the built-in call analysis fields?
+
+Every completed conversation includes four **built-in analysis fields**: high-level conversational summaries (`call_summary`), LLM-inferred customer sentiment (`user_sentiment`), custom prompt-evaluated success metrics (`call_successful`), and automated answering machine detection (`in_voicemail`). You can customize the prompts powering summaries and success criteria, or re-evaluate them retroactively on past conversations.
+
+### Standard Built-In Analysis Properties
+
+| Built-In Field | Data Type | Analytical Scope & Operational Behavior |
+| :--- | :--- | :--- |
+| `call_summary` | `string` | An executive-level condensation of the interaction, outlining key topics discussed, customer requests, and resolved items. Prompts are fully customizable. |
+| `user_sentiment` | `string` | Categorical classification (`Positive`, `Neutral`, `Negative`) inferred by an LLM strictly from the text transcript. Note that [AI QA Sentiment](/ai-qa/terminologies#sentiment-analysis) additionally factors in acoustic vocal features like pitch and tone. |
+| `call_successful` | `boolean` | Binary determination (`true` / `false`) evaluating whether the call achieved predefined operational objectives. Success criteria prompts can be tailored per agent. |
+| `in_voicemail` | `boolean` | Automated flag indicating whether the outbound agent encountered an answering machine or voicemail greeting instead of a live human recipient. |
+
+---
+
+## How do custom analysis categories and data types work?
+
+Custom analysis categories allow teams to define tailored conversational extraction schemas on the agent Post-Call Data Extraction tab. Supported data types include **Boolean** determinations, free-form **Text** extractions, quantitative **Number** values, and categorical **Selector** enumerations. These parameters dynamically structure caller intent, purchase sizes, and qualification flags for enterprise workflows.
+
+### Supported Data Extraction Types
+
+| Extraction Type | Return Type | Common Production Use Cases |
+| :--- | :--- | :--- |
+| **Boolean** | `true` / `false` | Binary operational flags (e.g., `appointment_booked`, `first_time_caller`, `escalation_required`). |
+| **Text** | `string` | Unstructured textual extractions (e.g., follow-up action items, specific cancellation reasons, shipping addresses). |
+| **Number** | `number` | Numeric quantities (e.g., quoted policy price, payment amount collected, self-reported satisfaction rating 1–10). |
+| **Selector** | `string` (enum) | Discrete categorical selections from a fixed option list (e.g., `inquiry_type` = `billing`, `support`, or `sales`). |
+
+---
+
+## How do you access, consume, and rerun call analysis data?
+
+To **access, consume, and rerun call analysis data**, listen for the asynchronous `call_analyzed` webhook event or query the Get Call API once processing finalizes. If prompt instructions or success criteria are refined later, engineering teams can execute batch re-analysis across historical calls to re-score transcripts with updated models.
+
+### Integration & Downstream Workflows
+
+* **Webhook Ingestion**: Configure your application to receive the `call_analyzed` webhook event, triggering automated updates in Salesforce, HubSpot, or internal databases.
+* **REST API Polling**: Retrieve the full `call_analysis` payload on-demand using the [Get Call API](/api-references/get-call).
+* **Batch Re-Analysis**: When system prompts or success definitions change, use [Rerun Call Analysis](/monitor/rerun-call-analysis) to retroactively reprocess historical conversations.
+* **AI Quality Assurance Integration**: Filter sampled conversational cohorts using structured extraction properties when building [AI QA Cohorts](/ai-qa/create-cohort).
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why is the call_analysis object missing from the initial call_ended webhook?">
+    Post Call Extraction runs asynchronously following conversation termination. Processing conversational transcripts through language models requires a brief evaluation window. Consequently, `call_ended` conveys baseline telephony metrics, while `call_analyzed` delivers the complete analysis payload once processing completes.
+  </Accordion>
+
+  <Accordion title="Are custom extraction fields generated for unanswered or failed calls?">
+    No. If a call does not connect (e.g., `dial_failed`, `dial_busy`) or terminates before verbal exchange occurs, Tavly omits custom extraction keys from the `call_analysis` object. Consumers should verify field presence prior to reading values.
+  </Accordion>
+
+  <Accordion title="What is the difference between transcript sentiment and AI QA sentiment?">
+    Post Call Extraction infers `user_sentiment` solely by parsing conversational text using an LLM. In contrast, Tavly's AI Quality Assurance suite evaluates acoustic vocal characteristics—including volume, pitch, and prosody—alongside text transcripts to measure vocal emotion.
+  </Accordion>
+
+  <Accordion title="Can I update extraction prompts and reprocess past calls?">
+    Yes. If you refine custom extraction descriptions or update `call_successful` prompt logic, you can execute retroactive analysis across historical call transcripts using [Rerun Call Analysis](/monitor/rerun-call-analysis).
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Define custom extraction fields](/monitor/post-call-analysis-create): Learn how to configure custom Boolean, Text, Number, and Selector schema rules.
+* [Consume analysis data guide](/monitor/post-call-analysis-consumption): Code examples for consuming analysis data via webhooks, APIs, and dashboards.
+* [Rerun call analysis](/monitor/rerun-call-analysis): Step-by-step workflow for batch reprocessing historical call records.
+* [Live monitoring console](/monitor/live-calls): Supervise active in-flight calls before post-call analysis begins.
+* [AI Quality Assurance overview](/ai-qa/overview): Enterprise scoring benchmarks covering hallucinations, sentiment, and protocol adherence.

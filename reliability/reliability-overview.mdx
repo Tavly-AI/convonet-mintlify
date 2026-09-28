@@ -1,0 +1,116 @@
+---
+title: 'Reliability Overview: Enterprise Uptime, Monitoring & Resilience'
+sidebarTitle: 'Reliability Overview'
+description: 'Explore Tavly AI reliability architecture: guaranteed >99.9% uptime, auto-scaling infrastructure, 24/7 telemetry monitoring, and automated voice fallbacks.'
+seo:
+  title: 'Reliability Overview | 99.9% Uptime & Voice AI Resilience | Tavly AI'
+  description: 'Explore Tavly AI reliability architecture: guaranteed >99.9% uptime, auto-scaling infrastructure, 24/7 telemetry monitoring, and automated voice fallbacks.'
+og:title: 'Reliability Overview: Enterprise Uptime, Monitoring & Resilience'
+og:description: 'Explore Tavly AI reliability architecture: guaranteed >99.9% uptime, auto-scaling infrastructure, 24/7 telemetry monitoring, and automated voice fallbacks.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/status-page.png'
+twitter:card: 'summary_large_image'
+icon: 'shield-check'
+keywords: ['voice AI reliability', '99.9% uptime', 'enterprise infrastructure', 'stable server cluster', 'latency monitoring', 'TTS fallback', 'LLM fallback', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What uptime does Tavly AI guarantee for voice applications?'
+    answer: 'Tavly AI guarantees >99.9% uptime backed by auto-scaling enterprise compute, redundant networking, self-hosted models, and an optional isolated stable server cluster.'
+  - question: 'What is the Tavly AI stable server cluster?'
+    answer: 'The stable server cluster is an enterprise feature that routes calls and API requests to dedicated environments with delayed feature rollouts for maximum production stability.'
+  - question: 'What telemetry and latency metrics does Tavly AI monitor?'
+    answer: 'Tavly AI continuously tracks 24/7 telemetry across ASR, TTS, and LLM pipelines, measuring time-to-first-token, p75/p90/p95/p99 latency distributions, timeouts, error rates, and hardware utilization.'
+  - question: 'How do automated fallbacks and retries protect live calls?'
+    answer: 'Tavly AI incorporates automated built-in fallbacks and retries across LLM and TTS layers, preventing call drops during upstream provider degradation or transient network outages.'
+---
+
+## What is Tavly AI's commitment to reliability?
+
+**Tavly AI guarantees >99.9% uptime** by making reliability our primary operational priority across all voice AI interactions. We back this commitment through **enterprise-grade infrastructure**, **automated fallbacks and resilience mechanisms**, comprehensive **24/7 telemetry monitoring and alerting**, and dedicated **around-the-clock technical support** for mission-critical conversational deployments.
+
+Our operational model is designed to withstand traffic spikes, carrier degradations, and upstream AI vendor latency shifts. We invest continuously across four core pillars:
+
+1. **Enterprise-Grade Infrastructure**: Scalable compute, redundant networking, and self-hosted model isolation.
+2. **Fallbacks and Resilience Features**: Automated multi-tier failover routing for LLM, TTS, and telephony layers.
+3. **24/7 Monitoring and Alerting**: Proactive, sub-second telemetry auditing across end-to-end conversational pipelines.
+4. **24/7 Technical Support**: Around-the-clock on-call engineering response with guaranteed SLAs.
+
+## What key areas determine voice AI service quality?
+
+Tavly AI maintains exceptional service quality by targeting three foundational pillars: **phone call performance** ensuring consistent inbound and outbound connectivity, **agent reliability** delivering deterministic low-latency audio processing during live interactions, and **agent performance** guaranteeing highly accurate speech transcription alongside strict, reliable adherence to custom prompt instructions.
+
+| Service Quality Pillar | Core Operational Focus | Technical Guarantee |
+| :--- | :--- | :--- |
+| **Phone Call Performance** | Inbound/outbound call orchestration, network stability, and carrier connectivity | High voice quality, persistent connections throughout conversations, and zero unexpected drops |
+| **Agent Reliability** | Conversational flow stability and round-trip execution | Deterministic, ultra-low latency during real-time human-agent audio interactions |
+| **Agent Performance** | Speech processing and instruction execution | Accurate automated speech recognition (ASR) transcription and strict adherence to prompt instructions |
+
+### 1. Phone Call Performance
+* **Inbound & Outbound Handling**: Dependable routing and connection initiation across worldwide public switched telephone networks (PSTN) and SIP trunks.
+* **Persistent Connections**: Uninterrupted audio streaming throughout lengthy multi-turn conversations.
+* **High Voice Quality**: Uncompressed, crystal-clear telephone audio with minimal packet jitter and artifact suppression.
+
+### 2. Agent Reliability
+* **Consistent Low Latency**: Stable round-trip audio delivery ensuring interactions feel natural, fluid, and human-paced without awkward pauses.
+
+### 3. Agent Performance
+* **Accurate Speech Transcription**: High-precision speech-to-text decoding across diverse accents, background noise environments, and domain vocabularies.
+* **Strict Prompt Adherence**: Deterministic execution of system prompts, safety guardrails, dynamic variables, and custom function-calling routines.
+
+## How does Tavly AI ensure enterprise-grade infrastructure?
+
+Tavly AI delivers enterprise resilience through **extensive high-traffic load testing**, **dedicated auto-scaling and resource provisioning**, and **self-hosted models** that reduce external third-party dependencies. Enterprise customers can also route traffic to an isolated **stable server cluster** with delayed feature rollouts to eliminate unexpected production disruptions.
+
+### High-Traffic Load Testing & Auto-Scaling
+We conduct extensive load testing simulating severe traffic bursts and high concurrent call volumes. Our compute and networking clusters maintain dedicated auto-scaling and resource provisioning to dynamically accommodate varying loads without performance degradation.
+
+### Uptime Guarantee & Status Observability
+We guarantee **>99.9% uptime** across our platform. Real-time platform status, operational component health, and scheduled maintenance notices are accessible at any time on our [Status Page](https://status.retellai.com/).
+
+<Frame>
+  <img height="500" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/status-page.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=e95d954306e7ecb1a23656c12a9791c4" alt="Tavly AI status page displaying system uptime and operational components" data-path="images/status-page.png" />
+</Frame>
+
+### Self-Hosted Models
+To shield your operations from third-party outages, rate limitations, and unpredictable latency variations, Tavly AI self-hosts core AI models within our managed infrastructure perimeter.
+
+### Stable Server Cluster (Enterprise Only)
+Enterprise customers can opt in to route both telephony calls and REST API requests to our dedicated **stable server cluster**:
+* **Delayed Feature Rollouts**: The stable cluster receives updates on a controlled, delayed schedule, ensuring heightened stability for production environments sensitive to rapid releases.
+* **API Endpoint Routing**: When enabled, route your API requests directly to `https://stable.tavlyai.com/` instead of `https://api.tavlyai.com/`.
+* **Pricing & Activation**: A **$0.02/min surcharge** applies on voice calls handled via the stable cluster. Contact [support](/general/support) to enable stable cluster access.
+
+## How does Tavly AI proactively monitor platform telemetry?
+
+Tavly AI operates **24/7 proactive latency monitoring and automated alerting** to detect and remediate anomalies before they impact production workloads. Systems continuously track **p75, p90, p95, and p99 latency distributions** across ASR, LLM, and TTS pipelines, alongside system resource consumption, API response times, and failure rates.
+
+| Telemetry Domain | Monitored Metrics & KPIs | Operational Impact |
+| :--- | :--- | :--- |
+| **Latency Distributions** | ASR, TTS, LLM, Knowledge Base, TTFT; p75, p90, p95, p99 percentiles | Prevents conversational lag and ensures sub-second conversational pacing |
+| **Pipeline Reliability** | Failed call counts, ASR/TTS/LLM timeouts, provider error rates | Immediately isolates failing upstream providers or network bottlenecks |
+| **System Resources** | Server CPU, GPU compute/memory, RAM, network I/O, database & API response times | Automatically triggers node autoscaling before capacity exhaustion |
+
+Our proactive observability monitors the following metrics around the clock:
+* **End-to-End Latency Profiles**: Latency distribution across ASR, TTS, LLM, Knowledge Base retrieval, time-to-first-token (TTFT), and raw network transmission, evaluated across **p75, p90, p95, and p99** percentiles.
+* **Error Rates & Call Failures**: Real-time auditing of total failed call counts, transcription timeouts, LLM inference timeouts, and TTS synthesis error rates.
+* **Hardware & Infrastructure Saturation**: Continuous telemetry across server CPU utilization, GPU memory and compute loads, system memory, network throughput, database queries, and API response latencies.
+
+## What fallback and resilience features protect live calls?
+
+Tavly AI incorporates automated resilience mechanisms designed to preserve call continuity under adverse network or provider conditions. These include **built-in LLM and TTS fallbacks and retries**, automated or manual failover voice routing, carrier allowlisting via **Branded Call/Verified Phone Numbers**, and comprehensive pre-production **testing features**.
+
+* **Built-in LLM Fallback & Retries**: Automated retries and fallback mechanisms are built in directly to preserve conversational continuity when primary language models encounter timeouts or rate limits.
+* **Built-in TTS Fallback & Retries**: Automated TTS fallbacks and retries are built in natively and can also be configured manually to swap between backup voice engines seamlessly. For implementation steps, see [TTS Fallback](/build/speech/tts-fallback).
+* **Carrier Allowlisting & Call Efficiency**: Utilize [Branded Call / Verified Phone Number Features](/build/telephony/call_efficiency_overview) to increase call pickup rates and ensure outbound calls are allowlisted by telecom carriers rather than flagged as spam.
+* **Pre-Production Testing**: Validate agent behavior, stress-test conversational turns, and verify voice acoustics before production release using our suite of [Testing Features](/test/test-overview).
+
+## What support guarantees and SLAs does Tavly AI offer?
+
+Tavly AI provides a robust **support system** backed by a **7 days/week on-call schedule** and a standard **24-hour SLA**. Active live support runs between **9 AM and 9 PM PST**, with expedited SLAs and dedicated channels available for enterprise customers needing rapid incident escalation.
+
+Our support structure ensures technical assistance whenever production questions or incidents occur:
+* **7 Days/Week On-Call Coverage**: Engineering teams maintain an active on-call schedule every day of the week to handle critical platform incidents.
+* **Guaranteed 24-Hour SLA**: Standard accounts receive guaranteed technical responses within 24 hours.
+* **Active Support Window**: Live operational assistance is available between **9:00 AM and 9:00 PM PST**.
+* **Enterprise Support Tiers**: Enterprise organizations receive dedicated response SLAs with significantly faster resolution windows.
+* For more information or to submit a ticket, visit our [Support Documentation](/general/support).

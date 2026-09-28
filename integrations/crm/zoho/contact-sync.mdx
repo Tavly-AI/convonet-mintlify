@@ -1,0 +1,269 @@
+---
+title: "Zoho Contact Sync: Two-Way Property Mapping & Call Logging"
+sidebarTitle: "Contact Sync"
+description: "Sync Zoho CRM Contacts with Tavly AI: map bidirectional custom fields, write back post-call extraction data, and log completed calls directly to timelines."
+seo:
+  title: "Zoho CRM Contact Sync & Timeline Activity Logging | Tavly AI Docs"
+  description: "Sync Zoho CRM Contacts with Tavly AI: map bidirectional custom fields, write back post-call extraction data, and log completed calls directly to timelines."
+og:title: "Zoho Contact Sync: Two-Way Property Mapping & Call Logging"
+og:description: "Sync Zoho CRM Contacts with Tavly AI: map bidirectional custom fields, write back post-call extraction data, and log completed calls directly to timelines."
+og:image: "https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/zoho-connect-dialog.png?fit=max&auto=format&n=E9lBDpcEWOeDePme&q=85&s=b4adbe77f6c312c19c7a5b7b07961c4b"
+twitter:card: "summary_large_image"
+icon: "arrows-rotate"
+keywords:
+  - "Zoho contact sync"
+  - "Tavly AI Zoho integration"
+  - "two-way CRM sync"
+  - "Zoho call logging"
+  - "post call analysis mapping"
+  - "E.164 phone matching"
+  - "Zoho 49 field limit"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Does Tavly create or delete Contacts in Zoho CRM during sync?"
+    answer: "By default, Tavly updates existing Contacts and never deletes them. Turn on Create new contacts in CRM under the Sync to Zoho CRM tab to automatically create a Contact after calls with new callers."
+  - question: "What is the maximum number of fields that can be mapped in Zoho contact sync?"
+    answer: "Inbound contact sync supports a strict API limit of at most 49 mapped fields. Mapping a 50th field causes the sync run to fail rather than silently omitting data."
+  - question: "How are conversations recorded on Zoho contact timelines?"
+    answer: "Calls are logged as native Call records with duration and summaries, while chats log as completed Tasks. Both link to the matched Contact via the Who_Id relation."
+---
+
+# Zoho contact sync
+
+> Sync Zoho CRM Contacts with Tavly AI: field mappings, Post Call Extraction write-back, and every call logged as a Zoho Call record on the timeline.
+
+## What is Zoho contact sync and what capabilities does it provide?
+
+**Zoho contact sync** provides automated, bidirectional synchronization between your Zoho CRM organization and Tavly AI. It imports contact profiles on a **5-minute** polling interval, maps **Post Call Extraction** insights to native and custom fields, and logs calls as **Call** records and chats as completed **Tasks** on customer timelines.
+
+Contact sync imports your Zoho Contacts into Tavly, writes [Post Call Extraction](/monitor/post-call-analysis-overview) results back to their fields, and logs each call as a **Call** record on the contact's timeline. This page covers the Zoho-specific behavior; [CRM integrations overview](/integrations/crm/crm-integrations) explains the four data flows all CRM providers share.
+
+Contact sync requires an authenticated [connected Zoho org](/integrations/crm/zoho/connect). Integration tools work independently without sync — see [Zoho agent functions](/integrations/crm/zoho/agent-functions).
+
+### Architecture: Bidirectional data flows
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│        Zoho CRM Platform        │                 │            Tavly AI             │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Contacts Module             │ │ ── 5-Min Poll ─►│ │ Synchronized Contacts DB    │ │
+│ │ (Max 49 Mapped Fields)      │ │                 │ │ (E.164 Phone Matching)      │ │
+│ └─────────────────────────────┘ │                 │ └──────────────┬──────────────┘ │
+│                                 │                 │                │                │
+│                                 │                 │         Live Voice Call         │
+│                                 │                 │         & Conversation          │
+│                                 │                 │                │                │
+│ ┌─────────────────────────────┐ │                 │ ┌──────────────▼──────────────┐ │
+│ │ Mapped Field Updates        │ │◄── Write-Back ──│ │ Post Call Extraction        │ │
+│ │ (Always / Fill / Never)     │ │                 │ │ (Custom Field Mapping)      │ │
+│ └─────────────────────────────┘ │                 │ └──────────────┬──────────────┘ │
+│                                 │                 │                │                │
+│ ┌─────────────────────────────┐ │                 │                │                │
+│ │ Activity Timeline           │ │                 │                │                │
+│ │ - Call Record (`Who_Id`)    │ │◄── Auto-Log ────│────────────────┘                │
+│ │ - Completed Chat Task       │ │                 │                                 │
+│ └─────────────────────────────┘ │                 │                                 │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+The synchronization pipeline consists of three primary data flows:
+* **Inbound Contact Ingestion**: Pulls Contacts from Zoho CRM into Tavly's internal database on a recurring schedule, indexing callers by phone number.
+* **Post-Call Field Write-Back**: Transmits AI-extracted conversation data directly into mapped Zoho CRM contact fields.
+* **Automated Timeline Logging**: Posts call records and chat transcripts onto the contact's native Zoho CRM activity timeline.
+
+---
+
+## What Zoho profile permissions are required for contact synchronization?
+
+Zoho contact synchronization executes under the credentials of the authorizing user and requires specific profile permissions: **View** on Contacts including all imported fields, **Edit** on Contacts for outbound write-backs, **Create** on Contacts for new callers, and **Create** on Calls and Tasks for activity logging. Omitted permissions cause silent field-level skips.
+
+Sync runs under the identity of the [authorizing Zoho user](/integrations/crm/zoho/connect#what-prerequisites-are-required-to-connect-zoho-crm). Ensure their assigned Zoho profile includes:
+
+| Permission Level | Target Module | Operational Purpose |
+| :--- | :--- | :--- |
+| **View** | `Contacts` | Required to read and import Contact records and view field definitions. |
+| **Edit** | `Contacts` | Required for outbound sync to write back post-call extraction values. |
+| **Create** | `Contacts` | Required only if you toggle **Create new contacts in CRM** for unrecognized callers. |
+| **Create** | `Calls` | Required to log completed voice calls to the contact's activity timeline. |
+| **Create** | `Tasks` | Required to log completed digital chat sessions as timeline tasks. |
+
+<Warning>
+  Zoho enforces field-level security per user profile. If the authorizing user lacks read or write access to a specific mapped field, Zoho skips that field silently during sync cycles without failing the entire run or displaying an error badge on the connection card.
+</Warning>
+
+---
+
+## How do you configure field mappings and activate Zoho contact sync?
+
+To configure contact sync, click **Set up contact sync** in Tavly after connecting your Zoho org. Tavly pre-populates a mandatory, non-removable mapping between Zoho `Phone` and Tavly `phone_number`. Map additional properties, configure update rules, ensure the total inbound fields do not exceed **49**, and toggle **Log activities automatically**.
+
+<Steps>
+  <Step title="Open the field mapping dialog">
+    After the initial connection test passes, click **Set up contact sync**. For an existing connection, open the **Connected** tab in **Integrations**, click your Zoho connection's settings gear, and select **Set up contact sync**.
+  </Step>
+
+  <Step title="Configure phone matching and contact properties">
+    Tavly pre-fills one essential mapping in each direction: Zoho `Phone` to Tavly `phone_number`. Phone number is how contacts are matched between systems, so it remains locked and cannot be deleted. If your business stores primary numbers in another property (such as `Mobile`), adjust the external field mapping on both the **Import contacts** and **Sync to Zoho CRM** tabs.
+
+    Map additional Zoho fields to Tavly fields and define update rules in [CRM data mappings](/integrations/crm/crm-data-mappings):
+    * **Always Overwrite**: Updates the Zoho field after every call, replacing existing values.
+    * **Fill if Empty**: Writes to the Zoho field only if it currently contains no data.
+    * **Never Overwrite**: Protects existing Zoho values from being changed by sync.
+  </Step>
+
+  <Step title="Enable automated activity logging">
+    To publish call records directly to customer timelines in Zoho, navigate to the **Sync to Zoho CRM** tab and toggle on **Log activities automatically**.
+  </Step>
+</Steps>
+
+---
+
+## Which Zoho field types can you map and what are the API limits?
+
+Tavly maps Zoho field types that serialize as scalar values, including text, number, currency, percent, boolean, date, datetime, and single-select picklists. Relational lookups, multi-select picklists, formulas, subforms, and file uploads are excluded. Inbound sync enforces an API restriction of at most **49 mapped fields**; mapping a 50th field causes synchronization runs to fail.
+
+The field pickers dynamically inspect your Zoho CRM layout, displaying both native and custom fields. Supported data types map as follows:
+
+| Zoho Field Type | Tavly Internal Data Type | Notes & Serialization |
+| :--- | :--- | :--- |
+| `text`, `textarea`, `email`, `phone`, `website`, `autonumber` | `string` | Stored as standard UTF-8 string values. |
+| `integer`, `bigint`, `double`, `currency`, `percent` | `number` | Serialized as numeric integers or floating-point values. |
+| `boolean` | `boolean` | Binary boolean (`true` or `false`). |
+| `date` | `date` | Standard calendar date (`YYYY-MM-DD`). |
+| `datetime` | `datetime` | ISO-8601 timestamp with timezone offset. |
+| `picklist` | `enum` | Constrained to active options reported by Zoho CRM. |
+
+### Excluded field types
+
+Non-scalar and relational field types cannot round-trip as plain values and are excluded from field pickers: `lookup`, `ownerlookup`, `multiselectpicklist`, `formula`, `subform`, and `fileupload`.
+
+<Note>
+  Inbound contact synchronization supports a maximum of **49 mapped fields** (as of August 2026). This constraint reflects Zoho CRM's API limit on the number of fields retrieved in a single read request. Attempting to map a 50th field on the **Import contacts** tab causes synchronization runs to fail entirely rather than dropping fields silently.
+</Note>
+
+---
+
+## How do you verify and monitor Zoho contact synchronization?
+
+Verify sync by opening **Contacts** in Tavly to confirm imported Zoho records display standardized phone numbers and mapped properties. The initial sync executes a full scan reading records **200 at a time**; subsequent incremental runs poll every **5 minutes**, querying only contacts modified since the last synchronization run.
+
+* **Contacts Directory Verification**: Navigate to **Contacts** in the Tavly Dashboard. When the initial sync finishes, your Zoho Contacts appear with E.164-formatted phone numbers and populated field values.
+* **Initial Scan vs. Incremental Polling**: The initial sync performs a complete crawl of all records in the Contacts module, reading in batches of **200 records per request**. In organizations with tens of thousands of contacts, this initial scan takes several minutes. Once complete, Tavly switches to an incremental **5-minute polling interval** (as of August 2026), requesting only contacts created or modified since the previous cycle.
+
+<Note>
+  Contacts with an empty phone field are excluded from the sync entirely, as are contacts whose phone number cannot be parsed into a valid **E.164 international number** (e.g., `+14155550142`).
+</Note>
+
+### Verification status matrix
+
+| Stage | Expected Behavior | Confirmation Location |
+| :--- | :--- | :--- |
+| **Initial Ingest** | All Zoho contacts with valid phone numbers appear in Tavly. | Tavly Dashboard → **Contacts** |
+| **Field Extraction** | Post-call analysis writes values to mapped Zoho fields. | Zoho CRM → **Contacts → Contact Details** |
+| **Timeline Activity** | Calls appear as completed Call records; chats as Tasks. | Zoho CRM → **Contacts → Closed Activities / Timeline** |
+
+---
+
+## How are calls and chats logged on Zoho CRM contact timelines?
+
+Tavly logs completed voice conversations as **Call** records on the matched contact's timeline, recording call type, start time, duration, and a description containing caller IDs, disconnection reasons, and summaries. Web chats log as completed **Tasks** with conversation summaries. Both attach to the Contact using Zoho's native `Who_Id` relational field.
+
+### Voice call logging: native Call records
+
+When a voice conversation ends, Tavly generates a completed **Call** record linked to the Contact:
+* **Call Type**: Identified as either `Inbound` or `Outbound`.
+* **Call Start Time & Duration**: Populated automatically with exact call duration metrics.
+* **Description Payload**: Contains structured metadata including conversation ID, participant phone numbers, hangup reason, and the AI-generated call summary:
+
+```yaml
+Call ID: call_7a18f9c2d4e5
+Direction: Inbound
+From: +14155550142
+To: +14155550199
+Disconnection Reason: user_hangup
+Duration: 4m 12s
+
+Summary:
+Policyholder called to verify comprehensive auto insurance coverage limits.
+Confirmed current policy remains active through December 2026.
+Scheduled follow-up reminder for commercial fleet policy quote next week.
+Outcome: Inquiry Resolved
+```
+
+### Digital chat logging: completed Task records
+
+Because Zoho CRM lacks a dedicated native chat activity module, completed chat conversations are logged as **Tasks** with a status of **Completed**. The task description holds the chat ID, participant identifiers, and the full conversation summary.
+
+Both Calls and Tasks attach directly to the matched Contact through Zoho's native **`Who_Id`** relational field.
+
+<Note>
+  Tavly logs activity only for contacts imported from the currently active Zoho connection. Conversations with unrecognized numbers that do not match a synced contact produce no timeline activity unless automatic contact creation is enabled.
+</Note>
+
+---
+
+## How do you troubleshoot common Zoho contact sync issues?
+
+Troubleshoot sync issues by inspecting profile permissions, mapped field limits, and phone formats. If timeline activities fail to appear, verify `Log activities automatically` is enabled and the profile has **Create** on Calls. If sync crashes after adding fields, ensure you have not exceeded the **49-field cap** on import mappings.
+
+<AccordionGroup>
+  <Accordion title="Sync runs successfully but activities never appear on the contact timeline">
+    Verify that **Log activities automatically** is enabled on the **Sync to Zoho CRM** tab. Ensure that the caller's phone number matches a contact imported from this specific Zoho connection, and confirm that the authorizing user's profile has **Create** permissions on the `Calls` and `Tasks` modules.
+  </Accordion>
+
+  <Accordion title="The sync fails immediately after adding a new field mapping">
+    You have likely exceeded the **49-field limit** on the **Import contacts** tab. Zoho's API restricts single read requests to a maximum of 49 fields. Remove an unneeded mapped property so the total number of imported fields is 49 or fewer; the next sync cycle will succeed automatically.
+  </Accordion>
+
+  <Accordion title="A contact syncs properly but a specific field remains empty">
+    Inspect the field's security configuration inside Zoho CRM. If the authorizing user profile lacks view access to that field, Zoho returns an empty value without throwing an error. Additionally, verify that the property type is supported (e.g., lookups and multi-select picklists are excluded from sync).
+  </Accordion>
+
+  <Accordion title="Certain contacts in Zoho CRM are missing from Tavly">
+    Verify that the missing contacts have a valid phone number populated in the mapped phone field (e.g., `Phone` or `Mobile`). Contacts with blank phone fields or numbers that fail E.164 parsing are omitted from synchronization.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Zoho contact synchronization
+
+By default, Tavly updates existing Zoho Contacts and never deletes records; enabling **Create new contacts in CRM** allows automatic record creation for new callers. Synchronization exclusively supports the Contacts module for record storage along with Calls and Tasks for activity feeds; Leads and custom modules are not currently supported.
+
+<AccordionGroup>
+  <Accordion title="Does Tavly create or delete Contacts in Zoho?">
+    By default, Tavly only updates Contacts that already exist in Zoho CRM and never deletes records. Turn on **Create new contacts in CRM** on the **Sync to Zoho CRM** tab to instruct Tavly to create a new Contact record after a conversation when an unrecognized caller dials in. Your agent can also create contacts explicitly mid-conversation using the **Create Contact** [agent tool](/integrations/crm/zoho/agent-functions).
+  </Accordion>
+
+  <Accordion title="Which Zoho modules does contact sync interact with?">
+    Synchronization interacts with the **Contacts** module for core record synchronization, and the **Calls** and **Tasks** modules for timeline activity logging. Leads are not supported by contact sync. If your callers are stored as Leads in Zoho, convert them to Contacts or maintain their numbers on Contact records.
+  </Accordion>
+
+  <Accordion title="Can I map more than 49 fields if I only need one-way sync?">
+    No. The 49-field restriction is an architectural limit imposed by Zoho CRM's REST API on read operations. The **Import contacts** tab cannot exceed 49 mapped fields regardless of write-back configuration.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="CRM data mappings" icon="arrows-left-right" href="/integrations/crm/crm-data-mappings">
+    Map Zoho fields to Tavly contacts, configure update modes, and control write-back rules.
+  </Card>
+
+  <Card title="Build contact memory" icon="brain" href="/integrations/crm/persistent-memory">
+    Accumulate conversation learnings and caller preferences into persistent contact records.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Reference synced Zoho contact properties inside your agent's conversational prompt.
+  </Card>
+
+  <Card title="Zoho agent functions" icon="wrench" href="/integrations/crm/zoho/agent-functions">
+    Look up callers, inspect Deals, and create Tasks and Notes mid-conversation.
+  </Card>
+</CardGroup>

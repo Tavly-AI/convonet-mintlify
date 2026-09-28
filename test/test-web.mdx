@@ -1,11 +1,50 @@
 ---
-title: "Web Call Testing"
-description: "Test a Tavly voice agent with a browser web call from the dashboard: use the Test Audio panel to hear real audio, latency, and interruptions."
+title: 'Web Call Testing: Test Real-Time Browser Audio & Latency'
+sidebarTitle: 'Web Call Testing'
+description: 'Test Tavly voice agents in browser web calls: evaluate audio quality, voice latency, conversational turn-taking, and barge-in responsiveness in real time.'
+seo:
+  title: 'Web Call Testing | Real-Time Voice Agents | Tavly AI'
+  description: 'Test Tavly voice agents in browser web calls: evaluate audio quality, voice latency, conversational turn-taking, and barge-in responsiveness in real time.'
+og:title: 'Web Call Testing: Test Real-Time Browser Audio & Latency'
+og:description: 'Test Tavly voice agents in browser web calls: evaluate audio quality, voice latency, conversational turn-taking, and barge-in responsiveness in real time.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'waveform-lines'
+keywords: ['web call testing', 'browser audio test', 'voice agent latency', 'speech barge-in', 'WebRTC voice test', 'Tavly AI audio', 'conversational AI test']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is web call testing in Tavly AI?'
+    answer: 'Web call testing allows developers to hold real-time voice conversations with an agent directly in the browser over WebRTC, verifying synthesized audio quality, end-to-end latency, and speech barge-in responsiveness without telephone provisioning.'
+  - question: 'What are the key validation objectives during a test web call?'
+    answer: 'Web calls validate round-trip conversational latency, turn-taking pauses, synthetic voice naturalness (prosody, intonation, and pronunciation), and speech barge-in interruptions where the agent immediately yields playback when spoken over.'
+  - question: 'Why do telephony transfers and SMS dispatch fail in browser web calls?'
+    answer: 'External PSTN transfers and outbound SMS dispatch fail because browser WebRTC calls lack an associated caller phone number and carrier trunking; however, transfers to another Tavly agent function normally.'
+  - question: 'How are web call tests billed and allocated?'
+    answer: 'Web call tests consume standard runtime allocations: they are billed at per-minute voice rates, reserve an active concurrent call channel, and require an account in good financial standing.'
 ---
 
 Web call testing allows you to conduct real-time voice conversations with your agent directly through your browser. Unlike text-based [simulation testing](/test/llm-simulation-testing), web calls stream live synthesized audio, allowing you to audit round-trip latency, turn-taking dynamics, conversational pacing, and speech barge-in responsiveness before connecting to public telephony. You can test draft configurations immediately without publishing or provisioning phone numbers.
 
-## Initiating a Web Call Test
+## What is web call testing?
+
+**Web call testing** allows developers to conduct real-time conversational voice calls with Tavly agents directly through their web browser. Streaming live synthesized audio over WebRTC, this testing method validates round-trip latency, turn-taking dynamics, voice acoustics, and conversational barge-in responsiveness immediately without publishing changes or provisioning phone numbers.
+
+Evaluating agent behavior in the browser provides immediate acoustic and timing feedback before committing to public telephony numbers or live customer rollouts:
+
+| Feature / Dimension | Web Call Testing | Phone Call Testing | LLM Simulation Testing |
+| :--- | :--- | :--- | :--- |
+| **Channel Type** | Browser WebRTC audio stream | Public PSTN / carrier phone line | Text-based prompt generation |
+| **Primary Focus** | Voice acoustics, latency, barge-in | DTMF, carrier codecs, PSTN transfers | Logic regression & pass/fail rubrics |
+| **Phone Number Needed** | None (direct browser audio) | Required (outbound/inbound line) | None (console execution) |
+| **PSTN Transfer Support** | Fails (agent-to-agent works) | Full PSTN transfer support | Mocked / assertion only |
+| **Billing & Concurrency** | Billed per minute; uses concurrency | Billed per minute + telco fees; uses concurrency | Billed per LLM token/run; no concurrency |
+
+## How do you initiate a web call test?
+
+To initiate a **web call test**, navigate to the agent editor in your Tavly console, open the **Test** drawer, and select the **Test Audio** tab. Optionally inject dynamic test variables or custom function mocks, pick an entry node for Conversation Flow agents, then click **Run Test** and grant microphone access.
+
+Follow these structured steps to execute an in-browser voice test:
 
 <Steps>
   <Step title="Open Test Audio">
@@ -13,7 +52,7 @@ Web call testing allows you to conduct real-time voice conversations with your a
   </Step>
 
   <Step title="Configure test inputs (optional)">
-    If your agent relies on [dynamic variables](/build/dynamic-variables) or external API integrations you wish to mock, expand the <code className="ui-btn">Test Inputs</code> dropdown adjacent to the tabs. Supply test values under <code className="ui-btn">Dynamic Variables</code> and configure stubs under <code className="ui-btn">Custom Function Mocks</code>, then click <code className="ui-btn">Save</code>. These settings apply synchronously to [Test LLM](/test/llm-playground) sessions.
+    If your agent relies on [dynamic variables](/build/context/dynamic-variables) or external API integrations you wish to mock, expand the <code className="ui-btn">Test Inputs</code> dropdown adjacent to the tabs. Supply test values under <code className="ui-btn">Dynamic Variables</code> and configure stubs under <code className="ui-btn">Custom Function Mocks</code>, then click <code className="ui-btn">Save</code>. These settings apply synchronously to [Test LLM](/test/llm-playground) sessions.
   </Step>
 
   <Step title="Select an entry node (optional)">
@@ -29,9 +68,11 @@ Web call testing allows you to conduct real-time voice conversations with your a
   <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/web-call-test.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=d5e65e3b7aef8ae5ef11cc2c76c5e2c7" data-path="images/test-llm/web-call-test.mp4" />
 </Frame>
 
-## Primary Validation Objectives
+## What are the primary validation objectives?
 
-Browser-based calls evaluate acoustic and timing characteristics that text evaluations cannot simulate:
+The **primary validation objectives** of browser web calls focus on acoustic quality and conversational cadence that text simulations cannot replicate. Developers evaluate real-time response latency, turn-taking pauses, barge-in speech interruption handling, and acoustic synthesis factors like prosody, intonation, pronunciation accuracy, and filler sound naturalness before deploying agents to production.
+
+Browser-based calls evaluate critical acoustic and timing characteristics:
 
 * **Latency and conversational turn-taking**: Measure response turnarounds and verify whether the agent pauses appropriately until you conclude speaking.
 * **Barge-in and interruption handling**: Confirm that the agent immediately yields playback and resumes listening when spoken over mid-sentence.
@@ -39,9 +80,11 @@ Browser-based calls evaluate acoustic and timing characteristics that text evalu
 
 For example, after revising an opening greeting, initiate a web call to evaluate turn timing and interrupt the agent mid-sentence to ensure it yields cleanly before deploying the flow to customers.
 
-## Platform Limitations
+## What platform limitations apply to browser web calls?
 
-Certain telecom-specific features are unavailable within browser-based WebRTC sessions:
+**Platform limitations** in browser web calls stem from the absence of carrier telephony infrastructure and public telephone numbers. External PSTN phone transfers fail (though agent-to-agent transfers work), outbound SMS dispatches fail, and carrier-specific features such as voicemail answering machine detection (**AMD**) and DTMF IVR navigation cannot execute within browser WebRTC sessions.
+
+Be mindful of the following technical boundaries when testing over browser audio:
 
 * **Telephony number transfers fail**: All external PSTN transfers (cold, warm, or agentic warm) fail over browser audio. The console warns you if an agent contains transfer actions, and attempting one returns a transfer error. However, [transfer to another agent](/build/single-multi-prompt/transfer-agent) functions normally, and the test console updates context to the destination agent automatically.
 * **SMS dispatch fails**: Outbound SMS actions fail because browser calls lack an associated caller phone number.

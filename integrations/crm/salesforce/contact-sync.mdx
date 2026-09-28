@@ -1,0 +1,178 @@
+---
+title: 'Salesforce Contact Sync: Two-Way Property Mapping & Task Logging'
+sidebarTitle: 'Contact Sync'
+description: 'Sync Salesforce Contacts with Tavly AI: map phone-matched fields, write back post-call extraction data, and log completed calls as native Salesforce Tasks.'
+seo:
+  title: 'Salesforce Contact Sync & Task Logging | Tavly AI Docs'
+  description: 'Sync Salesforce Contacts with Tavly AI: map phone-matched fields, write back post-call extraction data, and log completed calls as native Salesforce Tasks.'
+og:title: 'Salesforce Contact Sync: Two-Way Property Mapping & Task Logging'
+og:description: 'Sync Salesforce Contacts with Tavly AI: map phone-matched fields, write back post-call extraction data, and log completed calls as native Salesforce Tasks.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'arrows-rotate'
+keywords: ['Salesforce contact sync', 'Tavly AI Salesforce integration', 'Salesforce task activity logging', 'two-way Salesforce sync', 'post call extraction Salesforce', 'voice AI dynamic variables', 'E.164 phone matching']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Does Tavly automatically create new Contact records in Salesforce?'
+    answer: 'Only if explicitly enabled. By default, outbound sync updates existing Contacts only. Turning on "Create new contacts in CRM" allows Tavly to insert new Salesforce Contacts following conversations with unrecognized callers.'
+  - question: 'Which Salesforce objects are synchronized via contact sync?'
+    answer: 'Contact sync reads and synchronizes exclusively with the standard Contact object. Non-Contact entities like Leads, Accounts, Opportunities, Cases, and custom objects are interacted with live via agent function tools rather than background sync.'
+  - question: 'Can I map custom Salesforce fields ending in "__c" to Tavly contacts?'
+    answer: 'Yes. Any custom Salesforce Contact field ending in "__c" can be mapped to a Tavly custom field of compatible data type.'
+  - question: 'What happens to imported contacts in Tavly if Salesforce is disconnected?'
+    answer: 'All previously imported Contact records remain preserved in your Tavly workspace. Disconnecting stops future synchronization cycles without deleting existing local contact profiles.'
+---
+
+## What is Salesforce contact sync and what capabilities does it provide?
+
+**Salesforce contact sync** establishes automated, bidirectional synchronization between Salesforce Contact records and Tavly AI. Operating on a **5-minute** incremental polling schedule, it indexes records via **E.164 phone numbers**, maps **Post Call Extraction** insights to Contact fields, and logs calls and chats as completed **Task** records on customer timelines.
+
+Synchronizing your Salesforce environment establishes real-time alignment between telephony operations and CRM business logic:
+
+* **Bidirectional Field Synchronization**: Ingest Salesforce Contacts into Tavly and push updated field values back to customer records automatically.
+* **Autonomous Property Enrichment**: Map extracted metrics from [Post Call Extraction](/monitor/post-call-analysis-overview) to Salesforce Contact properties using configurable update modes.
+* **Automated Timeline Task Logging**: Record call durations, summaries, recordings, and transcripts directly onto Contact activity feeds without manual rep effort.
+
+<Tip>
+  Contact sync requires an authenticated [Salesforce connection](/integrations/crm/salesforce/connect). If your agents only need to search records or read opportunities on demand, [Salesforce agent functions](/integrations/crm/salesforce/agent-functions) execute via live API calls without enabling persistent contact sync.
+</Tip>
+
+***
+
+## What profile permissions does the Run As user require for contact sync?
+
+Contact sync executes under the security context of the configured **Run As user**. The user profile or assigned permission sets require **API Enabled**, **Read** access on Contact and imported fields, **Edit** access on fields updated via outbound sync, and **Create** access on the **Task** entity for activity logging.
+
+These permissions are configured in [Step 4 of the Salesforce connection guide](/integrations/crm/salesforce/connect#how-do-you-configure-oauth-policies-and-assign-the-run-as-integration-user):
+
+### Core Permission Matrix
+
+| Salesforce Object / System Right | Required Access Level | Operational Purpose |
+| :--- | :--- | :--- |
+| **API Enabled** | System Permission | Authorizes API calls from Tavly to Salesforce REST endpoints. |
+| **Contact Object** | **Read** (all imported fields) | Ingests Contacts during initial scan and 5-minute polling cycles. |
+| **Contact Object** | **Edit** (all mapped fields) | Updates Contact properties when outbound sync pushes changes. |
+| **Task Object** | **Create** | Generates completed Task activity records following calls and chats. |
+
+<Warning>
+  Omitted object or field permissions do not generate workspace connection error badges, because Salesforce responds with permission-level errors rather than authentication rejections. The affected field or activity silently stops syncing until access is granted.
+</Warning>
+
+***
+
+## How do you configure and verify Salesforce contact sync in Tavly?
+
+To set up sync, open your verified connection under **Integrations → Connected** and select **Set up contact sync**. Configure inbound and outbound field mappings (locking the mandatory `Phone` to `phone_number` key), enable **Log activities automatically**, and initiate an initial full-scan sync to ingest your existing Contact directory.
+
+Follow these configuration steps:
+
+### 1. Configure Inbound and Outbound Mappings
+
+In the contact sync modal, establish bidirectional mapping rules across two directional tabs:
+
+* **Import contacts (Salesforce → Tavly)**: Select which Salesforce Contact fields populate Tavly contact attributes. Tavly automatically pre-fills and locks the mapping from Salesforce `Phone` to Tavly `phone_number`.
+* **Sync to Salesforce (Tavly → Salesforce)**: Select which Tavly contact fields write back to Salesforce properties when modified via conversation analysis or dashboard updates.
+* **Activity Logging**: Turn on **Log activities automatically** on the **Sync to Salesforce** tab to publish interaction records as native Tasks.
+
+Consult the comprehensive [CRM data mappings guide](/integrations/crm/crm-data-mappings) for update mode behaviors (`Overwrite`, `Fill if empty`, `Merge`) and custom field creation rules.
+
+### 2. Verify Initial Synchronization
+
+* **Full-Scan Processing**: The initial sync performs a complete rescan across all Salesforce Contacts possessing the mapped phone property. High-volume enterprise orgs may require several minutes to complete ingestion.
+* **Recurring Incremental Polling**: Following the initial import, Tavly polls Salesforce every **5 minutes** (as of August 2026), incrementally fetching only Contacts modified since the previous sync timestamp.
+* **Review the Contacts Table**: Open **Contacts** in the Tavly dashboard to verify that records display with valid international E.164 phone numbers and mapped custom attributes.
+
+<Note>
+  Contacts lacking a value in the mapped phone field are skipped automatically, as are records containing phone numbers that cannot be normalized to the international E.164 standard. Standardize phone formatting in Salesforce to ensure comprehensive synchronization.
+</Note>
+
+***
+
+## How are voice calls and web chats represented as Salesforce Tasks?
+
+Tavly logs conversations as completed **Task** records attached to the matched Contact via the `WhoId` lookup. Voice calls utilize the `Call` task subtype with recorded `CallDurationInSeconds`; web chats utilize the standard `Task` subtype. Both include the **conversation ID**, phone numbers, disconnection reason, and interaction summary in the description.
+
+The generated Task record payload includes:
+
+| Salesforce Task Field | Representation in Activity Record |
+| :--- | :--- |
+| **`WhoId`** | Associated Contact record ID matched by caller phone number. |
+| **`Status`** | Marked as `Completed`. |
+| **`Subject`** | Structured identifier formatted as `Call <call_id>`. |
+| **`TaskSubtype`** | Set to `Call` for phone calls; set to standard `Task` for web chats. |
+| **`CallDurationInSeconds`** | Exact duration of the phone call in seconds (omitted for chats). |
+| **`Description`** | Contains the Tavly conversation ID, from and to phone numbers, disconnection reason, and full AI conversation summary. |
+
+<Note>
+  Tavly attaches Tasks exclusively to Contacts matched by phone number from the currently connected Salesforce organization. Calls from unrecognized phone numbers or contacts created outside of Salesforce sync do not generate activity Tasks.
+</Note>
+
+***
+
+## How do you troubleshoot Salesforce contact sync and Task logging issues?
+
+If a specific field fails to synchronize, verify that the **Run As user** profile has field-level security (FLS) Read/Edit access and that the mapping is configured on the correct tab. If Tasks fail to log, confirm **Log activities automatically** is enabled and ensure the caller matches a synced Contact.
+
+### Diagnostic Checklist
+
+<AccordionGroup>
+  <Accordion title="Sync runs cleanly but a specific field never populates">
+    Field-level security (FLS) restrictions do not trigger workspace connection error alerts. Verify that the [Run As user profile](/integrations/crm/salesforce/connect#how-do-you-configure-oauth-policies-and-assign-the-run-as-integration-user) has Read access (and Edit access for outbound sync) on that specific field, and confirm the mapping is defined under the correct directional tab.
+  </Accordion>
+
+  <Accordion title="Calls and chats are not appearing as Tasks in Salesforce">
+    Task activity logging requires three distinct conditions:
+    1. **Log activities automatically** must be enabled on the **Sync to Salesforce** tab.
+    2. The caller's phone number must match a Contact previously imported from the active Salesforce connection.
+    3. The [Run As user](/integrations/crm/salesforce/connect#how-do-you-configure-oauth-policies-and-assign-the-run-as-integration-user) must have **Create** permissions on the Task object.
+  </Accordion>
+
+  <Accordion title="Contacts appear missing from Tavly after running synchronization">
+    Tavly requires a valid, parsable phone number in international E.164 format. Records with empty phone fields or numbers stored in custom phone fields that were not mapped during setup are omitted from synchronization.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Does Tavly automatically create new Contact records in Salesforce?">
+    Only if explicitly enabled. By default, outbound sync updates existing Contacts only. Turning on **Create new contacts in CRM** on the **Sync to Salesforce** tab allows Tavly to insert new Salesforce Contacts following conversations with unrecognized callers.
+  </Accordion>
+
+  <Accordion title="Which Salesforce objects are synchronized via contact sync?">
+    Contact sync reads and synchronizes exclusively with the standard `Contact` object. Non-Contact entities like Leads, Accounts, Opportunities, Cases, and custom objects are interacted with live via [agent function tools](/integrations/crm/salesforce/agent-functions) rather than background sync.
+  </Accordion>
+
+  <Accordion title="Can I map custom Salesforce fields ending in '__c' to Tavly contacts?">
+    Yes. Any custom Salesforce Contact field ending in `__c` can be mapped to a Tavly [custom field](/integrations/crm/crm-data-mappings#how-do-you-configure-custom-fields-and-ensure-data-type-compatibility) of compatible data type.
+  </Accordion>
+
+  <Accordion title="What happens to imported contacts in Tavly if Salesforce is disconnected?">
+    All previously imported Contact records remain preserved in your Tavly workspace. Disconnecting stops future synchronization cycles without deleting existing local contact profiles.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="CRM Data Mappings" icon="arrows-left-right" href="/integrations/crm/crm-data-mappings">
+    Configure update modes, type conversions, and field merge rules across your CRM stack.
+  </Card>
+
+  <Card title="Persistent Contact Memory" icon="brain" href="/integrations/crm/persistent-memory">
+    Accumulate caller preferences and multi-session summaries directly onto contact profiles.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Reference synced Salesforce Contact properties inside live agent conversational prompts.
+  </Card>
+
+  <Card title="Salesforce Agent Functions" icon="wrench" href="/integrations/crm/salesforce/agent-functions">
+    Equip voice agents with tools to query records, inspect opportunities, and run SOQL mid-call.
+  </Card>
+</CardGroup>

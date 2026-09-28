@@ -1,0 +1,97 @@
+---
+title: 'API Key Overview: REST Authentication & Webhook Verification'
+sidebarTitle: 'API Key Overview'
+description: 'Authenticate Tavly AI REST APIs, SDKs, CLIs, and webhooks with API keys: learn HTTP Bearer header authentication, webhook signing, and key rotation practices.'
+seo:
+  title: 'Tavly AI API Keys | REST Authentication & Webhook Signing'
+  description: 'Authenticate Tavly AI REST APIs, SDKs, CLIs, and webhooks with API keys: learn HTTP Bearer header authentication, webhook signing, and key rotation practices.'
+og:title: 'API Key Overview: REST Authentication & Webhook Verification'
+og:description: 'Authenticate Tavly AI REST APIs, SDKs, CLIs, and webhooks with API keys: learn HTTP Bearer header authentication, webhook signing, and key rotation practices.'
+og:image: 'https://mintcdn.com/retellai/5qvaMB42_hTUyXzb/images/public_key.png'
+twitter:card: 'summary_large_image'
+icon: 'key'
+keywords: ['Tavly API key', 'REST API authentication', 'Bearer token authorization', 'webhook API key', 'Tavly SDK authentication', 'API security best practices', 'rotate API keys']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you authenticate REST API requests in Tavly AI?'
+    answer: 'Include your secret API key as a Bearer token in the HTTP Authorization header: Authorization: Bearer YOUR_API_KEY. All requests must be transmitted over TLS/HTTPS.'
+  - question: 'Can multiple API keys exist within a single Tavly workspace?'
+    answer: 'Yes, each workspace can generate multiple active API keys. All keys generated within the same workspace share identical workspace-level administrative permissions.'
+  - question: 'What is the designated webhook API key and why can it not be deleted?'
+    answer: 'Tavly automatically assigns one workspace API key specifically for webhook request signing. It cannot be deleted to prevent disruptions to HMAC signature verification on webhook endpoints.'
+  - question: 'What is the security difference between private API keys and public keys?'
+    answer: 'Private API keys grant full backend administrative access and must never be exposed client-side. Public keys are restricted tokens designed specifically for frontend browsers and web widgets.'
+---
+
+## What is a Tavly API key and how is it used?
+
+A **Tavly API key** is a confidential secret token that authenticates server-side interactions across Tavly's **REST API endpoints**, **official SDKs**, **CLI commands**, and **webhooks**. Every workspace supports multiple active API keys, each possessing uniform administrative permissions to provision agents, place phone calls, and retrieve analytics.
+
+Your API keys act as master credentials for your workspace resources. Because each key inherits full management privileges across phone numbers, agents, and billing resources, keys must be treated with strict confidentiality.
+
+### Authentication Targets Overview
+
+| Platform Interface | Authentication Role | Target Usage |
+| :--- | :--- | :--- |
+| **REST API Endpoints** | HTTP Bearer authorization header. | Programmatic agent provisioning, call creation, and account configuration. |
+| **Official SDKs** | Client initialization parameter (`apiKey`). | Python and TypeScript/Node.js server-side backend integrations. |
+| **CLI Commands** | Local developer credentials configuration. | Command-line management, testing, and workspace automation. |
+| **Webhook Verification** | Cryptographic payload signing. | Authenticating and validating event payloads delivered to your receiver endpoints. |
+
+<Note>
+  **Frontend vs. Backend Credentials**: API keys grant complete administrative control and should **never** be exposed in client-side code, mobile applications, or public web pages. For frontend widgets and browser calling, deploy restricted [public keys](/accounts/keys/public-keys).
+</Note>
+
+***
+
+## How do you authenticate REST API requests with an API key?
+
+To authenticate REST API requests, supply your API key as a **Bearer token** in the standard HTTP **`Authorization` header**. Every API request must be sent over secure HTTPS; unauthenticated requests or calls with malformed headers will receive an immediate **`401 Unauthorized` HTTP status code**.
+
+Include the credential in your HTTP request headers:
+
+```http theme={"dark"}
+Authorization: Bearer YOUR_API_KEY
+```
+
+### Example: Authenticating a cURL Request
+
+```bash theme={"dark"}
+curl -X GET "https://api.tavlyai.com/v2/list-calls" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+To test and validate your API credentials interactively against live endpoints, test authentication in our [API Playground](/api-references/create-phone-call).
+
+***
+
+## How does Tavly designate and manage the webhook API key?
+
+Tavly automatically designates one workspace API key specifically for **[webhook authentication](/monitor/secure-webhook)** and payload signing. This designated key generates cryptographic signatures for outbound event dispatches, **cannot be deleted from the dashboard**, and guarantees that your receiver endpoints process only authenticated, tamper-proof webhook payloads.
+
+### Designated Webhook Key Specifications
+
+* **HMAC Request Signing**: Outbound webhook HTTP POST payloads are hashed with this designated key, allowing your server to verify payload authenticity.
+* **Deletion Protection**: To prevent accidental production downtime where signature validation suddenly breaks across your webhooks, this designated key cannot be deleted.
+* **Tamper Resistance**: Protects receiver endpoints against man-in-the-middle alterations and unauthorized spoofing attempts.
+
+| Key Classification | Deletion Allowed | Intended Application Scope |
+| :--- | :--- | :--- |
+| **Standard API Key** | Yes (can be revoked or rotated anytime) | Backend REST APIs, backend SDK workers, server jobs, CLI tools. |
+| **Designated Webhook Key** | No (protected against accidental deletion) | Outbound webhook event signing and signature verification. |
+
+***
+
+## What are the security best practices for storing and rotating API keys?
+
+Protect API keys by storing them in **server-side environment variables** or cloud secret managers, never committing them to source control, and rotating credentials immediately if exposed. For frontend web browsers and mobile clients, always use scoped **[public keys](/accounts/keys/public-keys)** instead of raw secret API keys.
+
+Adhere to the following five security standards:
+
+1. **Vault in Environment Variables**: Store your secret key in secure server environments (`TAVLY_API_KEY`) using tools like AWS Secrets Manager, HashiCorp Vault, or Google Secret Manager.
+2. **Isolate to Backend Microservices**: Restrict API calls strictly to your backend infrastructure; never reference secret keys in React, Vue, Angular, iOS, or Android client code.
+3. **Audit Source Code Repositories**: Ensure `.env` and configuration files containing keys are explicitly excluded in `.gitignore` to prevent accidental public git commits.
+4. **Rotate Compromised Keys Immediately**: If a key is leaked or exposed in client logs, navigate to **API Keys** in your dashboard, generate a replacement key, update your servers, and revoke the compromised token.
+5. **Enforce Role & Key Hygiene**: Generate distinct API keys for separate server environments (e.g., Staging vs. Production microservices) to isolate blast radiuses.

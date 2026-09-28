@@ -1,0 +1,141 @@
+---
+title: 'Dynamics 365 Agent Functions: Live Contacts, Tasks & Activities'
+sidebarTitle: 'Agent Functions'
+description: 'Equip Tavly AI voice agents with Microsoft Dynamics 365 tools: search and update Contacts, create Tasks and Notes, and log completed Phone Call activities.'
+seo:
+  title: 'Dynamics 365 Agent Functions & Tools | Tavly AI Docs'
+  description: 'Equip Tavly AI voice agents with Microsoft Dynamics 365 tools: search and update Contacts, create Tasks and Notes, and log completed Phone Call activities.'
+og:title: 'Dynamics 365 Agent Functions: Live Contacts, Tasks & Activities'
+og:description: 'Equip Tavly AI voice agents with Microsoft Dynamics 365 tools: search and update Contacts, create Tasks and Notes, and log completed Phone Call activities.'
+og:image: 'https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/function-node-add-integration-tool.png'
+twitter:card: 'summary_large_image'
+icon: 'wrench'
+keywords: ['Dynamics 365 agent functions', 'Microsoft Dynamics voice AI tools', 'Dataverse AI agent tools', 'Tavly AI Dynamics 365', 'Phone Call activity logging', 'Dataverse Contact tool', 'CRM function calling']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Do Dynamics 365 agent functions require background contact sync to be enabled?'
+    answer: 'No. Agent functions execute via direct live API calls to Microsoft Dataverse as soon as the environment is connected. Contact sync, analysis data mapping, and automated background activity logging are separate workspace features that you opt into independently.'
+  - question: 'Who owns the Contact, Task, or Note records created by agent tools?'
+    answer: 'Records created by agent tools are owned by the Microsoft account authenticated during integration setup. Using a dedicated integration user account ensures records display "Tavly Integration" as the creator rather than an individual team member.'
+  - question: 'Why does the Log Phone Call tool require both Create and Write privileges?'
+    answer: 'When logging a call, Tavly first creates the Phone Call activity record in Dataverse with call metadata, then executes a state transition update to close the activity as "Completed", requiring both Create and Write permissions.'
+---
+
+## What are Dynamics 365 agent functions and how do they work?
+
+**Dynamics 365 agent functions** are pre-built integration tools that empower Tavly conversational agents to search, create, and update Contact records, schedule Tasks, attach Notes, and log completed Phone Call activities in real time. Operating via OAuth without requiring persistent contact sync, tools run during live dialogue or within pre/post-call workflows.
+
+Connecting your Microsoft Dataverse environment enables conversational voice and chat agents to perform programmatic operations directly against customer records:
+
+* **Instant Customer Discovery**: Search Dynamics 365 by incoming caller phone number to retrieve caller identities and open account parameters before greeting.
+* **Live Record Maintenance**: Update customer mailing addresses, phone numbers, or custom fields confirmed verbally during calls.
+* **Automated Action Scheduling**: Schedule follow-up Tasks for account representatives or append free-form conversation takeaway Notes directly onto customer feeds.
+* **Timeline Activity Audit**: Explicitly log completed Phone Call activities with durations and AI summaries on the Contact timeline.
+
+<Tip>
+  Dynamics 365 integration tools operate on-demand via direct REST calls to the Dataverse Web API (`/api/data/v9.2`). They operate independently from [Dynamics 365 contact sync](/integrations/crm/dynamics/contact-sync), allowing you to deploy live search and lookup tools without synchronizing entire contact directories.
+</Tip>
+
+***
+
+## Which Microsoft Dynamics 365 tools are available for conversational agents?
+
+Tavly provides six turnkey Dynamics 365 tools: **Search Contact** (identify callers by phone number), **Get Contact** and **Update Contact** (read or update customer attributes), **Create Contact** (register new callers), **Create Task** (schedule follow-up actions), **Create Note** (append conversation summaries), and **Log Phone Call** (record completed timeline activities).
+
+These tools appear in your agent configuration menu once a [Dynamics 365 connection](/integrations/crm/dynamics/connect) is authenticated:
+
+### Complete Dynamics 365 Tool Directory
+
+| Tool Name | Core Functionality | Primary Operational Use Case |
+| :--- | :--- | :--- |
+| **Search Contact** | Query Dataverse Contacts using an E.164 phone number string. | Identify callers from incoming telephony caller ID metadata. |
+| **Get Contact** | Retrieve full profile properties for a specific Contact by GUID. | Inspect deep customer attributes such as account status or job title. |
+| **Create Contact** | Generate a brand-new Contact record in Microsoft Dynamics 365. | Register first-time callers directly into your CRM database mid-call. |
+| **Update Contact** | Modify specific Contact fields based on spoken confirmations. | Correct email addresses, street addresses, or mobile numbers. |
+| **Create Task** | Schedule a follow-up Task associated with a Contact record. | Assign callback reminders or action items to human sales reps. |
+| **Create Note** | Attach an annotation Note directly to the Contact record. | Log conversation summaries or qualitative memos to the customer feed. |
+| **Log Phone Call** | Record the call as a completed Phone Call activity on the timeline. | Publish duration, direction, and call summaries to the activity wall. |
+
+<Note>
+  **Record Ownership**: Records created by agent tools inherit ownership from the Microsoft account authenticated during connection setup. Provisioning a dedicated service user (e.g., `tavly-integration@company.com`) ensures timeline activities attribute cleanly to "Tavly Integration" rather than individual employee accounts.
+</Note>
+
+***
+
+## What Dataverse security privileges are required to run each tool?
+
+Tools execute under the security role of the authenticated integration user, requiring specific Dataverse table privileges: **Read** on Contact, **Create** on Contact, Task, and Note, and **Write** on Contact. For activity attachment, the role requires **Append** on the activity record and **Append To** on the Contact table.
+
+Ensure the signed-in Microsoft account's assigned security role in Power Platform Admin Center includes the following table privileges:
+
+### Privilege Requirements Matrix
+
+| Tool Name | Required Dataverse Table Privileges |
+| :--- | :--- |
+| **Search Contact**, **Get Contact** | **Read** on `Contact` |
+| **Create Contact** | **Create** on `Contact` |
+| **Update Contact** | **Write** on `Contact` |
+| **Create Task** | **Create** and **Append** on `Task`; **Append To** on `Contact` |
+| **Create Note** | **Create** and **Append** on `Note` (`annotation`); **Append To** on `Contact` |
+| **Log Phone Call** | **Create**, **Write**, and **Append** on `Phone Call`; **Append To** on `Contact` |
+
+<Warning>
+  **Dataverse Relationship Privileges**: In Microsoft Dataverse, attaching an activity (Task, Note, or Phone Call) to a parent Contact requires **Append** on the activity entity and **Append To** on the Contact table. If either privilege is omitted, record creation fails with a Dataverse security exception without generating a workspace connection alert.
+</Warning>
+
+***
+
+## How do you configure and deploy Dynamics 365 tools across agent workflows?
+
+To deploy tools, open your agent configuration and add functions under **Functions** in prompt-based agents or within visual **Function Nodes** in conversation flows. Connect each tool to your authenticated Dynamics 365 environment, configure argument mappings with dynamic variables or conversation descriptions, and capture output payloads for runtime branching.
+
+### Integration Across Agent Types
+
+* **Single- & Multi-Prompt Agents**: Navigate to your agent editor, locate **Functions**, click **+ Add Function**, and choose your Dynamics 365 connection. Tool parameters default to **Description** mode, allowing the LLM to extract arguments naturally from caller speech (detailed in [tools for prompt agents](/build/setup/single-multi-prompt/integration-tools)).
+* **Conversation Flow Agents**: Drag a **Function Node** onto the canvas, select your Dynamics 365 connection, and choose the target tool. You can branch conversation logic based on whether customer records exist or if lookups succeed (detailed in [tools in conversation flows](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow)).
+* **Pre- & Post-Call Execution**: Attach lookup tools as pre-call functions to retrieve customer context before the greeting, or map logging tools as post-call functions in [agent workflows](/build/agent-workflow).
+
+Capture output parameters into [dynamic variables](/build/context/dynamic-variables) (e.g., `contact_id`, `preferred_name`) to personalize subsequent dialogue turns or pass into downstream API calls.
+
+Review the [Integration Tools Configuration Guide](/integrations/integrations-overview#use-integration-tools-in-an-agent) for test-panel workflows, response field pruning, and schema introspection.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Do Dynamics 365 agent functions require two-way contact sync?">
+    No. Agent functions execute via direct live API calls to Microsoft Dataverse as soon as the environment is connected. Contact sync, analysis data mapping, and automated background activity logging are separate workspace features that you opt into independently.
+  </Accordion>
+
+  <Accordion title="Who owns the Contact, Task, or Note records created by agent tools?">
+    Records created by agent tools are owned by the Microsoft account authenticated during integration setup. Using a dedicated integration user account ensures records display "Tavly Integration" as the creator rather than an individual team member.
+  </Accordion>
+
+  <Accordion title="Why does the Log Phone Call tool require both Create and Write privileges?">
+    When logging a call, Tavly first creates the Phone Call activity record in Dataverse with call metadata, then executes a state transition update to close the activity as "Completed", requiring both Create and Write permissions.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Integration Tools for Prompt Agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Configure tool schemas and execute live test requests in single- or multi-prompt agents.
+  </Card>
+
+  <Card title="Integration Tools in Conversation Flows" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Add Dynamics 365 tool calls to visual function nodes and branch conditionally on API results.
+  </Card>
+
+  <Card title="Dynamics 365 Contact Sync" icon="rotate" href="/integrations/crm/dynamics/contact-sync">
+    Import Dynamics Contacts, write analysis results back, and log timeline activities automatically.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Map tool output fields to dynamic runtime variables referenced across conversational prompts.
+  </Card>
+</CardGroup>

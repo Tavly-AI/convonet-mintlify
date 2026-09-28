@@ -1,0 +1,228 @@
+---
+title: "Connect Zoho CRM"
+sidebarTitle: "Connect"
+description: "Connect Zoho CRM to Tavly AI via one-click OAuth: automatically detect regional data centers, synchronize contacts, and deploy conversational agent CRM tools."
+seo:
+  title: "Connect Zoho CRM to Tavly AI | CRM Setup Guide"
+  description: "Connect Zoho CRM to Tavly AI via one-click OAuth: automatically detect regional data centers, synchronize contacts, and deploy conversational agent CRM tools."
+og:title: "Connect Zoho CRM to Tavly AI | CRM Setup Guide"
+og:description: "Connect Zoho CRM to Tavly AI via one-click OAuth: automatically detect regional data centers, synchronize contacts, and deploy conversational agent CRM tools."
+og:image: "https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/zoho-connect-dialog.png?fit=max&auto=format&n=E9lBDpcEWOeDePme&q=85&s=b4adbe77f6c312c19c7a5b7b07961c4b"
+twitter:card: "summary_large_image"
+icon: "arrow-trend-up"
+keywords:
+  - "Zoho CRM integration"
+  - "Tavly AI Zoho connect"
+  - "Zoho CRM OAuth"
+  - "Zoho data center detection"
+  - "voice agent CRM tools"
+  - "Zoho CRM contact sync"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Who owns the records created in Zoho CRM by Tavly AI?"
+    answer: "Every record created by Tavly is owned by the Zoho user who authorized the OAuth connection. We recommend authorizing with a dedicated integration user so records display 'Tavly integration' as the owner."
+  - question: "Do I need to create a connected app or client secret in the Zoho API Console?"
+    answer: "No. Tavly authenticates using its own pre-registered Zoho client. You only need to complete the standard OAuth consent popup—no client ID or secret creation is required."
+  - question: "Can Tavly AI connect to multiple Zoho CRM organizations?"
+    answer: "Yes. You can add multiple Zoho connections, one per organization. While agent function tools work across all connected orgs, only one connection can manage background contact sync at a time."
+---
+
+# Connect Zoho CRM
+
+> Connect Zoho CRM to Tavly AI with one OAuth sign-in: Tavly detects your Zoho data center, then syncs contacts and runs agent tools on your records.
+
+## What is the Tavly AI Zoho CRM integration and when should you use it?
+
+**Tavly AI Zoho CRM integration** connects your Zoho organization to Tavly using a single OAuth sign-in with automatic regional data center detection. Connect Zoho CRM when it serves as your system of record to greet synced callers by name, write back conversation insights, and log calls as native timeline records without manual entry.
+
+Connecting Zoho CRM requires one OAuth sign-in and nothing else: authorize Tavly in Zoho, and the system resolves your regional data center and API domain automatically. A single connection unifies both [contact sync](/integrations/crm/zoho/contact-sync) and [agent functions](/integrations/crm/zoho/agent-functions), allowing conversational voice and chat agents to manage Contacts, Deals, Tasks, Notes, and Calls live while Tavly keeps customer records current.
+
+### Architecture: Data center routing & integration flows
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│            Tavly AI             │                 │        Zoho CRM Platform        │
+│                                 │                 │                                 │
+│ 1. Initiate Connection          │─── OAuth ──────►│ `accounts.zoho.com` (Auth Hub)  │
+│ 2. Regional Discovery Callback  │◄── Domain ──────│ Identifies Home Region          │
+│                                 │                 │                                 │
+│ 3. Automated API Binding ───────┼── REST v8 ─────►│ Regional Server (`zohoapis.com`│
+│                                 │                 │ `zohoapis.eu`, `zohoapis.in`...)│
+│                                 │                 │                                 │
+│ 4. Two-Way Contact Sync         │◄── Poll / Update│ Ingest Contacts & Field Write-  │
+│                                 │                 │ back via Contact Sync           │
+│                                 │                 │                                 │
+│ 5. Agent Function Execution     │◄── Live Tools ──│ Search Contacts, Query Deals,   │
+│                                 │                 │ Schedule Tasks, Log Calls       │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+### When to connect Zoho CRM
+
+Connect Zoho CRM when you want your conversational agents operating directly out of your CRM without copying data across tools:
+
+* **Call or message existing CRM contacts**: Contacts sync into Tavly automatically, enabling agents to greet callers by name and reference account history without repetitive questions.
+* **Eliminate manual post-call data entry**: Post-call analysis results and structured conversation parameters write back directly to mapped fields on the Contact record.
+* **Maintain complete timeline engagement history**: Every voice call lands on the Contact's timeline as a native **Call** record, while digital chat conversations post as completed **Tasks**.
+
+> **Real-World Implementation:** An insurance brokerage syncs its Zoho Contacts into Tavly. When a policyholder calls, the renewal agent greets them by name, reviews open renewal Deals on their record, schedules a callback as a Zoho Task, and logs the call recording and summary to the contact's timeline as a Call record.
+
+---
+
+## What prerequisites are required to connect Zoho CRM?
+
+Connecting Zoho CRM requires an active account on a supported Zoho regional data center and an authorizing user with **View**, **Create**, and **Edit** permissions on **Contacts**, **Deals**, **Tasks**, **Notes**, and **Calls**, plus setup permissions to inspect module field definitions. A dedicated integration user is strongly recommended for persistent record ownership.
+
+* **Supported Regional Data Center**: An active Zoho CRM account hosted in one of Tavly's supported global regions (US, EU, IN, AU, JP, SA, CA, CN).
+* **Zoho User Profile Permissions**: The authorizing account must hold **View**, **Create**, and **Edit** permissions across the **Contacts**, **Deals**, **Tasks**, **Notes**, and **Calls** modules, along with administrative access to view module field schemas in Zoho Setup.
+* **Dedicated Integration User**: Tavly operates under the identity of the authorizing user; all records created by agent tools or synchronization will reflect that user as the record owner. Creating a dedicated integration user (e.g., `Tavly Voice Integration`) prevents workflows from breaking if a team member leaves or changes roles.
+* **No Manual Client Registration**: You do not need to register a custom client or generate API credentials inside the Zoho API Console. Tavly handles OAuth authorization through its own pre-registered Zoho client, removing the need to manage client secrets.
+
+---
+
+## How do you authenticate and connect Zoho CRM in Tavly?
+
+In the Tavly Dashboard, navigate to **Integrations → Available**, locate **Zoho CRM**, and click **Connect**. Specify a descriptive connection name, submit the form, and sign in via the Zoho OAuth popup with your integration user. After granting requested permissions, Tavly automatically validates credentials by inspecting Contacts module field definitions.
+
+<Steps>
+  <Step title="Add the connection">
+    In the Tavly Dashboard, navigate to **Integrations**, open the **Available** tab, locate **Zoho CRM**, and click **Connect** (or click **Add Account** if an existing connection is present). The dialog asks only for a **Connection name**, pre-filled with `Zoho CRM - OAuth`. Because Tavly automatically resolves your data center, no region or API endpoint URLs are needed.
+
+    <Frame caption="The Zoho CRM connection dialog: a connection name, then an OAuth sign-in.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/zoho-connect-dialog.png?fit=max&auto=format&n=E9lBDpcEWOeDePme&q=85&s=b4adbe77f6c312c19c7a5b7b07961c4b" alt="Retell's Zoho CRM connection dialog on its Connect tab, with a Functions tab beside it. A single Connection name field is prefilled with Zoho CRM - OAuth, above the line Learn how Zoho CRM records sync with your contacts and a See docs link. Cancel and Add Account buttons sit at the bottom, with Add Account already enabled because the form asks for no credentials." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1206" height="1004" data-path="images/integration/zoho-connect-dialog.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Authorize Tavly in Zoho">
+    Click **Add Account**. A secure Zoho sign-in window opens. Sign in with your dedicated integration user credentials, select the appropriate Zoho organization if your user belongs to multiple portals, and accept the access permissions requested by Tavly. Tavly securely stores an OAuth refresh token, ensuring continuous API access without periodic manual sign-ins.
+
+    <Note>
+      Zoho's OAuth consent screen determines your target data center. Be sure to sign in as a user belonging to the specific organization you intend your agents to work within. Zoho routes the sign-in to that user's home data center, and Tavly permanently binds the connection to that regional API domain.
+    </Note>
+  </Step>
+
+  <Step title="Verify connection health">
+    Tavly tests the connection immediately by retrieving the Contacts module's field definitions using the authorizing user's credentials. Once validated, the connection appears on the **Connected** tab, and the modal prompts you to **Set up contact sync**. You can immediately proceed to [Zoho contact sync](/integrations/crm/zoho/contact-sync) or begin deploying live [agent functions](/integrations/crm/zoho/agent-functions).
+  </Step>
+</Steps>
+
+---
+
+## What OAuth access scopes does Tavly request during Zoho authorization?
+
+During OAuth consent, Tavly requests three primary scopes: `ZohoCRM.modules.ALL` for reading and writing records across core modules, `ZohoCRM.settings.fields.READ` for populating field mapping dropdowns, and `ZohoSearch.securesearch.READ` for high-speed phone number lookups. Actual runtime access remains strictly governed and bounded by the authorizing user's assigned Zoho profile permissions.
+
+The Zoho OAuth consent screen lists three permission scopes:
+
+| Scope Name | Access Coverage |
+| :--- | :--- |
+| `ZohoCRM.modules.ALL` | Grants read and write access across your CRM modules. As a group scope, Zoho applies it broadly across the org; Tavly utilizes it exclusively for **Contacts**, **Deals**, **Tasks**, **Notes**, and **Calls**. |
+| `ZohoCRM.settings.fields.READ` | Reads module field definitions, which populate the property mapping dropdowns when you configure contact sync or agent tools. |
+| `ZohoSearch.securesearch.READ` | Grants access to Zoho's secure search indexing service, required by the Search Records API to match incoming callers by phone number. |
+
+### OAuth scopes vs. Zoho profile permissions
+
+Granting an OAuth scope establishes API capability, but the authorizing user's **Zoho profile** strictly defines what operations can execute at runtime. If a user profile restricts **View**, **Create**, **Edit**, or **Delete** permissions on a specific module or field:
+* Profile restrictions override the granted OAuth scopes.
+* Zoho returns an HTTP permission error rather than rejecting the OAuth token.
+* As a result, the connection card remains connected, but that individual tool or field mapping fails silently.
+
+---
+
+## Which Zoho regional data centers and API endpoints does Tavly support?
+
+Tavly automatically detects and binds to your Zoho account's regional data center during the initial OAuth flow, routing all subsequent REST v8 API requests to the matching regional endpoint. Supported regions include the **United States**, **Europe**, **India**, **Australia**, **Japan**, **Saudi Arabia**, **Canada**, and **China**, requiring zero manual domain configuration.
+
+Zoho CRM isolates individual accounts within dedicated regional data centers and serves API requests from distinct geographic domains. Rather than requiring manual domain configuration, Tavly identifies your home region dynamically:
+1. Consent initiates at `accounts.zoho.com`.
+2. Zoho routes the authenticating user to their account's native regional accounts server.
+3. The OAuth callback returns the localized domain.
+4. Tavly binds the regional API domain to your connection and uses it for all subsequent API requests and token refreshes.
+
+### Supported regional data centers
+
+| Geographic Region | Accounts Authentication Server | Regional REST API Domain |
+| :--- | :--- | :--- |
+| **United States** | `accounts.zoho.com` | `www.zohoapis.com` |
+| **Europe** | `accounts.zoho.eu` | `www.zohoapis.eu` |
+| **India** | `accounts.zoho.in` | `www.zohoapis.in` |
+| **Australia** | `accounts.zoho.com.au` | `www.zohoapis.com.au` |
+| **Japan** | `accounts.zoho.jp` | `www.zohoapis.jp` |
+| **Saudi Arabia** | `accounts.zoho.sa` | `www.zohoapis.sa` |
+| **Canada** | `accounts.zohocloud.ca` | `www.zohoapis.ca` |
+| **China** | `accounts.zoho.com.cn` | `www.zohoapis.com.cn` |
+
+Tavly calls Zoho CRM's **v8 REST API** on the assigned regional domain (as of August 2026).
+
+---
+
+## How do you troubleshoot common Zoho CRM connection and authentication errors?
+
+Resolve Zoho connection issues by verifying user profile permissions, token status, and organization selection. If the connection test fails, verify the authorizing user has access to the Contacts module and field layouts. If a connection displays an error badge, the stored refresh token was likely revoked or the authorizing user was deactivated.
+
+<AccordionGroup>
+  <Accordion title="Sign-in completes but the connection does not appear in Tavly">
+    Zoho reports a declined or cancelled consent screen back as an error, leaving the connection uncreated in Tavly. Navigate back to the **Available** tab, select **Zoho CRM**, click **Connect**, and ensure you click **Accept** on the consent screen. Tavly requests fresh consent on every connection attempt, preventing silent skips.
+  </Accordion>
+
+  <Accordion title="Sign-in succeeds but the connection test fails">
+    Tavly tests the connection by reading the Contacts module's field definitions. This test fails if the authorizing user's profile cannot view Contacts or inspect field setup in Zoho CRM, or if the user authorized into a different Zoho organization. Confirm that the user can open and view Contacts inside Zoho CRM, then reconnect using a user with appropriate administrative permissions.
+  </Accordion>
+
+  <Accordion title="The connection errored after operating successfully">
+    Tavly displays a connection error badge when Zoho rejects the stored refresh token. This typically happens when access was revoked under **Connected Apps** in Zoho, or if the authorizing user account was deactivated or removed from the Zoho organization. To resolve, open the connection's settings in Tavly and click **Reconnect** to re-authenticate with an active user.
+  </Accordion>
+
+  <Accordion title="A single tool or field fails while the rest of the connection works">
+    This indicates a Zoho profile permission restriction rather than a connection failure. When a module or field is restricted by profile rules, Zoho responds with a permission error while keeping the OAuth connection valid. Check the authorizing user's profile permissions in Zoho Setup for the module being updated or the specific custom field that fails to sync.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about connecting Zoho CRM
+
+Records created in Zoho CRM are owned by the authorizing user, making dedicated service accounts ideal for maintaining clean audit trails. You can connect multiple Zoho organizations to a single Tavly workspace, though only one connection drives automated contact sync at a time. Tools function exclusively across standard CRM modules.
+
+<AccordionGroup>
+  <Accordion title="Who owns the records Tavly creates in Zoho?">
+    The user who authorized the OAuth connection. Using a dedicated integration user account is strongly advised so that record owners and timeline events read "Tavly integration" rather than an individual team member's name.
+  </Accordion>
+
+  <Accordion title="Can I connect more than one Zoho org?">
+    Yes. You can add multiple Zoho connections, authenticating each as a user of that specific org. While [agent function tools](/integrations/crm/zoho/agent-functions) operate across all connected organizations, only **one CRM connection** in your workspace can drive automated [contact sync](/integrations/crm/zoho/contact-sync) at a time, governed by the **Contact sync** toggle.
+  </Accordion>
+
+  <Accordion title="Do I need to create a Zoho self-client or connected app?">
+    No. Tavly authorizes using its own pre-registered Zoho client. The entire setup consists of approving the standard OAuth consent screen. You do not need to access the Zoho API Console or rotate client secrets.
+  </Accordion>
+
+  <Accordion title="Can Tavly work on custom Zoho modules?">
+    Not currently (as of August 2026). Contact sync and agent tools support the standard **Contacts**, **Deals**, **Tasks**, **Notes**, and **Calls** modules. Custom fields on these standard modules are fully supported and populate automatically in field pickers.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Zoho contact sync" icon="rotate" href="/integrations/crm/zoho/contact-sync">
+    Import your Zoho Contacts, configure field mappings, and log calls on contact timelines.
+  </Card>
+
+  <Card title="Zoho agent functions" icon="wrench" href="/integrations/crm/zoho/agent-functions">
+    Look up callers, query deal pipelines, and create Tasks and Notes mid-conversation.
+  </Card>
+
+  <Card title="CRM integrations overview" icon="database" href="/integrations/crm/crm-integrations">
+    Learn how contact synchronization, post-call analysis mapping, and activity logging function across CRMs.
+  </Card>
+
+  <Card title="Integrations overview" icon="plug" href="/integrations/integrations-overview">
+    Explore the full ecosystem of external CRM and telephony integrations supported by Tavly.
+  </Card>
+</CardGroup>

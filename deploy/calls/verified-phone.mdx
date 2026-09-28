@@ -1,0 +1,141 @@
+---
+title: 'Apply for Verified Phone Number: Carrier Reputation Protection'
+sidebarTitle: 'Verified Phone Number'
+description: 'Apply for a Tavly verified phone number to eliminate Spam Likely labels, establish STIR/SHAKEN trust, and substantially increase outbound call pickup rates.'
+seo:
+  title: 'Apply for Verified Phone Number | Spam Likely Removal | Tavly AI'
+  description: 'Apply for a Tavly verified phone number to eliminate Spam Likely labels, establish STIR/SHAKEN trust, and substantially increase outbound call pickup rates.'
+og:title: 'Apply for Verified Phone Number: Carrier Reputation Protection'
+og:description: 'Apply for a Tavly verified phone number to eliminate Spam Likely labels, establish STIR/SHAKEN trust, and substantially increase outbound call pickup rates.'
+og:image: 'https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/verified-phone-status-approved.png'
+twitter:card: 'summary_large_image'
+icon: 'phone-check'
+keywords: ['verified phone number', 'spam likely removal', 'STIR SHAKEN verified caller ID', 'Tavly AI phone verification', 'telephony carrier reputation', 'outbound call pickup rate', 'business phone verification']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Which phone numbers are eligible for verified phone number registration?'
+    answer: 'Verified phone numbers are supported exclusively for United States local telephone numbers (10DLC) at this time. Non-US numbers and toll-free lines are not eligible for this carrier verification program.'
+  - question: 'How long does the phone number verification process take?'
+    answer: 'Upstream telecommunication carriers typically take between 1 and 2 weeks to complete identity vetting, registry whitelisting, and cryptographic attestation updates across cellular databases.'
+  - question: 'Why do newly acquired or recycled phone numbers get flagged as Spam Likely?'
+    answer: 'Upstream carriers frequently recycle phone numbers previously abandoned by prior owners. If a previous subscriber engaged in high-volume cold calling or spam, legacy algorithmic reputation flags can persist until re-verified.'
+  - question: 'Can you cancel phone number verification without interrupting active voice calls?'
+    answer: 'Yes. You can deprovision the verified number service at any time through the dashboard or API without disrupting active call routing or disconnecting your assigned phone lines.'
+---
+
+## What is a verified phone number and why is it needed?
+
+A **verified phone number** is a registered telecommunications line authenticated with national carrier databases and backed by STIR/SHAKEN Level-A attestation. It is required to strip negative **Spam Likely** warnings from outbound calls, establish cryptographic identity trust across wireless carriers, and significantly improve answer rates for automated voice campaigns.
+
+When voice AI agents execute outbound communication campaigns, call recipients frequently screen unfamiliar calls. If your originating caller ID triggers algorithmic carrier warnings, conversion rates plummet and telecommunication providers may throttle or disconnect traffic.
+
+<Note>
+  **Geographic Scope**: Verified phone number registration is currently available exclusively for **United States 10-digit local phone numbers (10DLC)**. International numbers and toll-free lines are not supported for this verification program.
+</Note>
+
+---
+
+## Why do phone carriers label numbers as Spam Likely?
+
+Carriers flag numbers as **Spam Likely** when automated algorithmic filters detect high-velocity outbound dialing patterns, unauthenticated SIP traffic, or negative historical reputation inherited from recycled numbers previously used for unsolicited telemarketing. When numbers are reassigned, legacy spam tags persist until an authenticated business profile clears the carrier records.
+
+Telephony providers frequently recycle previously disconnected inventory. If a recycled number was formerly utilized by an aggressive call center, cellular analytics providers (including Hiya, First Orion, and TNS) maintain negative historical risk scores:
+
+<Frame caption="The negative Spam Likely caller ID warning presented to mobile recipients before number verification.">
+  <img style={{ height: '300px', width: 'auto' }} src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/vp.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=deb425180734b50c28afc089f080c0ae" alt="Spam Likely" width="800" height="1386" data-path="images/vp.png" />
+</Frame>
+
+### Consequences of Unverified Outbound Calling
+
+* **Decreased Pickup Rates**: Over 85% of mobile users ignore or immediately decline calls labeled "Spam Likely" or "Fraud Alert."
+* **Silent Carrier Rejection**: Terminating carriers may discard unauthenticated calls outright, generating [SIP Error Code 608](/deploy/calls/spam-likely-overview).
+* **Direct Handset Screening**: Operating systems such as iOS and Android automatically suppress incoming rings from unverified calling identities.
+
+---
+
+## How do you apply for phone number verification in Tavly AI?
+
+To **apply for phone number verification in Tavly AI**, create an approved organizational business profile with verified legal credentials, select your US phone number under the Phone Numbers dashboard, attach your business profile, and submit your registration for carrier review, which completes within one to two weeks.
+
+Follow this sequential three-step procedure:
+
+<Steps>
+  <Step title="Establish an authorized business profile">
+    Carrier regulations require proof of legitimate legal organization before authorizing verified status. Follow the [Business Profile Guide](/deploy/calls/business-profile) to input your legal corporate entity name, Employer Identification Number (EIN), corporate headquarters address, and physical business contact line.
+  </Step>
+
+  <Step title="Submit phone number verification request">
+    1. In the Tavly console, navigate to your desired phone number.
+    2. Select the **Verified Phone Number** service under advanced add-ons.
+    3. Choose your verified business profile from the dropdown selector.
+    4. Click **Next** to transmit the cryptographic verification application to upstream carriers.
+
+    <Frame caption="Selecting an approved business profile and submitting the phone number verification application.">
+      <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/vp_1.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=1757744e896078211c39d4fd338f1845" alt="Apply for verified phone number" data-path="images/vp_1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Wait for upstream carrier review and approval">
+    Upstream carriers process business entity vetting and national database whitelisting within **1 to 2 weeks**. You will receive an automated email notification once vetting concludes.
+  </Step>
+</Steps>
+
+---
+
+## How do you monitor approval status and manage verification lifecycles?
+
+To **monitor approval status and manage verification lifecycles**, inspect your phone number inventory in the console, where approved lines display an active verified badge. If an application is rejected, review carrier feedback in the dashboard to rectify discrepancies, or cancel verification at any time without impacting live call routing.
+
+### Lifecycle Status Overview
+
+| Status Badge | Operational Meaning | Carrier Telephony State |
+| :--- | :--- | :--- |
+| **Pending Review** | Registration submitted and undergoing carrier validation | Standard outbound calling; spam labels may still appear |
+| **Active (Approved)** | Identity registered and attested across national carrier databases | STIR/SHAKEN Level-A verified; spam labels removed |
+| **Rejected** | Entity data, tax records, or website validation failed review | Normal call routing preserved; review feedback required |
+
+Once approved, your phone number displays an **Active** badge in the console:
+
+<Frame caption="The Phone Numbers console displaying an approved verified phone number with Active status.">
+  <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/verified-phone-status-approved.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=b9dc8bcd452edd4eab0d65780f528c7a" alt="Verified phone number with Active status" data-path="images/verified-phone-status-approved.png" />
+</Frame>
+
+### Managing Verification Lifecycle Events
+
+* **Remediating Rejections**: If your application is denied, examine the specific reviewer explanation on the phone number page. Adjust your corporate details and resubmit in accordance with [How to Handle a Rejection](/build/telephony/branded-call-rejection).
+* **Upgrading to Branded Calling**: Verified numbers remove negative spam labels. To also project your official corporate name, logo, and call reason onto mobile screens, configure [Branded Calling](/build/telephony/branded-call).
+* **Deprovisioning Verification**: You can remove verification from a phone line at any time without interrupting standard voice calls by following [Stop Caller ID Service](/build/telephony/delete-service).
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Which telephone numbers are eligible for verification?">
+    Verified phone numbers are currently supported exclusively for United States local 10-digit phone numbers (10DLC). Toll-free numbers and international phone lines cannot be registered.
+  </Accordion>
+
+  <Accordion title="How long does the verification review process take?">
+    Please allow 1 to 2 weeks for carrier documentation review and registry updates. You will receive an automated notification as soon as carrier approval is confirmed.
+  </Accordion>
+
+  <Accordion title="What happens if my verification application is rejected?">
+    Your phone numbers will continue to function normally for voice calls. Review the specific rejection reason provided in your dashboard, address the discrepancies, and resubmit using [How to Handle a Rejection](/build/telephony/branded-call-rejection).
+  </Accordion>
+
+  <Accordion title="Do I need to maintain an approved business profile?">
+    Yes. An approved [Business Profile](/deploy/calls/business-profile) is a strict regulatory prerequisite for initiating and maintaining phone number verification.
+  </Accordion>
+
+  <Accordion title="Does stopping number verification disconnect my phone number?">
+    No. Stopping the verified caller ID service de-registers the number from carrier whitelists but does not terminate your telephone number or disrupt live agent call handling.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Spam likely overview and call efficiency](/deploy/calls/spam-likely-overview): Learn why telecom carriers flag calls and how verified numbers restore pickup rates.
+* [Business profile setup guide](/deploy/calls/business-profile): Configure organizational tax credentials and physical business addresses.
+* [Branded calling setup](/build/telephony/branded-call): Display enterprise names, logos, and call context on recipient screens.
+* [Handling application rejections](/build/telephony/branded-call-rejection): Resolve reviewer feedback and re-apply successfully.

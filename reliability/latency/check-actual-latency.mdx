@@ -1,0 +1,164 @@
+---
+title: 'Check Actual Latency: Per-Call Telemetry & API Breakdowns'
+sidebarTitle: 'Check Actual Latency'
+description: 'Monitor actual per-call voice agent latency in Tavly AI Call History and the Get Call API: inspect P50, P90, P99 metrics, and component-level breakdowns.'
+seo:
+  title: 'Check Actual Latency | Per-Call Telemetry & Analytics | Tavly AI'
+  description: 'Monitor actual per-call voice agent latency in Tavly AI Call History and the Get Call API: inspect P50, P90, P99 metrics, and component-level breakdowns.'
+og:title: 'Check Actual Latency: Per-Call Telemetry & API Breakdowns'
+og:description: 'Monitor actual per-call voice agent latency in Tavly AI Call History and the Get Call API: inspect P50, P90, P99 metrics, and component-level breakdowns.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/call_latency.png'
+twitter:card: 'summary_large_image'
+icon: 'chart-line'
+keywords: ['actual latency', 'call history latency', 'P90 latency', 'P50 median latency', 'voice AI telemetry', 'Get Call API latency', 'ASR LLM TTS latency', 'Tavly AI']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is actual latency in Tavly AI?'
+    answer: 'Actual latency is the real-world measured time from when a user stops speaking to when the agent begins speaking on a completed call, captured across speech recognition, LLM processing, and voice synthesis.'
+  - question: 'How is end-to-end (e2e) latency calculated in the latency object?'
+    answer: 'End-to-end latency measures the elapsed time from user silence to agent vocalization, exclusively counting turns where the agent speaks and excluding silent tool execution turns so metrics remain uninflated.'
+  - question: 'What statistical metrics are provided for each latency component?'
+    answer: 'Each latency component includes p50, p90, p95, and p99 percentiles, alongside minimum and maximum values, the total count of data points tracked, and an array of individual turn measurements.'
+  - question: 'How do you retrieve per-call latency programmatically?'
+    answer: 'Call the Get Call API endpoint (GET /v2/get-call/{call_id}) with your API key using cURL, Python, or Node.js to receive the structured latency object in the response.'
+---
+
+## What is actual latency in Tavly AI?
+
+**Actual latency** measures the true, empirical turnaround time observed during completed phone or web conversations, calculated from when the user stops speaking until the agent begins responding. Monitored via the **Call History dashboard** or the **Get Call API**, it provides verifiable telemetry spanning network transmission, speech transcription, language modeling, and voice synthesis.
+
+Evaluating actual latency reveals how real-world network fluctuations, prompt sizes, and model inferences impact the conversational user experience:
+
+* **End-to-End Scope**: Captures the cumulative duration of the interaction loop—accounting for user speech endpointing, acoustic model processing, language model token streaming, and text-to-speech audio rendering.
+* **Component-Level Granularity**: Separates infrastructure overhead from AI inference delays, enabling targeted optimization rather than guesswork.
+* **Turn-Level Auditing**: Evaluates both aggregated percentiles across the entire dialogue and specific data points for individual conversational turns.
+
+## How do you monitor actual latency in the dashboard?
+
+You can monitor per-call latency directly within the **Call History** dashboard by selecting any completed conversation session. The interface visually charts turnaround times across conversation turns, displaying **P50 (Median)**, **P90 (90th Percentile)**, and **Min** response benchmarks so you can quickly isolate slow conversational turns and anomalous spikes.
+
+Navigate to [Call History](/features/session-history) in your Tavly workspace to inspect individual session metrics:
+
+<Frame caption="Call History dashboard showing per-call latency distributions and conversation metrics.">
+  <img height="700" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/call_latency.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=b632f3d1ac01f70faebb4ae4e7e88fa1" alt="Call history page showing per-call latency metrics" data-path="reliability/images/call_latency.png" />
+</Frame>
+
+### Key Telemetry Metrics Explained
+The dashboard aggregates session latency into standard statistical percentiles to give an accurate, outlier-aware profile of your agent's performance:
+
+| Percentile / Metric | Statistical Definition | Diagnostic Value |
+| :--- | :--- | :--- |
+| **P90 (90th Percentile)** | **90% of calls have latency below this value** | Serves as the primary operational benchmark for consistent call quality |
+| **Median (P50 / 50th Percentile)** | **Half of the calls have latency less than this value** | Represents the expected baseline response speed for a typical caller |
+| **Min** | **The fastest response time achieved in any call** | Demonstrates optimal system throughput under ideal network and inference conditions |
+
+## How do you retrieve latency metrics via the API?
+
+You can programmatically extract detailed per-turn latency telemetry using the **Get Call API** endpoint once a conversation concludes. The resulting payload includes a comprehensive `latency` object that isolates execution times across **end-to-end (e2e)**, **transcription (asr)**, **language model (llm)**, **voice synthesis (tts)**, and optional custom server round-trips.
+
+Query the [Get Call API](/api-references/get-call) with your API key to access full component breakdowns:
+
+<CodeGroup>
+  ```bash cURL theme={"dark"}
+  curl -X GET "https://api.tavlyai.com/v2/get-call/CALL_ID" \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+  ```python Python theme={"dark"}
+  from tavly import Tavly
+
+  client = Tavly(api_key="YOUR_API_KEY")
+  call = client.call.retrieve("CALL_ID")
+  print(call.latency)
+  ```
+
+  ```javascript Node.js theme={"dark"}
+  import Tavly from "tavly-ai";
+
+  const client = new Tavly({ apiKey: "YOUR_API_KEY" });
+  const call = await client.call.retrieve("CALL_ID");
+  console.log(call.latency);
+  ```
+</CodeGroup>
+
+## What components are tracked in the latency object breakdown?
+
+The Tavly `latency` object provides granular decomposition across discrete pipeline stages, including **e2e turnaround**, **ASR transcription**, **LLM inference**, **TTS synthesis**, **Knowledge Base retrieval**, and **Speech-to-Speech (S2S)** execution. Each component surfaces robust statistical distributions—such as **p50**, **p90**, **p95**, **p99**, **min**, **max**, and raw per-turn values.
+
+### Latency Breakdown Fields
+
+The `latency` object contains the following component categories. Availability depends on the call type, model architecture, and optional features configured for your agent:
+
+| Field | Description |
+| :--- | :--- |
+| `e2e` | **End-to-end latency** from when the user stops talking to when the agent starts talking. Only turns where the agent speaks are counted — turns where the agent runs tool calls without speaking are excluded, ensuring tool execution does not inflate this metric. Does not account for network transit time from the Tavly server to the user's frontend. |
+| `asr` | **Transcription latency** — measured as the difference between the duration of audio chunks streamed and the duration of the transcribed speech portion. |
+| `llm` | **LLM inference latency** from the start of the LLM call to the first speakable chunk received. When utilizing a custom LLM, this includes websocket network round-trip time. |
+| `llm_websocket_network_rtt` | **Websocket roundtrip latency** between your custom LLM server and the Tavly server. Only populated for calls using a [custom LLM](/integrate-llm/overview). |
+| `tts` | **Text-to-speech latency** from triggering voice synthesis to the first audio byte received. |
+| `knowledge_base` | **Knowledge base retrieval latency** from initiating retrieval to receiving all relevant context chunks. Only populated when the agent executes knowledge base queries. |
+| `s2s` | **Speech-to-speech latency** from requesting a response to the first audio byte received. Only populated for calls utilizing native speech-to-speech models (such as Realtime API). |
+
+### Statistical Metrics Schema
+
+Each component listed above is represented as a structured object containing the following statistical measurements:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `p50` | `number` | **50th percentile (median)** latency in milliseconds |
+| `p90` | `number` | **90th percentile** latency in milliseconds |
+| `p95` | `number` | **95th percentile** latency in milliseconds |
+| `p99` | `number` | **99th percentile** latency in milliseconds |
+| `min` | `number` | **Minimum** latency recorded in milliseconds |
+| `max` | `number` | **Maximum** latency recorded in milliseconds |
+| `num` | `number` | **Number of data points** tracked across the conversation |
+| `values` | `number[]` | **All individual latency data points** in chronological milliseconds |
+
+### Example API Response
+
+The following JSON snippet illustrates the structured `latency` portion of a completed Get Call response:
+
+```json theme={"dark"}
+{
+  "latency": {
+    "e2e": {
+      "p50": 800,
+      "p90": 1200,
+      "p95": 1500,
+      "p99": 2500,
+      "min": 500,
+      "max": 2700,
+      "num": 10,
+      "values": [500, 620, 780, 800, 850, 900, 1100, 1200, 1500, 2700]
+    },
+    "llm": {
+      "p50": 400,
+      "p90": 650,
+      "p95": 800,
+      "p99": 1200,
+      "min": 250,
+      "max": 1300,
+      "num": 10,
+      "values": [250, 310, 380, 400, 420, 500, 600, 650, 800, 1300]
+    },
+    "tts": {
+      "p50": 150,
+      "p90": 250,
+      "p95": 300,
+      "p99": 400,
+      "min": 80,
+      "max": 420,
+      "num": 10,
+      "values": [80, 100, 130, 150, 160, 200, 230, 250, 300, 420]
+    }
+  }
+}
+```
+
+## Related Resources
+
+* [Check estimated latency](/reliability/latency/check-estimated-latency): Estimate turnaround times before launching calls.
+* [Troubleshoot high latency](/reliability/latency/troubleshoot-latency): Identify bottlenecks across LLM prompts, endpointing, and TTS engines.
+* [Session History](/features/session-history): Browse call recordings, transcripts, and per-call analytics in the dashboard.
+* [Get Call API Reference](/api-references/get-call): Explore the full schema and parameter options for retrieving call metadata.

@@ -1,0 +1,225 @@
+---
+title: "Microsoft OneDrive Knowledge Base Sync"
+sidebarTitle: "Knowledge Base Sync"
+description: "Sync Microsoft OneDrive documents into Tavly AI knowledge bases with automated 24-hour delta refreshes, native file picking, and semantic vector ingestion."
+seo:
+  title: "Sync Microsoft OneDrive to Knowledge Bases | Tavly AI"
+  description: "Sync Microsoft OneDrive documents into Tavly AI knowledge bases with automated 24-hour delta refreshes, native file picking, and semantic vector ingestion."
+og:title: "Sync Microsoft OneDrive to Knowledge Bases | Tavly AI"
+og:description: "Sync Microsoft OneDrive documents into Tavly AI knowledge bases with automated 24-hour delta refreshes, native file picking, and semantic vector ingestion."
+og:image: "https://mintcdn.com/retellai/1tHVSSAFz8J09UUc/images/integration/knowledge-base-add-menu-onedrive.png?fit=max&auto=format&n=1tHVSSAFz8J09UUc&q=85&s=f087015e79187d6319ebfca012217152"
+twitter:card: "summary_large_image"
+icon: "arrows-rotate"
+keywords:
+  - "Microsoft OneDrive knowledge base sync"
+  - "Tavly AI OneDrive sync"
+  - "OneDrive vector embeddings"
+  - "OneDrive document sync"
+  - "OneDrive delta refresh"
+  - "knowledge base file picker"
+  - "RAG document ingestion"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How often does Tavly AI sync updated OneDrive documents?"
+    answer: "With auto-refresh enabled, Tavly evaluates file last-modified timestamps every 24 hours, re-downloading and vectorizing only changed files."
+  - question: "Can I sync files stored in SharePoint document libraries?"
+    answer: "No. The integration restricts access to personal or business OneDrive My files roots. To index SharePoint files, copy them into your personal OneDrive first."
+  - question: "What is the maximum file size supported for OneDrive sync?"
+    answer: "Tavly supports files up to 50 MB each. Files exceeding 50 MB are dropped prior to saving with a File too large system notice."
+  - question: "What happens if a synced OneDrive file is deleted or unshared?"
+    answer: "Tavly retains previously embedded vector content so your agent continues answering queries, while marking the source status as Sync not available."
+---
+
+# OneDrive knowledge base sync
+
+> Sync Microsoft OneDrive files into a Tavly AI knowledge base: pick files in Microsoft's file picker, and changed files re-sync every 24 hours.
+
+## How does Microsoft OneDrive knowledge base sync work in Tavly AI?
+
+**Microsoft OneDrive knowledge base sync** imports Word documents, Excel workbooks, and PDFs from your personal or business OneDrive directly into Tavly conversational knowledge bases. When team members edit files in OneDrive, Tavly automatically detects modifications through **24-hour delta refreshes**, re-indexing updated content so your voice and chat agents quote accurate documentation.
+
+Files imported from Microsoft OneDrive become living [knowledge base](/build/knowledge-base) sources that mirror active workspace files. When a team member modifies a document in OneDrive, Tavly detects the edit on the subsequent scheduled refresh and updates the semantic vector index automatically.
+
+Importing OneDrive documents requires an active [connected OneDrive account](/integrations/knowledge-base/onedrive/connect).
+
+### Architecture: OneDrive file ingestion and update lifecycle
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│     Microsoft 365 / OneDrive   │                 │            Tavly AI             │
+│                                 │                 │                                 │
+│ ┌─────────────────────────────┐ │                 │ ┌─────────────────────────────┐ │
+│ │ Authenticated "My files"    │ │                 │ │ Native MS Picker (Popup)    │ │
+│ │ (DOCX, XLSX, PDF, Text)     │ │ ── Delegated ──►│ │ (Direct File Selection)     │ │
+│ └──────────────┬──────────────┘ │     OAuth       │ └──────────────┬──────────────┘ │
+│                │                │                 │                │                │
+│                │ Binary Stream  │                 │                ▼                │
+│                │ Download       │                 │ ┌─────────────────────────────┐ │
+│                ▼                │                 │ │ Parser & Chunking Pipeline  │ │
+│ ┌─────────────────────────────┐ │                 │ │ (Up to 50 MB per Document)  │ │
+│ │ Delta Poller (24h Schedule) │ │                 │ └──────────────┬──────────────┘ │
+│ │ (Evaluates lastModifiedTime)│ │                 │                │                │
+│ └──────────────┬──────────────┘ │                 │                ▼                │
+│                │                │                 │ ┌─────────────────────────────┐ │
+│                └──── Delta ─────┼── Modified ────►│ │ Knowledge Base Embeddings   │ │
+│                      Check      │   Files Only    │ │ (Conversational RAG Store)  │ │
+│                                 │                 │ └─────────────────────────────┘ │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+---
+
+## How do you add and select OneDrive files in a knowledge base?
+
+To add OneDrive documents, open your knowledge base in Tavly, click **Add**, and choose your connected OneDrive account to launch Microsoft's native **file picker popup window**. Select one or more supported files from your personal or business drive, then confirm to initiate automated document downloading, chunking, and semantic vector embedding.
+
+<Steps>
+  <Step title="Open the knowledge base source menu">
+    In the Tavly Dashboard, navigate to **Knowledge Base**, select an existing knowledge base or create a new one, and click the **Add** source dropdown. Your authenticated OneDrive connections appear beneath the default source types. If no connection exists yet, click **Connect Microsoft OneDrive**.
+
+    <Frame caption="The knowledge base Add menu, listing connected OneDrive accounts below the built-in source types.">
+      <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+        <img src="https://mintcdn.com/retellai/1tHVSSAFz8J09UUc/images/integration/knowledge-base-add-menu-onedrive.png?fit=max&auto=format&n=1tHVSSAFz8J09UUc&q=85&s=f087015e79187d6319ebfca012217152" alt="The Add Knowledge Base dialog with a Knowledge Base Name field and a Documents section whose + Add button has opened the source menu. The menu lists Add Web pages, Upload files (Up to 50MB), and Add text, then a divider, then three connected accounts: Google Drive - OAuth and two OneDrive connections named Microsoft OneDrive - busin… and Microsoft OneDrive - perso…. Selecting a OneDrive account opens Microsoft's file picker in a pop-up." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1684" height="836" data-path="images/integration/knowledge-base-add-menu-onedrive.png" />
+      </div>
+    </Frame>
+  </Step>
+
+  <Step title="Select files in the Microsoft picker popup">
+    Select your OneDrive account from the menu. Microsoft's native file picker launches within a browser **pop-up window**. Ensure your web browser permits popups for the Tavly dashboard. If blocked, Tavly prompts: **Allow pop-ups for this site to pick files from OneDrive**.
+
+    Within the picker, select one or more documents and confirm your choice. The picker restricts selection strictly to supported document formats residing in your authenticated account's personal or business OneDrive storage. Files located in SharePoint libraries, items shared with you by external collaborators, folders, and OneNote notebooks are excluded (see [what you can pick](/integrations/knowledge-base/onedrive/connect#what-files-and-storage-locations-can-you-select-from-onedrive)).
+  </Step>
+
+  <Step title="Monitor document processing and indexing">
+    Selected files are securely downloaded, extracted into text blocks, chunked, and converted into vector embeddings. The knowledge base table displays each file's real-time ingestion status and labels the provider as **OneDrive**. If an individual file encounters processing issues, remaining files continue indexing without disruption.
+  </Step>
+</Steps>
+
+---
+
+## What limits and constraints apply to OneDrive knowledge base synchronization?
+
+Tavly limits OneDrive sources to **25 files** per knowledge base and enforces a maximum file size of **50 MB** per document. Documents are checked for modifications and refreshed every **24 hours**, and selecting an identical file twice is automatically skipped to prevent duplicate vector chunks.
+
+### Integration limits and thresholds
+
+| Parameter / Constraint | Threshold | Operational Behavior |
+| :--- | :--- | :--- |
+| **Maximum file size** | **50 MB** per file | Files exceeding 50 MB are dropped before saving, displaying a **File too large** warning naming the affected files. |
+| **Files per knowledge base** | **25 files** | Exceeding 25 yields `too many OneDrive sources, please reduce the number to below 25`. Distribute large libraries across multiple knowledge bases. |
+| **Refresh cadence** | Every **24 hours** | Evaluates document delta changes automatically when auto-refresh is active on the knowledge base. |
+| **Duplicate file handling** | Automatic deduplication | Adding a file already present in the knowledge base is skipped; Tavly identifies unique files by drive and item ID, displaying **Already added**. |
+
+---
+
+## What file types and document formats are supported for OneDrive sync?
+
+Tavly ingests common office formats including **Word (.docx, .doc), Excel (.xlsx, .xls), PDFs, plain text, presentations (.pptx), HTML, and email files (.eml, .msg)**. Files must contain extractable text; scanned, image-only PDFs lacking OCR layers produce no content to index and fail processing during knowledge base ingestion.
+
+OneDrive sources utilize the identical parsing architecture used for standard [document uploads](/build/knowledge-base):
+
+### Supported format matrix
+
+| Category | File Extensions | Parsing Notes |
+| :--- | :--- | :--- |
+| **Documents** | `.pdf`, `.doc`, `.docx`, `.odt`, `.rtf`, `.epub`, `.txt`, `.md`, `.rst`, `.org` | Extracts native text hierarchies, paragraphs, and formatted tables. |
+| **Spreadsheets** | `.xls`, `.xlsx`, `.csv`, `.tsv` | Ingests tabular rows and columns into formatted text structures. |
+| **Presentations** | `.ppt`, `.pptx` | Extracts slide titles, body text, and slide notes. |
+| **Web & Structured Data** | `.htm`, `.html`, `.xml` | Strips raw markup tags while preserving semantic text blocks. |
+| **Email Files** | `.eml`, `.msg`, `.p7s` | Extracts sender, recipient, subject headers, and body content. |
+| **Images & Scans** | `.bmp`, `.heic`, `.jpg`, `.jpeg`, `.png`, `.tif`, `.tiff` | Ingests embedded text metadata. |
+
+<Note>
+  A document devoid of machine-readable text produces no indexable content and will fail with the error: `produced no content to index`. This commonly occurs with scanned, image-only PDFs, as Tavly does not execute optical character recognition (OCR) during automated file ingestion.
+</Note>
+
+---
+
+## How does Tavly maintain automated synchronization and handle document edits?
+
+With **auto-refresh** enabled, Tavly evaluates each file's last-modified timestamp every **24 hours**, re-downloading and vectorizing only changed files while skipping unmodified documents. Renaming a file in OneDrive is fully supported, and if a file is deleted or unshared, Tavly retains cached vectors to ensure continuous agent operation.
+
+### Synchronization dynamics
+
+* **Automated background refresh**: Adding an initial OneDrive document automatically activates **Automatically sync OneDrive files every 24 hours** on the knowledge base. Only modified files are downloaded during subsequent refresh cycles.
+* **File renaming and relocation**: Renaming a file within OneDrive does not interrupt synchronization. Tavly tracks the unique item identifier and updates the file name metadata automatically during the next cycle. Changing a file's extension directs Tavly to adopt the matching parser.
+* **Resilient fallback serving**: If a file becomes unreachable—such as when a document is deleted, user permissions are modified, or the OAuth token is invalidated—Tavly **retains previously cached vector embeddings**. Your conversational agent continues answering customer inquiries uninterrupted while the source row displays **Sync not available**.
+
+---
+
+## How do you troubleshoot OneDrive synchronization and picker errors?
+
+Resolve OneDrive integration issues by allowing browser popups for the Tavly dashboard, verifying that documents reside within your personal drive rather than SharePoint libraries, and ensuring files do not exceed **50 MB**. If credentials expire or disconnect, re-authenticate the connection under the **Connected** tab to restore background refreshes.
+
+<AccordionGroup>
+  <Accordion title="The Microsoft file picker does not open">
+    Microsoft's native picker executes inside an external browser pop-up. If a popup blocker interferes, Tavly displays: **Allow pop-ups for this site to pick files from OneDrive**. Enable popups for your dashboard URL and retry. Note that only one picker window can run simultaneously; attempting to open a second refocuses the existing window.
+  </Accordion>
+
+  <Accordion title="'OneDrive picker failed to load'">
+    The picker connection window times out after 30 seconds. This failure occurs if network firewalls, browser privacy extensions, or enterprise endpoint policies block Microsoft's picker domain. Resolve browser extensions or corporate restrictions and retry. If issues persist, reconnect the integration.
+  </Accordion>
+
+  <Accordion title="'This OneDrive connection needs to be reconnected before picking files'">
+    The stored connection record lacks necessary OAuth scopes, typically caused by an interrupted sign-in process. Navigate to **Integrations → Connected**, locate the OneDrive entry, and click **Reconnect** to complete the [Microsoft sign-in](/integrations/knowledge-base/onedrive/connect) flow.
+  </Accordion>
+
+  <Accordion title="A specific file does not appear in the picker">
+    The picker filters exclusively for files residing in the connected account's personal or business OneDrive matching [supported file formats](#supported-file-types). Documents located in SharePoint team sites, files shared with you by external users, container folders, and OneNote notebooks are excluded. Copy the target file into your primary OneDrive storage.
+  </Accordion>
+
+  <Accordion title="A file fails processing with an error">
+    Open the knowledge base detail page to view specific failure notices. Common causes include:
+    * `is too large to index (max 50 MB)`: Reduce file size below 50 MB.
+    * `produced no content to index`: The file is empty or represents a scanned PDF without text layers.
+    * `is not a downloadable file`: The item is a folder or OneNote notebook.
+    * `Selected file is in SharePoint, not OneDrive`: The file links to a SharePoint library.
+  </Accordion>
+
+  <Accordion title="A OneDrive document stops receiving updates">
+    Verify that **Automatically sync OneDrive files every 24 hours** is enabled in knowledge base settings, confirm the connection on the **Connected** tab remains valid without credential errors, and check that the authenticated Microsoft account retains read permissions to the file in OneDrive.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about OneDrive knowledge base sync
+
+OneDrive documents update on a **24-hour auto-refresh cycle** or via manual sync triggers within the Tavly dashboard. Up to **25 OneDrive files** can be linked per knowledge base alongside web URLs and other storage sources. Files remain securely hosted in OneDrive without direct external download capabilities from Tavly.
+
+<AccordionGroup>
+  <Accordion title="How quickly do edits made in OneDrive appear in agent responses?">
+    With auto-refresh active, changed files update during the scheduled 24-hour refresh cycle. If updates must deploy immediately, you can trigger an on-demand synchronization manually from the knowledge base management view.
+  </Accordion>
+
+  <Accordion title="Can I sync files stored in SharePoint libraries or items shared with me?">
+    No. Delegated access is strictly limited to the authenticated user's own OneDrive storage. To ingest SharePoint or shared documents, copy them into the authenticated account's personal OneDrive directory, or authenticate an account that directly owns the files.
+  </Accordion>
+
+  <Accordion title="Can a single knowledge base combine OneDrive files with uploads and web URLs?">
+    Yes. OneDrive sources seamlessly coexist with uploaded PDFs, crawled URLs, raw text snippets, [Google Drive files](/integrations/knowledge-base/google-drive/knowledge-base-sync), and [Notion pages](/integrations/knowledge-base/notion/knowledge-base-sync) within a single knowledge base.
+  </Accordion>
+
+  <Accordion title="Can I export or download raw OneDrive files from Tavly?">
+    No. Tavly references the original document in Microsoft OneDrive and stores extracted vector embeddings for retrieval. The raw document binary is not stored for direct download in the dashboard.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Knowledge base overview" icon="book" href="/build/knowledge-base">
+    Configure retrieval thresholds, explore semantic search testing, and optimize source formatting.
+  </Card>
+
+  <Card title="Connect OneDrive" icon="link" href="/integrations/knowledge-base/onedrive/connect">
+    Review delegated OAuth scopes, administrative approval steps, and account connection setup.
+  </Card>
+
+  <Card title="Notion knowledge base sync" icon="rotate" href="/integrations/knowledge-base/notion/knowledge-base-sync">
+    Ingest living documentation and wikis from connected Notion workspaces.
+  </Card>
+</CardGroup>

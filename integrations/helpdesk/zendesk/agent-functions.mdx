@@ -1,0 +1,205 @@
+---
+title: "Zendesk Agent Functions: Live Helpdesk Tools for Tickets & Users"
+sidebarTitle: "Agent Functions"
+description: "Equip Tavly AI voice agents with Zendesk tools: search users by phone, inspect and update active tickets, and create tickets with public or private comments."
+seo:
+  title: "Zendesk Agent Functions & Live Ticket Tools | Tavly AI Docs"
+  description: "Equip Tavly AI voice agents with Zendesk tools: search users by phone, inspect and update active tickets, and create tickets with public or private comments."
+og:title: "Zendesk Agent Functions: Live Helpdesk Tools for Tickets & Users"
+og:description: "Equip Tavly AI voice agents with Zendesk tools: search users by phone, inspect and update active tickets, and create tickets with public or private comments."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/zendesk-connect-dialog.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=beee89cabab7cd1a5ec1934348bf302b"
+twitter:card: "summary_large_image"
+icon: "wrench"
+keywords:
+  - "Zendesk agent functions"
+  - "Zendesk voice AI tools"
+  - "Tavly AI Zendesk integration"
+  - "Zendesk ticket management tools"
+  - "voice agent ticket creation"
+  - "Zendesk user lookup by phone"
+  - "helpdesk function calling"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "What is the difference between a public comment and a private note in Zendesk?"
+    answer: "A public comment (public: true) is visible to the customer and triggers Zendesk email notifications. A private note (public: false) is an internal note visible only to your support team."
+  - question: "Who owns tickets and comments created by Tavly AI agents in Zendesk?"
+    answer: "By default, records belong to the Zendesk account used during OAuth setup. You can assign tickets to the caller by supplying their user ID from Search User into Create Ticket's requester ID parameter."
+  - question: "Does Tavly AI import or sync Zendesk tickets into a database?"
+    answer: "No. Zendesk tools execute direct live REST API requests during the conversation. No ticket data is imported or cached in Tavly, eliminating background sync overhead."
+  - question: "Can a conversational voice agent close or solve a ticket in Zendesk?"
+    answer: "Yes. The Update Ticket tool can change ticket status to solved or closed. We recommend instructing the agent to confirm resolution with the caller before executing status updates."
+---
+
+# Zendesk agent functions
+
+> Zendesk tools for Tavly AI agents: identify callers by phone, read and update their tickets, create new ones, and add public comments or private notes.
+
+## What are Zendesk agent functions and how do they empower AI agents?
+
+**Zendesk agent functions** are live API integration tools that empower Tavly conversational agents to interact directly with your Zendesk helpdesk during conversations. Agents can identify callers by phone number, inspect open support tickets, update priority or status, create new tickets, and append public comments or private internal notes without background synchronization.
+
+A [connected Zendesk account](/integrations/helpdesk/zendesk/connect) provides your voice and chat agents with real-time access to customer records. Tools execute during live conversations or during pre-call and post-call workflows defined in [agent workflows](/build/agent-workflow), enabling seamless resolution of support inquiries.
+
+### Architecture: Real-time helpdesk tool execution
+
+```
+┌─────────────────────────────────┐                 ┌─────────────────────────────────┐
+│     Tavly AI Voice Agent        │                 │        Zendesk Helpdesk         │
+│                                 │                 │                                 │
+│ 1. Caller dials support line    │                 │                                 │
+│ 2. Execute `Search User` ───────┼── Phone Number ─►│ Match Stored Phone Formats      │
+│                                 │◄── `user_id` ────┤ Return User Profile             │
+│                                 │                 │                                 │
+│ 3. Execute `List User Tickets` ─┼── `user_id` ────►│ Query Active Tickets (≤ 50)     │
+│                                 │◄── Ticket Array ─┤ Return Open Issues & Priority   │
+│                                 │                 │                                 │
+│ 4. Execute `Update Ticket` or   │                 │                                 │
+│    `Add Ticket Comment` ────────┼── Public/Note ──►│ Append Transcript / Solve Issue │
+│                                 │◄── Status 200 ───┤ Trigger Zendesk Notifications   │
+└─────────────────────────────────┘                 └─────────────────────────────────┘
+```
+
+A standard voice support workflow follows a structured sequence:
+1. **Identification**: The agent calls **Search User** at the beginning of the call using the caller's ID `{{user_number}}`.
+2. **Context Retrieval**: The agent executes **List User Requested Tickets** to review existing open issues and recent ticket status.
+3. **Documentation & Action**: The agent calls **Create Ticket** for new issues or **Add Ticket Comment** to record call outcomes and solutions.
+
+---
+
+## Which Zendesk tools are available for conversational agents?
+
+Tavly provides seven native Zendesk tools across user identity and ticket lifecycle management: **Search User** and **Get User** for caller verification; **Get Ticket** and **List User Requested Tickets** for reading support history; and **Create Ticket**, **Update Ticket**, and **Add Ticket Comment** for real-time ticket modifications and timeline logging.
+
+These tools appear in your agent's function configuration menu once your Zendesk integration is connected. For details on attaching tools to conversational prompts, see [integrations overview](/integrations/integrations-overview).
+
+### Complete Zendesk tools directory
+
+| Tool Name | Operation & Domain | Description & Primary Use Case |
+| :--- | :--- | :--- |
+| **Search User** | Read (`Users`) | Find a Zendesk user by phone number. Typically called on call connect to identify incoming callers. |
+| **Get User** | Read (`Users`) | Fetch full user profile details by Zendesk user ID, including email, role, and custom user fields. |
+| **Get Ticket** | Read (`Tickets`) | Retrieve full details of a specific ticket by ID when a caller references an existing ticket number. |
+| **List User Requested Tickets** | Read (`Tickets`) | List active tickets requested by a user, ordered by most recently updated first (up to 50 tickets). |
+| **Create Ticket** | Write (`Tickets`) | Open a new support ticket with a subject, description, priority, and optional requester ID. |
+| **Update Ticket** | Write (`Tickets`) | Modify ticket attributes such as status (`open`, `pending`, `solved`), priority, or custom ticket fields. |
+| **Add Ticket Comment** | Write (`Comments`) | Post a public reply that notifies the customer or an internal private note visible only to agents. |
+
+<Tip>
+  Pass the caller's phone number as-is from your agent variable (for example, `{{user_number}}`). **Search User** automatically strips international country codes and matches remaining digits against stored phone formats, ensuring 10-digit national numbers and standard E.164 formats both match reliably.
+</Tip>
+
+---
+
+## How do Zendesk agent tools search, address, and link helpdesk records?
+
+Zendesk tools reference helpdesk records through integer user and ticket IDs returned from previous tool calls. **Search User** takes a raw `phone_number` and strips country codes to query Zendesk user profiles. Downstream tools like **List User Requested Tickets** use the resulting `user_id`, while update and comment tools reference target `ticket_id` values.
+
+Connecting tools in a conversation requires passing IDs between function steps using [dynamic variables](/build/context/dynamic-variables):
+
+* **User Record Addressing**:
+  * **Search User**: Takes a `phone_number` string and returns the matching user's `id`, `name`, `email`, and profile attributes.
+  * **Get User**: Takes an integer `id` to load user details directly.
+  * **List User Requested Tickets**: Takes a `user_id` parameter and retrieves up to **50 open tickets** associated with that customer, sorted with the most recently updated ticket first.
+* **Ticket Record Addressing**:
+  * **Get Ticket** and **Update Ticket**: Require a numeric `ticket_id` parameter.
+  * **Add Ticket Comment**: Requires a `ticket_id`, a `comment` body string, and an optional `public` boolean flag.
+
+### Public comments vs. private internal notes
+
+The **Add Ticket Comment** tool accepts a `public` boolean flag to govern comment visibility:
+* **Public Comments (`public: true`)**: The comment is visible to the customer on their helpdesk portal and triggers Zendesk's standard email notifications.
+* **Private Notes (`public: false`)**: The comment is recorded as an internal note visible exclusively to your support team, leaving the customer unaware of the entry.
+
+You can configure the `public` parameter as a fixed setting in the tool configuration or allow the agent's prompt to choose dynamically based on conversation context.
+
+---
+
+## What Zendesk user roles and permissions are required for agent tools?
+
+Tool execution permissions are dictated by the Zendesk account role used during OAuth connection. Full **Agent or Admin** roles permit all seven tools to function without restrictions. **Light Agents** can read data and create tickets, but comments remain strictly private notes and ticket updates are restricted. **End Users** cannot access APIs.
+
+Every tool call runs under Zendesk's standard `read` and `write` OAuth scopes granted during connection. Because permissions are not granted on a per-tool basis, the authorizing account's **Zendesk role** controls execution capabilities:
+
+### Role permissions matrix
+
+| Tool Capability | Full Agent / Admin | Light Agent | End User |
+| :--- | :--- | :--- | :--- |
+| **Search User & Get User** | Supported | Supported | Not Supported |
+| **Get Ticket & List Tickets** | Supported | Supported | Not Supported |
+| **Create Ticket** | Supported (can set requester) | Supported (can set requester) | Not Supported |
+| **Update Ticket** | Supported across all tickets | Restricted (own requested tickets only) | Not Supported |
+| **Add Ticket Comment (Public)** | Supported | Not Supported | Not Supported |
+| **Add Ticket Comment (Private Note)** | Supported | Supported | Not Supported |
+
+<Warning>
+  Because every comment submitted by a Light Agent is forced to private, any new ticket created by a Light Agent account **remains invisible to the requester** until a full agent adds a public comment. To ensure tickets are immediately visible to customers, connect Zendesk using a full **Agent** or **Admin** user.
+</Warning>
+
+If an account's role changes after the connection is established, the token's operational permissions update immediately. The connection card in Tavly will not display an error, but affected tools will begin failing runtime execution.
+
+---
+
+## How do you troubleshoot common Zendesk tool errors?
+
+Troubleshoot Zendesk tool issues by verifying caller phone numbers and checking integration user roles. If **Search User** returns no results, ensure the user profile has a populated phone field containing real phone digits rather than text or extensions. If ticket updates fail, verify the authorizing account holds full Agent or Admin permissions.
+
+<AccordionGroup>
+  <Accordion title="Search User never finds matching callers">
+    The search engine normalizes digits by stripping country codes and evaluating raw digits, so formatting discrepancies rarely cause failures. Verify that the customer's phone number is explicitly populated in the **Phone** field of their Zendesk user profile. Ensure the search input is a valid phone number rather than an internal extension number, alpha-numeric ID, or free text.
+  </Accordion>
+
+  <Accordion title="Ticket comments always publish as private notes">
+    Check the role of the Zendesk account used to authenticate the connection. If the account is configured as a **Light Agent**, Zendesk restricts all API comments to private internal notes regardless of the tool's `public` parameter. Reconnect the integration using an account with a full **Agent** or **Admin** role.
+  </Accordion>
+
+  <Accordion title="Update Ticket fails when attempting to change ticket fields">
+    Confirm that the authorizing user has permission to edit the target ticket. Light agents cannot modify status or custom fields on tickets they did not personally request. Additionally, check that the status value passed matches Zendesk's standard lifecycle statuses (`new`, `open`, `pending`, `hold`, `solved`, `closed`).
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Zendesk agent functions
+
+Zendesk agent tools operate in real time via direct REST API calls without database synchronization or data caching. Agents can close tickets by setting the status to solved, and tickets can be assigned directly to callers using requester IDs. Public comments notify customers, while private notes remain visible only to internal agents.
+
+<AccordionGroup>
+  <Accordion title="What's the difference between a public comment and a private note?">
+    The **Add Ticket Comment** tool takes a `public` flag. When true, the requester sees the comment and receives Zendesk's standard email notifications; when false, it is recorded as an internal note visible only to internal team members. You can configure this flag as a fixed value or let the conversational agent decide based on conversation context.
+  </Accordion>
+
+  <Accordion title="Who do created tickets and comments belong to?">
+    By default, newly created records belong to the account that signed in when connecting the integration (see [prerequisites](/integrations/helpdesk/zendesk/connect#prerequisites) regarding dedicated service users). The **Create Ticket** tool also accepts an optional `requester_id` parameter, enabling the agent to file the ticket on behalf of the customer by supplying the user ID returned from a preceding **Search User** call.
+  </Accordion>
+
+  <Accordion title="Does Tavly import or sync my Zendesk tickets?">
+    No. Zendesk tools interact with your helpdesk live via REST API endpoints. No ticket data is copied or cached in Tavly, eliminating synchronization delays and maintenance overhead.
+  </Accordion>
+
+  <Accordion title="Can the voice agent close or solve a support ticket?">
+    Yes. The **Update Ticket** tool can modify ticket status, including updating it to `solved` or `closed`. We recommend prompting your agent to confirm resolution with the caller before executing a closure.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Integration tools for prompt agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Add Zendesk tools to a single- or multi-prompt agent and test them with live requests.
+  </Card>
+
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Call Zendesk tools from a function node and branch on execution results.
+  </Card>
+
+  <Card title="Connect Zendesk" icon="plug" href="/integrations/helpdesk/zendesk/connect">
+    Set up the Zendesk OAuth connection and review account requirements.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Pass caller phone numbers into tools and reuse tool results later in the call.
+  </Card>
+</CardGroup>

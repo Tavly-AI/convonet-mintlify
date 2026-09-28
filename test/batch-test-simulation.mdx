@@ -1,27 +1,65 @@
 ---
-title: "Batch test your agent"
-description: "Run Tavly batch tests across multiple simulation cases concurrently, evaluate aggregate pass rates, and review turn-level logs in Batch Testing History."
+title: 'Batch Testing: Evaluate Multi-Scenario Simulation Suites'
+sidebarTitle: 'Batch Testing'
+description: 'Execute Tavly batch tests across simulation cases concurrently: evaluate aggregate pass rates, inspect turn-level logs, and automate CI/CD regression gates.'
+seo:
+  title: 'Batch Testing | Multi-Scenario Simulation Suites | Tavly AI'
+  description: 'Execute Tavly batch tests across simulation cases concurrently: evaluate aggregate pass rates, inspect turn-level logs, and automate CI/CD regression gates.'
+og:title: 'Batch Testing: Evaluate Multi-Scenario Simulation Suites'
+og:description: 'Execute Tavly batch tests across simulation cases concurrently: evaluate aggregate pass rates, inspect turn-level logs, and automate CI/CD regression gates.'
+og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
+twitter:card: 'summary_large_image'
+icon: 'layer-group'
+keywords: ['batch testing', 'agent batch simulation', 'regression testing suite', 'aggregate pass rate', 'turn-level logs', 'CI/CD regression gates', 'Tavly AI batch']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is batch testing in Tavly AI?'
+    answer: 'Batch testing executes a collection of simulation test cases concurrently in automated text mode, allowing teams to evaluate aggregate pass rates and protect against behavioral regressions in a single sweep instead of evaluating cases individually.'
+  - question: 'How do in-flight batches report progress?'
+    answer: 'Batch executions update progressively using a 10-second polling interval; completed test cases stream into the results table with live pass/fail counters while unfinished scenarios remain hidden until graded.'
+  - question: 'How do you inspect failed runs or anomalous turns from a batch?'
+    answer: 'Click any scenario row in the results table to open the slide-over inspector, which presents the evaluator''s diagnostic rationale, exact failure triggers, tool invocation payloads, and a direct button to import the session into the LLM Playground.'
+  - question: 'Can batch tests be integrated into CI/CD build pipelines?'
+    answer: 'Yes, developers can use the Tavly REST API to initiate batch runs, poll completion status, check aggregate pass/fail metrics, and retrieve turn-by-turn logs to enforce automated deployment gates.'
 ---
 
 Batch testing executes a collection of [test cases](/test/llm-simulation-testing) simultaneously within automated text simulation, enabling multi-scenario validation in a single sweep instead of evaluating cases individually. Batch execution serves as your core regression test suite: run batches after every prompt edit or graph revision to verify that overall pass rates and critical functional requirements hold before promoting changes to production.
 
 For example, a customer service team maintaining two dozen test cases covering refund processing, agent transfers, and caller authentication can trigger the entire suite as a batch before a deployment, verifying that the overall pass rate matches or exceeds previous release baselines.
 
-## Launching a Batch Test
+## What is batch testing?
 
-In the <code className="ui-btn">Test Cases</code> catalog, check the boxes next to the scenarios you want to evaluate (individual items, custom subsets, or all test cases) and click <code className="ui-btn">Run Test</code>. Tavly provisions an asynchronous batch execution run—even when testing an isolated scenario—and routes outputs directly to <code className="ui-btn">Batch Testing History</code>.
+**Batch testing** executes multiple simulation test cases concurrently within automated text simulation, enabling multi-scenario validation in a single sweep instead of running cases individually. It functions as your core regression testing suite: teams run batches after prompt or graph edits to verify overall pass rates before promoting updates to production.
+
+Comparing single-case runs and batch executions highlights the scaling advantages of automated suites:
+
+| Operational Aspect | Single-Case Simulation | Batch Testing Execution |
+| :--- | :--- | :--- |
+| **Execution Scope** | Isolated individual scenario verification | Concurrent multi-case regression suite sweep |
+| **Pass Rate Aggregation** | Single pass/fail verdict with rationale | Global pass rate percentage and scenario tallies |
+| **History & Reporting** | Recorded within Batch History as 1-run batch | Full version-partitioned batch execution record |
+| **CI/CD Suitability** | Targeted scenario sanity checks | Automated pre-merge and deployment quality gates |
+
+## How do you launch a batch test?
+
+To launch a **batch test**, open the **Test Cases** catalog in the Simulation tab, select the checkboxes beside the target scenarios, and click **Run Test**. Tavly immediately provisions an asynchronous batch execution run—even when testing a single isolated case—and streams results directly to **Batch Testing History**.
+
+In the <code className="ui-btn">Test Cases</code> catalog, check the boxes next to the scenarios you want to evaluate (individual items, custom subsets, or all test cases) and click <code className="ui-btn">Run Test</code>.
 
 <Frame caption="Selecting test cases and running them as a batch.">
   <video muted loop playsInline preload="metadata" className="scroll-play w-full aspect-video rounded-xl" src="https://mintcdn.com/retellai/IwEyQ7Z17TwMRUlF/images/test-llm/simulation-tab-batch-run.mp4?fit=max&auto=format&n=IwEyQ7Z17TwMRUlF&q=85&s=1c51cd01a196b835abf8f3e5dbe88626" data-path="images/test-llm/simulation-tab-batch-run.mp4" />
 </Frame>
 
-## Monitoring In-Flight Batches
+## How do you monitor in-flight batches?
 
-Track active and historical batch executions within the <code className="ui-btn">Batch Testing History</code> view. When a batch is executing, the left sidebar marks the entry as **Ongoing**, and a **Running tests** indicator remains visible below the main results table until the final scenario completes.
+Track active and historical executions within the **Batch Testing History** view. In-flight jobs display an **Ongoing** badge in the sidebar and a **Running tests** indicator beneath the results table. Test outcomes stream progressively via a 10-second polling cadence, appending finished cases and updating pass/fail counters in real time.
 
-Test outcomes populate progressively using a 10-second polling cadence rather than buffering until entire job completion: individual scenarios append to the results table as they finish, updating aggregate pass/fail counters in real time. Unfinished cases remain hidden, ensuring the display strictly presents finalized, graded interactions.
+Unfinished cases remain hidden, ensuring the display strictly presents finalized, graded interactions without confusing interim state buffering.
 
-## Inspecting Test Results
+## How do you inspect batch test results?
+
+To inspect test results, select a run from the historical ledger in **Batch Testing History** to view total cases, completion timestamps, and aggregate pass rates. Results can be filtered by **All**, **Passed**, or **Failed**, with an **Error** tally isolating executions that exceeded timeout or turn limits.
 
 The historical ledger in <code className="ui-btn">Batch Testing History</code> catalogs all past runs. Each entry displays:
 
@@ -51,9 +89,11 @@ Click any table row to expand the slide-over inspector on the right:
 
 Click <code className="ui-btn">View In Test Playground</code> to import that specific session into an editable [Playground](/test/llm-playground#test-playground) tab, where you can modify turns, test alternative inputs, and inspect agent responses by hand.
 
-## Programmatic Management via REST API
+## How do you manage batch testing programmatically via REST API?
 
-Automate regression gates within CI/CD build workflows using the Tavly REST API:
+Manage batch testing programmatically using the **Tavly REST API** to automate regression gates in CI/CD pipelines. Teams initiate asynchronous batch evaluations, poll execution status until complete to verify aggregate pass, fail, and error metrics, and fetch detailed turn transcripts and evaluation rationales for individual runs.
+
+Automate regression gates within build pipelines using the following REST endpoints:
 
 * [Run a batch test](/api-references/create-batch-test): Start an asynchronous batch evaluation and obtain a batch identifier.
 * [Get batch test](/api-references/get-batch-test): Poll execution status until it reports `complete`, then inspect `pass_count`, `fail_count`, and `error_count`.
@@ -61,7 +101,7 @@ Automate regression gates within CI/CD build workflows using the Tavly REST API:
 * [Get a test run](/api-references/get-test-run): Retrieve turn transcripts, tool parameters, and grading explanations for an individual run.
 * [List batch tests](/api-references/list-batch-tests): Query batch execution records across specific agent versions.
 
-Consult the [simulation testing](/test/llm-simulation-testing#manage-test-cases-with-the-api) guide for an end-to-end CI pipeline implementation pattern.
+Consult the [simulation testing](/test/llm-simulation-testing#how-do-you-manage-simulation-testing-programmatically-via-rest-api) guide for an end-to-end CI pipeline implementation pattern.
 
 ## Next Steps
 

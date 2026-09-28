@@ -1,0 +1,151 @@
+---
+title: 'Add a Business Profile: Telephony Identity Verification'
+sidebarTitle: 'Business Profile'
+description: 'Create and verify a Tavly AI business profile with legal company credentials to unlock verified caller ID, branded calling, and compliant A2P SMS registration.'
+seo:
+  title: 'Telephony Business Profile Setup | Carrier Identity Verification | Tavly AI'
+  description: 'Create and verify a Tavly AI business profile with legal company credentials to unlock verified caller ID, branded calling, and compliant A2P SMS registration.'
+og:title: 'Add a Business Profile: Telephony Identity Verification'
+og:description: 'Create and verify a Tavly AI business profile with legal company credentials to unlock verified caller ID, branded calling, and compliant A2P SMS registration.'
+og:image: 'https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/vp_b.png'
+twitter:card: 'summary_large_image'
+icon: 'id-card'
+keywords: ['business profile setup', 'telephony identity verification', 'Tavly AI business profile', 'STIR SHAKEN business registration', 'carrier identity compliance', 'A2P business profile', 'verified caller ID']
+date: '2026-09-24'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Why is a verified business profile required before using premium telephony services?'
+    answer: 'Major telecom carriers mandate cryptographic identity verification under STIR/SHAKEN and A2P 10DLC regulations. A verified business profile validates legal entity authenticity before enabling spam-free caller ID or branded calling.'
+  - question: 'What type of contact phone number is accepted for business profile verification?'
+    answer: 'Carriers strictly require a direct physical telephone line or verified mobile number. Virtual or unauthenticated VoIP phone numbers are rejected during upstream carrier identity validation.'
+  - question: 'Can an existing verified business profile be reused for multiple phone numbers and campaigns?'
+    answer: 'Yes. Once your business profile is reviewed and approved, it serves as the foundational parent entity for all future phone numbers, branded calling applications, and A2P 10DLC brand and campaign registrations.'
+  - question: 'What should you do if your business profile application is rejected?'
+    answer: 'Review the carrier rejection reason in your console, verify that your legal business name and address match government registry records (such as IRS EIN confirmation), correct the discrepancies, and resubmit.'
+---
+
+## What is a telephony business profile and why is it mandatory?
+
+A **telephony business profile** is an official organizational identity record registered with telecommunications carrier databases. It is a mandatory regulatory prerequisite for deploying Tavly AI verified phone numbers, branded caller ID, and A2P 10DLC messaging campaigns, ensuring your outbound calling traffic receives legitimate carrier trust and high pickup rates.
+
+Under federal telecommunication guidelines and carrier reputation frameworks (such as STIR/SHAKEN Level-A attestation), voice providers cannot issue authenticated caller IDs or register custom branding without verified corporate identity. Establishing your business profile links your legal entity to your telephony assets, protecting your numbers against erroneous [Spam Likely flags](/deploy/calls/spam-likely-overview).
+
+### Telephony Capabilities Enabled by a Verified Profile
+
+* **[Verified Phone Numbers](/build/telephony/verified-phone)**: Cryptographically attest phone lines to eliminate negative spam flags and carrier call blocking.
+* **[Branded Calls (Rich Call Data)](/build/telephony/branded-call)**: Display your official company name, verified badge, and call reason on recipient mobile screens.
+* **[A2P 10DLC SMS Messaging](/deploy/enable-sms)**: Provide the baseline brand approval needed to run compliant [SMS campaigns](/deploy/sms-campaign-application).
+
+---
+
+## How do you access and initiate the business profile setup?
+
+To **access and initiate the business profile setup**, open your phone number settings in the Tavly dashboard and select a premium capability such as Verified Phone Number or Branded Call. Locate the Business Profile onboarding section and launch the setup form to enter your official company registration data.
+
+To initiate the onboarding flow:
+
+1. In the Tavly console, navigate to your active telephone number.
+2. Select any premium telephony add-on, such as **Verified Phone Number** or **Branded Call**.
+3. Under the setup modal, locate the **Business Profile** entry point.
+
+<Frame caption="Accessing the Business Profile creation dialog from the premium telephony setup menu.">
+  <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/vp_b.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=187337d39cdafa1c5667bc2a2f0db8f9" alt="Add Business Profile" data-path="images/vp_b.png" />
+</Frame>
+
+---
+
+## How do you complete the business profile form and documentation requirements?
+
+To **complete the business profile form**, provide your exact legal business entity name, government registration tax identifier (EIN), physical corporate address, authorized physical contact number, and public company website. Carrier compliance algorithms verify these entries against official state registries, rejecting virtual VoIP numbers and mismatched entity names.
+
+The business profile submission is structured into two sequential parts across the registration interface:
+
+### Part 1: Company Profile Identity
+
+Enter your organizational identity details, ensuring that the legal business name matches your registered tax documents exactly:
+
+<Frame caption="Part 1 of the Business Profile form: Organizational identity and entity details.">
+  <img height="700" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/bp_1.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=2b9627fae25d01b60c1a7bdaf8339fb2" alt="Business Profile Form Part 1" data-path="images/bp_1.png" />
+</Frame>
+
+### Part 2: Address and Representative Contact
+
+Provide your verified corporate headquarters location and primary authorized point of contact:
+
+<Frame caption="Part 2 of the Business Profile form: Headquarters address and authorized representative details.">
+  <img height="700" src="https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/bp_2.png?fit=max&auto=format&n=zL2HeUqUnagEN9eK&q=85&s=7e6d326fa9dee6ff4ead41b19ec14182" alt="Business Profile Form Part 2" data-path="images/bp_2.png" />
+</Frame>
+
+### Mandatory Carrier Validation Standards
+
+To ensure first-pass approval from telecommunication vetting agencies, review each field against these strict carrier standards:
+
+| Information Requirement | Validation Rule & Compliance Standard | Common Rejection Pitfall |
+| :--- | :--- | :--- |
+| **Legal Business Name** | Must match state incorporation or IRS CP 575 confirmation exactly. | Using an informal brand name or abbreviation without filing a DBA. |
+| **Business Registration (EIN / Tax ID)** | Must match the official 9-digit federal Employer Identification Number. | Submitting an incorrect state tax number or personal SSN. |
+| **Physical Business Address** | Must be a verifiable commercial office or registered headquarters. | PO Boxes, virtual offices, or mailbox rental services are prohibited. |
+| **Contact Phone Number** | Must be a direct physical line or verified mobile phone line. | Virtual VoIP, toll-free, or unassigned telephone numbers are rejected. |
+| **Public Corporate Website** | Must be live, functional, and display your legal business identity. | Inaccessible staging links, placeholder domains, or missing privacy pages. |
+
+---
+
+## What are the next steps after submitting your business profile?
+
+After **submitting your business profile**, save your entries and proceed directly to your intended telephony service application. Your approved profile automatically anchors downstream registrations for STIR/SHAKEN verified phone numbers, branded caller displays, and A2P 10DLC brand or campaign applications across all your organization's phone lines.
+
+Once you have verified all fields:
+
+<Steps>
+  <Step title="Save and submit the profile">
+    Click **Save** at the bottom of the registration dialog to register your corporate identity with Tavly's carrier compliance gateway.
+  </Step>
+
+  <Step title="Proceed to service selection">
+    Click **Next** to immediately apply your business profile to your desired telephony service:
+
+    <Frame caption="Continuing to telephony service setup after saving the business profile.">
+      <img height="700" src="https://mintcdn.com/retellai/_FxJdxv7mQoPqyGs/images/vp_1.png?fit=max&auto=format&n=_FxJdxv7mQoPqyGs&q=85&s=1757744e896078211c39d4fd338f1845" alt="Continue to Service Setup" data-path="images/vp_1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Activate downstream services">
+    Select from available enterprise capabilities:
+    * **[Apply for a Verified Phone Number](/build/telephony/verified-phone)**: Provision spam-free STIR/SHAKEN verified voice lines.
+    * **[Apply for Branded Calling](/build/telephony/branded-call)**: Attach custom company names and call reasons to outbound dials.
+    * **[Enable SMS on Tavly Numbers](/deploy/enable-sms)**: Automatically link your approved profile to downstream A2P 10DLC brand and campaign submissions.
+  </Step>
+</Steps>
+
+<Tip>
+  If your submission is rejected by carrier vetting registries, review the feedback in your console and follow the step-by-step remediation guide at [How to Handle a Rejection](/build/telephony/branded-call-rejection).
+</Tip>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How long does it take for a business profile to be verified?">
+    Initial automated screening takes between 1 to 2 business days. If manual carrier documentation review is triggered, verification can require 3 to 5 business days.
+  </Accordion>
+
+  <Accordion title="Can I edit my business profile details after submission?">
+    If the profile is in draft or rejected status, you can freely edit fields and resubmit. If the profile is already approved, modifying foundational legal details requires submitting an update request or registering an updated profile.
+  </Accordion>
+
+  <Accordion title="Does creating a business profile incur any billing charges?">
+    No. Registering and maintaining a business profile in the Tavly dashboard is completely free. Fees apply only when registering specific downstream carrier add-ons, such as A2P 10DLC campaign reviews.
+  </Accordion>
+
+  <Accordion title="What happens to my phone numbers if my profile is rejected?">
+    Your phone numbers will continue to function for standard inbound and outbound voice calls. However, premium features such as carrier verified status, branded display, and custom A2P outbound SMS will remain disabled until discrepancies are resolved.
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+* [Spam likely overview and call efficiency](/deploy/calls/spam-likely-overview): Learn why carriers flag calls and how verified caller IDs elevate pickup rates.
+* [Verified phone numbers guide](/build/telephony/verified-phone): Protect outbound numbers against negative carrier spam flags.
+* [Branded calling setup](/build/telephony/branded-call): Display verified corporate branding and call reasons on recipient handsets.
+* [Handling application rejections](/build/telephony/branded-call-rejection): Resolve reviewer feedback and address verification mismatches.

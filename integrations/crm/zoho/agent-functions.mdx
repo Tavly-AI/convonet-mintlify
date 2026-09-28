@@ -1,0 +1,231 @@
+---
+title: "Zoho Agent Functions: Live Tools for Deals, Contacts & Tasks"
+sidebarTitle: "Agent Functions"
+description: "Equip Tavly AI voice agents with Zoho CRM tools: search contacts by phone, inspect deals, update records, and log timeline calls, tasks, and meeting notes."
+seo:
+  title: "Zoho Agent Functions & CRM Tools | Tavly AI Documentation"
+  description: "Equip Tavly AI voice agents with Zoho CRM tools: search contacts by phone, inspect deals, update records, and log timeline calls, tasks, and meeting notes."
+og:title: "Zoho Agent Functions: Live Tools for Deals, Contacts & Tasks"
+og:description: "Equip Tavly AI voice agents with Zoho CRM tools: search contacts by phone, inspect deals, update records, and log timeline calls, tasks, and meeting notes."
+og:image: "https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/zoho-connect-dialog.png?fit=max&auto=format&n=E9lBDpcEWOeDePme&q=85&s=b4adbe77f6c312c19c7a5b7b07961c4b"
+twitter:card: "summary_large_image"
+icon: "wrench"
+keywords:
+  - "Zoho agent functions"
+  - "Zoho CRM voice AI tools"
+  - "Tavly AI Zoho integration"
+  - "Zoho deal lookup tool"
+  - "voice agent task creation"
+  - "Zoho call logging tool"
+  - "CRM function calling"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "Do Zoho integration tools require contact sync to be enabled?"
+    answer: "No. Tools operate immediately upon connecting your Zoho org via live API calls. Contact synchronization, post-call analysis mapping, and automated background logging are independent features that you opt into separately."
+  - question: "How long does a Zoho CRM tool call have before timing out?"
+    answer: "Zoho tool calls have timeouts between 6 and 10 seconds: 6 seconds for Get Contact, 8 seconds for record creation/update tools, and 10 seconds for Search Contact and List Contact Deals."
+  - question: "Can Tavly agent tools interact with Zoho Leads or custom modules?"
+    answer: "Currently, tools support Contacts, Deals, Tasks, Notes, and Calls, including their custom fields. Custom modules and Leads are not supported."
+---
+
+# Zoho agent functions
+
+> Zoho CRM tools for Tavly AI agents: identify the caller, read their Deals, update Contacts, and create Tasks, Notes, and Call records on the timeline.
+
+## What are Zoho agent functions and how do they empower AI agents?
+
+**Zoho agent functions** are live API integration tools that empower Tavly conversational agents to read and modify Zoho CRM records during conversations. Agents can identify callers by phone number, retrieve contact details, inspect associated deals, schedule follow-up tasks, create notes, and log completed calls on customer timelines without requiring background contact synchronization.
+
+A [connected Zoho org](/integrations/crm/zoho/connect) provides your agents with live operational tools for that specific organization. Tools execute mid-conversation or during pre-call and post-call workflows defined in [agent workflows](/build/agent-workflow), and no [contact sync](/integrations/crm/zoho/contact-sync) is required.
+
+<Note>
+  Records created by tools are owned by the user who authorized the connection. Using a **dedicated integration user** ensures that the record owner and timeline entries display "Tavly integration" rather than an individual team member's name.
+</Note>
+
+### Architecture: Live conversation tool execution
+
+```
+┌─────────────────────────────────┐                    ┌─────────────────────────────────┐
+│     Tavly AI Voice Agent        │                    │            Zoho CRM             │
+│                                 │                    │                                 │
+│ 1. Caller connects              │                    │                                 │
+│ 2. Execute `Search Contact` ────┼── Phone Number ───►│ Match Phone / Mobile / E.164    │
+│                                 │◄── Contact ID ─────┤ Return Contact Record           │
+│                                 │                    │                                 │
+│ 3. Execute `List Contact Deals` ┼── `contact_id` ───►│ Query Associated Deals (≤ 100)  │
+│                                 │◄── Deal Pipeline ──┤ Return Deals & `has_more`       │
+│                                 │                    │                                 │
+│ 4. Execute `Create Task`        │                    │                                 │
+│    or `Log Call Activity` ──────┼── Call Summary ───►│ Append Call to Contact Timeline │
+│                                 │◄── Status 201 ─────┤ (Populates `Who_Id` field)      │
+└─────────────────────────────────┘                    └─────────────────────────────────┘
+```
+
+---
+
+## Which Zoho CRM tools are available for conversational agents?
+
+Tavly provides eight native Zoho CRM tools: **Search Contact**, **Get Contact**, **Create Contact**, and **Update Contact** for contact management; **List Contact Deals** for pipeline inspection; and **Create Task**, **Create Note**, and **Log Call Activity** for activity logging. Every tool runs under the credentials and permissions of the authorizing Zoho user.
+
+These tools appear in your agent's function menu once your Zoho org is connected. See [integrations overview](/integrations/integrations-overview) for guidance on adding and configuring them in your agent.
+
+### Available Zoho tools directory
+
+| Tool Name | Operation & Target Module | Description & Primary Use Case |
+| :--- | :--- | :--- |
+| **Search Contact** | Read (`Contacts`) | Find a Contact by phone number. Typically called at conversation start using caller ID to identify who is speaking. |
+| **Get Contact** | Read (`Contacts`) | Fetch all populated fields on a Contact record using their unique Zoho numeric ID. |
+| **Create Contact** | Write (`Contacts`) | Create a new Contact record when a caller is not yet present in your CRM database. |
+| **Update Contact** | Write (`Contacts`) | Update Contact fields when a caller confirms or corrects their personal or account information. |
+| **List Contact Deals** | Read (`Deals`) | Retrieve up to 100 Deals associated with a Contact to inspect pipeline stages and deal amounts. |
+| **Create Task** | Write (`Tasks`) | Schedule a follow-up Task linked directly to the Contact when next steps are agreed upon. |
+| **Create Note** | Write (`Notes`) | Attach a structured Note to a Contact containing an AI summary of conversation topics. |
+| **Log Call Activity** | Write (`Calls`) | Log the conversation as a completed Call record directly on the Contact's interaction timeline. |
+
+<Tip>
+  **Log Call Activity** is the per-call, agent-driven version of activity logging: the agent decides when to log and what summary to write. Conversely, **Log activities automatically** in the [sync settings](/integrations/crm/zoho/contact-sync) logs every conversation with a synced contact without agent prompt instructions. You can use either approach or combine both for automatic baseline logs plus richer agent-written summaries.
+</Tip>
+
+---
+
+## How do Zoho tools identify, address, and link CRM records?
+
+Zoho tools address records using numeric string IDs validated by Tavly before transmission. **Search Contact** takes a `phone_number` and queries all phone fields across standard national and E.164 formats, returning a single matching Contact ID. Dependent tools require this `contact_id` to link tasks, notes, deals, and call logs via Zoho's native `Who_Id` association.
+
+Record identifiers in Zoho are formatted as long numeric strings. Tavly validates these IDs client-side, rejecting any non-numeric strings before requests reach Zoho's REST API.
+
+### Required address parameters by tool
+
+* **Get Contact** and **Update Contact**: Require an `id` parameter representing the target Contact.
+* **List Contact Deals**, **Create Task**, **Create Note**, and **Log Call Activity**: Require a `contact_id` parameter. This parameter is mandatory because it links the new record to the Contact via the native `Who_Id` relation on Zoho Tasks and Calls.
+* **Search Contact**: Takes a `phone_number` string and provides the Contact ID used by subsequent tools. You can pass its output to downstream tools using [dynamic variables](/build/context/dynamic-variables).
+
+### Phone search & matching logic
+
+**Search Contact** passes the caller's phone number to Zoho CRM's native search API, evaluating every phone field on the Contacts module. It automatically evaluates the number across multiple formats:
+1. The exact raw digits supplied by the caller.
+2. The standardized national format (e.g., `(415) 555-0142`).
+3. The international E.164 format (e.g., `+14155550142`).
+
+The tool returns a single Contact, prioritizing records where the searched digits match `Phone`, `Mobile`, `Home Phone`, or `Other Phone`.
+
+### Handling deals and output responses
+
+* **List Contact Deals**: Returns up to 100 associated Deals along with a `count` integer and a `has_more` boolean flag. This allows your agent prompt to distinguish between "no open deals" and "additional deals exist beyond the initial response."
+* **Create and Update Tools**: Return the newly created or modified record's `id` along with a `success` boolean flag. Map this `id` to a dynamic variable whenever downstream tools in the same conversation need to reference the newly generated record.
+
+---
+
+## What fields and data types can Zoho tools read and write?
+
+Tavly dynamically imports your Zoho module schemas upon tool configuration, displaying native and custom fields while filtering out unsupported or read-only properties. Configurable types include text, number, checkbox, date, date-time, and picklists. Lookups, multi-select picklists, subforms, and file uploads are excluded. Mandatory Zoho fields become required tool parameters, except call start and duration.
+
+When configuring a Zoho tool, Tavly inspects your module's field definitions live from your Zoho account, incorporating all active custom fields. Read-only fields and properties not supported by Zoho on write operations are filtered out automatically. Any field marked as mandatory in your Zoho layout appears as a required input in your agent configuration.
+
+### Field data type support matrix
+
+| Field Type | Supported in Tools | Behavior & Handling |
+| :--- | :--- | :--- |
+| **Text & Text Area** | Yes | Accepts alphanumeric strings, email addresses, and phone numbers. |
+| **Number, Currency & Percent** | Yes | Validates integer and floating-point numeric inputs. |
+| **Boolean / Checkbox** | Yes | Accepts `true` or `false` values. |
+| **Date & Date-Time** | Yes | Parsed in ISO-8601 compliant formatting. |
+| **Picklist (Single Select)** | Yes | Restricts input to predefined option values configured in Zoho. |
+| **Lookup Fields** | No | Relational lookups cannot be selected directly via tool inputs. |
+| **Multi-Select Picklist** | No | Array-based multi-select fields are excluded. |
+| **Subforms & File Uploads** | No | Complex nested structures and attachments are omitted. |
+
+<Note>
+  **Log Call Activity** is the single exception to Zoho's mandatory field rules. While Zoho requires call start time and call duration when inserting a Call record, Tavly automatically calculates and injects these values upon call completion. They remain optional configuration overrides in Tavly if custom timestamps are desired.
+</Note>
+
+---
+
+## What Zoho profile permissions are required for integration tools?
+
+Zoho profile permissions assigned to the authorizing user determine operational tool access. The user requires **View** on Contacts for lookups, **Create** on Contacts for new callers, **Edit** on Contacts for updates, **View** on Deals for pipeline listings, and **Create** on Tasks, Notes, and Calls for activities. Missing profile permissions cause individual tool calls to fail.
+
+While OAuth consent grants Tavly global API access at connection time, the authorizing user's assigned **Zoho profile** dictates what each tool can execute at runtime:
+
+### Profile permissions matrix
+
+| Agent Tool | Required Zoho Profile Permission |
+| :--- | :--- |
+| **Search Contact** | **View** permission on `Contacts` module |
+| **Get Contact** | **View** permission on `Contacts` module |
+| **Create Contact** | **Create** permission on `Contacts` module |
+| **Update Contact** | **Edit** permission on `Contacts` module |
+| **List Contact Deals** | **View** permission on both `Contacts` and `Deals` modules |
+| **Create Task** | **Create** permission on `Tasks` module |
+| **Create Note** | **Create** permission on `Notes` (posted via Contact's Notes related list) |
+| **Log Call Activity** | **Create** permission on `Calls` module |
+
+Every tool also requires profile permission to read the target module's metadata schema, which is used to populate input fields during agent setup. If a permission is missing, Zoho returns an authorization error for that specific request; the integration card remains connected, but that specific tool invocation fails.
+
+---
+
+## How do you handle tool timeouts, latency, and live fallbacks?
+
+Zoho tool executions enforce strict execution timeouts ranging from **6 to 10 seconds**: 6 seconds for **Get Contact**, 8 seconds for write tools, and 10 seconds for **Search Contact** and **List Contact Deals**. If a timeout occurs, your agent continues conversing seamlessly; prompts should include graceful fallback instructions to handle delayed CRM responses.
+
+### Tool timeout limits
+
+| Tool Category | Timeout Duration | Rationale |
+| :--- | :--- | :--- |
+| **Get Contact** | **6 seconds** | Direct record retrieval by indexed ID. |
+| **Record Creation & Updates** | **8 seconds** | `Create Contact`, `Update Contact`, `Create Task`, `Create Note`, `Log Call Activity`. |
+| **Search & Association Queries** | **10 seconds** | `Search Contact` and `List Contact Deals` perform multi-field indexing and related-list aggregation. |
+
+### Designing prompt fallbacks for timeouts
+
+On a timeout or API error, the conversational agent does not hang up or drop the call; it continues talking. To deliver an optimal caller experience, configure prompt instructions that account for CRM delays:
+
+```markdown
+If `Search Contact` takes longer than expected or returns an error:
+- Do not mention technical errors to the customer.
+- Politely ask: "Could you please confirm your account number or the email associated with your profile?"
+- Continue assisting with general inquiries while proceeding without CRM context.
+```
+
+---
+
+## Frequently asked questions about Zoho agent functions
+
+Zoho agent functions operate independently of contact synchronization and can be deployed immediately after OAuth authorization. Current tools support Contacts, Deals, Tasks, Notes, and Calls, including their custom fields; Leads and custom modules are not supported. Function calls execute as the authorizing user, making dedicated integration accounts the recommended best practice.
+
+<AccordionGroup>
+  <Accordion title="Do the integration tools require contact sync?">
+    No. Tools work as soon as the connection is made, and each tool is bound to the specific connection you pick when configuring it. Contact sync, analysis mapping, and automatic activity logging are separate features you opt into.
+  </Accordion>
+
+  <Accordion title="How long does a Zoho tool call get before it times out?">
+    Between 6 and 10 seconds, depending on the tool (as of August 2026): 6 seconds for **Get Contact**, 8 seconds for tools that write a record, and 10 seconds for **Search Contact** and **List Contact Deals**, which perform multi-field queries. On a timeout or error, the agent continues speaking, so prompt it on what to say when a lookup does not return.
+  </Accordion>
+
+  <Accordion title="Can a tool work with Zoho Leads or custom modules?">
+    Not currently (as of August 2026). Tools cover Contacts, Deals, Tasks, Notes, and Calls. Custom fields on those modules are supported and appear in the input list; custom modules and Leads are not currently supported.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Integration tools for prompt agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Add Zoho tools to a single- or multi-prompt agent and test them with live requests.
+  </Card>
+
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Call Zoho tools from a function node and branch on the result.
+  </Card>
+
+  <Card title="Zoho contact sync" icon="rotate" href="/integrations/crm/zoho/contact-sync">
+    Import your Zoho Contacts, write analysis results back, and log calls on the contact's timeline.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Map tool responses to variables your agent can use later in the conversation.
+  </Card>
+</CardGroup>

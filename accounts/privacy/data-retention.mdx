@@ -1,0 +1,142 @@
+---
+title: 'Data Retention Policy: Automated Call Deletion & Compliance'
+sidebarTitle: 'Data Retention'
+description: 'Automate Tavly AI data retention policies: set per-agent expiration schedules from 1 to 730 days to permanently delete call recordings, transcripts, and logs.'
+seo:
+  title: 'Data Retention Policy | Automated Compliance Deletion | Tavly AI'
+  description: 'Automate Tavly AI data retention policies: set per-agent expiration schedules from 1 to 730 days to permanently delete call recordings, transcripts, and logs.'
+og:title: 'Data Retention Policy: Automated Call Deletion & Compliance'
+og:description: 'Automate Tavly AI data retention policies: set per-agent expiration schedules from 1 to 730 days to permanently delete call recordings, transcripts, and logs.'
+og:image: 'https://mintcdn.com/retellai/VcTq4w6hBP_snpz7/images/data_retention_dropdown.png'
+twitter:card: 'summary_large_image'
+icon: 'clock-rotate-left'
+keywords: ['data retention policy', 'automated call deletion', 'GDPR voice data compliance', 'HIPAA retention period', 'delete call recordings', 'Tavly data storage retention', 'telephony privacy settings']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'What is Tavly AI data retention and how does it delete call records?'
+    answer: 'Tavly data retention automatically and permanently purges call recordings, transcripts, and session logs on a daily schedule once an agent-configured retention timeframe (1 to 730 days) expires.'
+  - question: 'Can deleted call recordings or transcripts be recovered after retention expires?'
+    answer: 'No. Automated deletion is permanent and irreversible. Once purged by the daily cleanup service, artifacts cannot be recovered from Tavly databases or storage volumes.'
+  - question: 'How do you configure data retention programmatically via the API?'
+    answer: 'Set the data_storage_retention_days integer parameter (ranging from 1 to 730) when calling the Create Agent or Update Agent API. Passing null configures the agent to keep data forever.'
+  - question: 'Does data retention apply equally to voice calls and text chat sessions?'
+    answer: 'Yes. Configured retention intervals apply uniformly across voice call audio recordings, telephony logs, and web/SMS conversational chat session transcripts.'
+---
+
+## What is Tavly AI's data retention policy and how does it work?
+
+Tavly AI's **data retention policy** allows organizations to define per-agent storage lifecycles ranging from **1 to 730 days**, or retain data indefinitely by default. Once an agent's retention window expires, a daily automated background task **permanently and irreversibly purges** call recordings, transcripts, and conversational logs to satisfy regulatory compliance.
+
+Data lifecycle automation is critical for meeting data minimization principles mandated by regulatory frameworks such as GDPR, HIPAA, and SOC 2 Type II.
+
+### Foundational Retention Principles
+
+* **Per-Agent Granularity**: Retention schedules are defined independently on each agent under **Security & Fallback Settings**, enabling different retention rules for healthcare vs. customer support workflows.
+* **Automated Daily Cleanup**: Deletion jobs run automatically once per day, identifying and purging records whose creation timestamp exceeds the configured day limit.
+* **Permanent & Irreversible**: PII, audio files, and transcripts are erased completely from primary databases and file stores; purged data cannot be restored.
+* **Omnichannel Coverage**: Retention rules apply identically across inbound phone calls, outbound telephony campaigns, and interactive web/SMS chats.
+
+<Frame caption="Configure retention periods using the Retention dropdown in agent settings.">
+  <img height="700" src="https://mintcdn.com/retellai/VcTq4w6hBP_snpz7/images/data_retention_dropdown.png?fit=max&auto=format&n=VcTq4w6hBP_snpz7&q=85&s=3b4df08f75c029eab9017102c4125bdf" alt="Retention dropdown showing available retention period options" data-path="images/data_retention_dropdown.png" />
+</Frame>
+
+***
+
+## How do you configure data retention schedules in the dashboard?
+
+To set a retention period, navigate to your agent in the Tavly dashboard, open **Security & Fallback Settings**, locate **Data Storage Settings**, and select an option from the **Retention** dropdown. The schedule takes effect immediately across all subsequent voice calls and chat sessions handled by that agent.
+
+Execute the following steps in your dashboard:
+
+1. Navigate to the **Agents** tab and click on the agent you wish to configure.
+2. Select **Security & Fallback Settings** from the configuration sidebar.
+3. Under **Data Storage Settings**, verify your desired baseline storage tier (e.g., *Everything*, *Everything except PII*, or *Basic Attributes Only*).
+4. Click the **Retention** dropdown and choose your organization's mandatory retention interval (e.g., `30 days`, `90 days`, or `Keep forever`).
+5. Save your agent configuration.
+
+<Note>
+  **Storage Mode Independence**: Configured retention periods enforce automatic deletion regardless of which storage mode is selected. For example, if you select *Everything except PII* with a 30-day retention window, PII is scrubbed immediately post-call, and the remaining scrubbed transcripts and recordings are purged on day 30.
+</Note>
+
+***
+
+## What call data is permanently purged when retention expires?
+
+When the retention duration expires, Tavly permanently purges **audio call recordings**, **raw speech-to-text transcripts**, **conversational execution logs**, **knowledge base retrieval snippets**, and **dynamic variables**. While minimal operational telemetry is preserved internally for billing verification, sessions are removed from dashboard history and API queries.
+
+### Purged vs. Preserved Call Data
+
+| Artifact Category | Specific Fields Purged | State After Retention Expiry |
+| :--- | :--- | :--- |
+| **Audio Media** | Mono and stereo call recordings (`recording_url`, `scrubbed_recording_url`). | Deleted permanently from cloud storage. |
+| **Conversational Text** | Turn-by-turn utterances, user statements, agent responses (`transcript`). | Erased from database records. |
+| **Execution Logs** | Public system logs, latency tracepoints, error outputs. | Purged from log indices. |
+| **Context & Variables** | Knowledge base search logs, custom dynamic variables, metadata payloads. | Deleted from session history. |
+| **Post-Call Analysis** | Call summaries, custom analysis schemas, QA evaluations. | Scrubbed from reporting. |
+| **Billing Telemetry** | Aggregated duration, call cost, billing timestamp (internal only). | Retained for accounting audits; hidden from query APIs. |
+
+<Warning>
+  **Irreversible Data Deletion**: Once purged, deleted session data cannot be retrieved by Tavly support or restored from backups. If your organization requires long-term archiving, ingest data in real time via [call event webhooks](/monitor/webhook-overview) or retrieve session payloads using [Get Call](/api-references/get-call) or [Get Chat](/api-references/get-chat) before expiration.
+</Warning>
+
+***
+
+## What retention durations are available in Tavly AI?
+
+Tavly offers **ten standardized retention durations**, starting from **1 day (24 hours)** for ephemeral compliance up to **730 days (2 years)** for extended enterprise auditing. Accounts default to **Keep forever (`null`)**, ensuring no records are deleted until an explicit lifecycle schedule is configured.
+
+| Dashboard Selection | Duration in Days | Exact Expiration Timeline | Typical Compliance Alignment |
+| :--- | :--- | :--- | :--- |
+| **Keep forever** (Default) | `null` | No automatic deletion | General development, QA, and unconstrained archiving. |
+| **1 day** | `1` | 24 hours after call initiation | Ephemeral healthcare workflows, strict zero-footprint policies. |
+| **3 days** | `3` | 72 hours after call initiation | Short-term troubleshooting and real-time webhook ingestion buffer. |
+| **7 days** | `7` | 1 calendar week | Standard operational audit window for high-volume call centers. |
+| **30 days** | `30` | 1 calendar month | GDPR monthly data minimization standards. |
+| **60 days** | `60` | 2 calendar months | Extended QA dispute and quality calibration window. |
+| **90 days** | `90` | 3 calendar months (Quarterly) | Industry-standard quarterly security and compliance audit cycle. |
+| **180 days** | `180` | 6 calendar months | Semi-annual financial and enterprise contractual compliance. |
+| **365 days** | `365` | 1 calendar year | Annual corporate record retention mandates. |
+| **730 days** | `730` | 2 calendar years | Maximum configurable retention window before mandatory purge. |
+
+***
+
+## How do you configure retention policies via the REST API?
+
+To manage retention programmatically, pass the integer property **`data_storage_retention_days`** (accepted values: `1` to `730`, or `null` to retain forever) in the JSON payload of the **Create Agent** or **Update Agent** API endpoints. The setting applies to all calls initiated after the update.
+
+### Setting Retention via API
+
+Include `data_storage_retention_days` in your `PATCH` or `POST` request payload:
+
+```bash theme={"dark"}
+curl -X PATCH "https://api.tavlyai.com/v2/update-agent/agent_01j7...xyz" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data_storage_retention_days": 90
+  }'
+```
+
+### Parameter Specification
+
+| Field Name | Type | Value Range | Default Value | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data_storage_retention_days` | integer \| null | `1` – `730`, or `null` | `null` | The number of days before conversational data is automatically purged. Set to `null` to disable automatic deletion. |
+
+To restore indefinite data storage on an agent, pass `null`:
+
+```json theme={"dark"}
+{
+  "data_storage_retention_days": null
+}
+```
+
+Review the [Create Agent](/api-references/create-agent) and [Update Agent](/api-references/update-agent) API references for full schema specifications.
+
+***
+
+## Related Privacy Guides
+
+* [Data Storage Settings](/accounts/privacy/data-storage): Configure storage tiers and automate PII entity redaction.
+* [Secure URLs](/accounts/privacy/secure-url): Enforce time-limited signed URL access for recordings and public logs.

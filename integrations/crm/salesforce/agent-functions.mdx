@@ -1,0 +1,172 @@
+---
+title: 'Salesforce Agent Functions: Live SOQL, Records & CRM Tools'
+sidebarTitle: 'Agent Functions'
+description: 'Equip Tavly AI voice agents with Salesforce CRM tools: search contacts, manage leads and opportunities, query custom objects, and execute real-time SOQL logic.'
+seo:
+  title: 'Salesforce Agent Functions & SOQL Tools | Tavly AI Docs'
+  description: 'Equip Tavly AI voice agents with Salesforce CRM tools: search contacts, manage leads and opportunities, query custom objects, and execute real-time SOQL logic.'
+og:title: 'Salesforce Agent Functions: Live SOQL, Records & CRM Tools'
+og:description: 'Equip Tavly AI voice agents with Salesforce CRM tools: search contacts, manage leads and opportunities, query custom objects, and execute real-time SOQL logic.'
+og:image: 'https://mintcdn.com/retellai/M9dkUq1iShh05WLW/images/integration/salesforce-new-app.png'
+twitter:card: 'summary_large_image'
+icon: 'wrench'
+keywords: ['Salesforce agent functions', 'voice AI SOQL queries', 'Salesforce CRM tools', 'Tavly AI Salesforce integration', 'Salesforce custom object AI tool', 'live CRM query tool', 'voice agent task creation']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'Do Salesforce agent functions require two-way contact sync to be enabled?'
+    answer: 'No. Integration tools execute on demand via live REST and SOQL API requests to Salesforce. Two-way contact sync, analysis data mapping, and automated timeline activity logging are separate workspace features that you opt into independently.'
+  - question: 'Why should agents use Search Contact instead of Query Records to identify callers?'
+    answer: 'Search Contact queries Salesforce specialized phone search index, matching caller IDs across diverse international punctuation formats and extensions. In contrast, SOQL queries require strict character-for-character string equality that fails when formatting varies.'
+  - question: 'How long do Salesforce tool calls get before timing out during a live conversation?'
+    answer: 'Salesforce tools enforce deterministic timeouts: 3 seconds for Get operations, 6 seconds for Search Contact, List Opportunities, and Query Records, and 8 seconds for Create or Update actions. If a timeout occurs, the agent continues speaking gracefully.'
+  - question: 'Can Tavly agent functions query and update custom Salesforce objects?'
+    answer: 'Yes. The Get Custom Object and Update Custom Object tools interact with any custom object configured in your org, provided the Run As user has permissions. Query Records can execute SOQL queries against any standard or custom entity.'
+---
+
+## What are Salesforce agent functions and how do they empower AI agents?
+
+**Salesforce agent functions** are turnkey integration tools that allow Tavly voice and chat agents to query, create, and update Salesforce records directly during live conversations. Operating without background contact synchronization, agents identify callers, inspect open opportunities and cases, update custom objects, and execute parameter-bound **SOQL queries** via the **Run As** user.
+
+Equipping your conversational agents with direct Salesforce programmatic access unlocks automated customer service and revenue workflows:
+
+* **Caller Identification**: Search Salesforce using the incoming telephony number to identify existing Contacts, retrieving customer profiles before the initial greeting.
+* **Contextual Record Retrieval**: Inspect open cases, review recent opportunities, or identify account owners on demand.
+* **Bi-Directional Record Modification**: Correct email addresses, update shipping addresses, or advance sales lead stages during conversation turns.
+* **Flexible Execution Timing**: Run tools during conversations, as pre-call hooks to fetch context, or as post-call persistence operations via [agent workflows](/build/agent-workflow).
+
+<Tip>
+  Integration tools operate on demand via direct API calls to your Salesforce instance. They function independently from [Salesforce contact sync](/integrations/crm/salesforce/contact-sync), allowing you to deploy live search and lookup tools without synchronizing entire contact directories.
+</Tip>
+
+***
+
+## Which Salesforce function tools are available for conversational agents?
+
+Tavly provides twelve dedicated Salesforce tools spanning core CRM operations: **identity discovery** (Search Contact), **standard record operations** (Get/Create/Update Contact, Lead, Account), **revenue and support context** (List Account Opportunities, Get Opportunity, Get Case, Get User), **custom object manipulation** (Get/Update Custom Object), **activity generation** (Create Task, Create Note), and **SOQL data retrieval** (Query Records).
+
+These tools appear in your agent configuration menu once a [Salesforce connection](/integrations/crm/salesforce/connect) is authenticated:
+
+### Complete Salesforce Tool Directory
+
+| Tool Name | Core Functionality | Primary Operational Use Case |
+| :--- | :--- | :--- |
+| **Search Contact** | Look up a Contact record using caller ID phone numbers. | Identify incoming callers using phone search indexes. |
+| **Get Contact** | Retrieve field properties for a Contact by record ID. | Fetch lifecycle stages, account relationships, or emails. |
+| **Create Contact** | Generate a brand-new Contact record in Salesforce. | Register first-time callers in CRM during intake calls. |
+| **Update Contact** | Modify specific Contact fields based on spoken confirmations. | Update corrected mailing addresses, phone numbers, or titles. |
+| **Get Lead** / **Create Lead** / **Update Lead** | Full lifecycle operations on standard Salesforce Lead records. | Qualify prospects, ingest inbound leads, and assign owners. |
+| **Get Account** / **Update Account** | Inspect and modify corporate Account records by ID. | Validate corporate SLA tiers, billing statuses, or domains. |
+| **List Account Opportunities** | Retrieve up to 50 Opportunities linked to an Account, sorted by recency. | Review deal amounts, stages, and close dates mid-call. |
+| **Get Opportunity** | Fetch specific Opportunity properties by record ID. | Read proposal details or contract terms for active deals. |
+| **Get Case** | Fetch customer support Case records by ID or CaseNumber. | Review open ticket statuses, escalations, or priority tiers. |
+| **Get User** | Fetch profile properties for internal Salesforce org users. | Retrieve account owner names, contact info, or rep titles. |
+| **Get Custom Object** / **Update Custom Object** | Read and update records on user-specified custom Salesforce objects (`__c`). | Interact with proprietary ERP, billing, or clinical objects. |
+| **Query Records** | Execute custom parameter-bound SOQL queries with dynamic variables. | Execute complex multi-table queries and custom filtered reads. |
+| **Create Task** | Insert a completed or scheduled Task activity on Contact/Lead. | Schedule rep follow-ups, meeting reminders, or call logs. |
+| **Create Note** | Attach an interaction Note to a Contact or Lead record. | Log conversation summaries directly to parent record feeds. |
+
+***
+
+## What profile permissions does the Run As user require for each tool?
+
+Every tool executes under the security context of the configured **Run As user**, requiring **API Enabled** plus specific CRUD permissions: **Read** on Contact, Lead, Account, Opportunity, Case, User, and custom objects; **Create/Edit** on target entities for writes; and **Edit** on parent records when attaching Notes. Field-level security applies automatically.
+
+Configure the designated [Run As user](/integrations/crm/salesforce/connect#how-do-you-configure-oauth-policies-and-assign-the-run-as-integration-user) with appropriate profile or permission set grants:
+
+### Permission Matrix by Tool Category
+
+| Tool Category | Required Run As User Permissions |
+| :--- | :--- |
+| **Contact Operations** | **Read** on Contact (`Search Contact`, `Get Contact`); **Create** on Contact (`Create Contact`); **Edit** on Contact (`Update Contact`) |
+| **Lead Operations** | **Read** on Lead (`Get Lead`); **Create** on Lead (`Create Lead`); **Edit** on Lead (`Update Lead`) |
+| **Account Operations** | **Read** on Account (`Get Account`); **Edit** on Account (`Update Account`) |
+| **Opportunities & Cases** | **Read** on Opportunity (`List Account Opportunities`, `Get Opportunity`); **Read** on Case (`Get Case`) |
+| **User & Organization** | **Read** on User (`Get User`) |
+| **Custom Object Tools** | **Read** (`Get Custom Object`) or **Edit** (`Update Custom Object`) on the configured target custom object |
+| **SOQL Query Execution** | **Read** on every standard or custom object referenced in the `SELECT` or `WHERE` clauses of `Query Records` |
+| **Activity Generation** | **Create** on Task (`Create Task`); **Edit** on parent Contact/Lead entity (`Create Note` inherits security from parent) |
+
+<Note>
+  **Field-Level Security (FLS) Enforcement**: Salesforce FLS rules apply strictly on top of object permissions. Read calls return only fields visible to the Run As user profile, while Create and Update tools require Edit access on each modified field. Omitted permissions cause individual tools to fail without flagging the workspace connection.
+</Note>
+
+***
+
+## How do you construct and optimize dynamic SOQL queries with Query Records?
+
+The **Query Records** tool accepts a SOQL string with embedded dynamic variable syntax resolved at execution time. To optimize performance and protect context limits, developers should write deterministic queries specifying explicit fields and bounded `LIMIT` clauses (e.g., `LIMIT 5`), avoiding unbound wildcard expressions that return extraneous attributes into conversational prompts.
+
+Configure the tool's `soql` input with parameterized [dynamic variables](/build/context/dynamic-variables):
+
+```sql
+SELECT Id, CaseNumber, Subject, Status
+FROM Case
+WHERE ContactId = '{{contact_id}}' AND IsClosed = false
+ORDER BY CreatedDate DESC
+LIMIT 5
+```
+
+### SOQL Query Best Practices
+
+* **Dependency Sequencing**: In the query above, `{{contact_id}}` is resolved from an upstream **Search Contact** tool invocation. If a variable lacks a runtime value, Tavly halts query execution and logs `Skipped: soql is required`. Ensure dependent lookups execute first in [agent workflows](/build/agent-workflow).
+* **Bound Result Sets with LIMIT**: Salesforce returns up to 2,000 rows per query call. Because large JSON payloads crowd the prompt context and count toward the 30,000-character tool response limit, always constrain responses with explicit `LIMIT` statements.
+* **Targeted Field Selection**: Avoid `SELECT FIELDS(ALL)` (which Salesforce caps at `LIMIT 200` and pulls redundant metadata). Explicitly declare only the fields required for conversational dialogue.
+* **Prune Outputs with Test Runs**: Use the **Run a test** panel in the tool configuration to execute live test queries and extract specific response attributes into [dynamic variables](/build/context/dynamic-variables).
+
+***
+
+## How do you configure and deploy Salesforce tools across agent workflows?
+
+Salesforce tools can be attached under **Functions** in prompt-based agents or mapped inside visual **Function Nodes** in conversation flows. Developers bind tools to authenticated Salesforce connections, map input parameters to conversational descriptions or fixed values, and extract response properties into **dynamic variables** for subsequent conversational branching.
+
+### Integration Across Agent Types
+
+* **Single- & Multi-Prompt Agents**: Under the agent's **Functions** card, click **+ Add Function**, choose your authenticated Salesforce connection, and select target tools. Input fields default to **Description** mode, allowing the LLM to extract values naturally from caller speech (detailed in [tools for prompt agents](/build/setup/single-multi-prompt/integration-tools)).
+* **Conversation Flow Agents**: Drag a **Function Node** onto the canvas, select your Salesforce connection, and choose the target tool. You can branch conversation streams based on whether records exist or if lookups succeed (detailed in [tools in conversation flows](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow)).
+
+Review the [Integration Tools Setup Guide](/integrations/integrations-overview#use-integration-tools-in-an-agent) for complete parameter mapping patterns and sandbox testing procedures.
+
+***
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Do Salesforce agent functions require two-way contact sync to be enabled?">
+    No. Integration tools execute on demand via live REST and SOQL API requests to Salesforce. Two-way contact sync, analysis data mapping, and automated timeline activity logging are separate workspace features that you opt into independently.
+  </Accordion>
+
+  <Accordion title="Why should agents use Search Contact instead of Query Records to identify callers?">
+    **Search Contact** queries Salesforce's specialized phone search index, matching caller IDs across diverse international punctuation formats and extensions. In contrast, SOQL queries require strict character-for-character string equality (`WHERE Phone = '{{user_number}}'`) that fails when formatting varies.
+  </Accordion>
+
+  <Accordion title="How long do Salesforce tool calls get before timing out during a live conversation?">
+    Salesforce tools enforce deterministic timeouts: 3 seconds for Get operations, 6 seconds for **Search Contact**, **List Account Opportunities**, and **Query Records**, and 8 seconds for Create or Update actions. If a timeout occurs, the agent continues speaking gracefully based on prompt error-handling instructions.
+  </Accordion>
+
+  <Accordion title="Can Tavly agent functions query and update custom Salesforce objects?">
+    Yes. The **Get Custom Object** and **Update Custom Object** tools interact with any custom object configured in your org, provided the Run As user has permissions. **Query Records** can execute SOQL queries against any standard or custom entity.
+  </Accordion>
+</AccordionGroup>
+
+***
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Integration Tools for Prompt Agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Configure tool schemas and execute live test requests in single- or multi-prompt agents.
+  </Card>
+
+  <Card title="Integration Tools in Conversation Flows" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
+    Add Salesforce tool calls to visual function nodes and branch conditionally on API results.
+  </Card>
+
+  <Card title="Salesforce Contact Sync" icon="rotate" href="/integrations/crm/salesforce/contact-sync">
+    Import Salesforce Contacts, map custom fields, and log conversations as native Tasks.
+  </Card>
+
+  <Card title="Dynamic Variables" icon="code" href="/build/context/dynamic-variables">
+    Map tool output fields to dynamic runtime variables referenced across conversational prompts.
+  </Card>
+</CardGroup>

@@ -1,0 +1,121 @@
+---
+title: 'Manage API Keys & Permission Scopes: Role-Based Access'
+sidebarTitle: 'Manage API Keys'
+description: 'Manage Tavly AI API keys: generate scoped credentials, set granular read/edit permissions across Build, Monitor, and Deploy, and assign webhook signing keys.'
+seo:
+  title: 'Manage API Keys & Permission Scopes | Tavly AI Developer Guide'
+  description: 'Manage Tavly AI API keys: generate scoped credentials, set granular read/edit permissions across Build, Monitor, and Deploy, and assign webhook signing keys.'
+og:title: 'Manage API Keys & Permission Scopes: Role-Based Access'
+og:description: 'Manage Tavly AI API keys: generate scoped credentials, set granular read/edit permissions across Build, Monitor, and Deploy, and assign webhook signing keys.'
+og:image: 'https://mintcdn.com/retellai/gY538VnArOndFhp0/images/api_key.png'
+twitter:card: 'summary_large_image'
+icon: 'key'
+keywords: ['manage API keys', 'API key permissions', 'scoped API keys', 'Tavly role-based access', 'webhook signing key', 'Build Monitor Deploy scopes', 'API credential rotation']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do you restrict an API key to specific operations in Tavly AI?'
+    answer: 'Enable Restrict permissions when creating or editing an API key in the dashboard. Assign No Access, Read, or Edit scopes across functional groups: Build, Monitor, and Deploy.'
+  - question: 'What is the difference between Read and Edit permission levels?'
+    answer: 'Read allows calling retrieval endpoints (such as fetching call transcripts or listing agents). Edit allows full read-and-write capabilities, including creating, modifying, and deleting resources.'
+  - question: 'Can action-only permission groups have Read-only access?'
+    answer: 'No. Action-only groups (such as Export history and Call creation) do not support a separate Read level. They offer only No Access or Edit permissions.'
+  - question: 'How do you designate an API key for webhook verification?'
+    answer: 'Select any active API key in the API Keys dashboard and click Set as Webhook Key. Only one key serves as the active webhook signing key per workspace at any time.'
+---
+
+## What is API key management and permission scoping in Tavly AI?
+
+**Tavly API key management** allows workspace administrators to create, delete, and rotate credentials, designate **webhook signing keys**, and restrict access via **fine-grained permission scopes**. By default, keys grant full access; enabling permission restrictions limits tokens to designated **Build**, **Monitor**, or **Deploy** actions to enforce least-privilege security.
+
+Access credential management is located under **Settings → API Keys** in your dashboard. Administrators can execute four primary credential operations:
+
+1. **Create New API Keys**: Generate dedicated credentials with descriptive identifiers (e.g., `prod-call-dispatcher`, `analytics-reader`).
+2. **Delete & Revoke Existing Keys**: Instantly deactivate compromised or decommissioned keys via the delete icon.
+3. **Designate Webhook Signing Keys**: Assign a single key per workspace responsible for cryptographic payload verification.
+4. **Enforce Role-Based Scopes**: Restrict endpoints to **No Access**, **Read**, or **Edit** permissions per functional group.
+
+<Note>
+  **Key Security Mandate**: Keep API keys private. Never expose them in public repositories, client-side web bundles, or mobile applications. If a credential is compromised, delete it immediately and generate a replacement.
+</Note>
+
+<Frame caption="Tavly API key management dashboard showing active credentials and permission controls.">
+  <img height="300" src="https://mintcdn.com/retellai/gY538VnArOndFhp0/images/api_key.png?fit=max&auto=format&n=gY538VnArOndFhp0&q=85&s=eafc7807d7c80f3268ed2f2a1b9d2ebf" alt="API Keys management interface" data-path="images/api_key.png" />
+</Frame>
+
+***
+
+<a id="restrict-api-key-permissions" />
+
+## How do you restrict API key permissions with granular scopes?
+
+To restrict API key access, toggle **Restrict permissions** when generating or editing a key in the dashboard, then select an access level—**No Access**, **Read**, or **Edit**—for each functional group. Scoped keys restrict automated integrations or external vendor access strictly to necessary endpoints.
+
+Unrestricted API keys maintain full administrative read and write privileges across all endpoints. Restricting permissions allows engineering teams to limit blast radiuses when delegating keys to third-party tools or external developer contractors.
+
+### Access Levels Defined
+
+* **No Access**: The API key is strictly prohibited from calling any endpoint within the designated permission group. Any invocation returns an immediate `403 Forbidden` response.
+* **Read**: The API key can invoke retrieval and query endpoints (such as listing agents, reading call metadata, or fetching knowledge base indices).
+* **Edit**: The API key can perform both read and write mutations. Selecting **Edit** automatically inherits full **Read** permissions for that group.
+
+<Note>
+  Certain permission groups are **action-only** and do not provide a separate **Read** level (represented by an em-dash `–` in the UI). For these groups, administrators must choose between **No Access** and **Edit**.
+</Note>
+
+<Tip>
+  **Principle of Least Privilege**: Always grant the narrowest access required for an integration. For example, a customer BI pipeline requires only **History → Read**, whereas an automated dialer service needs **Call → Edit**.
+</Tip>
+
+***
+
+## What permission groups and scopes are available in Tavly AI?
+
+Tavly partitions API capabilities into three functional groups: **Build** (agents, flows, LLMs, testing), **Monitor** (call histories, recordings, data exports), and **Deploy** (dispatching calls, telephony numbers, SMS). Each permission can be configured independently to enforce granular **Role-Based Access Control (RBAC)** across services.
+
+### Comprehensive Permission Matrix
+
+| Functional Group | Permission Domain | Available Access Levels | Scoped Resource Access |
+| :--- | :--- | :--- | :--- |
+| **Build** | **Agent** | No Access · Read · Edit | Agents, chat agents, conversation flows, Tavly LLMs, knowledge bases, voices, and folder structures. |
+| **Build** | **Testing** | No Access · Read · Edit | Test cases, evaluation results, batch test simulation jobs, playground threads, completions, and web-call testing. |
+| **Monitor** | **History** | No Access · Read · Edit | Call and chat history, conversational transcripts, audio recordings, and call analytical metadata. |
+| **Monitor** | **Export** | No Access · Edit | Creating, scheduling, and downloading bulk history data export requests. |
+| **Deploy** | **Call** | No Access · Edit | Dispatching web, phone, and batch calls, initiating chat sessions, and real-time live-call control actions. |
+| **Deploy** | **Phone** | No Access · Read · Edit | Phone number provisioning, A2P 10DLC campaigns, business profiles, branded caller ID verification, and inbound SMS webhooks. |
+
+<Note>
+  Permission restrictions enforce constraints only on API calls authenticated with that specific key. Modifying scopes applies in real time without invalidating the token string itself.
+</Note>
+
+***
+
+## How do you designate a webhook signing key?
+
+To designate a webhook signing key, open **Settings → API Keys**, choose an existing active key, and click **Set as Webhook Key**. Tavly instantly binds the key to sign outbound webhook event payloads with an **HMAC cryptographic signature**; only one key per workspace can hold this designation.
+
+When Tavly posts event payloads (such as `call_started`, `call_ended`, or post-call analysis data) to your receiver endpoints, it computes an HMAC SHA-256 signature using this specific key.
+
+### Designation Steps
+
+1. Navigate to **Settings → API Keys** in the Tavly dashboard.
+2. Identify the active API key you wish to designate.
+3. Click **Set as Webhook Key** in the key options menu.
+4. Update your receiver server with this key to validate incoming signatures (see [Secure Webhook Verification](/monitor/secure-webhook)).
+
+***
+
+## How do you rotate and delete API keys securely?
+
+Rotate keys safely by generating a new scoped API key, updating your application's **server environment variables**, verifying that new API requests succeed, and then deleting the obsolete key via the **trash icon** in the dashboard. Deleted keys are **permanently revoked immediately** at the API gateway layer.
+
+### Zero-Downtime Key Rotation Sequence
+
+1. **Generate Replacement Key**: Click **Add** in the API Keys interface, label it with a version identifier (e.g., `backend-sync-v2`), and apply the exact matching permission scopes.
+2. **Deploy to Application Servers**: Update the `TAVLY_API_KEY` environment variable in your production deployment and initiate a rolling deployment.
+3. **Verify Operational Telemetry**: Check request logs to ensure subsequent API calls authenticate successfully with HTTP `200 OK`.
+4. **Revoke Retired Key**: Return to the Tavly dashboard, locate the legacy API key, click the trash icon, and confirm deletion.
+
+<Note>
+  The currently active designated webhook key cannot be deleted directly. To rotate a webhook signing key, designate a new key first before attempting deletion of the prior key.
+</Note>

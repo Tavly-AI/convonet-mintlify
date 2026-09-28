@@ -1,0 +1,212 @@
+---
+title: 'Tavly AI Billing: Credits, Auto Recharge, and Invoices'
+sidebarTitle: 'Billing & Credits'
+description: 'Master Tavly AI billing: manage prepaid credits, configure auto-recharge rules, review monthly invoices, track usage costs, and handle subscription items.'
+seo:
+  title: 'Tavly AI Billing Guide | Prepaid Credits & Auto Recharge'
+  description: 'Master Tavly AI billing: manage prepaid credits, configure auto-recharge rules, review monthly invoices, track usage costs, and handle subscription items.'
+og:title: 'Tavly AI Billing: Credits, Auto Recharge, and Invoices'
+og:description: 'Master Tavly AI billing: manage prepaid credits, configure auto-recharge rules, review monthly invoices, track usage costs, and handle subscription items.'
+og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/billing-page/billing-credit-overview.png'
+twitter:card: 'summary_large_image'
+icon: 'credit-card'
+keywords: ['Tavly billing', 'voice AI pricing', 'prepaid credits', 'auto recharge telephony', 'Tavly invoices', 'workspace billing', 'call cost breakdown', 'metered AI usage']
+date: '2026-09-27'
+author: 'Tavly AI Team'
+faq:
+  - question: 'How do prepaid credits and auto recharge work in Tavly AI?'
+    answer: 'Prepaid credits cover real-time metered usage like voice infra, LLM, and telephony per minute. Auto recharge automatically charges your card to restore your balance when it falls below a threshold.'
+  - question: 'What is the difference between credit-based and monthly legacy billing?'
+    answer: 'Credit-based accounts pay for metered usage upfront with prepaid credits and receive monthly invoices for recurring items. Legacy accounts pay at month-end based on accumulated post-usage.'
+  - question: 'How are subscription items like phone numbers and concurrency billed?'
+    answer: 'Fixed subscription items—including phone numbers, knowledge bases beyond free tiers, and concurrency upgrades—are billed to your card on file at the end of each calendar month and prorated.'
+  - question: 'Is billing scoped per user account or per workspace?'
+    answer: 'Billing is strictly scoped per workspace. Each workspace maintains its own payment method, credit balance, invoice history, and usage analytics independently.'
+---
+
+## How does billing work in Tavly AI?
+
+Tavly AI manages billing through the dashboard **Billing tab**, where workspaces manage payment methods, purchase prepaid credits, and track usage. Tavly operates on two billing models: modern **credit-based prepaid billing** for real-time metered usage, and **monthly post-usage billing** for legacy accounts. All billing is strictly isolated **per workspace**.
+
+<Note>
+  **Workspace-Level Billing Isolation**: Billing is scoped **per workspace**, not per account. Every workspace—including new ones you create—maintains its own isolated payment method, credit balance, invoices, and usage statistics. Adding a payment method in one workspace does not carry over to other workspaces. Switch into each new workspace and configure billing before initiating calls. Review [Create and manage Tavly workspaces](/accounts/workspace) to manage workspace environments.
+</Note>
+
+### Billing Model Comparison
+
+| Billing Model | Target Workspaces | Metered Usage Settlement | Subscription Items Settlement | Top-Up Mechanism |
+| :--- | :--- | :--- | :--- | :--- |
+| **Credit-Based Billing** | All standard & newer accounts | Deducted in real time from prepaid credit balance | Invoiced monthly to credit card on file | Manual credit purchase or automated auto recharge |
+| **Monthly Billing (Legacy)** | Accounts created before credit system rollout | Billed at end of monthly cycle based on consumption | Invoiced monthly alongside usage | Post-usage card billing via Stripe; no credit balance |
+
+***
+
+## Which billing version is active on your workspace?
+
+To identify your workspace billing model, open the **Billing tab** in the Tavly dashboard. Workspaces with **credit-based billing** display a **Credits Balance** alongside **Buy credits** and **Auto recharge** actions. Legacy workspaces display a monthly billing summary with invoice history and a **Change payment methods** button.
+
+* **Credit-Based Billing**: Your Billing page features a prominent **Credits Balance** card with **Buy credits** and **Auto recharge** controls. Calls and real-time operations consume from this balance.
+* **Monthly Billing (Legacy)**: Your Billing page shows invoice periods and monthly charge breakdowns without a prepaid balance. Usage is calculated and billed post-cycle.
+
+***
+
+<Tabs>
+  <Tab title="Credit-based billing">
+    ## How does credit-based billing operate?
+
+    Credit-based accounts deduct metered **call costs in real time** from a prepaid credit balance, while fixed recurring items—such as **purchased phone numbers**, extra **knowledge bases**, and **concurrency upgrades**—are invoiced monthly to your card on file. When credits reach zero, calls are blocked until topped up.
+
+    <Frame caption="Billing page on a credit-based account, showing the Credits Balance with Buy credits and Auto recharge buttons.">
+      <img src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/billing-page/billing-credit-overview.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=2290ca7facfde0c4b2d2006235aab9e3" alt="Billing page on a credit-based account showing a Credits Balance of $100 with Buy credits and Auto recharge buttons in the top right" width="2267" height="196" data-path="images/billing-page/billing-credit-overview.png" />
+    </Frame>
+
+    ### Charge Allocation by Category
+
+    * **Metered Usage Costs**: All real-time, per-minute consumption—including Tavly conversational voice engine latency, Large Language Model (LLM) tokens, and telephony minutes—is deducted from your prepaid balance on a per-second or per-minute basis.
+    * **Fixed Monthly Subscriptions**: Fixed recurring services—such as dedicated phone numbers, knowledge base capacity above the free tier, calls per second (CPS) expansions, and purchased [concurrency](/deploy/concurrency)—are charged to your card at the close of each billing cycle.
+
+    ### Free Trial Credits and Account Quotas
+
+    New workspaces receive **\$10 in free trial credits** to test agent configurations before attaching a payment method. Trial credits are provisioned once per email address. If an email address was associated with an earlier Tavly account (including deleted accounts), signing up again will not replenish trial credits.
+
+    The billing cycle spans from the 1st of each calendar month to the final day of the month. Subscriptions provisioned mid-month are prorated for active days.
+
+    <Warning>
+      **Zero Balance Interruption**: When your prepaid credit balance drops to **\$0.00**, all active and newly initiated calls are immediately blocked. Enable **Auto recharge** to guarantee continuous uptime for production voice agents.
+    </Warning>
+
+    ***
+
+    ## How do you buy prepaid credits?
+
+    To buy credits, open the **Billing tab**, click **Buy credits**, specify your desired purchase amount, and click **Purchase**. Payments are processed securely via Stripe using your credit card on file. Purchased credits **never expire** and become available immediately to power calls, though they are **strictly non-refundable**.
+
+    <Steps>
+      <Step title="Open the Billing tab">
+        Navigate to the **Billing** tab within your Tavly dashboard and select **Buy credits**.
+      </Step>
+
+      <Step title="Enter amount and confirm purchase">
+        Specify your recharge amount in USD and click **Purchase**. The transaction is processed immediately via Stripe against your default card (see [Add payment methods](/accounts/add-payment)).
+
+        <Frame caption="Buy Credits dialog: enter purchase amount and confirm payment.">
+          <img height="400" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/billing-page/billing-buy-credits.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=23fe9f4ef92254d7af35d655a30ace3c" alt="Buy Credits dialog with a dollar amount field set to 100 and Cancel and Purchase buttons" data-path="images/billing-page/billing-buy-credits.png" />
+        </Frame>
+      </Step>
+    </Steps>
+
+    Purchased credits remain valid indefinitely and never expire. All credit sales are final and non-refundable.
+
+    ***
+
+    ## How do you configure auto recharge to prevent call drops?
+
+    To configure auto recharge, click **Auto recharge** in the Billing tab, toggle the feature on, and define your trigger threshold (**When credits drop below**) and target balance (**Bring credits back to**). When your balance breaches the threshold, Tavly automatically charges your card to replenish your account balance.
+
+    <Steps>
+      <Step title="Open auto recharge configuration">
+        Navigate to the **Billing** tab, click **Auto recharge**, and toggle **Auto Recharge** to active.
+      </Step>
+
+      <Step title="Define threshold and replenishment target">
+        Configure **When credits drop below** (the minimum balance threshold that triggers a top-up) and **Bring credits back to** (the target balance restored on recharge), then click **Save**.
+
+        <Frame caption="Auto Recharge Settings dialog: specify trigger threshold and target credit balance.">
+          <img height="400" src="https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/billing-page/billing-auto-recharge.png?fit=max&auto=format&n=a1LftRqc_k-5TDA7&q=85&s=9eb18e850f7d4767931bdb6366a97510" alt="Auto Recharge Setting dialog with the toggle on, When credits drop below set to $10, and Bring credits back to set to $100" data-path="images/billing-page/billing-auto-recharge.png" />
+        </Frame>
+      </Step>
+    </Steps>
+
+    Recharges charge your default payment method automatically. In the event of a declined charge, refer to [Handle failed payments](/accounts/fail-payment) to restore service.
+
+    ***
+
+    ## How are subscription items and monthly invoices handled?
+
+    Subscription items—including **Tavly-purchased phone numbers**, additional **knowledge bases**, **calls per second (CPS) upgrades**, and **concurrency packages**—are billed at the end of each calendar month. Charges are billed directly to your payment method, **prorated mid-cycle**, and itemized on downloadable PDF invoices.
+
+    Monthly recurring line items include:
+    * **Dedicated Phone Numbers**: Monthly rental fees for numbers [purchased through Tavly](/deploy/purchase-number).
+    * **Knowledge Base Expansion**: Capacity tiers exceeding default free allowances.
+    * **High-Throughput CPS**: Calls Per Second rate expansion packages.
+    * **Dedicated Concurrency**: Reserved simultaneous channel slots purchased under [concurrency](/deploy/concurrency).
+
+    Invoices are generated on the 1st of each calendar month. Download official PDF invoices by clicking **Invoice** adjacent to each completed period in the Billing history table.
+
+    ***
+
+    ## How do you stop charges or close a credit-based account?
+
+    To stop charges on a credit-based workspace, disable **Auto recharge**, release all active **phone numbers**, delete paid **knowledge bases**, and cancel **concurrency or CPS tiers**. Settle any outstanding subscription invoices, spend down remaining non-refundable credits, and proceed to account deletion in settings if desired.
+
+    Follow this decommissioning procedure:
+    1. **Disable Auto Recharge**: Toggle off Auto Recharge under the Billing tab to prevent automatic credit purchases.
+    2. **Release Phone Numbers**: Release purchased numbers in the Phone Numbers dashboard or trigger the [Delete Phone Number API](/api-references/delete-phone-number). Phone numbers accrue monthly fees until released.
+    3. **Deprovision Paid Add-Ons**: Delete excess knowledge bases and revert CPS or concurrency add-ons to base tiers.
+    4. **Settle Open Balances**: Review the Billing table and settle all outstanding monthly invoices.
+    5. **Spend Down Balance & Terminate**: Consume remaining credit balances (credits are non-refundable). To terminate the workspace, follow [Delete your account](/accounts/account#delete-your-account).
+  </Tab>
+
+  <Tab title="Monthly billing (legacy accounts)">
+    ## How does legacy monthly post-usage billing work?
+
+    Legacy monthly billing operates on a **post-usage consumption model** with no prepaid credit balance. Call minutes, phone numbers, and add-on subscriptions accumulate throughout the monthly cycle and are automatically charged to your **Stripe payment method** at the end of each billing period with itemized invoices.
+
+    ### Legacy Dashboard Overview
+
+    The legacy Billing interface provides centralized billing controls:
+    1. **Payment Management**: Securely managed via Stripe. Update cards or payment details by clicking **Change payment methods**.
+    2. **Billing History**: Monthly breakdown itemizing Voice Infrastructure, LLMs, and carrier charges.
+    3. **Invoices**: Direct PDF invoice downloads available per billing cycle.
+    4. **Current Unbilled Charges**: Real-time snapshot of accrued costs in the current active period.
+
+    <Note>
+      Legacy workspaces do not support prepaid credit top-ups or auto-recharge thresholds. Ensure a valid credit card remains on file via [Add payment methods](/accounts/add-payment). If a monthly charge fails, see [Handle failed payments](/accounts/fail-payment) to avoid immediate service suspension.
+    </Note>
+
+    <Frame caption="Legacy billing overview showing invoice history, current charges, and payment management.">
+      <img height="700" src="https://mintcdn.com/retellai/YTmPqPUaDmLakDGZ/images/billing-page/billing.png?fit=max&auto=format&n=YTmPqPUaDmLakDGZ&q=85&s=373dad2b36aad679703c2a41b1da7d0b" alt="Billing page on a legacy account showing billing history with Change payment methods and Invoice buttons" data-path="images/billing-page/billing.png" />
+    </Frame>
+
+    ***
+
+    ## How do you stop charges or close a legacy account?
+
+    Legacy pay-as-you-go workspaces carry no fixed platform base fee; charges accrue solely from active call minutes, phone numbers, and provisioned knowledge bases. To halt charges, discontinue call traffic, release all purchased phone numbers, remove paid add-on resources, and settle pending monthly invoices.
+
+    Execute the following steps to halt recurring expenses:
+    1. **Cease Call Routing**: Terminate outbound campaigns and unroute inbound traffic. Zero calls generate zero usage fees.
+    2. **Release Active Numbers**: Relinquish all Tavly-hosted phone numbers via dashboard or the [Delete Phone Number API](/api-references/delete-phone-number).
+    3. **Delete Paid Knowledge Bases**: Remove knowledge base documents exceeding free tier quotas.
+    4. **Settle Final Invoice**: Pay any unbilled usage for the final cycle.
+    5. **Close Account**: Finalize termination via [Delete your account](/accounts/account#delete-your-account). For enterprise custom terms, contact [Tavly Support](https://support.tavlyai.com/).
+  </Tab>
+</Tabs>
+
+***
+
+## How do you analyze your call usage and cost breakdown?
+
+Analyze workspace consumption by navigating to the **Usage tab** on the Billing page to inspect **total expenditure**, **call minutes**, **average cost per minute**, and **cost by provider**. Real-time charts break down spending across voice infrastructure, LLMs, telephony carriers, and active concurrency limits.
+
+<Frame caption="Usage analytics dashboard displaying total cost, call minutes, average cost per minute, and provider distribution.">
+  <img height="700" src="https://mintcdn.com/retellai/YTmPqPUaDmLakDGZ/images/billing-page/usage.png?fit=max&auto=format&n=YTmPqPUaDmLakDGZ&q=85&s=7009ba5cbcfa77975eef933bbfb9ea88" alt="Usage tab on the Billing page with total cost, call minutes, average cost per minute, and a cost-by-provider chart" data-path="images/billing-page/usage.png" />
+</Frame>
+
+### Key Usage Metrics
+
+* **Total Cost**: Aggregate financial expenditure across all services for the selected date range.
+* **Call Minutes**: Cumulative connected conversation duration rounded to standard billing increments.
+* **Average Cost Per Minute**: Blended per-minute operating cost factoring voice infrastructure, intelligence models, and telecom carriage.
+* **Trend Analysis**: Daily and weekly temporal distributions highlighting call volume spikes and consumption patterns.
+
+### Cost Component Breakdown
+
+| Category | Component Description | Billing Basis |
+| :--- | :--- | :--- |
+| **Voice Infra** | Tavly conversational engine, speech synthesis, and real-time audio pipeline. | Flat per-minute platform rate independent of LLM or carrier choice. |
+| **LLM** | Intelligence model inference (e.g., GPT-4o, Claude 3.5 Sonnet, bespoke models). | Metered per minute based on selected model architecture. |
+| **Telephony** | Inbound/outbound carrier carriage and monthly Tavly phone number rental. | Per-minute carrier rate. Custom SIP trunks incur zero Tavly telephony charges. |
+| **Concurrency** | Dedicated simultaneous call capacity beyond the default 20 free concurrent calls. | Monthly flat fee per reserved concurrency block. |
+
+For detailed rate cards, review the [Tavly pricing page](/pricing). Specific billing calculation rules and round-up mechanics are documented in [Exceptions to per-minute pricing](/accounts/billing-exception).

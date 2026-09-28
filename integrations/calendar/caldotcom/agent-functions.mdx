@@ -1,0 +1,167 @@
+---
+title: "Cal.com Agent Functions"
+sidebarTitle: "Agent Functions"
+description: "Deploy Cal.com integration tools for Tavly AI agents: check real-time availability, book meetings, and list, reschedule, or cancel bookings during live calls."
+seo:
+  title: "Cal.com Agent Functions | Tavly AI Integration Tools"
+  description: "Deploy Cal.com integration tools for Tavly AI agents: check real-time availability, book meetings, and list, reschedule, or cancel bookings during live calls."
+og:title: "Cal.com Agent Functions | Tavly AI Integration Tools"
+og:description: "Deploy Cal.com integration tools for Tavly AI agents: check real-time availability, book meetings, and list, reschedule, or cancel bookings during live calls."
+og:image: "https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/cal-com-event-type-id.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=8c8c1f65c8fd1d1f5aa584ccb5bc8871"
+twitter:card: "summary_large_image"
+icon: "calendar-check"
+keywords:
+  - "Cal.com agent functions"
+  - "Tavly AI Cal.com integration"
+  - "voice agent booking tools"
+  - "Cal.com real-time availability"
+  - "appointment scheduling AI"
+  - "Cal.com event type ID"
+  - "reschedule Cal.com bookings"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How do Cal.com scheduling tools execute during Tavly voice calls?"
+    answer: "Tools communicate in real time with Cal.com APIs without storing a local calendar copy, ensuring live availability checking and immediate booking confirmations."
+  - question: "How do I configure tools for multiple Cal.com meeting types?"
+    answer: "Each Check Availability or Book Appointment tool is pinned to a specific event type ID. To offer multiple appointment formats, create distinct tool instances per event type."
+  - question: "Do attendees receive automated email confirmations when booked by Tavly?"
+    answer: "Yes. All booking, rescheduling, and cancellation requests route through Cal.com, triggering native attendee notifications and calendar invites automatically."
+  - question: "Can Tavly agents reschedule an existing Cal.com reservation?"
+    answer: "Yes. Agents chain List Bookings to locate the reservation UID by email, check availability for new slots, and invoke Reschedule Booking to finalize the change."
+---
+
+# Cal.com agent functions
+
+> Cal.com tools for Tavly AI agents: check live availability, book appointments, and list, get, reschedule, or cancel bookings during the call.
+
+## What are Cal.com agent functions and how do they work in Tavly AI?
+
+**Cal.com agent functions** enable Tavly AI agents to execute live scheduling actions—checking availability, creating bookings, retrieving appointments, rescheduling, and canceling reservations—directly during phone calls or chat sessions. Tools interact in real time with Cal.com via API keys without maintaining local calendar clones, guaranteeing synchronized scheduling and automated calendar notifications.
+
+Connecting your [Cal.com account](/integrations/calendar/caldotcom/connect) arms your AI agents with real-time scheduling tools that run directly within active conversations or as pre- and post-call lifecycle tasks (see [agent workflows](/agent/agent-workflow)). 
+
+Because Tavly executes live API transactions directly against Cal.com, your agent always queries live calendar state, eliminating double-bookings and synchronization delays.
+
+---
+
+## What Cal.com scheduling tools are available for Tavly agents?
+
+Tavly provides six native Cal.com tools: **Check Availability** (retrieves open slots for a specific event type), **Book Appointment** (confirms a reserved slot), **List Bookings** (finds up to 50 attendee bookings), **Get Booking** (retrieves booking details by UID), **Reschedule Booking** (moves existing appointments), and **Cancel Booking** (voids scheduled sessions).
+
+These functions become selectable in your agent's tool library once the integration is authenticated. Both **Check Availability** and **Book Appointment** require a configured [event type ID](#how-do-you-find-and-configure-a-calcom-event-type-id), binding that specific tool instance to an individual meeting configuration. Consult [using integration tools in an agent](/integrations/integrations-overview#use-integration-tools-in-an-agent) for attachment instructions.
+
+### Tool functional specification
+
+| Tool Name | Operation Type | Functional Description | Key Input Parameters |
+| :--- | :--- | :--- | :--- |
+| **Check Availability** | Read | Queries open calendar slots for the configured event type across a specified date/time window. | `eventTypeId`, `startTime`, `endTime` |
+| **Book Appointment** | Write | Reserves and confirms an appointment for the configured event type once the caller agrees on a time. | `eventTypeId`, `start`, `name`, `email`, `timeZone` |
+| **List Bookings** | Read | Retrieves up to 50 upcoming bookings filtered by attendee email address within a defined time range. | `attendeeEmail`, `afterStartTime`, `beforeEndTime` |
+| **Get Booking** | Read | Fetches comprehensive details and metadata for a specific booking using its unique identifier. | `bookingUid` |
+| **Reschedule Booking** | Write | Modifies an existing booking by reassigning it to a newly verified calendar slot. | `bookingUid`, `newStartTime` |
+| **Cancel Booking** | Write | Voids and cancels an existing booking in Cal.com. | `bookingUid`, `cancellationReason` |
+
+<Tip>
+  **Tool Chaining Strategy**: To manage reschedules smoothly, design your conversation prompt to call **List Bookings** using the caller's verified email, invoke **Check Availability** to validate their preferred alternative slot, and execute **Reschedule Booking** using the acquired UID. Map the booking UID into a [dynamic variable](/build/context/dynamic-variables) to pass context seamlessly between conversational nodes.
+</Tip>
+
+---
+
+## How do you find and configure a Cal.com event type ID?
+
+To configure event-specific tools, log into your Cal.com dashboard, navigate to **Event Types**, and open the target meeting template. Extract the numeric identifier located at the end of your browser's address bar (for example, `app.cal.com/event-types/1234567`), and paste this integer into the tool's **Event Type ID** field.
+
+<Steps>
+  <Step title="Navigate to Event Types">
+    Log in to your Cal.com dashboard, select **Event Types** from the left navigation bar, and click on the meeting profile you want your agent to schedule (e.g., *15 Min Consultation* or *Discovery Call*).
+  </Step>
+
+  <Step title="Locate the Event Type ID in the browser URL">
+    Observe the URL path displayed in your browser's address bar. The numerical sequence following `/event-types/` represents your unique ID. For instance, in `https://app.cal.com/event-types/1234567`, the Event Type ID is `1234567`.
+  </Step>
+
+  <Step title="Configure the ID within the Tavly agent tool">
+    Open your agent configuration in Tavly, locate the **Check Availability** or **Book Appointment** tool card, and paste the numeric value into the **Event Type ID** field. If your agent supports multiple booking categories (e.g., Support vs. Sales), attach separate tool instances configured with their respective IDs.
+  </Step>
+</Steps>
+
+<Frame caption="An event type open in Cal.com — the event type ID is the number after /event-types/ in the address bar.">
+  <div style={{ aspectRatio: '16 / 9', width: '100%', background: 'rgba(128,128,128,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', overflow: 'hidden' }}>
+    <img src="https://mintcdn.com/retellai/eQ17pyeTZnmNJIsQ/images/integration/cal-com-event-type-id.png?fit=max&auto=format&n=eQ17pyeTZnmNJIsQ&q=85&s=8c8c1f65c8fd1d1f5aa584ccb5bc8871" alt="A Cal.com event type named 30 min meeting open on its Basics tab, with title, description, duration, and location settings. The browser address bar is highlighted with a blue ring, showing app.cal.com/event-types/ followed by the event type ID, which is redacted in this shot." style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} width="1792" height="982" data-path="images/integration/cal-com-event-type-id.png" />
+  </div>
+</Frame>
+
+---
+
+## What permissions and API access does the Cal.com integration require?
+
+Connecting Cal.com requires an **account-level API key** that grants unified read and write access across your scheduling workspace. There are no granular per-tool permission scopes; the API key empowers all configured agent tools to read event type configurations, evaluate calendar availability, and manage booking lifecycles on your behalf.
+
+Every connected tool inherits authorization from this API key:
+* **Event Reading**: Evaluates active event types, durations, buffer times, and availability schedules.
+* **Calendar Inspection**: Queries connected personal and team calendars (Google Calendar, Microsoft Outlook, Apple Calendar) to detect conflicts.
+* **Booking Governance**: Issues live bookings, generates video conference links (e.g., Cal Video, Google Meet, Zoom), and executes updates or cancellations.
+
+---
+
+## How do you troubleshoot common Cal.com scheduling errors?
+
+Resolve Cal.com function issues by verifying that the **Event Type ID** matches your published Cal.com URL and that connected external calendars (Google or Outlook) permit availability queries. If attendee bookings fail to appear in lookups, confirm the customer's email address and broaden the search query's temporal window.
+
+<AccordionGroup>
+  <Accordion title="Check Availability returns no available time slots">
+    First, confirm that the numeric **Event Type ID** entered in the tool configuration exactly matches the ID from your Cal.com URL. Second, verify the event type's schedule in Cal.com to ensure working hours are defined within the requested date window. Finally, check that your underlying calendar (Google Calendar or Microsoft Outlook) is connected under **Apps** in Cal.com and that your busy time settings are not inadvertently blocking the entire requested timeframe.
+  </Accordion>
+
+  <Accordion title="List Bookings cannot locate the caller's existing appointment">
+    **List Bookings** performs an exact match against the attendee's email address within the specified time parameters. Instruct your agent prompt to confirm the exact email address used during initial booking. If the appointment might fall outside the initial query boundary, instruct the agent to widen the search window.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Frequently asked questions about Cal.com agent functions
+
+Cal.com tools execute live API calls during conversational interactions, sending automated confirmation emails and calendar invites directly to attendees. Built-in legacy tools transition to the unified integration by **October 31, 2026**. Alternative native scheduling platforms include **Calendly** and **GoHighLevel** calendars for CRM-integrated booking workflows.
+
+<AccordionGroup>
+  <Accordion title="What happens to my agents using legacy built-in Cal.com tools?">
+    Built-in Cal.com tools are being phased out in favor of this integration. The Tavly dashboard no longer supports creating legacy tools, and the API ceases creating or editing them on **September 30, 2026**. Existing built-in tools remain fully operational until **October 31, 2026**, when Tavly will automatically migrate them:
+    * Tavly generates one unified integration connection per detected API key.
+    * Tool function names are preserved to prevent breaking existing conversational prompts.
+    * Tools with invalid, expired, or revoked API keys will be skipped during migration and will halt execution. To avoid service disruption, migrate proactively: [connect Cal.com](/integrations/calendar/caldotcom/connect), attach **Check Availability** and **Book Appointment** with your existing event type IDs, and remove legacy tools. Consult the [deprecation schedule](/deprecation-notice/2026/10-31_legacy_calcom_tools) for details.
+  </Accordion>
+
+  <Accordion title="What alternative scheduling integrations does Tavly support?">
+    If your scheduling ecosystem is hosted outside Cal.com, Tavly supports:
+    * **Calendly**: Use [Calendly agent functions](/integrations/calendar/calendly/agent-functions) to handle slot verification, booking creation, and appointment cancellations.
+    * **GoHighLevel**: Use [GoHighLevel calendar functions](/integrations/crm/gohighlevel/agent-functions#book-the-sub-accounts-calendars) when appointments are tightly tied to CRM contact records within the same sub-account.
+  </Accordion>
+
+  <Accordion title="Does the attendee receive an automated email confirmation?">
+    Yes. Because bookings, reschedules, and cancellations execute natively through Cal.com's backend, attendees receive the exact confirmation emails, calendar `.ics` invites, SMS reminders, and video meeting URLs configured in your Cal.com event type settings.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Integration tools for prompt agents" icon="wand-magic-sparkles" href="/build/setup/single-multi-prompt/integration-tools">
+    Equip single- or multi-prompt agents with Cal.com functions and test live scheduling flows.
+  </Card>
+
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/conversation-flow/integration-tools">
+    Trigger Cal.com tools inside visual function nodes and branch dialogue based on booking outcomes.
+  </Card>
+
+  <Card title="Dynamic variables" icon="code" href="/build/context/dynamic-variables">
+    Store booking UIDs and reservation timestamps across conversational nodes.
+  </Card>
+
+  <Card title="Simulation testing" icon="flask" href="/test/llm-simulation-testing">
+    Simulate booking workflows and test agent error-handling without booking real calendar slots.
+  </Card>
+</CardGroup>

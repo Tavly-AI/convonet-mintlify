@@ -1,0 +1,282 @@
+---
+title: "Trigger Tavly Voice Agent Calls from Slack"
+sidebarTitle: "Slack App"
+description: "Install the Tavly AI Slack app to initiate outbound voice agent phone calls using slash commands and post conversational summaries and recordings to channels."
+seo:
+  title: "Trigger Outbound Voice Agent Calls from Slack | Tavly AI"
+  description: "Install the Tavly AI Slack app to initiate outbound voice agent phone calls using slash commands and post conversational summaries and recordings to channels."
+og:title: "Trigger Outbound Voice Agent Calls from Slack | Tavly AI"
+og:description: "Install the Tavly AI Slack app to initiate outbound voice agent phone calls using slash commands and post conversational summaries and recordings to channels."
+og:image: "https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-1.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=aab90d24f0895f5b13551f5717d77466"
+twitter:card: "summary_large_image"
+icon: "slack"
+keywords:
+  - "Tavly AI Slack app"
+  - "trigger voice calls from Slack"
+  - "Slack slash command phone call"
+  - "voice agent Slack integration"
+  - "post-call summary Slack"
+  - "E.164 phone formatting"
+  - "Slack call recording link"
+date: "2026-09-27"
+author: "Tavly AI Team"
+faq:
+  - question: "How do you trigger an outbound phone call from a Slack channel?"
+    answer: "Enter the slash command /tavly-call (or /retell-call) followed by an E.164 formatted phone number in any channel where the bot is installed."
+  - question: "Why is a webhook key required for Slack post-call summaries?"
+    answer: "Tavly routes post-call analysis payloads only through API keys explicitly designated as webhook keys in dashboard settings."
+  - question: "Can Tavly send call summaries to private Slack channels?"
+    answer: "Yes, provided team members run /invite @Tavly AI in the private channel before configuring or initiating calls."
+  - question: "Can I use the Slack integration alongside Notion or Zoho webhooks simultaneously?"
+    answer: "Tavly supports one active webhook integration per API key at a time; choose which platform receives call events in wizard settings."
+---
+
+# Trigger Tavly calls from Slack
+
+> Install the Tavly AI Slack app to start outbound voice agent calls from Slack and post call summaries, results, and recordings back to channels.
+
+This guide connects **Tavly AI** to Slack so team members can start outbound calls with a slash command. After each analyzed call, Tavly posts the result to the originating channel.
+
+---
+
+## What is the Tavly AI Slack app and how does it automate outbound calls?
+
+The **Tavly AI Slack application** connects conversational voice agents directly to your Slack workspace, allowing team members to initiate automated outbound telephone calls using slash commands. Once a call concludes, Tavly automatically posts comprehensive conversation summaries, user sentiment analysis, audio recording links, and duration metrics back to designated channels.
+
+By embedding AI voice agents directly into Slack, cross-functional teams (including sales, support, and operations) can trigger customer outreach instantly without leaving their central communication platform.
+
+### Key capabilities and operational workflow
+
+| Component | Technical Function | Operational Benefit |
+| :--- | :--- | :--- |
+| **Slash Command Dispatch** | Executes immediate outbound calls via `/tavly-call` or `/retell-call` | Enables one-click outbound calling from any active channel |
+| **Webhook Delivery Engine** | Dispatches asynchronous webhook payloads on `call_analyzed` events | Automatically posts conversational data without manual polling |
+| **Post-Call Summaries** | Formats sentiment, transcript highlights, and durations in Slack cards | Provides team-wide visibility into customer interactions |
+| **Direct Recording Playback** | Embeds secure audio recording hyperlinks directly within messages | Facilitates instant QA review and audit trail verification |
+
+---
+
+## What prerequisites are required before installing the Slack integration?
+
+Configuring the Slack integration requires **Slack workspace app installation permissions**, an active **Tavly AI account** equipped with an API key, configured voice agents, and an outbound phone number. You also need an accessible Slack channel for notifications (with `@Tavly AI` invited if private) and valid destination numbers formatted in **E.164**.
+
+### System prerequisites checklist
+
+Ensure all administrative permissions and account prerequisites are in place prior to launching the setup flow:
+
+* **Slack permissions**: Administrative authorization to add and install third-party applications in your target Slack workspace.
+* **Tavly account credentials**: An active Tavly AI account with a provisioned API key, at least one configured conversational voice agent, and an assigned outbound caller ID.
+* **Designated Slack notification channel**: A public or private channel designated for receiving post-call results. If using a private channel, run `/invite @Tavly AI` before initiating calls.
+* **E.164 phone number formatting**: All outbound test and production destination numbers must adhere to standard international E.164 syntax (e.g., `+15551234567`).
+
+<Note>
+  Use your own API key, webhook URL, agent, caller ID, channels, and test numbers. The screenshots use sample or masked values.
+</Note>
+
+---
+
+## How do you install and authorize the Tavly AI app in your Slack workspace?
+
+To install the app, locate **Tavly AI** within the **Slack App Directory**, click **Add to Slack**, and choose your target workspace. Review the requested permission scopes—including channel message posting and slash command registration—and select **Allow** to authorize workspace access and deploy the Tavly App Home tab.
+
+<Steps>
+  <Step title="Add Tavly AI to the workspace">
+    Open the Slack App Directory, search for **Tavly AI**, select **Add to Slack**, and choose the workspace you want to connect.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-1.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=aab90d24f0895f5b13551f5717d77466" alt="Slack App Directory listing for Tavly AI with the Add to Slack button" style={{ maxHeight: 560 }} width="1916" height="1015" data-path="images/slack/screenshot-1.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Approve the requested permissions">
+    Review the Slack permissions, then select **Allow** to finish installing the app.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-2.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=df51370d759e8d87177eaf1e0fb627df" alt="Slack OAuth permission screen for Tavly AI with the Allow button" style={{ maxHeight: 560 }} width="1907" height="904" data-path="images/slack/screenshot-2.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you configure Tavly credentials and caller settings in the setup wizard?
+
+Open **Apps → Tavly AI → Home** in Slack and select **Launch configuration wizard**. Generate or designate an API key as a **webhook key** in the Tavly dashboard, save it into the wizard, select your outbound caller ID number, and specify the default channel where Tavly delivers post-call analysis summaries.
+
+<Steps>
+  <Step title="Open the Tavly AI App Home">
+    In Slack, open **Apps → Tavly AI → Home**. If the workspace is not connected, select **Connect Slack** and approve access.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-3.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=dc159308e2f8051289efc0ef424b7427" alt="Tavly AI App Home in Slack showing the Connect Slack option" style={{ maxHeight: 560 }} width="1364" height="956" data-path="images/slack/screenshot-3.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Launch the configuration wizard">
+    From App Home, select **Launch configuration wizard**. Sign in to Tavly if required, or continue without signing in when your Tavly account is already configured.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-4.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=b0ee4e1521d14c55609b345849bc8b83" alt="Tavly AI App Home in Slack showing the Launch configuration wizard button" style={{ maxHeight: 560 }} width="1900" height="902" data-path="images/slack/screenshot-4.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set the webhook key">
+    In the Tavly dashboard, go to **Settings → API Keys**. Copy an existing key or select **Add Key** to create one. Open the key's **⋮** options menu and select **Set as webhook key**, then copy the key value.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/o06lgtAxxC9SPFv2/images/slack/api-key-webhook.png?fit=max&auto=format&n=o06lgtAxxC9SPFv2&q=85&s=791373030455c7ccc1cf9d9c183ba7c3" alt="Tavly API Keys page with the key options menu open and Set as webhook key highlighted" style={{ maxHeight: 560 }} width="1915" height="893" data-path="images/slack/api-key-webhook.png" />
+    </Frame>
+
+    <Note>
+      The API key must have the webhook option enabled. Post-call analysis data is only posted back to Slack when the key is designated as a webhook key.
+    </Note>
+  </Step>
+
+  <Step title="Save the API key">
+    Paste the webhook key into **Retell API Key** (or Tavly API Key) and select **Save API key**. Confirm that the status shows **Saved** before continuing.
+
+    Tavly AI supports only one active webhook integration at a time per workspace. If you are also using Notion or Zoho, choose which integration receives webhook events.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-5.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=99346c167a7d4f04a2333a353065efc0" alt="Tavly setup wizard showing the API Key field and Save API key button" style={{ maxHeight: 560 }} width="1897" height="906" data-path="images/slack/screenshot-5.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Choose the outbound caller ID">
+    Select the Tavly phone number used for outbound calls. If an agent option appears, choose the default agent or keep the Tavly account default.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-6.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=3cb66b0961881a228481e553ff7ca3e9" alt="Tavly setup wizard showing the outbound caller ID and agent options" style={{ maxHeight: 560 }} width="1897" height="902" data-path="images/slack/screenshot-6.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Set the default notification channel">
+    Choose the Slack channel that receives results when a call does not specify one. For a private channel, first run `/invite @Tavly AI` (or `/invite @Retell AI`) in that channel.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-7.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=d1612609262f0d56704906272863433f" alt="Tavly setup wizard showing the default Slack notification channel selector" style={{ maxHeight: 560 }} width="1890" height="895" data-path="images/slack/screenshot-7.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you register the Slack webhook URL with your Tavly agent?
+
+Copy the unique endpoint from **Register the Webhook URL in Tavly** inside the wizard. In your Tavly dashboard, navigate to **Agents**, select your calling agent, expand **Webhook Settings**, paste the URL into **Agent Level Webhook URL**, verify connectivity using **Test**, and ensure the `call_analyzed` event trigger remains enabled.
+
+<Steps>
+  <Step title="Copy the generated webhook URL">
+    In the setup wizard, find **Register the Webhook URL in Retell** (or Tavly) and select **Copy webhook URL**.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-8.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=c4588c89b880668a244e8f0ac151f22d" alt="Tavly setup wizard showing the generated webhook URL and Copy webhook URL button" style={{ maxHeight: 560 }} width="1823" height="496" data-path="images/slack/screenshot-8.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Add the webhook URL to the Tavly agent">
+    Open the Tavly dashboard, select **Agents**, and open the agent used for Slack. Expand **Webhook Settings**, paste the URL into **Agent Level Webhook URL**, and select **Test**. Under **Webhook Events**, make sure `call_analyzed` is enabled so Tavly can send the post-call result. Save or publish the changes.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-9.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=829784db2673abfbd5730ff81f8952d8" alt="Tavly agent Webhook Settings showing the pasted Agent Level Webhook URL, Test button, and call_analyzed webhook event" style={{ maxHeight: 560 }} width="1908" height="889" data-path="images/slack/screenshot-9.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you initiate outbound voice calls from Slack channels?
+
+To place a call, type `/tavly-call` (or `/retell-call`) followed by a valid destination number in **E.164 format** directly into an authorized Slack channel. Slack returns an immediate ephemeral confirmation when dialing begins, and Tavly posts the final conversational summary, sentiment scores, and call recording link upon call completion.
+
+Use the slash command for the fastest end-to-end test.
+
+<Steps>
+  <Step title="Run the slash command">
+    In a channel where Tavly AI can post, enter the command below with a valid E.164 destination number. Slack displays a private confirmation when the call starts.
+
+    ```text theme={"dark"}
+    /tavly-call +15551234567
+    ```
+
+    <Note>
+      Depending on your workspace app manifest, both `/tavly-call` and `/retell-call` slash commands are supported.
+    </Note>
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-10.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=27650727e0e2d2ecc73fad60b95287ab" alt="Slack channel showing the slash command with an E.164 destination number" style={{ maxHeight: 560 }} width="2864" height="1524" data-path="images/slack/screenshot-10.png" />
+    </Frame>
+  </Step>
+
+  <Step title="Review the post-call message">
+    After Tavly analyzes the call, review the Slack message for the summary, duration, direction, sentiment, transcript details, and recording link.
+
+    <Frame>
+      <img src="https://mintcdn.com/retellai/74XP5i9H3wbJHpKM/images/slack/screenshot-12.png?fit=max&auto=format&n=74XP5i9H3wbJHpKM&q=85&s=979c61178fa032d138491d3cf3c54416" alt="Slack message containing the Tavly AI post-call summary, call details, and recording link" style={{ maxHeight: 560 }} width="2084" height="1062" data-path="images/slack/screenshot-12.png" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## How do you troubleshoot common Slack calling and notification issues?
+
+Troubleshoot Slack calling errors by verifying that phone numbers follow international **E.164 formatting** and confirming `@Tavly AI` has been invited to private channels. If post-call messages fail to appear, verify that the designated API key is saved as a **webhook key** and that the agent's `call_analyzed` event is enabled.
+
+| Problem | Root Cause | Recommended Resolution |
+| :--- | :--- | :--- |
+| **Slack is not connected** | Authorization token not finalized | Select **Connect Slack** in App Home, approve access, then reopen the Home tab. |
+| **Setup will not complete** | Incomplete setup steps | Confirm the API key, caller ID, default channel, and webhook test are complete. |
+| **Webhook test fails** | Truncated URL or missing permissions | Copy the full URL without editing it and complete the Slack connection before testing. |
+| **Slash command says not connected** | Wizard steps incomplete | Finish the setup wizard. An admin may need to reconnect or reinstall the app. |
+| **Invalid phone number** | Incorrect formatting or missing country code | Use E.164 format with a leading plus and country code (e.g., `+15551234567`), without brackets or spaces. |
+| **No post-call message** | Missing bot access or disabled event | Check the originating channel, invite Tavly AI to private channels, and enable `call_analyzed`. |
+| **Message goes to the wrong channel** | Default notification route misconfigured | Update the default notification channel in the setup wizard. |
+| **Channel is not accessible** | Bot not invited to private channel | Invite Tavly AI to the private channel (`/invite @Tavly AI`) or use an accessible public or default channel. |
+| **Wrong agent or caller ID** | Mismatched defaults in wizard | Update the default agent and caller ID in the wizard and confirm they match Tavly dashboard settings. |
+
+---
+
+## Frequently asked questions about triggering Tavly calls from Slack
+
+The Slack integration allows team members to trigger outbound voice agent calls using slash commands and receive conversational summaries and recordings automatically. Tavly supports one active webhook integration per key, requires E.164 phone formatting, and delivers instant notifications to public or private channels once post-call analysis concludes.
+
+<AccordionGroup>
+  <Accordion title="How do you trigger an outbound phone call from a Slack channel?">
+    Type `/tavly-call` (or `/retell-call`) followed by the destination phone number in standard E.164 international format (e.g., `/tavly-call +15551234567`) in any channel where the bot is authorized.
+  </Accordion>
+
+  <Accordion title="Why is a designated webhook key required for Slack post-call summaries?">
+    Tavly routes post-call event data specifically through API keys designated as webhook keys. If a regular API key is used without the webhook flag enabled, call analysis data cannot post back to Slack.
+  </Accordion>
+
+  <Accordion title="Can Tavly post call summaries into private Slack channels?">
+    Yes. Before initiating calls or selecting a private channel as the default notification destination, invite the bot by executing `/invite @Tavly AI` inside that private channel.
+  </Accordion>
+
+  <Accordion title="Can I use the Slack integration alongside Notion or Zoho webhooks simultaneously?">
+    Tavly accounts support one active webhook integration at a time per API key. If you are also utilizing Notion or Zoho integrations, designate which integration receives events or manage endpoints at the agent level.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="HubSpot Marketplace App" icon="hubspot" href="/marketplace/hubspot">
+    Trigger outbound Tavly voice calls directly from HubSpot CRM workflows and contact records.
+  </Card>
+
+  <Card title="Notion Marketplace App" icon="notion" href="/marketplace/notion">
+    Automate outbound voice agent calls from Notion database automations and write back summaries.
+  </Card>
+
+  <Card title="Zoho Marketplace App" icon="briefcase" href="/marketplace/zoho">
+    Initiate voice outreach directly from Zoho CRM records and log post-call intelligence.
+  </Card>
+
+  <Card title="Integrations Overview" icon="grid-2" href="/integrations/integrations-overview">
+    Explore the full ecosystem of native CRM, helpdesk, calendar, and knowledge base connectors.
+  </Card>
+</CardGroup>
