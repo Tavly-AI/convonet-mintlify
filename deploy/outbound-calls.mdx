@@ -235,7 +235,7 @@ Execute the [Get Call API](/api-references/get-call) using the returned `call_id
 
 #### 2. Real-Time Webhooks
 
-Register endpoints via [webhooks overview](/features/webhook-overview) to receive automated POST payloads for call lifecycle events:
+Register endpoints via [webhooks overview](/monitor/webhook-overview) to receive automated POST payloads for call lifecycle events:
 
 * **Call Started**: Dispatched when media negotiation completes and the callee answers.
 * **Call Ended**: Delivered upon call termination with final duration and disconnect cause.
@@ -252,9 +252,9 @@ Register endpoints via [webhooks overview](/features/webhook-overview) to receiv
 
 ## Related Resources
 
-* [Make batch calls](/deploy/make-batch-call): Schedule and execute high-volume calling campaigns.
-* [Handle voicemail and IVR](/build/handle-voicemail): Automatically detect answering machines and IVR menus.
-* [Capture DTMF input](/build/user-dtmf): Collect dual-tone multi-frequency keypad inputs from callers.
+* [Make batch calls](/deploy/agents/batch-calls): Schedule and execute high-volume calling campaigns.
+* [Handle voicemail and IVR](/build/telephony/handle-voicemail): Automatically detect answering machines and IVR menus.
+* [Capture DTMF input](/build/telephony/user-dtmf): Collect dual-tone multi-frequency keypad inputs from callers.
 * [Debug outbound calls](/reliability/debug-outbound-call): Troubleshoot `not_connected` failures and SIP disconnects.
-* [Webhook integration guide](/features/webhook-overview): Configure webhook subscriptions and authenticate payloads.
+* [Webhook integration guide](/monitor/webhook-overview): Configure webhook subscriptions and authenticate payloads.
 * [Concurrency management](/deploy/concurrency): Scale concurrent channels to support high call volumes.

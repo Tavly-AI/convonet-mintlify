@@ -35,7 +35,7 @@ Engage in rapid text-based conversations with your agent, either by typing manua
 
 ### Simulation Testing
 
-Convert conversation scripts into automated test cases with defined pass/fail rubrics. Run individual scenarios or execute comprehensive [batch](/test/batch-test-simulation) runs to prevent behavioral regressions during prompt updates. You can also leverage [Conductor](/test/testing-with-conductor) to synthesize test scenarios from production logs, trigger batch evaluations, and inspect failure patterns. Learn more in [Automatically test your agent](/test/llm-simulation-testing).
+Convert conversation scripts into automated test cases with defined pass/fail rubrics. Run individual scenarios or execute comprehensive [batch](/test/batch-test-simulation) runs to prevent behavioral regressions during prompt updates. You can also leverage [Conductor](/test/llm-simulation-testing) to synthesize test scenarios from production logs, trigger batch evaluations, and inspect failure patterns. Learn more in [Automatically test your agent](/test/llm-simulation-testing).
 
 ### Web Call Testing
 
@@ -65,7 +65,7 @@ Dial outbound to a mobile number or receive inbound calls over public telephony 
   **Automated grading is exclusive to simulation testing.** While the LLM Playground's AI user simulator can dynamically generate conversation dialogue, it does not evaluate performance against assertions. Convert playground sessions into simulation test cases whenever automated evaluation is required.
 </Note>
 
-Review [testing pricing](/test/testing-pricing) for a detailed breakdown of run rates and compute charges.
+Review [testing pricing](/test/test-pricing) for a detailed breakdown of run rates and compute charges.
 
 ## Which testing methods are compatible with your agent architecture?
 
@@ -85,7 +85,7 @@ Review [testing pricing](/test/testing-pricing) for a detailed breakdown of run 
   </Step>
 
   <Step title="Lock in a regression suite">
-    Formalize vital user flows into [simulation test cases](/test/llm-simulation-testing). Trigger them as a [batch](/test/batch-test-simulation) upon every deployment. Employ [Conductor](/test/testing-with-conductor) to turn real production logs into automated test cases.
+    Formalize vital user flows into [simulation test cases](/test/llm-simulation-testing). Trigger them as a [batch](/test/batch-test-simulation) upon every deployment. Employ [Conductor](/test/llm-simulation-testing) to turn real production logs into automated test cases.
   </Step>
 
   <Step title="Validate the voice">
@@ -97,7 +97,7 @@ Review [testing pricing](/test/testing-pricing) for a detailed breakdown of run 
   </Step>
 </Steps>
 
-To evaluate real-world production calls post-completion for hallucination rates, conversation resolution, and round-trip latency, integrate [AI Quality Assurance](/ai-qa/overview) into your monitoring stack.
+To evaluate real-world production calls post-completion for hallucination rates, conversation resolution, and round-trip latency, integrate [AI Quality Assurance](/monitor/ai-qa/overview) into your monitoring stack.
 
 <Tip>
   Maintain a dedicated pre-flight test checklist covering standard user paths and adversarial edge cases, executing it prior to every production release.

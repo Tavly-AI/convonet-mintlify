@@ -32,7 +32,7 @@ This page provides a hard reference for which providers support which languages.
 
 A checkmark (✓) means at least **one** of the provider's voice models supports the language natively. However, some providers restrict specific languages strictly to certain models (detailed below). 
 
-For a broader evaluation of quality and features across these providers, review the [TTS provider comparison](/build/tts-provider-comparison).
+For a broader evaluation of quality and features across these providers, review the [TTS provider comparison](/build/speech/tts-provider-comparison).
 
 | Language    | Code(s)                                     | Platform | MiniMax | Cartesia | Inworld | Fish Audio | ElevenLabs | OpenAI |
 | ----------- | ------------------------------------------- | :------: | :-----: | :------: | :-----: | :--------: | :--------: | :----: |
@@ -119,7 +119,7 @@ While most providers support their full language roster regardless of the model 
 
 A checkmark (✓) means the ASR provider can accurately transcribe that language. By default, Tavly automatically routes across ASR providers dynamically to optimize for latency or accuracy.
 
-You can explicitly pin a specific provider via a custom speech-to-text config, provided it covers your agent's required languages. See [Speech recognition providers](/build/asr-providers).
+You can explicitly pin a specific provider via a custom speech-to-text config, provided it covers your agent's required languages. See [Speech recognition providers](/build/understanding/asr-providers).
 
 | Language    | Code(s)                                     | Deepgram | Azure | Soniox | AssemblyAI |
 | ----------- | ------------------------------------------- | :------: | :---: | :----: | :--------: |
@@ -187,6 +187,6 @@ You can explicitly pin a specific provider via a custom speech-to-text config, p
 
 ## Multilingual Agents
 
-For a [Multilingual Agent](/agent/multilingual), every single language you select must be explicitly covered by *both* one voice provider and one ASR provider capable of handling the entire set together. 
+For a [Multilingual Agent](/build/multilingual), every single language you select must be explicitly covered by *both* one voice provider and one ASR provider capable of handling the entire set together. 
 
 If no single provider covers the entire combination, the dashboard aggressively blocks the selection to prevent runtime errors.

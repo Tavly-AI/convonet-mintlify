@@ -46,13 +46,13 @@ If you do not explicitly select a language, the agent will gracefully default to
 
 If you need to serve a diverse customer base, you can deploy a Multilingual Agent or dynamically override the language on a strict per-call basis via webhooks.
 
-<Card title="Configure a multilingual agent" icon="globe" href="/agent/multilingual">
+<Card title="Configure a multilingual agent" icon="globe" href="/build/multilingual">
   If your agent needs to serve callers speaking different languages, check out the multilingual guide.
 </Card>
 
-If your CRM already knows the caller's language before the call even connects, you should override the language via the [Inbound Call Webhook](/features/inbound-call-webhook). This grants you absolute single-language accuracy on every individual call without narrowing your overall customer reach.
+If your CRM already knows the caller's language before the call even connects, you should override the language via the [Inbound Call Webhook](/deploy/inbound-call-webhook). This grants you absolute single-language accuracy on every individual call without narrowing your overall customer reach.
 
-<Note> **Closely Related Languages:** Speech recognition often struggles to differentiate closely related languages natively (e.g., Cantonese versus Mandarin Chinese). If your callers use these dialects, aggressively route them to single-language agents rather than relying on automatic detection. Read more about [closely related languages](/agent/multilingual#closely-related-languages-are-hard-to-distinguish).</Note>
+<Note> **Closely Related Languages:** Speech recognition often struggles to differentiate closely related languages natively (e.g., Cantonese versus Mandarin Chinese). If your callers use these dialects, aggressively route them to single-language agents rather than relying on automatic detection. Read more about [closely related languages](/build/multilingual#how-do-you-handle-closely-related-languages).</Note>
 
 ## Which languages are supported?
 
@@ -61,6 +61,6 @@ A language must be explicitly supported by both your chosen Voice Provider (for 
 Because provider coverage shifts dynamically, the dashboard itself serves as the definitive source of truth. Opening the language picker reveals the current live set of supported languages, updating instantly as you swap ASR or TTS providers. Incompatible combinations appear greyed out with descriptive tooltips.
 
 * **Detailed Breakdowns:** Review [Language support by provider](/build/language-support).
-* **Provider Comparisons:** Analyze the [TTS provider comparison](/build/tts-provider-comparison) and [Speech recognition providers](/build/asr-providers) documentation to evaluate trade-offs.
+* **Provider Comparisons:** Analyze the [TTS provider comparison](/build/speech/tts-provider-comparison) and [Speech recognition providers](/build/understanding/asr-providers) documentation to evaluate trade-offs.
 
 For locale-specific variants (e.g., British English vs. US English, or European Spanish vs. Latin American Spanish), the dashboard automatically exposes explicit dialect codes wherever supported by the underlying provider.

@@ -9,7 +9,7 @@ og:title: 'Agent Transfer Node: Swap AI Agents Mid-Call'
 og:description: 'Use the Tavly Agent Transfer Node to seamlessly hand off an active phone call from one AI agent to another specialized agent without dropping the connection.'
 og:image: 'https://mintcdn.com/retellai/XoiOOpBkax1duk4y/images/cf/transfer-agent.png'
 twitter:card: 'summary_large_image'
-icon: 'users-arrows'
+icon: 'hat-glasses'
 keywords: ['agent transfer node', 'agent swap', 'AI handoff', 'modular call flows', 'switch AI agents']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -30,7 +30,7 @@ This node is critical for modularizing complex call flows. It allows you to buil
 
 ## Why choose Agent Transfer over Call Transfer?
 
-Compared to routing to another agent via a traditional [Call Transfer Node](/build/conversation-flow/call-transfer-node), **Agent Transfers** provide massive architectural advantages:
+Compared to routing to another agent via a traditional [Call Transfer Node](/build/setup/conversation-flow/add-nodes/call-transfer-node), **Agent Transfers** provide massive architectural advantages:
 
 * **Lower Latency:** The internal swap between agents happens almost instantaneously, far faster than establishing a new SIP connection.
 * **Higher Reliability:** Because there is no new outbound phone call placed, there are zero external telephony fail points.
@@ -52,7 +52,7 @@ Language, voice, ambient sound, LLM model, prompt, and tools all automatically s
 
 <Note> **Override Settings:** Activating **"Keep the same voice"** or **"Keep the current language"** will aggressively carry the original agent's stylistic settings into the destination agent. Preserving the voice inherently preserves the original ambient sound as well.</Note>
 
-For exhaustive details on webhook routing, metadata inheritance, and dynamic variable handoffs, read the core [Agent Transfer Guide](/build/single-multi-prompt/transfer-agent).
+For exhaustive details on webhook routing, metadata inheritance, and dynamic variable handoffs, read the core [Agent Transfer Guide](/build/setup/single-multi-prompt/agent-transfer-tool).
 
 ## How do you set it up?
 

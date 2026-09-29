@@ -32,7 +32,7 @@ For instance, an AI support agent might handle routine FAQs independently, but i
   Transfer Call only works on traditional phone calls — not web calls. It is supported natively on Tavly numbers and on numbers you've imported via SIP.
 </Warning>
 
-If you want to hand the conversation to another *AI agent* rather than a phone number, use the [Agent Transfer](/build/single-multi-prompt/transfer-agent) tool instead. It offers lower latency and carries the complete conversation history directly to the next agent. If you are using a conversation flow agent, utilize the [call transfer node](/build/conversation-flow/call-transfer-node) instead.
+If you want to hand the conversation to another *AI agent* rather than a phone number, use the [Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool) tool instead. It offers lower latency and carries the complete conversation history directly to the next agent. If you are using a conversation flow agent, utilize the [call transfer node](/build/setup/conversation-flow/add-nodes/call-transfer-node) instead.
 
 ## How do you configure a transfer?
 
@@ -153,7 +153,7 @@ A **transfer agent** is a specialized, purpose-built AI that solely screens hand
   Transfer agents live in a separate list from your regular agents and can't be used to handle inbound, outbound, or batch calls on their own. Whether an agent is designated as a transfer agent gets locked in at creation time, so an existing agent can't later be converted into one.
 </Note>
 
-The transfer agent is handed the original conversation automatically — there's nothing you need to pass along manually. It already knows who's calling and what they need, so it can brief whoever picks up the destination line. Dynamic variables carry over as well, including anything you [extracted earlier in the call](/build/single-multi-prompt/extract-dv), along with `original_call_id`, which lets you tie the two call records together afterward.
+The transfer agent is handed the original conversation automatically — there's nothing you need to pass along manually. It already knows who's calling and what they need, so it can brief whoever picks up the destination line. Dynamic variables carry over as well, including anything you [extracted earlier in the call](/build/setup/single-multi-prompt/extract-dynamic-variables), along with `original_call_id`, which lets you tie the two call records together afterward.
 
 What it doesn't see is anything said after the transfer begins, and your main agent never has visibility into the screening conversation either. Both legs are recorded and transcribed as completely separate calls.
 
@@ -161,13 +161,13 @@ What it doesn't see is anything said after the transfer begins, and your main ag
 
 <AccordionGroup>
   <Accordion title="What's the difference between Transfer Call and Agent Transfer?">
-    **Transfer Call** places an actual phone call to a separate number — a human, a department line, or an outside number. **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** instead swaps in a different *AI* agent within the same ongoing call: no new phone call gets placed, latency is lower, and the new agent inherits the entire conversation history. Reach for Transfer Call when you need a real person or outside line; reach for Agent Transfer when you're switching between AI agents.
+    **Transfer Call** places an actual phone call to a separate number — a human, a department line, or an outside number. **[Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool)** instead swaps in a different *AI* agent within the same ongoing call: no new phone call gets placed, latency is lower, and the new agent inherits the entire conversation history. Reach for Transfer Call when you need a real person or outside line; reach for Agent Transfer when you're switching between AI agents.
   </Accordion>
 
   <Accordion title="Agentic warm transfer also uses a second AI agent — how is that different from Agent Transfer?">
     They solve different problems, and in each case the second AI agent is talking to a different person.
 
-    **[Agent Transfer](/build/single-multi-prompt/transfer-agent)** changes which AI agent is talking to *your caller*. There's no separate phone call involved — it's the same call, the same call ID, and the conversation history flows straight through. Use it to move a caller from, say, a general receptionist agent to a billing specialist agent.
+    **[Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool)** changes which AI agent is talking to *your caller*. There's no separate phone call involved — it's the same call, the same call ID, and the conversation history flows straight through. Use it to move a caller from, say, a general receptionist agent to a billing specialist agent.
 
     **Agentic warm transfer**, on the other hand, places a genuine outbound call to a phone number. The transfer agent talks to *whoever answers at that destination* — never to your original caller, who remains on hold throughout. Use this mode to vet a human before connecting them to your caller.
 

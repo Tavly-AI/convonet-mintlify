@@ -9,7 +9,7 @@ og:title: 'Twilio Integration: Connect Elastic SIP Trunking'
 og:description: 'Connect Twilio phone numbers to Tavly via elastic SIP trunking: configure origination, termination, credential authentication, and caller ID header policies.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'phone'
+icon: 'circle-ellipsis'
 keywords: ['Twilio integration', 'elastic SIP trunking', 'Twilio SIP setup', 'termination URI', 'origination SIP URI', 'caller ID masking', 'Tavly AI Twilio']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -104,7 +104,7 @@ Review the following resolution paths for frequent deployment snags:
 
 ### 2. How do I enable call transfers on a Twilio trunk?
 
-Tavly's [Call Transfer tool](/build/single-multi-prompt/transfer-call) works over your Twilio trunk, but two Twilio-side settings matter:
+Tavly's [Call Transfer tool](/build/setup/single-multi-prompt/transfer-call) works over your Twilio trunk, but two Twilio-side settings matter:
 
 * **Cold transfer with SIP REFER**: Your trunk must allow SIP REFER and PSTN transfer. Enable this in the Twilio console for the elastic SIP trunk. See [Custom telephony FAQ](/deploy/custom-telephony) for configuration guidance.
 * **Custom SIP headers on cold transfer**: Twilio does not honor custom SIP headers on SIP REFER, so headers you set in the Call Transfer tool are dropped for cold transfers over Twilio. Use SIP INVITE if you need those headers to reach the destination. See [SIP headers](/build/telephony/sip-headers).
@@ -168,6 +168,6 @@ This uses Twilio's native header manipulation. To set or parse [custom SIP heade
 ## Related Resources
 
 * [Custom telephony overview](/deploy/custom-telephony): Learn about elastic SIP trunking vs. direct SIP URI dialing.
-* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Inbound call routing](/deploy/receive-calls): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Trigger automated phone calls using your provisioned numbers.
 * [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session tokens over SIP trunks.

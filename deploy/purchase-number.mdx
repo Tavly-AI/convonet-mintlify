@@ -9,7 +9,6 @@ og:title: 'Purchase Phone Numbers: Provision US & Canada Telephony'
 og:description: 'Purchase and manage US or Canada phone numbers in Tavly: provision local or toll-free lines via console or API, assign voice agents, and start calling.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'phone-plus'
 keywords: ['purchase phone number', 'telephony provisioning', 'US phone numbers', 'toll-free numbers', 'Twilio Telnyx numbers', 'inbound voice agent', 'Tavly AI phone']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -59,7 +58,7 @@ After purchasing, you can change the number's nickname to make it easier to find
   <img height="200" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/deploy/purchase-number/rename.jpeg?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=2d38919aecddc341584dff635e13d6a1" data-path="images/deploy/purchase-number/rename.jpeg" />
 </Frame>
 
-The number is ready to accept [inbound calls](/deploy/inbound-call) once you've assigned an inbound agent. Try calling it.
+The number is ready to accept [inbound calls](/deploy/receive-calls) once you've assigned an inbound agent. Try calling it.
 
 ## How do you purchase and configure phone numbers via API?
 
@@ -69,7 +68,7 @@ Check out the [Create Phone Number API Reference](/api-references/create-phone-n
 
 * **Indefinite ownership**: Phone numbers are yours once purchased, and can be used indefinitely. Find numbers you own via [List Phone Numbers](/api-references/list-phone-numbers).
 * **Dual agent bindings**: You can assign different inbound and outbound agents to the number.
-* **Callback suppression**: If you don't want a user to be able to call this number (for example, when conducting [outbound calls](/deploy/outbound-call) where callbacks are unsupported), leave `inbound_agent_id` unset.
+* **Callback suppression**: If you don't want a user to be able to call this number (for example, when conducting [outbound calls](/deploy/outbound-calls) where callbacks are unsupported), leave `inbound_agent_id` unset.
 
 <CodeGroup>
   ```typescript Node theme={"dark"}
@@ -128,6 +127,6 @@ The monthly number fee is billed to your payment method at the end of each billi
 
 ## Related Resources
 
-* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Inbound call routing](/deploy/receive-calls): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Trigger automated phone calls using your provisioned numbers.
 * [Custom telephony](/deploy/custom-telephony): Connect your existing Twilio, Telnyx, or SIP provider to Tavly.

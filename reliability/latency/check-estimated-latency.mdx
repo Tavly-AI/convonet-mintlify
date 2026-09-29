@@ -72,7 +72,7 @@ The **Response Wait time** setting introduces a deliberate pause before agent sp
 
 Configuring this setting creates explicit architectural tradeoffs:
 
-1. **Additive Latency Representation**: Any duration configured in the [Response Wait time](/build/single-multi-prompt/configure-basic-settings) setting is surfaced as its own independent line item in the Estimated Latency card, directly adding to the cumulative total.
+1. **Additive Latency Representation**: Any duration configured in the [Response Wait time](/build/setup/single-multi-prompt/configure-basic-settings) setting is surfaced as its own independent line item in the Estimated Latency card, directly adding to the cumulative total.
 2. **Pacing vs. Responsiveness Tradeoff**:
    * **Higher Wait Times (More Patient)**: Extends silence detection thresholds (up to several seconds), accommodating callers who pause frequently while thinking or reading information aloud.
    * **Lower Wait Times (More Responsive)**: Decreases turnaround delay towards the sub-second baseline, ideal for snappy transactional inquiries like appointment confirmations or status checks.

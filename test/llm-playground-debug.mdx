@@ -40,7 +40,7 @@ Debug functionality adapts dynamically to your agent's underlying architecture:
 | **10-Iteration Variance Sampling** | Available for answers, transitions, and tools | Available for answers and tools |
 
 <Note>
-  Debug functionality is embedded within the LLM Playground and adapts to your agent's underlying architecture. [Conversation Flow](/build/conversation-flow/overview) agents unlock complete debugging capabilities, including node routing analysis and node-level structural modifications. Single-prompt and multi-prompt agents offer response generation and tool execution debugging, highlighting model temperature tuning as the primary remedy.
+  Debug functionality is embedded within the LLM Playground and adapts to your agent's underlying architecture. [Conversation Flow](/build/setup/conversation-flow/conversation-flow-overview) agents unlock complete debugging capabilities, including node routing analysis and node-level structural modifications. Single-prompt and multi-prompt agents offer response generation and tool execution debugging, highlighting model temperature tuning as the primary remedy.
 </Note>
 
 <Frame caption="Opening the Debug panel on a turn in the LLM Playground.">
@@ -61,9 +61,9 @@ Follow these structured steps to remediate flawed agent utterances:
   <Step title="Review recommended fixes">
     The <code className="ui-btn">Debug the AI response</code> modal displays remediation strategies tailored to the issue, linking directly to step-by-step documentation:
 
-    * [Add Fine-tuning Examples](/build/conversation-flow/debug-guide#add-conversation-finetune-examples) to teach desired tone, format, and syntax.
-    * [Split One Node into Two Nodes](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes) when an individual node handles too many conversational objectives.
-    * [Adjust LLM Temperature](/build/conversation-flow/debug-guide#adjust-the-llm-temperature) to reduce generation variance in favor of strict predictability.
+    * [Add Fine-tuning Examples](/build/setup/conversation-flow/debug-guide#how-do-you-fix-an-agent-ignoring-instructions) to teach desired tone, format, and syntax.
+    * [Split One Node into Two Nodes](/build/setup/conversation-flow/debug-guide#how-do-you-fix-broken-node-transitions) when an individual node handles too many conversational objectives.
+    * [Adjust LLM Temperature](/build/setup/conversation-flow/debug-guide#how-do-you-fix-an-agent-ignoring-instructions) to reduce generation variance in favor of strict predictability.
 
     For single-prompt and multi-prompt agents, temperature tuning is the sole suggested fix because these architectures do not use discrete graph nodes.
   </Step>
@@ -91,8 +91,8 @@ When an agent shifts to an incorrect node or fails to transition when criteria a
   <Step title="Review recommended transition fixes">
     Follow the linked guides to refine transition logic:
 
-    * [Add Fine-tuning Transition Examples](/build/conversation-flow/finetune-examples#finetune-examples-for-transition) to provide explicit routing patterns for ambiguous inputs.
-    * [Split One Node into Two Nodes](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes) to cleanly decouple competing routing criteria.
+    * [Add Fine-tuning Transition Examples](/build/setup/conversation-flow/advanced/finetune-examples#when-to-use-transition-examples) to provide explicit routing patterns for ambiguous inputs.
+    * [Split One Node into Two Nodes](/build/setup/conversation-flow/debug-guide#how-do-you-fix-broken-node-transitions) to cleanly decouple competing routing criteria.
   </Step>
 
   <Step title="Regenerate the transition">
@@ -121,9 +121,9 @@ Manage response consistency by analyzing non-deterministic turns with the **10-i
 
 If identical user inputs yield inconsistent agent outputs, click <code className="ui-btn">Debug</code> on the target turn to implement core stabilization strategies:
 
-* **[Add fine-tuning examples](/build/conversation-flow/debug-guide#add-conversation-finetune-examples)**: Anchor intended phrasing and establish clear syntactic constraints for edge-case prompts.
-* **[Split the node](/build/conversation-flow/debug-guide#split-the-node-into-multiple-nodes)**: Reduce prompt complexity by decomposing nodes with conflicting or overloaded instructions into discrete single-purpose states.
-* **[Adjust the temperature](/build/conversation-flow/debug-guide#adjust-the-llm-temperature)**: Lower model temperature toward `0.0` to favor deterministic generations over probabilistic variance.
+* **[Add fine-tuning examples](/build/setup/conversation-flow/debug-guide#how-do-you-fix-an-agent-ignoring-instructions)**: Anchor intended phrasing and establish clear syntactic constraints for edge-case prompts.
+* **[Split the node](/build/setup/conversation-flow/debug-guide#how-do-you-fix-broken-node-transitions)**: Reduce prompt complexity by decomposing nodes with conflicting or overloaded instructions into discrete single-purpose states.
+* **[Adjust the temperature](/build/setup/conversation-flow/debug-guide#how-do-you-fix-an-agent-ignoring-instructions)**: Lower model temperature toward `0.0` to favor deterministic generations over probabilistic variance.
 
 Every debug panel includes dedicated 10-iteration verification actions:
 
@@ -139,4 +139,4 @@ Each sampling action executes 10 times consecutively under identical prompt inpu
 
 * [Manually test your agent](/test/llm-playground): Explore interactive testing and synthetic persona simulations in the LLM Playground.
 * [Testing overview](/test/test-overview): Compare playground sessions, automated simulations, and live voice calls.
-* [Conversation Flow Overview](/build/conversation-flow/overview): Design graph-based state machines with dedicated node routing.
+* [Conversation Flow Overview](/build/setup/conversation-flow/conversation-flow-overview): Design graph-based state machines with dedicated node routing.

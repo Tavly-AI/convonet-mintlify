@@ -61,7 +61,7 @@ The three highest-impact levers for reducing latency are **switching to a faster
     Every token included in your prompt increases the time-to-first-token, and that computation cost is paid on **every turn** of the conversation:
 
     * **Focus System Prompts**: Keep prompts concise, direct, and strictly aligned with the immediate task.
-    * **Offload Secondary Detail**: Migrate background policies, catalogs, and extensive FAQs into the [Knowledge Base](/build/knowledge-base) or into granular tool descriptions rather than bloating the main prompt.
+    * **Offload Secondary Detail**: Migrate background policies, catalogs, and extensive FAQs into the [Knowledge Base](/build/context/knowledge-base) or into granular tool descriptions rather than bloating the main prompt.
     * **Audit Handbook Presets**: [Agent Handbook](/build/response/agent-handbook) presets add tokens to every interaction (the estimated token count appears on hover). Disable any preset that is not strictly required.
     * **Avoid the 8k Token Wall**: Prompts expanding beyond roughly **8,000 tokens** become noticeably slower. If your prompt exceeds this boundary, trimming tokens represents one of the easiest and most immediate latency wins.
   </Step>
@@ -135,5 +135,5 @@ If latency issues persist after tuning model architecture, prompt size, and pipe
 Follow this escalation workflow to ensure rapid resolution:
 
 1. **Locate Call Identifier**: Retrieve the unique `call_id` from your dashboard session logs or API records.
-2. **Submit Support Request**: Contact our technical team via [support](/general/support).
+2. **Submit Support Request**: Contact our technical team via [support](https://support.tavlyai.com).
 3. **Attach Diagnostic Telemetry**: Include your specific call ID, exact latency values recorded across components (`e2e`, `asr`, `llm`, `tts`), and an outline of configurations already tested.

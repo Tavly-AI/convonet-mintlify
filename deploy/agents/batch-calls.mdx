@@ -9,7 +9,7 @@ og:title: 'Create and Schedule Batch Calls: Bulk Outbound Campaigns'
 og:description: 'Create, schedule, and monitor bulk outbound AI batch calls with CSV contact uploads, dynamic prompt variables, reserved concurrency, and time window rules.'
 og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/batch_call_1.png'
 twitter:card: 'summary_large_image'
-icon: 'phone-volume'
+
 keywords: ['batch calls', 'bulk outbound calls', 'Tavly AI batch calling', 'outbound voice campaigns', 'CSV contact upload', 'reserved concurrency', 'scheduled call campaigns']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -33,7 +33,7 @@ Rather than invoking standalone API calls per recipient, the batch calling frame
 | Deployment Scenario | Recommended Delivery Architecture | Data Injection Method |
 | :--- | :--- | :--- |
 | **Bulk Customer Outreach** (100–100,000+ contacts) | **Batch Calls**: Grouped scheduling with reserved concurrency | Multi-column CSV file upload |
-| **Event-Triggered Outbound Calls** (Cart abandonment, 2FA) | **[Create Phone Call API](/deploy/outbound-call)**: Single real-time call requests | REST API JSON payload |
+| **Event-Triggered Outbound Calls** (Cart abandonment, 2FA) | **[Create Phone Call API](/deploy/outbound-calls)**: Single real-time call requests | REST API JSON payload |
 | **Inbound Call Centers** | **[Inbound Telephony](/deploy/purchase-number)**: Always-on phone numbers | Telephony SIP trunks / Webhooks |
 
 ---
@@ -210,7 +210,7 @@ The response returns an array of complete call objects. You can retrieve an exha
 
 ## Related Resources
 
-* [Outbound call API reference](/deploy/outbound-call): Trigger automated individual phone calls programmatically from your backend.
+* [Outbound call API reference](/deploy/outbound-calls): Trigger automated individual phone calls programmatically from your backend.
 * [Concurrency and rate limits](/deploy/concurrency): Understand how concurrency quotas, pooling, and burst capacity operate.
 * [Dynamic variables guide](/build/context/dynamic-variables): Format custom placeholders for prompt injection and CRM tool bindings.
 * [Custom telephony integration](/deploy/custom-telephony): Route batch campaigns over private SIP trunks with custom headers.

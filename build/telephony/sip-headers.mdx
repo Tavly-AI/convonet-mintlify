@@ -70,7 +70,7 @@ When initiating outbound calls through the Tavly dashboard or API, you can easil
 You can attach custom `X-` headers during mid-call transfers. Header values can incorporate dynamic variables, allowing your agent to dynamically forward information extracted during the call to the receiving party or downstream contact center.
 
 To configure transfer actions based on your agent architecture:
-* **Conversation Flow Agents:** Review the [Call Transfer Node](/build/conversation-flow/call-transfer-node#configure-transfer).
-* **Single / Multi Prompt Agents:** Review the [Call Transfer Function](/build/single-multi-prompt/transfer-call).
+* **Conversation Flow Agents:** Review the [Call Transfer Node](/build/setup/conversation-flow/add-nodes/call-transfer-node#how-do-you-set-up-the-destination).
+* **Single / Multi Prompt Agents:** Review the [Call Transfer Function](/build/setup/single-multi-prompt/transfer-call).
 
 <Warning> **Twilio Transfer Limitation:** Cold transfers routed to a target phone number execute via `SIP REFER`. Telephony carriers handle `REFER` metadata inconsistently. Notably, Twilio aggressively strips custom SIP headers from incoming `REFER` packets. If you use Twilio for telephony routing, custom SIP headers will not pass through cold transfers to external phone numbers.</Warning>

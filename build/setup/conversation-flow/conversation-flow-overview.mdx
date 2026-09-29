@@ -28,14 +28,14 @@ A conversation flow agent is built from multiple connected nodes, each handling 
   * Default voice and language
   * Agent-wide parameters and behavior
 
-* **[Node](/build/conversation-flow/node)** — the fundamental building block of a flow. Several node types exist:
+* **[Node](/build/setup/conversation-flow/add-nodes/nodes-and-edges)** — the fundamental building block of a flow. Several node types exist:
   * Conversation nodes, for dialogue that doesn't call any tools
   * Subagent nodes, for dialogue that does call tools
   * Function nodes, for deterministic API and tool execution
   * Logic nodes, for branching
   * End nodes, for terminating the call
 
-* **[Edge](/build/conversation-flow/transition-condition)** — the connections between nodes that define how the flow moves:
+* **[Edge](/build/setup/conversation-flow/transition-conditions)** — the connections between nodes that define how the flow moves:
   * Transitions based on specific conditions
   * A default fallback path when no condition matches
   * Routing that adapts dynamically to the conversation
@@ -53,8 +53,8 @@ Each node carries a small, self-contained piece of logic, and a transition condi
 
 At the top of the builder sits a **selector**, defaulting to **Main flow**. Use it to jump between everything currently open, each of which lives in its own tab:
 
-* **Agents** — your primary agent (**Main flow**), plus any **transfer agents** opened from an [agentic warm transfer](/build/conversation-flow/call-transfer-node).
-* **Subflows** — any [subflows](/build/conversation-flow/components) you've opened for editing.
+* **Agents** — your primary agent (**Main flow**), plus any **transfer agents** opened from an [agentic warm transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node).
+* **Subflows** — any [subflows](/build/setup/conversation-flow/components) you've opened for editing.
 
 You can jump back to **Main flow** whenever you like.
 

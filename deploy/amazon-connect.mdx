@@ -60,8 +60,8 @@ To **route inbound and outbound calls with Amazon Connect**, bind your provision
 
 Once your Amazon Connect telecommunications connection is established, your provisioned numbers operate seamlessly across both traffic directions:
 
-* **Inbound Call Flows**: Incoming customer calls arriving at your Amazon Connect contact center are routed via contact flows to a Tavly voice agent. Review the [Receive inbound calls](/deploy/inbound-call) guide to assign conversational agents and configure prompt instructions.
-* **Outbound Call Campaigns**: Agents dispatch automated calls using the [Create Phone Call API](/api-references/create-phone-call) or Tavly dashboard, preserving your verified caller ID. Learn more in the [Make outbound calls](/deploy/outbound-call) documentation.
+* **Inbound Call Flows**: Incoming customer calls arriving at your Amazon Connect contact center are routed via contact flows to a Tavly voice agent. Review the [Receive inbound calls](/deploy/receive-calls) guide to assign conversational agents and configure prompt instructions.
+* **Outbound Call Campaigns**: Agents dispatch automated calls using the [Create Phone Call API](/api-references/create-phone-call) or Tavly dashboard, preserving your verified caller ID. Learn more in the [Make outbound calls](/deploy/outbound-calls) documentation.
 * **Custom Telephony Metadata**: Pass account IDs, customer verification status, and IVR context across transfers using [custom SIP headers](/build/telephony/sip-headers).
 
 ---
@@ -82,7 +82,7 @@ Follow these steps to initiate your deployment with the Tavly engineering team:
 ## Related Resources
 
 * [Custom telephony overview](/deploy/custom-telephony): Core architecture for SIP trunking and direct SIP URI routing.
-* [Inbound call routing](/deploy/inbound-call): Route telephone calls directly to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your provisioned numbers.
+* [Inbound call routing](/deploy/receive-calls): Route telephone calls directly to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Trigger automated phone calls using your provisioned numbers.
 * [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and tokens across contact center handoffs.
 * [Concurrency scaling](/deploy/concurrency): Manage simultaneous call capacity across enterprise contact centers.

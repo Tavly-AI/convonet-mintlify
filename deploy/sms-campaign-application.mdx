@@ -9,7 +9,7 @@ og:title: 'SMS Campaign Application: A2P 10DLC Approval Guide and Templates'
 og:description: 'Master A2P 10DLC SMS campaign registration for Tavly AI: pass carrier reviews with field-by-field templates, opt-in consent flows, and compliant sample texts.'
 og:image: 'https://mintcdn.com/retellai/mE3ueFGwO7zT6Bs5/images/sms/sms-campaign-application.png'
 twitter:card: 'summary_large_image'
-icon: 'file-signature'
+icon: 'mail'
 keywords: ['SMS campaign application', 'A2P 10DLC registration', 'opt-in consent flow', 'Twilio A2P compliance', 'Tavly AI SMS', 'carrier messaging review', '10DLC sample messages']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -36,7 +36,7 @@ To send outbound SMS or conduct two-way text conversations from your own Tavly p
 * **Representative Sample Messages**: Validates message formatting, brand identification, and mandatory opt-out mechanisms.
 
 <Note>
-  This guide covers the campaign form submitted after your [Business Profile](/build/telephony/business-profile) and Brand Registration are configured. Submitting a campaign requires an active payment method on file in Tavly billing. For end-to-end telephony setup, see [Enable SMS](/deploy/enable-sms).
+  This guide covers the campaign form submitted after your [Business Profile](/deploy/calls/business-profile) and Brand Registration are configured. Submitting a campaign requires an active payment method on file in Tavly billing. For end-to-end telephony setup, see [Enable SMS](/deploy/enable-sms).
 </Note>
 
 ---
@@ -279,7 +279,7 @@ graph TD
   style C fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
 ```
 
-1. **Business Profile**: If the business profile is rejected, the brand and campaign are automatically rejected with the profile's error message. Resolve profile discrepancies first under [Telephony Business Profile](/build/telephony/business-profile).
+1. **Business Profile**: If the business profile is rejected, the brand and campaign are automatically rejected with the profile's error message. Resolve profile discrepancies first under [Telephony Business Profile](/deploy/calls/business-profile).
 2. **Brand Registration**: Update company information under **Brand Registration**. Re-submitting an existing brand type is free. Campaign controls remain locked until the brand returns to pending or approved status.
 3. **Campaign Application**: Once the brand is approved, click **Edit** on the rejected campaign, address the reviewer feedback, and click **Next** to resubmit.
 
@@ -321,6 +321,6 @@ graph TD
 ## Related Resources
 
 * [Enable SMS on Tavly numbers](/deploy/enable-sms): Configure telephony add-ons, pricing, and two-way chat agent routing.
-* [Telephony business profile setup](/build/telephony/business-profile): Register legal business identities with upstream carrier registries.
+* [Telephony business profile setup](/deploy/calls/business-profile): Register legal business identities with upstream carrier registries.
 * [Inbound webhook integration](/deploy/inbound-call-webhook): Process incoming SMS events and inject custom caller context dynamically.
 * [Create conversational chat agents](/build/create-chat-agent): Build autonomous text agents to manage bidirectional SMS conversations.

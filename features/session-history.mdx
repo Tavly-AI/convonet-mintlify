@@ -9,7 +9,6 @@ og:title: 'Call and Chat Session History: Analytics, Logs, and Auditing'
 og:description: 'Browse Tavly AI call and chat session history: filter records, inspect audio recordings and transcripts, audit detail logs, and export analytics data to CSV.'
 og:image: 'https://mintcdn.com/retellai/2B3R6a7IdWxVRs_t/images/session-history-call-list.png'
 twitter:card: 'summary_large_image'
-icon: 'clock-rotate-left'
 keywords: ['call history', 'chat history', 'Tavly AI session analytics', 'post-call analysis', 'call recording playback', 'SIP packet capture', 'PII scrubbing']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -28,7 +27,7 @@ faq:
 
 **Call and chat session history** provides a comprehensive post-session observability dashboard for all voice and text interactions in Tavly AI. It enables engineering, product, and compliance teams to audit audio recordings, review synchronized transcripts, analyze LLM extraction outcomes, investigate disconnection reasons, and export structured operational datasets for business intelligence.
 
-Located under **Data** in the Tavly dashboard, the **Call History** and **Chat History** pages aggregate real-time conversation records the moment a session terminates. For calls currently in progress, utilize [Live Monitoring](/features/live-monitoring) instead.
+Located under **Data** in the Tavly dashboard, the **Call History** and **Chat History** pages aggregate real-time conversation records the moment a session terminates. For calls currently in progress, utilize [Live Monitoring](/monitor/live-calls) instead.
 
 ### Primary Operational Use Cases
 
@@ -69,7 +68,7 @@ Both pages provide a unified tabular view of interactions:
 
 * **Shareable URL Filtering**: Active filter parameters are automatically encoded into the dashboard URL, allowing team members to share exact session views instantly.
 * **Table Pagination**: Adjust page sizes between 10, 20, 50 (default), or 100 records per view.
-* **AI Conductor Deep Dives**: Check multiple rows and click **Conductor** to pass the selected conversation transcripts directly into the [AI Conductor Assistant](/conductor/overview#select-calls-and-chats-from-history) for cross-session synthesis.
+* **AI Conductor Deep Dives**: Check multiple rows and click **Conductor** to pass the selected conversation transcripts directly into the [AI Conductor Assistant](/features/session-history) for cross-session synthesis.
 
 ---
 
@@ -87,9 +86,9 @@ Selecting a session opens an in-depth audit drawer with multi-tab navigation:
 
 * **Conversation Analysis**: Displays post-session extraction outcomes, user sentiment ratings, explicit disconnection codes, and custom evaluation metrics.
 * **Audio Recording Playback**: Interactive media player with timestamp-scrubbing. Clicking any transcript turn automatically seeks the audio player to that exact millisecond.
-* **Transcription**: Complete turn-by-turn dialogue, including agent utterances, caller replies, tool calling parameters, knowledge base vector matches, and [conversation flow node transitions](/build/conversation-flow/overview).
+* **Transcription**: Complete turn-by-turn dialogue, including agent utterances, caller replies, tool calling parameters, knowledge base vector matches, and [conversation flow node transitions](/build/setup/conversation-flow/conversation-flow-overview).
 * **Data Variables**: Audit initial dynamic variables passed at call inception, variables overridden in-flight, and variables extracted post-session.
-* **Contact Memory**: View historical conversation timeline and persistent user memory profiles via [Contact Memory](/integrations/build-contact-memory).
+* **Contact Memory**: View historical conversation timeline and persistent user memory profiles via [Contact Memory](/integrations/crm/persistent-memory).
 * **Detail Logs & Packet Capture**: In-depth trace of LLM prompt calls, speech recognition timing, and raw SIP network PCAP files for [SIP connection debugging](/reliability/debug-calls-pcap).
 
 <Frame caption="Chat details with analysis, summary, transcript, and contact history.">
@@ -148,7 +147,7 @@ To **export filtered session data and enforce PII privacy controls**, apply targ
 
 ### Privacy and Data Scrubbing Controls
 
-* **PII Redaction Toggling**: When [PII scrubbing](/accounts/privacy-disable) is active, credit card numbers, phone numbers, and addresses are masked in transcripts. Authorized personnel can click **Show PII** to reveal raw values.
+* **PII Redaction Toggling**: When [PII scrubbing](/accounts/privacy/data-storage) is active, credit card numbers, phone numbers, and addresses are masked in transcripts. Authorized personnel can click **Show PII** to reveal raw values.
 * **Permanent Data Purging**: Administrators can open the trash menu on individual sessions to execute:
   * **Remove Sensitive Data**: Deletes audio recordings and transcripts permanently while retaining high-level duration and cost metadata.
   * **Delete Call**: Completely purges the entire call record from Tavly servers.
@@ -164,7 +163,7 @@ To **export filtered session data and enforce PII privacy controls**, apply targ
 
 <AccordionGroup>
   <Accordion title="How long are calls, chats, and audio recordings retained?">
-    By default, Tavly AI retains session history indefinitely. Enterprise workspaces can configure automated [data retention windows](/accounts/data-retention) ranging between 1 and 730 days on a per-agent basis.
+    By default, Tavly AI retains session history indefinitely. Enterprise workspaces can configure automated [data retention windows](/accounts/privacy/data-retention) ranging between 1 and 730 days on a per-agent basis.
   </Accordion>
 
   <Accordion title="Why is a call recording or transcript missing?">
@@ -182,7 +181,7 @@ To **export filtered session data and enforce PII privacy controls**, apply targ
 
 ## Related Resources
 
-* [Live call monitoring](/features/live-monitoring): Observe live audio, stream real-time transcripts, and whisper to active agents.
+* [Live call monitoring](/monitor/live-calls): Observe live audio, stream real-time transcripts, and whisper to active agents.
 * [Call disconnection debugging](/reliability/debug-call-disconnect): Decode SIP error responses and carrier termination codes.
-* [Actual call latency monitoring](/reliability/check-actual-latency): Audit turn-taking latency and voice synthesizer response times.
+* [Actual call latency monitoring](/reliability/latency/check-actual-latency): Audit turn-taking latency and voice synthesizer response times.
 * [SIP PCAP network debugging](/reliability/debug-calls-pcap): Download raw packet captures to investigate SIP trunking packet loss.

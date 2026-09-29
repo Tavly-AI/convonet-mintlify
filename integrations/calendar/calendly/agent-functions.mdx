@@ -30,15 +30,11 @@ faq:
     answer: "No. The integration supports individually owned event types only. Team round-robin and collective event types cannot be scheduled programmatically."
 ---
 
-# Calendly agent functions
-
-> Calendly tools for Tavly AI agents: check real availability, book appointments, and look up or cancel scheduled events live during the call.
-
 ## What are Calendly agent functions and how do they work in Tavly AI?
 
 **Calendly agent functions** provide Tavly AI agents with real-time scheduling tools to check open calendar slots, create bookings, inspect scheduled events, and cancel appointments during conversational interactions. Tools make direct API calls to Calendly without intermediary contact syncing, ensuring accurate calendar validation and automated attendee confirmations.
 
-A [connected Calendly account](/integrations/calendar/calendly/connect) equips your agents with live scheduling tools that execute during active calls or as pre- and post-call operations (see [agent workflows](/agent/agent-workflow)). 
+A [connected Calendly account](/integrations/calendar/calendly/connect) equips your agents with live scheduling tools that execute during active calls or as pre- and post-call operations (see [agent workflows](/build/agent-workflow)). 
 
 Because each function interacts live with Calendly's API endpoints, appointments, cancellations, and availability queries reflect instant calendar state without synchronization lag.
 
@@ -168,7 +164,7 @@ Calendly tools execute live API calls during active calls, sending calendar invi
     Attach Calendly tools to single- or multi-prompt agents and test real-time booking dialogues.
   </Card>
 
-  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/conversation-flow/integration-tools">
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
     Trigger Calendly functions inside visual conversation nodes and branch dialog on booking results.
   </Card>
 

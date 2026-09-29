@@ -9,7 +9,7 @@ og:title: 'Debug Outbound Connection Issues: Resolve not_connected Call Failures
 og:description: 'Diagnose not_connected outbound Tavly calls: troubleshoot invalid destination numbers, SIP trunk errors, carrier spam filters, and PCAP signaling logs.'
 og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/reliability/images/pcap_download.png'
 twitter:card: 'summary_large_image'
-icon: 'phone-missed'
+icon: 'phone-outgoing'
 keywords: ['debug outbound calls', 'not_connected status', 'invalid destination phone', 'marked_as_spam', 'carrier network blocked', 'SIP trunk error', 'PCAP debugging', 'Tavly AI']
 date: '2026-09-27'
 author: 'Tavly AI Team'
@@ -40,8 +40,8 @@ The primary disconnection reasons for unestablished calls include **`invalid_des
 | `telephony_provider_permission_denied` | Trunk Authentication | SIP trunk credentials rejected by provider; IP allowlist or header mismatch | Re-verify SIP trunk username, password, IP authorization, and authentication headers |
 | `telephony_provider_unavailable` | Carrier Outage | Telephony gateway or carrier trunk is offline, returning server errors | Check upstream carrier service status; configure redundant failover SIP routes |
 | `sip_routing_error` | Network Routing | SIP signaling detected cyclical loops or exceeded hop boundaries (`483 Too Many Hops`) | Review PBX / SBC routing rules to prevent recursive call-forwarding loops |
-| `marked_as_spam` | Reputation Filtering | Number flagged by carrier reputation algorithms due to volume spikes or low pickup rate | Warm up numbers gradually; register lines with [Verified Phone Number](/build/telephony/verified-phone) |
-| `network_blocked` | Carrier Firewall | Callee's carrier spam filter actively dropped the connection attempt | Implement STIR/SHAKEN A-attestation and review [Call Efficiency Guide](/build/telephony/call_efficiency_overview) |
+| `marked_as_spam` | Reputation Filtering | Number flagged by carrier reputation algorithms due to volume spikes or low pickup rate | Warm up numbers gradually; register lines with [Verified Phone Number](/deploy/calls/verified-phone) |
+| `network_blocked` | Carrier Firewall | Callee's carrier spam filter actively dropped the connection attempt | Implement STIR/SHAKEN A-attestation and review [Call Efficiency Guide](/reliability/call-performance) |
 | `user_declined` | Recipient Action | The callee manually declined or dismissed the incoming call | Log user refusal; suppress immediate re-dials to respect caller preferences |
 | `dial_failed` | Generic SIP Failure | Outbound dialing failed without an explicit SIP status code or unknown network drop | Inspect the call's PCAP packet stream in Wireshark to diagnose carrier disconnects |
 | `dial_busy` | Callee Line State | Recipient line is engaged in another active call (`486 Busy Here`) | Queue contact for an automated retry after an appropriate backoff interval |
@@ -86,19 +86,19 @@ Resolve configuration mismatches based on your telephony provisioning model:
 
 ## How do you remediate numbers marked as spam or blocked by carriers?
 
-Carriers block numbers that suffer sudden outbound traffic spikes without warmup or maintain low call pickup rates. To remediate spam flags, **warm up new numbers gradually**, implement [call efficiency best practices](/build/telephony/call_efficiency_overview) to increase pickup rates, and register your phone lines with our [Verified Phone Number](/build/telephony/verified-phone) STIR/SHAKEN trust service.
+Carriers block numbers that suffer sudden outbound traffic spikes without warmup or maintain low call pickup rates. To remediate spam flags, **warm up new numbers gradually**, implement [call efficiency best practices](/reliability/call-performance) to increase pickup rates, and register your phone lines with our [Verified Phone Number](/deploy/calls/verified-phone) STIR/SHAKEN trust service.
 
 Both `marked_as_spam` and `network_blocked` indicate that telecom carriers intercepted and dropped your call before reaching the callee. Specifically, `network_blocked` denotes that the recipient carrier's automated spam firewall actively rejected the inbound attempt.
 
 To rehabilitate flagged lines and protect outbound delivery rates:
 
 * **Gradual Number Warmup**: Avoid deploying unconditioned numbers into high-volume outbound campaigns immediately. Gradually ramp call volume over several weeks to build legitimate caller reputation.
-* **Increase Call Pickup Rates**: Low pickup rates signal telemarketing or spam patterns to carrier algorithms. Implement caller ID optimization, time-zone targeting, and local presence dialing as outlined in our [Increase Pickup Rate Guide](/build/telephony/call_efficiency_overview).
-* **Cryptographic Attestation & Registration**: Register your numbers through our verified telephony feature. Visit our [Verified Phone Number documentation](/build/telephony/verified-phone) to secure STIR/SHAKEN A-level attestation and register your brand identity directly with telecommunications analytics registries.
+* **Increase Call Pickup Rates**: Low pickup rates signal telemarketing or spam patterns to carrier algorithms. Implement caller ID optimization, time-zone targeting, and local presence dialing as outlined in our [Increase Pickup Rate Guide](/reliability/call-performance).
+* **Cryptographic Attestation & Registration**: Register your numbers through our verified telephony feature. Visit our [Verified Phone Number documentation](/deploy/calls/verified-phone) to secure STIR/SHAKEN A-level attestation and register your brand identity directly with telecommunications analytics registries.
 
 ## Related Resources
 
 * [Debug Call Disconnection](/reliability/debug-call-disconnect): Comprehensive reference for all call statuses and disconnection reasons.
 * [Debug Calls with PCAP](/reliability/debug-calls-pcap): Step-by-step Wireshark packet capture analysis for SIP and RTP streams.
-* [Call Efficiency Overview](/build/telephony/call_efficiency_overview): Strategies to increase pickup rates and eliminate carrier spam flags.
+* [Call Efficiency Overview](/reliability/call-performance): Strategies to increase pickup rates and eliminate carrier spam flags.
 * [Custom Telephony Setup](/deploy/custom-telephony): Configure and authenticate external SIP trunks and Twilio numbers.

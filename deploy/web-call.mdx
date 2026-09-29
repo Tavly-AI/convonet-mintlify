@@ -10,7 +10,7 @@ A web call connects a user to your voice agent directly in the browser, using th
 * **Custom call experiences.** Build call controls and audio visualizations. Enable live transcripts separately for captions or conversation flow updates.
 * **Development and testing.** Talk to an agent while building it. For a quick test without writing code, use the dashboard's [web call testing](/test/test-web).
 
-If you want a voice entry point on your website without building a frontend, embed the [website widget](/deploy/chat-widget). To reach users on their phones, see [outbound calls](/deploy/outbound-call) and [inbound calls](/deploy/inbound-call).
+If you want a voice entry point on your website without building a frontend, embed the [website widget](/deploy/chat-widget). To reach users on their phones, see [outbound calls](/deploy/outbound-calls) and [inbound calls](/deploy/receive-calls).
 
 For example, an e-commerce site adds a "Talk to support" button to its order page. Clicking it starts a web call that passes the customer's name and order ID as [dynamic variables](/build/context/dynamic-variables), so the agent can look up the right order.
 
@@ -24,7 +24,7 @@ For example, an e-commerce site adds a "Talk to support" button to its order pag
   </Step>
 
   <Step title="Configure authentication">
-    Create a [public key](/accounts/public-keys) and allow your website's domain. Add `localhost` to test locally. Use the public key in your browser code; keep API keys on your server.
+    Create a [public key](/accounts/keys/public-keys) and allow your website's domain. Add `localhost` to test locally. Use the public key in your browser code; keep API keys on your server.
 
     If your public key has reCAPTCHA enabled, obtain a fresh token before each call and pass it as `recaptchaToken` to `createWebCall()`.
   </Step>
@@ -64,7 +64,7 @@ For example, an e-commerce site adds a "Talk to support" button to its order pag
     | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
     | `retell_llm_dynamic_variables` | String key-value pairs injected into the agent's prompt and tool descriptions as [dynamic variables](/build/context/dynamic-variables).              |
     | `metadata`                     | An arbitrary object stored on the call, such as an internal customer ID. Not used for processing; returned when you retrieve the call later. |
-    | `agent_version`                | The numeric [agent version](/agent/version) to use for this call.                                                                            |
+    | `agent_version`                | The numeric [agent version](/deploy/agents/version) to use for this call.                                                                            |
     | `agent_override`               | Override agent configuration for this call only.                                                                                             |
 
     See [Create Web Call](/api-references/create-web-call) for the REST request fields, and [audio controls](#control-audio-during-the-call) for browser audio options.
@@ -125,7 +125,7 @@ call = client.createWebCall({
   If the optional transcript connection fails, the SDK logs a console warning and the audio call continues. This failure does not fire `onError`. See [WebSocket authentication](/api-references/monitor-call-websocket#authentication) if you create calls through your own backend.
 </Note>
 
-To follow a web call from a second screen, or to let a supervisor step in, see [Monitor live calls](/features/live-monitoring).
+To follow a web call from a second screen, or to let a supervisor step in, see [Monitor live calls](/monitor/live-calls).
 
 ## Control audio during the call
 
@@ -157,7 +157,7 @@ Use `onAudio` snapshots to calculate a level for an orb or volume meter. They co
 
 Collect full results after the call ends:
 
-* [Register a webhook](/features/register-webhook) to receive `call_started`, `call_ended`, and `call_analyzed` events on your server.
+* [Register a webhook](/monitor/register-webhook) to receive `call_started`, `call_ended`, and `call_analyzed` events on your server.
 * Use `call.callId` with the [get call API](/api-references/get-call) to fetch the complete transcript, recording, and analysis, or review the call in [session history](/features/session-history).
 
 ## Example project

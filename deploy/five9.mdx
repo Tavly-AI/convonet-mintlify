@@ -253,7 +253,7 @@ For Tavly platform diagnostics and disconnect codes, consult [Debug outbound con
   </Accordion>
 
   <Accordion title="Can the Tavly agent transfer the call back to a human Five9 agent?">
-    Yes. Add a transfer node to your Tavly agent that hands the call to an inbound Five9 campaign number or SIP URI. See [call transfer node](/build/conversation-flow/call-transfer-node) for conversation flow agents, or [transfer call](/build/single-multi-prompt/transfer-call) for single/multi-prompt agents. Use [custom SIP headers](/build/telephony/sip-headers) to propagate customer and session metadata.
+    Yes. Add a transfer node to your Tavly agent that hands the call to an inbound Five9 campaign number or SIP URI. See [call transfer node](/build/setup/conversation-flow/add-nodes/call-transfer-node) for conversation flow agents, or [transfer call](/build/setup/single-multi-prompt/transfer-call) for single/multi-prompt agents. Use [custom SIP headers](/build/telephony/sip-headers) to propagate customer and session metadata.
   </Accordion>
 
   <Accordion title="How many simultaneous calls can I run through this trunk?">
@@ -264,7 +264,7 @@ For Tavly platform diagnostics and disconnect codes, consult [Debug outbound con
 ## Related Resources
 
 * [Custom telephony overview](/deploy/custom-telephony): Underlying SIP trunking model and direct SIP URI routing.
-* [Inbound call routing](/deploy/inbound-call): Route enterprise calls to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Dispatch automated phone calls using imported carrier numbers.
+* [Inbound call routing](/deploy/receive-calls): Route enterprise calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Dispatch automated phone calls using imported carrier numbers.
 * [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and tokens across IVR transfers.
 * [Concurrency scaling](/deploy/concurrency): Plan and scale simultaneous call capacity.

@@ -26,9 +26,9 @@ faq:
 
 Voicemail and IVR detection are automated telephony features that classify when an outbound call connects to a machine endpoint—like an answering machine or a phone tree switchboard—rather than a live human. 
 
-When executing [outbound calls](/deploy/outbound-call), Tavly monitors the early audio streams (within the first 3 minutes of a call). If it identifies a machine, it executes your configured routing policy, such as automatically dropping the call or transmitting an informative follow-up message.
+When executing [outbound calls](/deploy/outbound-calls), Tavly monitors the early audio streams (within the first 3 minutes of a call). If it identifies a machine, it executes your configured routing policy, such as automatically dropping the call or transmitting an informative follow-up message.
 
-<Note> **Touch-Tone Processing:** If you want your agent to process incoming DTMF keypresses from human callers, refer to the [Capture DTMF Input](/build/user-dtmf) documentation instead.</Note>
+<Note> **Touch-Tone Processing:** If you want your agent to process incoming DTMF keypresses from human callers, refer to the [Capture DTMF Input](/build/telephony/user-dtmf) documentation instead.</Note>
 
 <Frame caption="Voicemail and IVR options in the agent's Call Settings.">
   <img height="300" src="https://mintcdn.com/retellai/_fOA1onl6tLJVhDl/images/voicemail_ivr.png?fit=max&auto=format&n=_fOA1onl6tLJVhDl&q=85&s=00ca575ac97c4bcfa9e14f3ef0d4472c" alt="Call Settings panel with Voicemail Detection toggled on, Voicemail Response set to 'Leave a message' with a static callback sentence, and IVR Hangup toggled on." data-path="images/voicemail_ivr.png" />
@@ -57,7 +57,7 @@ You can configure the agent to either instantly terminate the line or hold in si
 
 IVR disconnection instructs the telephony engine to classify automated menus (such as corporate switchboards) and hang up the session automatically, ensuring your agent doesn't waste time talking to another machine.
 
-<Note> **Navigating Phone Trees:** Automated IVR disconnection is completely separate from active [IVR Navigation](/build/single-multi-prompt/press-digit), which allows your agents to emit dual-tone multi-frequency (DTMF) digits to traverse complex phone systems.</Note>
+<Note> **Navigating Phone Trees:** Automated IVR disconnection is completely separate from active [IVR Navigation](/build/setup/single-multi-prompt/press-digit), which allows your agents to emit dual-tone multi-frequency (DTMF) digits to traverse complex phone systems.</Note>
 
 To turn on automated menu termination:
 1. Open your agent configuration.
@@ -76,7 +76,7 @@ To turn on automated menu termination, open your agent configuration, go to **Ca
 
 <AccordionGroup>
   <Accordion title="Does voicemail detection work on inbound calls?">
-    No. Machine and menu classification operates strictly during [outbound calls](/deploy/outbound-call), where the platform dials external numbers that may route to machines. On inbound calls, an outside party dials into your agent directly, so voicemail detection is inactive and has no operational effect.
+    No. Machine and menu classification operates strictly during [outbound calls](/deploy/outbound-calls), where the platform dials external numbers that may route to machines. On inbound calls, an outside party dials into your agent directly, so voicemail detection is inactive and has no operational effect.
   </Accordion>
 
   <Accordion title="The voicemail isn't being hung up even though hang up is enabled. What's wrong?">

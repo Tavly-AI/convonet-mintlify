@@ -8,7 +8,7 @@ seo:
 og:title: "Custom LLM Voice Agent Overview: Architecture & WebSocket Protocol"
 og:description: "Run a custom LLM behind Tavly voice agents: Tavly manages telephony, transcription, and turn-taking while your WebSocket server streams each spoken response."
 twitter:card: "summary_large_image"
-icon: "sitemap"
+icon: "map"
 keywords:
   - "custom LLM voice agent"
   - "Tavly WebSocket protocol"
@@ -29,10 +29,6 @@ faq:
   - question: "Can I test custom LLM agents using the visual LLM playground?"
     answer: "No, custom LLM agents cannot be tested in the visual LLM playground or batch simulators because response generation is decoupled from Tavly's internal model pipeline; test via web or phone calls."
 ---
-
-# Custom LLM overview
-
-> Run your own LLM behind a Tavly voice agent. Tavly handles telephony, transcription, and turn-taking while your WebSocket server generates each reply.
 
 With a custom LLM integration, your backend retains complete control over dialogue generation, decision logic, and data handling. Tavly manages carrier-grade telephony, real-time speech-to-text (ASR), acoustic turn-taking detection, and text-to-speech (TTS) voice synthesis. For each call, Tavly opens a bidirectional WebSocket connection to your server, transmitting live transcripts and requesting tokens as the conversation unfolds.
 

@@ -8,7 +8,7 @@ seo:
 og:title: 'Speech Recognition (ASR) Providers in Tavly'
 og:description: 'Understand how Tavly automatically routes inbound speech recognition between Azure, Deepgram, and Soniox to optimize for language support and low latency.'
 twitter:card: 'summary'
-icon: 'ear-listen'
+icon: 'mic'
 keywords: ['speech recognition', 'ASR providers', 'Deepgram', 'Azure ASR', 'Soniox', 'Tavly AI transcription', 'latency optimization']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -54,7 +54,7 @@ Tavly dynamically calculates the ideal ASR provider for every call based on your
 
 * **Optimized for Latency:** Tavly aggressively prioritizes the fastest provider (usually Deepgram) that safely supports your exact language stack.
 * **Optimized for Accuracy:** Tavly shifts priority to the provider with the highest historical transcription accuracy for your specific linguistic requirements.
-* **Multilingual constraints:** If you configure a [Multilingual Agent](/agent/multilingual), the exact matrix of selected languages instantly filters out any ASR providers incapable of processing them simultaneously.
+* **Multilingual constraints:** If you configure a [Multilingual Agent](/build/multilingual), the exact matrix of selected languages instantly filters out any ASR providers incapable of processing them simultaneously.
 
 If you select a combination of languages that no single ASR provider on Earth currently supports together, the dashboard simply will not allow you to save the configuration.
 

@@ -9,7 +9,6 @@ og:title: 'Debug Guide: Troubleshoot Conversation Flows'
 og:description: 'Step-by-step guide to diagnosing and fixing Tavly conversation flow issues, including wrong agent responses, missed transitions, and strict prompt problems.'
 og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/multiple_node.png'
 twitter:card: 'summary_large_image'
-icon: 'bug'
 keywords: ['debug guide', 'troubleshooting AI agents', 'fix node transitions', 'prompt problems', 'LLM temperature', 'Tavly conversation flow']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -31,7 +30,7 @@ When an AI agent fails to behave as expected, the root cause generally falls int
 2. **Transition Failure:** The agent completely misses an edge transition, or actively routes to the wrong node.
 3. **Graph Deviation:** The actual human caller drifts entirely away from the strict visual flowchart you designed.
 
-<Note> **Audio Troubleshooting:** This guide is focused strictly on structural and logic debugging. If you are troubleshooting text-to-speech (TTS) or mispronunciation issues, consult the [Audio Debugging Guides](/build/audio-guides).</Note>
+<Note> **Audio Troubleshooting:** This guide is focused strictly on structural and logic debugging. If you are troubleshooting text-to-speech (TTS) or mispronunciation issues, consult the [Audio Debugging Guides](/knowledge/audio-basics).</Note>
 
 ## How do you fix an agent ignoring instructions?
 
@@ -44,7 +43,7 @@ If an agent is routinely skipping steps or ignoring node prompts, you must aggre
 </Frame>
 
 * **2. Switch the Node's Model:** If instructions are already concise but the agent still fails, upgrade the specific node to a vastly more capable LLM model.
-* **3. Add Fine-Tuning Examples:** Nudge the agent's behavior by uploading concrete conversational examples demonstrating exactly how it should reply. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).
+* **3. Add Fine-Tuning Examples:** Nudge the agent's behavior by uploading concrete conversational examples demonstrating exactly how it should reply. Read the [Fine-Tune Examples Guide](/build/setup/conversation-flow/advanced/finetune-examples).
 * **4. Tune the LLM Temperature:** If the agent's responses feel wild or inconsistent across different calls, explicitly lower the LLM temperature in the agent settings.
 
 <Frame caption="Adjusting the LLM temperature in the model settings.">
@@ -57,15 +56,15 @@ When the agent fails to physically route to the correct destination node, you mu
 
 * **Refine condition wording:** Ensure your prompt conditions accurately describe exactly what the caller said. Split overly complex transition conditions into multiple simpler ones.
 * **Remove numbered labels:** If your global prompt uses explicit numbers (e.g., "PRIORITY 1" or "Step 2"), the LLM will often confuse these with its numbered transition options, causing random misfires. Swap to letters (e.g., "PRIORITY A") or descriptive strings.
-* **Add transition examples:** Upload explicit transcripts mapping raw caller input to the correct transition edge via the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).
+* **Add transition examples:** Upload explicit transcripts mapping raw caller input to the correct transition edge via the [Fine-Tune Examples Guide](/build/setup/conversation-flow/advanced/finetune-examples).
 
 **If a transition is entirely missing:**
 * Broaden your existing transition conditions so they catch more flexible caller phrasing.
-* Add aggressive [Global Nodes](/build/conversation-flow/global-node) to seamlessly catch edge cases and off-script intents anywhere in the conversation.
+* Add aggressive [Global Nodes](/build/setup/conversation-flow/advanced/global-node) to seamlessly catch edge cases and off-script intents anywhere in the conversation.
 
 ## How do you handle callers going off-script?
 
 When real human callers refuse to follow your strict linear flow, you must loosen the rigid structure to accommodate natural conversational drift.
 
-* **Deploy Global Nodes:** Convert your critical fallback steps (e.g., answering FAQs, objecting handling) into [Global Nodes](/build/conversation-flow/global-node). This allows a caller to randomly skip ahead or jump around the flow without breaking the agent.
+* **Deploy Global Nodes:** Convert your critical fallback steps (e.g., answering FAQs, objecting handling) into [Global Nodes](/build/setup/conversation-flow/advanced/global-node). This allows a caller to randomly skip ahead or jump around the flow without breaking the agent.
 * **Loosen Node Instructions:** Stop treating the LLM like a strict IVR menu. Write flexible node instructions that grant the model the autonomy to handle unexpected specifics dynamically.

@@ -43,7 +43,7 @@ faq:
 
 The **AI QA troubleshooting framework** isolates voice agent deficiencies across accuracy, speech delivery, transcription fidelity, and execution. Instead of evaluating isolated calls, teams diagnose systemic trends across cohorts, identify root failure causes in call QA sheets, and apply **targeted configuration updates** to system prompts, knowledge bases, telephony endpoints, or speech recognition engines.
 
-When Tavly AI QA evaluates your production call cohorts, it flags specific metrics that deviate from expected quality thresholds or fail custom resolution criteria. Addressing these issues systematically requires distinguishing between algorithmic configuration gaps, model latency constraints, and external network conditions. For comprehensive metric definitions and baseline thresholds, consult the [AI QA metrics guide](/ai-qa/terminologies).
+When Tavly AI QA evaluates your production call cohorts, it flags specific metrics that deviate from expected quality thresholds or fail custom resolution criteria. Addressing these issues systematically requires distinguishing between algorithmic configuration gaps, model latency constraints, and external network conditions. For comprehensive metric definitions and baseline thresholds, consult the [AI QA metrics guide](/monitor/ai-qa/metrics).
 
 ### Contextual Interpretation Best Practices
 
@@ -76,7 +76,7 @@ Inspect your call QA sheet to identify which specific hallucination category tri
 
 | Hallucination Category | Failure Manifestation | Targeted Remediation |
 | :--- | :--- | :--- |
-| **Fabrication** | The agent invents facts, policies, or numbers absent from context. | Add missing authoritative information directly to your [Knowledge Base](/build/knowledge-base) or declare strict system prompt boundaries so the agent declines unknown queries rather than guessing. |
+| **Fabrication** | The agent invents facts, policies, or numbers absent from context. | Add missing authoritative information directly to your [Knowledge Base](/build/context/knowledge-base) or declare strict system prompt boundaries so the agent declines unknown queries rather than guessing. |
 | **Contradiction** | The agent provides statements directly contradicting prompt rules. | Clarify, consolidate, or remove conflicting directives across system prompts and scenario instructions. |
 | **Confusion** | The agent conflates user intentions with disparate workflows. | Deconstruct complex multi-step prompts into distinct conversational nodes, or utilize conversation flow architectures with focused state prompts. |
 
@@ -88,7 +88,7 @@ Follow these remediation steps:
 
 1. **Lower Retrieval Thresholds**: Reduce the minimum similarity confidence score required for chunk retrieval to capture relevant chunks that may use phrasing variations.
 2. **Increase Retrieved Chunks**: Expand the top-$k$ retrieved chunk count to supply broader context to the language model and eliminate false negatives.
-3. **Iterate Incrementally**: Modify retrieval parameters within your agent's [Knowledge Base](/build/knowledge-base) settings in small increments, validating the impact across subsequent QA cohort runs.
+3. **Iterate Incrementally**: Modify retrieval parameters within your agent's [Knowledge Base](/build/context/knowledge-base) settings in small increments, validating the impact across subsequent QA cohort runs.
 
 ---
 
@@ -106,7 +106,7 @@ To resolve transition inaccuracies:
 
 * **Unambiguous Transition Conditions**: Express transition triggers in explicit, deterministic language within node prompts, avoiding vague phrases like "transition when appropriate."
 * **Edge-Case Examples**: Embed concrete dialogue examples in transition definitions showing both positive triggers and negative non-matching phrases.
-* **Eliminate Overlapping Rules**: Ensure adjacent branch conditions from a single node are mutually exclusive. Consult the [conversation flow debug guide](/build/conversation-flow/debug-guide) for systematic transition tracing.
+* **Eliminate Overlapping Rules**: Ensure adjacent branch conditions from a single node are mutually exclusive. Consult the [conversation flow debug guide](/build/setup/conversation-flow/debug-guide) for systematic transition tracing.
 
 ### High Tool Call Inaccuracy
 
@@ -115,7 +115,7 @@ Tool call inaccuracy measures whether single-prompt or multi-prompt agents make 
 To remediate tool call inaccuracy:
 
 * **Explicit Calling Boundaries**: Detail precisely under what conversational conditions each tool must be invoked—and explicitly specify scenarios where invocation is prohibited.
-* **Refined Tool Definitions**: In your [tool definitions](/build/add-function-calling), configure self-documenting function names, comprehensive parameter descriptions, and concrete examples for required schema fields.
+* **Refined Tool Definitions**: In your [tool definitions](/build/setup/single-multi-prompt/function-calling), configure self-documenting function names, comprehensive parameter descriptions, and concrete examples for required schema fields.
 
 <Info>
   **Tool Call Inaccuracy** measures whether the agent made the right **decision** about which tools to call and with what arguments. For issues where the agent made the correct call decision but the tool **execution** failed (such as API 500 errors or network timeouts), see [Custom Tool Failures](#custom-tool-failures) below.
@@ -191,7 +191,7 @@ Frequent speech overlap occurs when the agent and caller speak simultaneously, d
 
 When conversational end-to-end latency exceeds 2.5 seconds ($p_{50} > 2.5\text{s}$), natural dialogue rhythm collapses.
 
-1. **Locate Bottlenecks**: Open the [latency breakdown](/reliability/troubleshoot-latency) in your call dashboard to isolate delays across LLM inference, TTS audio synthesis, network transport, or tool execution.
+1. **Locate Bottlenecks**: Open the [latency breakdown](/reliability/latency/troubleshoot-latency) in your call dashboard to isolate delays across LLM inference, TTS audio synthesis, network transport, or tool execution.
 2. **Optimize LLM Inference**: If the model constitutes the bottleneck, transition to low-latency reasoning models or trim prompt token counts.
 3. **Select High-Throughput TTS**: If speech synthesis introduces delay, select streaming voice models with low time-to-first-byte (TTFB).
 4. **Accelerate Tool Execution**: Optimize external endpoint response times and compress returned JSON payloads.
@@ -201,7 +201,7 @@ When conversational end-to-end latency exceeds 2.5 seconds ($p_{50} > 2.5\text{s
 Custom tool failures indicate that your external API endpoints failed during call execution.
 
 * **Audit Endpoint Error Logs**: Review server logs for failed calls to pinpoint HTTP status codes, exceptions, and validation failures.
-* **Validate Payload Schemas**: Ensure API responses conform strictly to schemas registered in your [function calling](/build/add-function-calling) configuration.
+* **Validate Payload Schemas**: Ensure API responses conform strictly to schemas registered in your [function calling](/build/setup/single-multi-prompt/function-calling) configuration.
 * **Implement Resiliency Guards**: Add timeouts, circuit breakers, and automatic retries to prevent third-party service latency from terminating call flows.
 
 <Info>
@@ -214,7 +214,7 @@ When live call transfers fail to connect, customers experience abrupt drops or s
 
 * **Telephony Interconnects**: Check SIP logs for connection drops, incorrect codecs, or carrier configuration mismatches with your telephony provider.
 * **Destination Staffing & Availability**: Audit contact center staffing levels during peak call windows and verify that destination numbers are active and receiving traffic.
-* **Upgrade to Agentic Warm Transfer**: If human detection fails during standard [Warm Transfer](/build/conversation-flow/call-transfer-node) and drops calls into voicemail, switch to [Agentic Warm Transfer](/build/conversation-flow/call-transfer-node). This deploys a dedicated transfer agent to converse with the human recipient, verify availability, and summarize context before bridging the caller.
+* **Upgrade to Agentic Warm Transfer**: If human detection fails during standard [Warm Transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node) and drops calls into voicemail, switch to [Agentic Warm Transfer](/build/setup/conversation-flow/add-nodes/call-transfer-node). This deploys a dedicated transfer agent to converse with the human recipient, verify availability, and summarize context before bridging the caller.
 
 ---
 
@@ -230,7 +230,7 @@ When an AI Evaluated Condition fails, inspect the structured failure explanation
 
 * **Actionable Failures**: The agent failed to deliver required disclosures, verify user credentials, or collect required parameters due to ambiguous prompts or incomplete knowledge base data. Resolve these by updating agent prompts and documentation.
 * **Non-Actionable Failures**: Failures triggered by external factors beyond agent control—such as callers hanging up abruptly or declining to cooperate.
-* **Calibration Overrides**: When an evaluation penalizes behavior that was intentional by design or technically compliant, utilize [QA calibration](/ai-qa/terminologies#calibration) to override the automated score for that call.
+* **Calibration Overrides**: When an evaluation penalizes behavior that was intentional by design or technically compliant, utilize [QA calibration](/monitor/ai-qa/metrics#supervisory-score-calibration) to override the automated score for that call.
 
 <Info>
   Not all failures are actionable—some may be caused by external factors (e.g., the user hanging up early) or intentional design decisions (e.g., transferring when a user requests a human). Focus on failures where the agent's behavior or configuration can be improved.

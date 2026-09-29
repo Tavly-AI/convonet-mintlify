@@ -9,7 +9,7 @@ og:title: 'Web Call Testing: Test Real-Time Browser Audio & Latency'
 og:description: 'Test Tavly voice agents in browser web calls: evaluate audio quality, voice latency, conversational turn-taking, and barge-in responsiveness in real time.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'waveform-lines'
+icon: 'globe'
 keywords: ['web call testing', 'browser audio test', 'voice agent latency', 'speech barge-in', 'WebRTC voice test', 'Tavly AI audio', 'conversational AI test']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -86,7 +86,7 @@ For example, after revising an opening greeting, initiate a web call to evaluate
 
 Be mindful of the following technical boundaries when testing over browser audio:
 
-* **Telephony number transfers fail**: All external PSTN transfers (cold, warm, or agentic warm) fail over browser audio. The console warns you if an agent contains transfer actions, and attempting one returns a transfer error. However, [transfer to another agent](/build/single-multi-prompt/transfer-agent) functions normally, and the test console updates context to the destination agent automatically.
+* **Telephony number transfers fail**: All external PSTN transfers (cold, warm, or agentic warm) fail over browser audio. The console warns you if an agent contains transfer actions, and attempting one returns a transfer error. However, [transfer to another agent](/build/setup/single-multi-prompt/agent-transfer-tool) functions normally, and the test console updates context to the destination agent automatically.
 * **SMS dispatch fails**: Outbound SMS actions fail because browser calls lack an associated caller phone number.
 * **Voicemail (AMD) and IVR navigation are inactive**: Automated machine detection and DTMF phone-tree processing do not execute in browser environments.
 
@@ -95,7 +95,7 @@ To evaluate carrier audio, DTMF signaling, or live telephony transfers, use [pho
 Web call tests consume standard runtime allocations: they are billed at per-minute voice rates, reserve an active [concurrent call](/deploy/concurrency) channel, and require an account in good financial standing.
 
 <Tip>
-  After concluding a test call, utilize [Conductor](/conductor/test-and-improve) to inspect conversational traces and generate performance improvements.
+  After concluding a test call, utilize [Conductor](/test/test-overview) to inspect conversational traces and generate performance improvements.
 </Tip>
 
 ## Next Steps

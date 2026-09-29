@@ -80,7 +80,7 @@ Outbound calls fail with a **`not_connected`** status when telecom carriers or r
 | `telephony_provider_permission_denied` | `not_connected` | The SIP trunk credentials failed authentication with your telecommunications carrier. | Check SIP trunk username, password, IP allowlist, and authentication headers. |
 | `telephony_provider_unavailable` | `not_connected` | The upstream telephony carrier or trunk gateway is temporarily offline or unreachable. | Check telecommunication carrier status; route traffic through backup SIP trunks. |
 | `sip_routing_error` | `not_connected` | Outbound SIP signaling exceeded maximum hop limits (`483 Too Many Hops`) or encountered a routing loop. | Audit PBX and SBC routing tables to eliminate cyclical forwarding rules. |
-| `marked_as_spam` | `not_connected` | The outbound caller ID number has been flagged as spam by telecommunication carrier databases. | Register a verified [Business Profile and Branded Caller ID](/build/telephony/call_efficiency_overview) to restore carrier trust. |
+| `marked_as_spam` | `not_connected` | The outbound caller ID number has been flagged as spam by telecommunication carrier databases. | Register a verified [Business Profile and Branded Caller ID](/reliability/call-performance) to restore carrier trust. |
 | `network_blocked` | `not_connected` | The recipient carrier network's automated fraud or spam filter blocked the incoming call attempt. | Implement STIR/SHAKEN A-level attestation and register numbers with analytics registries. |
 | `user_declined` | `not_connected` | The recipient actively rejected or dismissed the incoming call on their device. | Log user declination and prevent aggressive immediate re-dials. |
 
@@ -109,4 +109,4 @@ Runtime failures assign an **`error`** status and require targeted infrastructur
 * [Understand Reasons for Outbound Call Failure](/reliability/debug-outbound-call): Deep dive into SIP response codes and carrier blocks.
 * [Debug SIP Calls using PCAP Files](/reliability/debug-calls-pcap): Analyze Wireshark packet captures for media and signaling issues.
 * [Custom LLM Troubleshooting](/integrate-llm/troubleshooting): Resolve WebSocket handshakes, idle timeouts, and payload formatting.
-* [Call Efficiency & Spam Prevention](/build/telephony/call_efficiency_overview): Register verified numbers and branded caller ID to eliminate spam flags.
+* [Call Efficiency & Spam Prevention](/reliability/call-performance): Register verified numbers and branded caller ID to eliminate spam flags.

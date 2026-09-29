@@ -9,7 +9,7 @@ og:title: 'End Node: Terminate AI Calls Cleanly'
 og:description: 'Use the Tavly End Node to securely terminate an active call at a fixed point in the flow, optionally delivering a dynamic or static closing message.'
 og:image: 'https://mintcdn.com/retellai/LPjiIxDz6s4F2qHE/images/cf/end-node.png'
 twitter:card: 'summary_large_image'
-icon: 'phone-slash'
+icon: 'list-end'
 keywords: ['end node', 'terminate AI call', 'Tavly AI agent hangup', 'end conversation flow']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -36,10 +36,10 @@ For example, an appointment-booking flow might utilize one End Node for a succes
 
 ## How does it compare to the End Call Tool?
 
-The End Node and the [End Call Tool](/build/single-multi-prompt/end-call) both terminate the session, but they are deployed for entirely different architectural paradigms.
+The End Node and the [End Call Tool](/build/setup/single-multi-prompt/end-call) both terminate the session, but they are deployed for entirely different architectural paradigms.
 
 * **End Node:** Deploy this when the call must terminate deterministically at a fixed, hardcoded point in the visual flow (e.g., explicitly after a payment succeeds).
-* **End Call Tool:** Attach this tool to a [Subagent Node](/build/conversation-flow/subagent-node) when the LLM needs the autonomous freedom to end the call dynamically mid-conversation whenever it logically decides the overarching goal is achieved.
+* **End Call Tool:** Attach this tool to a [Subagent Node](/build/setup/conversation-flow/add-nodes/subagent-node) when the LLM needs the autonomous freedom to end the call dynamically mid-conversation whenever it logically decides the overarching goal is achieved.
 
 ## What node settings are available?
 
@@ -48,4 +48,4 @@ The End Node provides targeted settings to dictate exactly how the agent physica
 * **Speak During Execution:** Activating this feature reveals a dedicated text field where you define the exact closing message the agent delivers immediately before hanging up.
   * **Prompt:** The LLM dynamically generates a contextual farewell based on your foundational instructions.
   * **Static Sentence:** The agent strictly reads the exact wording you provide (e.g., `Goodbye, have a nice day`).
-* **Global Node:** Transforms the End Node into a universally reachable destination from anywhere in the flow the moment its condition is met (e.g., `User wants to end the call or says goodbye`). This eliminates the need to draw physical edges from every single node. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **Global Node:** Transforms the End Node into a universally reachable destination from anywhere in the flow the moment its condition is met (e.g., `User wants to end the call or says goodbye`). This eliminates the need to draw physical edges from every single node. Read the [Global Node Guide](/build/setup/conversation-flow/advanced/global-node).

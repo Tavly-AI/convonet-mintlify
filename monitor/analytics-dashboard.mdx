@@ -9,7 +9,6 @@ og:title: 'Analytics Dashboard: Visualizing Call and Chat Metrics'
 og:description: 'Build custom Tavly analytics dashboards to track call and chat performance: analyze success rates, latency, costs, and concurrency with real-time charts.'
 og:image: 'https://mintcdn.com/retellai/2HwuM2BExfFOy7pJ/images/analytics/dashboard-overview.png'
 twitter:card: 'summary_large_image'
-icon: 'chart-mixed'
 keywords: ['analytics dashboard', 'call metrics', 'chat analytics', 'AI agent success rate', 'end-to-end latency tracking', 'telephony concurrency', 'Tavly AI analytics']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -39,14 +38,14 @@ The **Tavly Analytics Dashboard** aggregates voice call and chat interaction dat
 * **Tracking Longitudinal Performance**: Monitor macro shifts in conversational success rates, average duration, or latency across days and weeks following system prompt updates or LLM model switches.
 * **A/B Version Benchmarking**: Group metrics across agent versions to measure variance in user sentiment, resolution rates, and transfer percentages.
 * **Financial Governance**: Monitor aggregate telephony and language model expenditures across agents and campaign days to forecast operational spend.
-* **Correlating Business Outcomes**: Chart [custom Post-Call Extraction](/features/post-call-analysis-create) variables (e.g., appointment confirmations, qualified leads) directly against raw call volumes.
+* **Correlating Business Outcomes**: Chart [custom Post-Call Extraction](/monitor/post-call-analysis-create) variables (e.g., appointment confirmations, qualified leads) directly against raw call volumes.
 
 ### Operational Boundaries
 
-Analytics dashboards are purpose-built for multi-session aggregate analysis. To review granular conversational audio, inspect full debug transcripts, or analyze raw LLM payloads, navigate to [Call and Chat History](/features/session-history). To receive automated notifications when performance thresholds breach defined tolerances, configure [Alerting](/features/alerting-overview). To monitor in-flight calls as they happen, use [Live Monitoring](/features/live-monitoring).
+Analytics dashboards are purpose-built for multi-session aggregate analysis. To review granular conversational audio, inspect full debug transcripts, or analyze raw LLM payloads, navigate to [Call and Chat History](/features/session-history). To receive automated notifications when performance thresholds breach defined tolerances, configure [Alerting](/monitor/alerting-overview). To monitor in-flight calls as they happen, use [Live Monitoring](/monitor/live-calls).
 
 <Tip>
-  To generate or refine an analytics dashboard using natural language prompts, use [Conductor for Analytics Dashboards](/conductor/analytics-dashboards).
+  To generate or refine an analytics dashboard using natural language prompts, use [Conductor for Analytics Dashboards](/monitor/analytics-dashboard).
 </Tip>
 
 ---
@@ -135,9 +134,9 @@ Tavly provides specialized **call and chat source metrics** categorized by opera
 | **Call Successful Rate** | `avg` | Percentage of total calls meeting predefined evaluation success criteria. |
 | **Call Picked Up Rate** | `avg` | Proportion of outbound attempts answered by a remote participant. |
 | **Call Transfer Rate** | `avg` | Percentage of calls escalated to external telephone lines or human agents. |
-| **Voicemail Rate** | `avg` | Share of outbound calls intercepted by [voicemail detection](/build/handle-voicemail). |
+| **Voicemail Rate** | `avg` | Share of outbound calls intercepted by [voicemail detection](/build/telephony/handle-voicemail). |
 | **Call Duration** | `avg`, `median`, `p90`, `sum`, `min`, `max` | Total elapsed conversation duration in seconds. |
-| **End to End Latency** | `avg`, `median`, `p90`, `min`, `max` | Round-trip p50 voice [latency](/reliability/check-actual-latency) aggregated across interactions. |
+| **End to End Latency** | `avg`, `median`, `p90`, `min`, `max` | Round-trip p50 voice [latency](/reliability/latency/check-actual-latency) aggregated across interactions. |
 | **Concurrency Used** | `max` | Peak concurrent active call channels consumed against [concurrency limits](/deploy/concurrency). |
 | **Combined Cost** | `avg`, `sum`, `median`, `p90`, `min`, `max` | Total monetary spend combining telephony carrier, LLM inference, and voice synthesis costs. |
 
@@ -174,7 +173,7 @@ The header date picker applies to all charts configured to follow dashboard time
 
 Filters are organized into four functional categories:
 1. **Base**: Native system parameters including agent ID, call ID, batch call ID, direction type, duration, from number, to number, user sentiment, disconnection reason, status, success flag, latency, and cost. A chat dashboard offers agent, chat ID, chat status, chat successful, combined cost, and user sentiment.
-2. **Post-Call Extraction**: Custom structured extraction keys created via [Post-Call Analysis](/features/post-call-analysis-create).
+2. **Post-Call Extraction**: Custom structured extraction keys created via [Post-Call Analysis](/monitor/post-call-analysis-create).
 3. **Metadata**: Custom key-value pairs attached during call initialization.
 4. **Dynamic Variables**: Runtime variables populated during conversational agent flows.
 
@@ -250,5 +249,5 @@ Viewing and editing are governed as independent access levels. Users with view a
 
 * [Call and chat history guide](/features/session-history): Search, filter, and inspect completed call transcripts and recordings.
 * [Post-call analysis overview](monitor/post-call-analysis-overview): Configure custom structured extraction variables to chart in analytics.
-* [Alerting overview](/features/alerting-overview): Set automated thresholds and notification triggers for operational metrics.
+* [Alerting overview](/monitor/alerting-overview): Set automated thresholds and notification triggers for operational metrics.
 * [Live monitoring console](/monitor/live-calls): Supervise active in-flight calls and execute real-time human interventions.

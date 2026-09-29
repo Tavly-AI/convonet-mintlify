@@ -59,11 +59,11 @@ To attach a function, first create or connect the tool in your workspace, then s
 Functions must be configured beforehand and subsequently selected inside the node interface. This modular separation ensures that deleting or rearranging nodes on your visual canvas will never force you to rebuild your function schemas or authentication headers from scratch.
 
 For setup guides on specific function types, consult:
-* [**Custom Function**](/build/conversation-flow/custom-function): Configure mid-call HTTP requests to your external API endpoints.
-* [**Integration Tools**](/build/conversation-flow/integration-tools): Connect native CRM, helpdesk, and calendar tools like HubSpot, Salesforce, Zendesk, and Cal.com.
+* [**Custom Function**](/build/setup/conversation-flow/function-node/custom-function-in-conversation-flow): Configure mid-call HTTP requests to your external API endpoints.
+* [**Integration Tools**](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow): Connect native CRM, helpdesk, and calendar tools like HubSpot, Salesforce, Zendesk, and Cal.com.
 
 <Note>
-  For checking calendar availability or scheduling appointments, use the [Cal.com](/integrations/cal-com-functions) or [Calendly](/integrations/calendly-functions) integration tools instead. The legacy built-in Cal.com functions are no longer supported in this node — see the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for details on migrating legacy flows.
+  For checking calendar availability or scheduling appointments, use the [Cal.com](/integrations/calendar/caldotcom/agent-functions) or [Calendly](/integrations/calendar/calendly/agent-functions) integration tools instead. The legacy built-in Cal.com functions are no longer supported in this node — see the [deprecation notice](/integrations/calendar/caldotcom/connect) for details on migrating legacy flows.
 </Note>
 
 ---
@@ -83,7 +83,7 @@ The exact timing of transitions depends on your combination of node flags and ca
 | **ON** | **ON** | No | Transitions once the **result is ready AND the agent has finished speaking**. |
 | **ON** | **ON / OFF** | Yes | Transitions once the **result is ready AND the caller has finished speaking**. |
 
-Because the function node incorporates the execution response into its transition evaluation, you can construct [transition conditions](/build/conversation-flow/transition-condition) that branch directly off the returned data payload.
+Because the function node incorporates the execution response into its transition evaluation, you can construct [transition conditions](/build/setup/conversation-flow/transition-conditions) that branch directly off the returned data payload.
 
 ---
 
@@ -97,9 +97,9 @@ The node exposes the following core configuration options:
   * **Static Sentence**: Directly articulates a fixed, unchanging phrase.
   * **Prompt**: Instructs the LLM to generate dynamic transitional dialogue based on conversational context.
 * **Wait for Result**: When enabled, the agent halts edge transitions until the function finishes execution. This guarantees that return values, error flags, and response variables are fully populated before the next node is reached.
-* **Global Node**: Allows this node to be triggered globally from any state across the conversation flow. Refer to the [Global Node guide](/build/conversation-flow/global-node) for architecture patterns.
+* **Global Node**: Allows this node to be triggered globally from any state across the conversation flow. Refer to the [Global Node guide](/build/setup/conversation-flow/advanced/global-node) for architecture patterns.
 * **LLM Selection**: Assign an isolated language model specifically for this node to generate function parameters and drive transitional speech generation.
-* **Fine-tuning Examples**: Allows you to supply few-shot examples to optimize how node transitions are evaluated. Learn more in the [Finetune Examples guide](/build/conversation-flow/finetune-examples).
+* **Fine-tuning Examples**: Allows you to supply few-shot examples to optimize how node transitions are evaluated. Learn more in the [Finetune Examples guide](/build/setup/conversation-flow/advanced/finetune-examples).
 
 ---
 
@@ -131,6 +131,6 @@ Because a function node is designed for backend tool execution rather than inter
   </Accordion>
 
   <Accordion title="Where should appointment booking tools be configured?">
-    Appointment scheduling and availability checks should be built using native [Cal.com](/integrations/cal-com-functions) or [Calendly](/integrations/calendly-functions) integration tools. The legacy built-in Cal.com options within the function node are deprecated.
+    Appointment scheduling and availability checks should be built using native [Cal.com](/integrations/calendar/caldotcom/agent-functions) or [Calendly](/integrations/calendar/calendly/agent-functions) integration tools. The legacy built-in Cal.com options within the function node are deprecated.
   </Accordion>
 </AccordionGroup>

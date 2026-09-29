@@ -9,7 +9,6 @@ og:title: 'Flex Mode: Dynamic Conversation Execution'
 og:description: 'Learn how to use Tavly Flex Mode to compile visual conversation flows into a single dynamic prompt at runtime for maximum AI flexibility and context handling.'
 og:image: 'https://mintcdn.com/retellai/I1roxGSvtapAS92i/images/cf/flex-mode.png'
 twitter:card: 'summary_large_image'
-icon: 'shuffle'
 keywords: ['flex mode', 'dynamic execution', 'Tavly AI conversation flow', 'single prompt compilation', 'LLM token scaling']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -28,9 +27,9 @@ faq:
 
 By compiling nodes, edges, and tools into a single prompt of executable Tasks, the agent gains the autonomy to navigate dynamically between tasks while strictly respecting the overarching global prompt.
 
-<Warning> **Cost Impact:** Flex Mode can aggressively push your LLM costs up. Because instructions and tools from every node are compiled into one massive prompt, the total token count is significantly higher than in standard rigid mode. Once this combined prompt crosses 4,000 tokens, the [token scaling billing rule](/accounts/billing-exceptions#rule-2-llm-price-scaling-for--4000-token-prompt-length) activates, multiplying your baseline costs several times over.</Warning>
+<Warning> **Cost Impact:** Flex Mode can aggressively push your LLM costs up. Because instructions and tools from every node are compiled into one massive prompt, the total token count is significantly higher than in standard rigid mode. Once this combined prompt crosses 4,000 tokens, the [token scaling billing rule](/accounts/billing-exception#how-does-llm-price-scaling-work-for-prompts-over-4000-tokens) activates, multiplying your baseline costs several times over.</Warning>
 
-To aggressively optimize costs, stick with **rigid mode** or intelligently split your flow into smaller **[Subflows](/build/conversation-flow/components)** so fewer nodes compile into any single prompt.
+To aggressively optimize costs, stick with **rigid mode** or intelligently split your flow into smaller **[Subflows](/build/setup/conversation-flow/components)** so fewer nodes compile into any single prompt.
 
 ## When does Flex Mode make sense?
 

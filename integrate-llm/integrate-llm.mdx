@@ -30,8 +30,6 @@ faq:
     answer: "Yes, servers can store session state, CRM entities, or conversation graph positions in memory or Redis keyed by the call_id extracted from the WebSocket handshake URL."
 ---
 
-# Connect your LLM
-
 > Stream LLM completions to a Tavly voice agent over the LLM WebSocket, build prompts from the live transcript, and cancel responses Tavly discards.
 
 After [setting up a WebSocket server](/integrate-llm/setup-websocket-server), your backend responds to Tavly events with static confirmations. Connecting your language model transforms that server into an intelligent conversational engine.

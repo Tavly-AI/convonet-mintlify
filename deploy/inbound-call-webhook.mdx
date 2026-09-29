@@ -30,7 +30,7 @@ The **Tavly inbound call and SMS webhook** is an event-driven HTTP integration t
 
 Organizations frequently need to route different callers to distinct voice agents under the same phone number or inject database records into agent prompts. While outbound calls pass parameters directly in API requests, inbound traffic arrives unprompted. The inbound webhook bridges this gap by notifying your server before call media connects.
 
-This webhook forms part of your [number configuration](/deploy/inbound-call) across both Tavly-managed and imported carrier numbers, supporting inbound [phone calls](/deploy/inbound-call) and inbound [SMS messaging](/deploy/enable-sms).
+This webhook forms part of your [number configuration](/deploy/receive-calls) across both Tavly-managed and imported carrier numbers, supporting inbound [phone calls](/deploy/receive-calls) and inbound [SMS messaging](/deploy/enable-sms).
 
 <Note>
   The inbound webhook does not apply to [dial to SIP URI calls](/deploy/custom-telephony#method-2-dial-to-sip-uri), as call-specific parameters are supplied when registering the SIP call.
@@ -42,7 +42,7 @@ This webhook forms part of your [number configuration](/deploy/inbound-call) acr
 
 To configure the **inbound webhook URL**, navigate to the Phone Numbers page in your Tavly dashboard, select your specific phone number, enter your secure HTTPS endpoint in the Inbound Webhook URL field, and save changes. This setting operates strictly on a per-number basis rather than globally across your organization.
 
-Because different phone numbers serve different contact center workflows, inbound webhook URLs are managed individually per telephone line rather than at the global account or agent level (which govern [call event webhooks](/features/register-webhook)):
+Because different phone numbers serve different contact center workflows, inbound webhook URLs are managed individually per telephone line rather than at the global account or agent level (which govern [call event webhooks](/monitor/register-webhook)):
 
 1. Open the Tavly dashboard and navigate to the **Phone Numbers** page.
 2. Select the specific telephone number you wish to configure.
@@ -73,7 +73,7 @@ The **inbound webhook request and response cycle** operates over HTTP POST with 
 
 ### Webhook Request Specifications
 
-Tavly executes an HTTP `POST` request with a default timeout of **10 seconds** per attempt. If your endpoint times out or returns a non-2xx status code, Tavly retries up to **2 times** using exponential backoff (for a total of **3 attempts**). Verify incoming signatures using your API key as detailed in [Secure the webhook](/features/secure-webhook).
+Tavly executes an HTTP `POST` request with a default timeout of **10 seconds** per attempt. If your endpoint times out or returns a non-2xx status code, Tavly retries up to **2 times** using exponential backoff (for a total of **3 attempts**). Verify incoming signatures using your API key as detailed in [Secure the webhook](/monitor/secure-webhook).
 
 #### Request Payload Fields
 
@@ -227,8 +227,8 @@ To reject an inbound session, return an HTTP 200 OK response with the following 
 
 ## Related Resources
 
-* [Inbound call routing](/deploy/inbound-call): Core guide to provisioning numbers and binding default agents.
+* [Inbound call routing](/deploy/receive-calls): Core guide to provisioning numbers and binding default agents.
 * [Enable SMS messaging](/deploy/enable-sms): Configure two-way conversational SMS for your phone numbers.
-* [Secure webhooks](/features/secure-webhook): Authenticate Tavly webhook signatures using HMAC headers.
+* [Secure webhooks](/monitor/secure-webhook): Authenticate Tavly webhook signatures using HMAC headers.
 * [Custom SIP headers](/build/telephony/sip-headers): Extract and inject custom SIP metadata across carrier trunks.
-* [Call event webhooks](/features/register-webhook): Track post-call transcripts, recordings, and analysis events.
+* [Call event webhooks](/monitor/register-webhook): Track post-call transcripts, recordings, and analysis events.

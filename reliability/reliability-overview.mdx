@@ -9,7 +9,6 @@ og:title: 'Reliability Overview: Enterprise Uptime, Monitoring & Resilience'
 og:description: 'Explore Tavly AI reliability architecture: guaranteed >99.9% uptime, auto-scaling infrastructure, 24/7 telemetry monitoring, and automated voice fallbacks.'
 og:image: 'https://mintcdn.com/retellai/a1LftRqc_k-5TDA7/images/status-page.png'
 twitter:card: 'summary_large_image'
-icon: 'shield-check'
 keywords: ['voice AI reliability', '99.9% uptime', 'enterprise infrastructure', 'stable server cluster', 'latency monitoring', 'TTS fallback', 'LLM fallback', 'Tavly AI']
 date: '2026-09-27'
 author: 'Tavly AI Team'
@@ -78,7 +77,7 @@ To shield your operations from third-party outages, rate limitations, and unpred
 Enterprise customers can opt in to route both telephony calls and REST API requests to our dedicated **stable server cluster**:
 * **Delayed Feature Rollouts**: The stable cluster receives updates on a controlled, delayed schedule, ensuring heightened stability for production environments sensitive to rapid releases.
 * **API Endpoint Routing**: When enabled, route your API requests directly to `https://stable.tavlyai.com/` instead of `https://api.tavlyai.com/`.
-* **Pricing & Activation**: A **$0.02/min surcharge** applies on voice calls handled via the stable cluster. Contact [support](/general/support) to enable stable cluster access.
+* **Pricing & Activation**: A **$0.02/min surcharge** applies on voice calls handled via the stable cluster. Contact [support](https://support.tavlyai.com) to enable stable cluster access.
 
 ## How does Tavly AI proactively monitor platform telemetry?
 
@@ -101,7 +100,7 @@ Tavly AI incorporates automated resilience mechanisms designed to preserve call 
 
 * **Built-in LLM Fallback & Retries**: Automated retries and fallback mechanisms are built in directly to preserve conversational continuity when primary language models encounter timeouts or rate limits.
 * **Built-in TTS Fallback & Retries**: Automated TTS fallbacks and retries are built in natively and can also be configured manually to swap between backup voice engines seamlessly. For implementation steps, see [TTS Fallback](/build/speech/tts-fallback).
-* **Carrier Allowlisting & Call Efficiency**: Utilize [Branded Call / Verified Phone Number Features](/build/telephony/call_efficiency_overview) to increase call pickup rates and ensure outbound calls are allowlisted by telecom carriers rather than flagged as spam.
+* **Carrier Allowlisting & Call Efficiency**: Utilize [Branded Call / Verified Phone Number Features](/reliability/call-performance) to increase call pickup rates and ensure outbound calls are allowlisted by telecom carriers rather than flagged as spam.
 * **Pre-Production Testing**: Validate agent behavior, stress-test conversational turns, and verify voice acoustics before production release using our suite of [Testing Features](/test/test-overview).
 
 ## What support guarantees and SLAs does Tavly AI offer?
@@ -113,4 +112,4 @@ Our support structure ensures technical assistance whenever production questions
 * **Guaranteed 24-Hour SLA**: Standard accounts receive guaranteed technical responses within 24 hours.
 * **Active Support Window**: Live operational assistance is available between **9:00 AM and 9:00 PM PST**.
 * **Enterprise Support Tiers**: Enterprise organizations receive dedicated response SLAs with significantly faster resolution windows.
-* For more information or to submit a ticket, visit our [Support Documentation](/general/support).
+* For more information or to submit a ticket, visit our [Support Documentation](https://support.tavlyai.com).

@@ -9,7 +9,6 @@ og:title: 'Integrations Overview: CRMs, Calendars, Helpdesks & Knowledge Bases'
 og:description: 'Connect CRMs, calendars, helpdesks, and knowledge bases to Tavly AI: enable real-time agent function tools, contact synchronization, and dynamic data mapping.'
 og:image: 'https://mintcdn.com/retellai/E9lBDpcEWOeDePme/images/integration/integrations-available-tab.png'
 twitter:card: 'summary_large_image'
-icon: 'puzzle-piece'
 keywords: ['Tavly AI integrations', 'voice AI CRM integration', 'Salesforce voice agent', 'HubSpot call logging', 'Cal.com AI scheduling', 'Zendesk ticket lookup', 'knowledge base sync']
 date: '2026-09-27'
 author: 'Tavly AI Team'
@@ -39,8 +38,8 @@ Connecting your enterprise systems transforms conversational agents from isolate
 ### Core Integration Capabilities
 
 * **Conversational Integration Tools**: Every provider (excluding dedicated knowledge base sources) provides turnkey function tools that agents invoke before, during, or after conversations. Capabilities include caller contact lookups, real-time availability checks, direct calendar bookings, and support ticket creation (see [using tools in an agent](#use-integration-tools-in-an-agent) and [agent workflows](/build/agent-workflow)).
-* **Bi-Directional Contact Synchronization & Activity Logging**: Import CRM records into Tavly, write [Post-Call Extraction](/monitor/post-call-analysis-overview) results directly into customer fields, and automatically log transcripts, summaries, and recordings to CRM timelines (detailed in [CRM integrations](/integrations/crm-overview)).
-* **Automated Knowledge Base Synchronization**: Continuously sync documents, spreadsheets, and workspace pages from [Google Drive](/integrations/google-drive), [Microsoft OneDrive](/integrations/microsoft-onedrive), and [Notion](/integrations/notion) directly into your agent's [knowledge base](/build/context/knowledge-base).
+* **Bi-Directional Contact Synchronization & Activity Logging**: Import CRM records into Tavly, write [Post-Call Extraction](/monitor/post-call-analysis-overview) results directly into customer fields, and automatically log transcripts, summaries, and recordings to CRM timelines (detailed in [CRM integrations](/integrations/crm/crm-integrations)).
+* **Automated Knowledge Base Synchronization**: Continuously sync documents, spreadsheets, and workspace pages from [Google Drive](/integrations/knowledge-base/google-drive/knowledge-base-sync), [Microsoft OneDrive](/integrations/knowledge-base/onedrive/knowledge-base-sync), and [Notion](/integrations/knowledge-base/notion/knowledge-base-sync) directly into your agent's [knowledge base](/build/context/knowledge-base).
 
 ***
 
@@ -54,17 +53,17 @@ Tavly natively supports eleven industry-leading platforms across four primary ca
 
 | Provider | Category | Supported Agent Capabilities | Required Credentials |
 | :--- | :--- | :--- | :--- |
-| **[HubSpot](/integrations/hubspot)** | CRM | Search & manage contacts, deals, companies, and tasks; log calls and notes to activity timelines. | Private App Access Token |
-| **[Salesforce](/integrations/salesforce)** | CRM | Search & manage contacts, leads, accounts, opportunities, cases, and custom objects; create tasks; execute SOQL queries. | External Client App Client ID & Secret + Instance URL |
-| **[Microsoft Dynamics 365](/integrations/microsoft-dynamics)** | CRM | Look up and manage contacts; create follow-up tasks and notes; log phone call activities. | OAuth sign-in + Dynamics Environment URL |
-| **[GoHighLevel](/integrations/gohighlevel)** | CRM | Look up and manage contacts, opportunities, and tasks; add tags; create notes; book, reschedule, or cancel appointments on [sub-account calendars](/integrations/gohighlevel-functions#book-the-sub-accounts-calendars). | API Key + Sub-account Location ID |
-| **[Zoho CRM](/integrations/zoho)** | CRM | Look up and manage Contacts, inspect associated Deals, create Tasks/Notes, and log calls to timeline. | OAuth sign-in |
-| **[Zendesk](/integrations/zendesk)** | Support | Identify callers, look up existing tickets, create/update support tickets, and post public comments or internal notes. | OAuth sign-in + Zendesk Subdomain URL |
-| **[Google Drive](/integrations/google-drive)** | Knowledge Base | Answer questions from Docs, Sheets, and files synced into an agent knowledge base. | Google OAuth sign-in |
-| **[Microsoft OneDrive](/integrations/microsoft-onedrive)** | Knowledge Base | Answer questions from OneDrive documents and spreadsheets synced into a knowledge base. | Microsoft OAuth sign-in |
-| **[Notion](/integrations/notion)** | Knowledge Base | Answer questions from structured Notion pages and databases synced into a knowledge base. | API Key (Internal Integration Token) |
-| **[Calendly](/integrations/calendly)** | Calendar | Check real-time availability, book events, reschedule, cancel, and look up appointments. | API Key (Personal Access Token) |
-| **[Cal.com](/integrations/cal-com)** | Calendar | Check real-time availability, book, reschedule, cancel, and retrieve appointment details. | API Key (cal.com or cal.eu) |
+| **[HubSpot](/integrations/crm/hubspot/connect)** | CRM | Search & manage contacts, deals, companies, and tasks; log calls and notes to activity timelines. | Private App Access Token |
+| **[Salesforce](/integrations/crm/salesforce/connect)** | CRM | Search & manage contacts, leads, accounts, opportunities, cases, and custom objects; create tasks; execute SOQL queries. | External Client App Client ID & Secret + Instance URL |
+| **[Microsoft Dynamics 365](/integrations/crm/dynamics/connect)** | CRM | Look up and manage contacts; create follow-up tasks and notes; log phone call activities. | OAuth sign-in + Dynamics Environment URL |
+| **[GoHighLevel](/integrations/crm/gohighlevel/connect)** | CRM | Look up and manage contacts, opportunities, and tasks; add tags; create notes; book, reschedule, or cancel appointments on [sub-account calendars](/integrations/crm/gohighlevel/agent-functions#how-do-conversational-agents-book-and-manage-sub-account-calendars). | API Key + Sub-account Location ID |
+| **[Zoho CRM](/integrations/crm/zoho/connect)** | CRM | Look up and manage Contacts, inspect associated Deals, create Tasks/Notes, and log calls to timeline. | OAuth sign-in |
+| **[Zendesk](/integrations/helpdesk/zendesk/connect)** | Support | Identify callers, look up existing tickets, create/update support tickets, and post public comments or internal notes. | OAuth sign-in + Zendesk Subdomain URL |
+| **[Google Drive](/integrations/knowledge-base/google-drive/knowledge-base-sync)** | Knowledge Base | Answer questions from Docs, Sheets, and files synced into an agent knowledge base. | Google OAuth sign-in |
+| **[Microsoft OneDrive](/integrations/knowledge-base/onedrive/knowledge-base-sync)** | Knowledge Base | Answer questions from OneDrive documents and spreadsheets synced into a knowledge base. | Microsoft OAuth sign-in |
+| **[Notion](/integrations/knowledge-base/notion/knowledge-base-sync)** | Knowledge Base | Answer questions from structured Notion pages and databases synced into a knowledge base. | API Key (Internal Integration Token) |
+| **[Calendly](/integrations/calendar/calendly/connect)** | Calendar | Check real-time availability, book events, reschedule, cancel, and look up appointments. | API Key (Personal Access Token) |
+| **[Cal.com](/integrations/calendar/caldotcom/connect)** | Calendar | Check real-time availability, book, reschedule, cancel, and retrieve appointment details. | API Key (cal.com or cal.eu) |
 
 ***
 
@@ -192,11 +191,11 @@ Learn more about timeout budgets, error fallbacks, and conditional gating in the
 
 <AccordionGroup>
   <Accordion title="Can I connect more than one account for the same provider?">
-    Yes. Each connection is managed independently, and individual agent tools are bound to a specific connection. The one exception is CRM contact synchronization: only one CRM connection can drive [contact sync](/integrations/crm-overview) for your workspace at any given time.
+    Yes. Each connection is managed independently, and individual agent tools are bound to a specific connection. The one exception is CRM contact synchronization: only one CRM connection can drive [contact sync](/integrations/crm/crm-integrations) for your workspace at any given time.
   </Accordion>
 
   <Accordion title="Do I need contact sync to use CRM integration tools?">
-    No. Integration tools function immediately once a provider is authenticated. Contact sync and automatic call timeline logging are optional features you enable per connection; [analysis data mappings](/integrations/crm-mappings) are configured at the workspace level.
+    No. Integration tools function immediately once a provider is authenticated. Contact sync and automatic call timeline logging are optional features you enable per connection; [analysis data mappings](/integrations/crm/crm-data-mappings) are configured at the workspace level.
   </Accordion>
 
   <Accordion title="What happens if a tool call fails mid-conversation?">

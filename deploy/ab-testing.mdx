@@ -9,7 +9,6 @@ og:title: 'A/B Testing: Split Voice & Chat Agent Traffic'
 og:description: 'Run Tavly A/B tests by splitting inbound and outbound voice and chat traffic between agents to evaluate prompts, voices, and workflows in live production.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'split'
 keywords: ['A/B testing', 'traffic splitting', 'voice agent testing', 'chat agent comparison', 'prompt experimentation', 'agent version analytics', 'Tavly AI deployment']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -38,8 +37,8 @@ Every A/B testing setup revolves around three operational pillars:
 
 | Traffic Channel | Supported Modality | Configuration Location | Key Documentation Reference |
 | :--- | :--- | :--- | :--- |
-| **Inbound Calls** | Telephony Voice | Phone Number settings drawer | [Receive calls](/deploy/inbound-call) |
-| **Outbound Calls** | Telephony Voice | Phone Number settings drawer | [Outbound calls](/deploy/outbound-call) |
+| **Inbound Calls** | Telephony Voice | Phone Number settings drawer | [Receive calls](/deploy/receive-calls) |
+| **Outbound Calls** | Telephony Voice | Phone Number settings drawer | [Outbound calls](/deploy/outbound-calls) |
 | **Inbound Chat** | Web / Widget Chat | Chat widget configuration | [Chat widget](/deploy/chat-widget) |
 | **Outbound Chat** | REST API Chat | Chat completion request params | [Create Chat Completion](/deploy/create-chat-completion) |
 
@@ -86,8 +85,8 @@ Review configuration entry points across different modalities:
 
 | Context | Configure in |
 | :--- | :--- |
-| **Inbound calls** | Number configuration: bind multiple agents to the number and set the traffic split. See [Receive calls](/deploy/inbound-call). |
-| **Outbound calls** | Number configuration: bind multiple agents for outbound and set the traffic split. See [Outbound calls](/deploy/outbound-call). |
+| **Inbound calls** | Number configuration: bind multiple agents to the number and set the traffic split. See [Receive calls](/deploy/receive-calls). |
+| **Outbound calls** | Number configuration: bind multiple agents for outbound and set the traffic split. See [Outbound calls](/deploy/outbound-calls). |
 | **Chat (inbound & outbound)** | Chat agent or widget configuration where you assign the chat agent; enable A/B testing and set the traffic split. See [Create Chat Completion](/deploy/create-chat-completion) and [Chat widget](/deploy/chat-widget). |
 
 ## How do you view analytics and compare agent versions?
@@ -122,7 +121,7 @@ Follow these steps to analyze variant performance:
   </Step>
 </Steps>
 
-All charts on the page will update to the selected agent-version scope, so you can compare metrics (such as call success rate, duration, and latency) for each variant. For more details on Analytics, see [Get analytics insight](/features/analytics-dashboard).
+All charts on the page will update to the selected agent-version scope, so you can compare metrics (such as call success rate, duration, and latency) for each variant. For more details on Analytics, see [Get analytics insight](/monitor/analytics-dashboard).
 
 ## How does A/B testing compare to dynamic agent selection?
 
@@ -134,13 +133,13 @@ All charts on the page will update to the selected agent-version scope, so you c
   </Tab>
 
   <Tab title="Dynamic selection (webhook / API)">
-    Use when you want to **choose the agent per call or per chat** based on caller, context, or other data. For inbound calls, use the [Inbound Call Webhook](/features/inbound-call-webhook). For outbound calls or chats, pass the agent (or other overrides) in the API when you create the call or chat.
+    Use when you want to **choose the agent per call or per chat** based on caller, context, or other data. For inbound calls, use the [Inbound Call Webhook](/deploy/inbound-call-webhook). For outbound calls or chats, pass the agent (or other overrides) in the API when you create the call or chat.
   </Tab>
 </Tabs>
 
 ## Related Resources
 
-* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Launch outbound calling campaigns with traffic splits.
-* [Analytics dashboard](/features/analytics-dashboard): Inspect call duration, latency, and resolution rates.
-* [Inbound call webhook](/features/inbound-call-webhook): Dynamically route incoming calls based on caller metadata.
+* [Inbound call routing](/deploy/receive-calls): Route inbound telephony calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Launch outbound calling campaigns with traffic splits.
+* [Analytics dashboard](/monitor/analytics-dashboard): Inspect call duration, latency, and resolution rates.
+* [Inbound call webhook](/deploy/inbound-call-webhook): Dynamically route incoming calls based on caller metadata.

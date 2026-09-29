@@ -9,7 +9,7 @@ og:title: 'Rerun Post Call and Post Chat Extraction'
 og:description: 'Rerun Tavly Post Call Extraction to retroactively regenerate conversational summaries, sentiment scores, and success metrics using updated prompt criteria.'
 og:image: 'https://mintcdn.com/retellai/Uc_NXIkdu9vDxEeh/images/rerun_analysis.png'
 twitter:card: 'summary_large_image'
-icon: 'arrows-rotate'
+icon: 'rotate-ccw'
 keywords: ['rerun call analysis', 'backfill post call data', 'regenerate call summary', 're-score call success', 'Tavly AI re-analysis', 'batch call extraction', 'CRM backfill']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -35,7 +35,7 @@ faq:
 </Note>
 
 <Note>
-  **Transfer Leg Adherence**: If a conversation included an [Agent Transfer](/build/single-multi-prompt/transfer-agent), re-analysis preserves the original **Post Call Extraction setting** chosen for that transfer. If the transfer was set to **Only transferred agent**, the destination agent's full analysis configuration (analysis model, fields, and custom prompts) governs the rerun.
+  **Transfer Leg Adherence**: If a conversation included an [Agent Transfer](/build/setup/single-multi-prompt/agent-transfer-tool), re-analysis preserves the original **Post Call Extraction setting** chosen for that transfer. If the transfer was set to **Only transferred agent**, the destination agent's full analysis configuration (analysis model, fields, and custom prompts) governs the rerun.
 </Note>
 
 <Warning>
@@ -118,7 +118,7 @@ To **execute batch backfills across historical archives**, navigate to Call Hist
 
 ### Downstream CRM Synchronization
 
-If your workspace utilizes [CRM Integrations](/integrations/crm-overview) (e.g., Salesforce, HubSpot), backfilled extraction fields automatically flow through configured [Analysis Data Mappings](/integrations/crm-mappings) to update associated lead and contact properties.
+If your workspace utilizes [CRM Integrations](/integrations/crm/crm-integrations) (e.g., Salesforce, HubSpot), backfilled extraction fields automatically flow through configured [Analysis Data Mappings](/integrations/crm/crm-data-mappings) to update associated lead and contact properties.
 
 ---
 

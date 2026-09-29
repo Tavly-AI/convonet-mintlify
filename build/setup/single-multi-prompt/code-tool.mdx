@@ -28,11 +28,11 @@ faq:
 
 For example, a lending agent can execute a Code Tool to calculate a loan repayment amount utilizing values already stored securely as dynamic variables, subsequently quoting the exact calculated amount in its next spoken response.
 
-If you are building a rigid conversation flow agent, see the [Code Node](/build/conversation-flow/code-node) documentation instead.
+If you are building a rigid conversation flow agent, see the [Code Node](/build/setup/conversation-flow/add-nodes/code-node-run-javascript) documentation instead.
 
 ## When should you use Code Tool?
 
-You should use Code Tool strictly for self-contained formatting, numeric calculations, and low-risk HTTP lookups. Use a [custom function](/build/single-multi-prompt/custom-function) for authenticated system integrations, complex argument passing, or production database writes.
+You should use Code Tool strictly for self-contained formatting, numeric calculations, and low-risk HTTP lookups. Use a [custom function](/build/setup/single-multi-prompt/custom-function) for authenticated system integrations, complex argument passing, or production database writes.
 
 | Capability | Code Tool | Custom Function |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ You should use Code Tool strictly for self-contained formatting, numeric calcula
 | **Best For** | Formatting, calculations, low-risk public HTTP lookups | Authenticated integrations, writing production data |
 | **Max Payload Size** | 20,000 characters | N/A |
 
-<Note> Code Tool inherently does not accept LLM-supplied parameters. The sandbox exclusively receives the active `dv` (dynamic variables) and `metadata` objects. If the LLM must intelligently compose arguments when calling a tool, utilize a [custom function](/build/single-multi-prompt/custom-function). </Note>
+<Note> Code Tool inherently does not accept LLM-supplied parameters. The sandbox exclusively receives the active `dv` (dynamic variables) and `metadata` objects. If the LLM must intelligently compose arguments when calling a tool, utilize a [custom function](/build/setup/single-multi-prompt/custom-function). </Note>
 
 <Warning> Use Code Tool strictly for logic that executes without requiring secret keys. Dynamic variables and metadata are permanently stored in plaintext alongside the call log. For authentication, secret management, or internal API systems, host a custom function on your own protected backend.</Warning>
 
@@ -112,7 +112,7 @@ Code Tool logic executes securely inside a locked-down QuickJS sandbox. It fully
 ### `dv`: dynamic variables
 Access your [dynamic variables](/build/context/dynamic-variables) as properties attached to the `dv` object. All stored values are returned strictly as string literals, including values set by prior tools. **Use `dv.user_number`, not `{{user_number}}`**, inside the JavaScript execution block. 
 
-<Note> Code Tool inherently has no parameter schema. If the logic requires variables spoken by the caller, you must extract them into dynamic variables utilizing an [Extract Dynamic Variable tool](/build/single-multi-prompt/extract-dv) beforehand.</Note>
+<Note> Code Tool inherently has no parameter schema. If the logic requires variables spoken by the caller, you must extract them into dynamic variables utilizing an [Extract Dynamic Variable tool](/build/setup/single-multi-prompt/extract-dynamic-variables) beforehand.</Note>
 
 ### `metadata`: call or chat metadata
 Read explicit metadata injected natively when initiating a [phone call](/api-references/create-phone-call) or [chat session](/api-references/create-chat) by referencing the `metadata` object.

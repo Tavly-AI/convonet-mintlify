@@ -18,7 +18,7 @@ Clicking the empty canvas and opening settings brings up the global settings pan
 
     <img src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/voices.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=ffe67919364e523495ecdd7242988699" style={{ maxHeight: 560 }} width="2492" height="1452" data-path="images/cf/voices.png" />
 
-    **Custom voices**: you're also able to pull in voices from the ElevenLabs community, or clone your own by clicking "Add custom voice." More detail is in the [voice configuration guide](/build/voice).
+    **Custom voices**: you're also able to pull in voices from the ElevenLabs community, or clone your own by clicking "Add custom voice." More detail is in the [voice configuration guide](/build/speech/voice).
 
     3. A handful of voice parameters can also be tuned:
        * Voice temperature — controls how variable or stable the voice sounds
@@ -30,7 +30,7 @@ Clicking the empty canvas and opening settings brings up the global settings pan
   <Step title="Choose the Agent's Language">
     Select which language, or languages, the agent should understand and speak. This governs speech recognition, pronunciation, and the language the agent replies in — there's no need to add a "respond in X" line to your prompt.
 
-    To support more than one language, switch the selector to **Multiselect** and choose the languages you need; for the best accuracy, stick to a single language whenever you can. See [Set language for your agent](/agent/language) and [Configure a multilingual agent](/agent/multilingual) for more.
+    To support more than one language, switch the selector to **Multiselect** and choose the languages you need; for the best accuracy, stick to a single language whenever you can. See [Set language for your agent](/build/language) and [Configure a multilingual agent](/build/multilingual) for more.
   </Step>
 
   <Step title="Pick a Language Model">
@@ -42,7 +42,7 @@ Clicking the empty canvas and opening settings brings up the global settings pan
     * Latency
     * Cost
 
-    With a standard model, individual [nodes](/build/conversation-flow/node) can override the model choice. Speech to speech, on the other hand, runs a single model across the entire flow, so per-node model overrides disappear while it's selected. Switching a flow into or out of Speech to speech also automatically moves the agent to a compatible voice, since Speech to speech needs a realtime-capable one.
+    With a standard model, individual [nodes](/build/setup/conversation-flow/add-nodes/nodes-and-edges) can override the model choice. Speech to speech, on the other hand, runs a single model across the entire flow, so per-node model overrides disappear while it's selected. Switching a flow into or out of Speech to speech also automatically moves the agent to a compatible voice, since Speech to speech needs a realtime-capable one.
 
     <img src="https://mintcdn.com/retellai/AJT6JQMM1II9WOl-/images/cf/model-selection.png?fit=max&auto=format&n=AJT6JQMM1II9WOl-&q=85&s=b4efb92e9fb30d002fbb6ecdf764d0f4" style={{ maxHeight: 560 }} width="826" height="1000" data-path="images/cf/model-selection.png" />
   </Step>
@@ -52,14 +52,14 @@ Clicking the empty canvas and opening settings brings up the global settings pan
   </Step>
 
   <Step title="Set Up a Knowledge Base">
-    Give the agent context to draw on — documents, URLs, or plain text. Full details are in the [Knowledge Base Guide](/build/knowledge-base).
+    Give the agent context to draw on — documents, URLs, or plain text. Full details are in the [Knowledge Base Guide](/build/context/knowledge-base).
   </Step>
 
   <Step title="Adjust Speech Settings">
     A range of options here let you fine-tune how the agent interacts with the caller.
 
     * Background sound: play an ambient sound throughout the call — a call-center hum, for instance — to make the conversation feel more natural.
-    * Response Wait time: how long the agent deliberately pauses after the caller stops talking before it responds. Ranges from no added wait by default up to 5.5 seconds, shown in milliseconds under one second and seconds above it. This is a floor, not a ceiling — the agent will wait longer if it senses the caller isn't finished. Raise it for slow talkers or callers who pause mid-sentence, but keep in mind this delay applies to every single turn, so a higher value makes the whole conversation feel slower. Through the API, this is the `responsiveness` field, running from 0 to 1 with a default of 1: at 1 there's no added wait, at 0.9 there's a 1-second wait, and each further 0.1 drop adds another 0.5 seconds, maxing out at 5.5 seconds when set to 0 (with the 0.9–1 range tapering smoothly between 0 and 1 second). Turning on "Dynamically adjust based on user input" lets the agent adapt its wait time to the caller's pace as the call goes on. Individual nodes can override this setting through their own [speech overrides](/build/conversation-flow/conversation-node).
+    * Response Wait time: how long the agent deliberately pauses after the caller stops talking before it responds. Ranges from no added wait by default up to 5.5 seconds, shown in milliseconds under one second and seconds above it. This is a floor, not a ceiling — the agent will wait longer if it senses the caller isn't finished. Raise it for slow talkers or callers who pause mid-sentence, but keep in mind this delay applies to every single turn, so a higher value makes the whole conversation feel slower. Through the API, this is the `responsiveness` field, running from 0 to 1 with a default of 1: at 1 there's no added wait, at 0.9 there's a 1-second wait, and each further 0.1 drop adds another 0.5 seconds, maxing out at 5.5 seconds when set to 0 (with the 0.9–1 range tapering smoothly between 0 and 1 second). Turning on "Dynamically adjust based on user input" lets the agent adapt its wait time to the caller's pace as the call goes on. Individual nodes can override this setting through their own [speech overrides](/build/setup/conversation-flow/add-nodes/conversation-node).
 
           <Frame caption="The Response Wait time slider in Speech Settings.">
             <img src="https://mintcdn.com/retellai/GtSB6YKE5JLSJhGy/images/response-wait-time-slider.png?fit=max&auto=format&n=GtSB6YKE5JLSJhGy&q=85&s=685487463543e07499528c3627cbf8eb" alt="The Response Wait time setting in Speech Settings: the label with a turtle icon, the description 'The agent will wait at least this long before responding', and a slider set about three quarters of the way along, showing 1.4s." style={{ maxHeight: 560 }} width="760" height="185" data-path="images/response-wait-time-slider.png" />
@@ -69,13 +69,13 @@ Clicking the empty canvas and opening settings brings up the global settings pan
     * Boosted Keywords: bias speech recognition toward specific words — brand names, people's names, and similar terms are common choices.
     * Speech Normalization: convert entities like dates, currency, and numbers into plain spoken words, which helps avoid mispronunciations in generated audio.
     * Reminder frequency: how often the agent nudges the caller after a period of inactivity.
-    * Pronunciation: [define a pronunciation guide](/build/add-pronunciation) for specific words.
+    * Pronunciation: [define a pronunciation guide](/build/speech/add-pronunciation) for specific words.
   </Step>
 
   <Step title="Adjust Call Settings">
     A few more settings here relate to how the call itself operates.
 
-    * Voicemail-related settings: configure voicemail detection and what the agent should do once it's detected. See [Handle Voicemail](/build/handle-voicemail) for more.
+    * Voicemail-related settings: configure voicemail detection and what the agent should do once it's detected. See [Handle Voicemail](/build/telephony/handle-voicemail) for more.
     * End call on silence: automatically end the call if the caller stays inactive for a set length of time.
     * Call duration: set the maximum length allowed for the call.
     * Pause before speaking: if the agent is set to speak first, this is how long it waits at the very start of the call before doing so — useful for giving the caller time to actually pick up.

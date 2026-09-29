@@ -20,7 +20,7 @@ You can check your current number of concurrent calls in the dashboard.
 
 ## Reserved inbound concurrency
 
-Reserved inbound concurrency protects [inbound calls](/deploy/inbound-call) from being crowded out by [outbound](/deploy/outbound-call) traffic.
+Reserved inbound concurrency protects [inbound calls](/deploy/receive-calls) from being crowded out by [outbound](/deploy/outbound-calls) traffic.
 When `reserved_inbound_concurrency` is configured, outbound calls can use at most your concurrency
 limit minus the reserved amount. Inbound calls can still use the full concurrency limit when capacity
 is available.
@@ -152,7 +152,7 @@ Should your operational needs require longer calls, please reach out to our team
 ## Max prompt token length
 
 The maximum prompt length when using the Retell LLM framework is **32768** tokens by default, and longer prompts are rejected
-when creating or updating the LLM. Prompts over 4,000 tokens are charged extra; read more at [Billing Exceptions](/accounts/billing-exceptions).
+when creating or updating the LLM. Prompts over 4,000 tokens are charged extra; read more at [Billing Exceptions](/accounts/billing-exception).
 Should your operational needs require longer context, please reach out to our team at
 [support@retellai.com](mailto:support@retellai.com) to discuss options.
 
@@ -168,7 +168,7 @@ Should your operational needs require longer context, please reach out to our te
   </Accordion>
 
   <Accordion title="Do batch calls count toward concurrency?">
-    Yes. [Batch calls](/deploy/make-batch-call) are outbound calls, so they consume concurrency slots like any other outbound call. Batch calls are initiated as slots become available, so a batch runs no faster than your concurrency and CPS limits allow.
+    Yes. [Batch calls](/deploy/agents/batch-calls) are outbound calls, so they consume concurrency slots like any other outbound call. Batch calls are initiated as slots become available, so a batch runs no faster than your concurrency and CPS limits allow.
   </Accordion>
 
   <Accordion title="What happens to an outbound call when I've hit my concurrency limit?">
