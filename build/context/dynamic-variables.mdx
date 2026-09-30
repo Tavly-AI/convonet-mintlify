@@ -9,7 +9,7 @@ og:title: 'Dynamic Variables in Tavly Voice Agents'
 og:description: 'Populate per-call parameters into Tavly voice agents using placeholder syntax to enable personalized greetings, contextual dialogue, and runtime routing.'
 og:image: 'https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/dynamic.png'
 twitter:card: 'summary_large_image'
-icon: 'brackets-curly'
+icon: 'braces'
 keywords: ['dynamic variables', 'Tavly AI runtime data', 'personalize voice agents', 'API call payload', 'contextual dialogue AI']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -91,12 +91,12 @@ You can embed dynamic variable placeholders across numerous platform components,
 
     ### Inbound Telephony
 
-    Supply dynamic attributes dynamically via the [Inbound Call Webhook](/features/inbound-call-webhook) response when a call hits your number.
+    Supply dynamic attributes dynamically via the [Inbound Call Webhook](/deploy/inbound-call-webhook) response when a call hits your number.
   </Step>
 </Steps>
 
 <Warning>
-  All property values inside `tavly_llm_dynamic_variables` must be submitted as strings. Numeric, boolean, and nested object types are unsupported (pass numbers as `"42"` and booleans as `"true"`). When accessing variables inside a [Code Tool](/build/single-multi-prompt/code-tool) or [code node](/build/conversation-flow/code-node), cast them explicitly prior to comparison (e.g. `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`).
+  All property values inside `tavly_llm_dynamic_variables` must be submitted as strings. Numeric, boolean, and nested object types are unsupported (pass numbers as `"42"` and booleans as `"true"`). When accessing variables inside a [Code Tool](/build/setup/single-multi-prompt/code-tool) or [code node](/build/setup/conversation-flow/add-nodes/code-node-run-javascript), cast them explicitly prior to comparison (e.g. `Number(dv.order_count)`, `dv.is_member === "true"`, or `JSON.parse(dv.items)`).
 </Warning>
 ## What System Variables are built-in?
 
@@ -144,11 +144,11 @@ Available exclusively during chat interactions:
 
 ### Post-Session Analytics
 
-Populated after a session terminates and accessible by post-call hooks in your [agent's workflow](/agent/agent-workflow): `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, and `{{call_status}}`, alongside custom attributes extracted via [Post Call Extraction](monitor/post-call-analysis-overview). For chat agents, equivalent attributes include `{{chat_summary}}`, `{{chat_successful}}`, and `{{chat_status}}`.
+Populated after a session terminates and accessible by post-call hooks in your [agent's workflow](/build/agent-workflow): `{{call_summary}}`, `{{call_successful}}`, `{{user_sentiment}}`, `{{disconnection_reason}}`, and `{{call_status}}`, alongside custom attributes extracted via [Post Call Extraction](monitor/post-call-analysis-overview). For chat agents, equivalent attributes include `{{chat_summary}}`, `{{chat_successful}}`, and `{{chat_status}}`.
 
 ### CRM Contact Variables
 
-If a phone number matches a stored record in [contacts](/features/contacts), Tavly exposes contact parameters: `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and any custom contact fields. If no matching record is found, these values remain unpopulated. Review [contact memory](/integrations/build-contact-memory) to populate these fields from historical conversations.
+If a phone number matches a stored record in [contacts](/features/contacts), Tavly exposes contact parameters: `{{first_name}}`, `{{last_name}}`, `{{do_not_call}}`, and any custom contact fields. If no matching record is found, these values remain unpopulated. Review [contact memory](/integrations/crm/persistent-memory) to populate these fields from historical conversations.
 
 ## Nested Variable Evaluation
 
@@ -213,5 +213,5 @@ Otherwise, address the customer directly using {{user_name}}.
 
 * [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope): Reference patterns from the Tavly community
 * [API Reference](/api-references/create-phone-call): Parameter schemas for dispatching outbound calls
-* [Inbound Webhook Guide](/features/inbound-call-webhook): Delivering runtime variables for inbound phone lines
+* [Inbound Webhook Guide](/deploy/inbound-call-webhook): Delivering runtime variables for inbound phone lines
 

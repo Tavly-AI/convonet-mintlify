@@ -9,7 +9,6 @@ og:title: 'Alert Rules for Call, Chat, and API Metrics'
 og:description: 'Create Tavly AI alert rules that notify teams via email or webhook when voice and chat volumes, success rates, costs, or API errors cross key thresholds.'
 og:image: 'https://mintcdn.com/retellai/GWDpUspWhecmEo9X/images/alerting/rules-list.png'
 twitter:card: 'summary_large_image'
-icon: 'bell'
 keywords: ['alert rules', 'voice AI alerting', 'call metrics threshold', 'telephony webhooks', 'chat success rate alert', 'concurrency alert', 'Tavly AI monitoring']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -39,11 +38,11 @@ faq:
 * **Proactive Outage Detection**: Detect sudden dips in call success rate or surges in upstream LLM API errors before customers report issues.
 * **Volume Anomaly Tracking**: Identify abrupt surges or unexpected drops in incoming telephony traffic, or receive warnings when active sessions approach your maximum [concurrency limit](/deploy/concurrency).
 * **Cost & Budget Governance**: Track aggregated call and chat expenditure across lookback windows to prevent unexpected financial overages.
-* **Quality Assurance Enforcement**: Monitor negative sentiment trajectories or spikes in calls failing [AI QA cohort](/ai-qa/create-cohort) evaluation benchmarks.
+* **Quality Assurance Enforcement**: Monitor negative sentiment trajectories or spikes in calls failing [AI QA cohort](/monitor/ai-qa/create-cohort) evaluation benchmarks.
 
 ### Operational Boundaries
 
-Alerting operates on **aggregated multi-session telemetry** over fixed time horizons. It is not intended for single-interaction transaction triggers; for real-time per-call webhooks, configure post-call [event webhooks](/features/webhook-overview). To inspect historical performance trends interactively, use the [Analytics Dashboard](/features/analytics-dashboard).
+Alerting operates on **aggregated multi-session telemetry** over fixed time horizons. It is not intended for single-interaction transaction triggers; for real-time per-call webhooks, configure post-call [event webhooks](/monitor/webhook-overview). To inspect historical performance trends interactively, use the [Analytics Dashboard](/monitor/analytics-dashboard).
 
 <Note>
   Alerting is managed directly within the Tavly dashboard console and is not configurable via the public REST API.
@@ -131,7 +130,8 @@ To **configure evaluation windows, frequencies, and threshold types**, choose be
    * *Example*: Trigger an alert when `Number of calls` **is above** `150` within the past 1 hour.
 2. **Compare to Last Cycle (Relative Percentage Threshold)**:
    Measures relative variance between the current lookback window and the immediate preceding window:
-   $$	ext{Percentage Change} = \left( rac{	ext{currentValue} - 	ext{previousValue}}{	ext{previousValue}} ight) 	imes 100$$
+   $$	ext{Percentage Change} = \left( rac{	ext{currentValue} - 	ext{previousValue}}{	ext{previousValue}} 
+ight) 	imes 100$$
    * *Example*: Trigger an alert when `API error count` **increases by more than** `50%` compared to the prior cycle.
 
 <Note>
@@ -167,7 +167,7 @@ Narrow telemetry streams by applying specific dimension filters:
 | **Environment Tags** | Same as Agents filter | Filter by deployment stage (e.g., `prod`, `staging`) using [environment tags](/deploy/agents/version#environment-tags). |
 | **Disconnection Reason** | Number of calls | Isolate calls terminating due to specific triggers (e.g., `user_hangup`, `dial_no_answer`). |
 | **API Error Code** | API error count | Filter by HTTP response codes: `400`, `401`, `402`, `403`, `404`, `409`, `422`, `429`, `500`. |
-| **QA Cohort** | QA not passed | Mandatory cohort selector designating which [AI QA cohort](/ai-qa/create-cohort) to audit. |
+| **QA Cohort** | QA not passed | Mandatory cohort selector designating which [AI QA cohort](/monitor/ai-qa/create-cohort) to audit. |
 | **Post-Call Extraction** | Same as Agents filter | Target custom structured analysis fields (e.g., `appointment_booked = false`). |
 
 ---
@@ -220,7 +220,7 @@ Tavly dispatches an HTTP `POST` request to configured endpoints with an `alert` 
 * `triggered_timestamp` & `resolved_timestamp`: Epoch millisecond timestamps.
 
 <Warning>
-  **Webhook Security & Timeouts**: All webhook requests carry an `X-Tavly-Signature` header computed via HMAC-SHA256. Verify signatures following the [secure webhook documentation](/features/secure-webhook). Tavly imposes a strict **10-second request timeout** without automatic retries.
+  **Webhook Security & Timeouts**: All webhook requests carry an `X-Tavly-Signature` header computed via HMAC-SHA256. Verify signatures following the [secure webhook documentation](/monitor/secure-webhook). Tavly imposes a strict **10-second request timeout** without automatic retries.
 </Warning>
 
 ### Incident History & System Limits
@@ -271,5 +271,5 @@ Track historical breaches under the **Alert History** tab:
 
 * [Analytics dashboard guide](/monitor/analytics-dashboard): Build custom visualization charts and dashboards for call and chat metrics.
 * [Call and chat history](/features/session-history): Search, inspect, and analyze individual call recordings and transcripts.
-* [Secure webhook signature verification](/features/secure-webhook): Validate HMAC-SHA256 signatures on inbound alert payloads.
+* [Secure webhook signature verification](/monitor/secure-webhook): Validate HMAC-SHA256 signatures on inbound alert payloads.
 * [Concurrency and capacity limits](/deploy/concurrency): Monitor peak channel utilization against plan allocations.

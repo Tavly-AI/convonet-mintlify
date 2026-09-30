@@ -29,9 +29,6 @@ faq:
   - question: "How does enabling auto_reconnect prevent stalled calls?"
     answer: "Tavly's auto_reconnect feature uses ping-pong keepalives to detect half-open sockets that close abnormally without sending close frames, preventing the agent from freezing indefinitely."
 ---
-
-# Best practices
-
 > Keep a Tavly custom LLM agent fast and reliable: cut time to first sentence, write prompts for speech, control tool accuracy, and survive dropped connections.
 
 How an autonomous voice agent sounds and performs during a live telephone call depends less on raw model parameter size than on engineering discipline: how rapidly the first spoken sentence lands, how prompts are tailored for verbal delivery, and how gracefully your backend recovers from mid-call telephony anomalies.

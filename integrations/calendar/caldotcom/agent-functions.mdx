@@ -31,15 +31,11 @@ faq:
     answer: "Yes. Agents chain List Bookings to locate the reservation UID by email, check availability for new slots, and invoke Reschedule Booking to finalize the change."
 ---
 
-# Cal.com agent functions
-
-> Cal.com tools for Tavly AI agents: check live availability, book appointments, and list, get, reschedule, or cancel bookings during the call.
-
 ## What are Cal.com agent functions and how do they work in Tavly AI?
 
 **Cal.com agent functions** enable Tavly AI agents to execute live scheduling actions—checking availability, creating bookings, retrieving appointments, rescheduling, and canceling reservations—directly during phone calls or chat sessions. Tools interact in real time with Cal.com via API keys without maintaining local calendar clones, guaranteeing synchronized scheduling and automated calendar notifications.
 
-Connecting your [Cal.com account](/integrations/calendar/caldotcom/connect) arms your AI agents with real-time scheduling tools that run directly within active conversations or as pre- and post-call lifecycle tasks (see [agent workflows](/agent/agent-workflow)). 
+Connecting your [Cal.com account](/integrations/calendar/caldotcom/connect) arms your AI agents with real-time scheduling tools that run directly within active conversations or as pre- and post-call lifecycle tasks (see [agent workflows](/build/agent-workflow)). 
 
 Because Tavly executes live API transactions directly against Cal.com, your agent always queries live calendar state, eliminating double-bookings and synchronization delays.
 
@@ -130,7 +126,7 @@ Cal.com tools execute live API calls during conversational interactions, sending
     Built-in Cal.com tools are being phased out in favor of this integration. The Tavly dashboard no longer supports creating legacy tools, and the API ceases creating or editing them on **September 30, 2026**. Existing built-in tools remain fully operational until **October 31, 2026**, when Tavly will automatically migrate them:
     * Tavly generates one unified integration connection per detected API key.
     * Tool function names are preserved to prevent breaking existing conversational prompts.
-    * Tools with invalid, expired, or revoked API keys will be skipped during migration and will halt execution. To avoid service disruption, migrate proactively: [connect Cal.com](/integrations/calendar/caldotcom/connect), attach **Check Availability** and **Book Appointment** with your existing event type IDs, and remove legacy tools. Consult the [deprecation schedule](/deprecation-notice/2026/10-31_legacy_calcom_tools) for details.
+    * Tools with invalid, expired, or revoked API keys will be skipped during migration and will halt execution. To avoid service disruption, migrate proactively: [connect Cal.com](/integrations/calendar/caldotcom/connect), attach **Check Availability** and **Book Appointment** with your existing event type IDs, and remove legacy tools. Consult the [deprecation schedule](/integrations/calendar/caldotcom/connect) for details.
   </Accordion>
 
   <Accordion title="What alternative scheduling integrations does Tavly support?">
@@ -153,7 +149,7 @@ Cal.com tools execute live API calls during conversational interactions, sending
     Equip single- or multi-prompt agents with Cal.com functions and test live scheduling flows.
   </Card>
 
-  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/conversation-flow/integration-tools">
+  <Card title="Integration tools in conversation flow" icon="diagram-project" href="/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow">
     Trigger Cal.com tools inside visual function nodes and branch dialogue based on booking outcomes.
   </Card>
 

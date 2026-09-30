@@ -23,7 +23,7 @@ faq:
 
 ## What is a Chat Agent?
 
-**Chat agents** manage dynamic, text-based conversations with your users. Because they rely on the exact same prompts, [functions](/build/add-function-calling), and [knowledge bases](/build/knowledge-base) as voice agents, you can seamlessly extend your existing phone logic into text channels like websites, SMS, or mobile apps.
+**Chat agents** manage dynamic, text-based conversations with your users. Because they rely on the exact same prompts, [functions](/build/setup/single-multi-prompt/function-calling), and [knowledge bases](/build/context/knowledge-base) as voice agents, you can seamlessly extend your existing phone logic into text channels like websites, SMS, or mobile apps.
 
 <Note> **Third-Party Integrations:** Tavly does not provide native integrations for platforms like WhatsApp or Messenger. Outside of the [Website Widget](/deploy/chat-widget) and [SMS](/deploy/enable-sms), you must connect other channels manually using the [Chat API](/api-references/create-chat).</Note>
 
@@ -49,7 +49,7 @@ You can quickly spin up a brand new chat agent directly from the dashboard, sele
   </Step>
 
   <Step title="Set up the agent">
-    Define your [base prompt](/build/prompt-engineering-guide), attach functional tools, link a knowledge base, and configure chat-specific timeouts.
+    Define your [base prompt](/build/response/prompt-engineering-guide), attach functional tools, link a knowledge base, and configure chat-specific timeouts.
   </Step>
 </Steps>
 
@@ -93,7 +93,7 @@ Because chat agents are inherently headless, Tavly relies on you to surface the 
 * **Custom API Integration:** Build a completely bespoke interface utilizing [Create chat](/api-references/create-chat) to initialize the session and [Create chat completion](/deploy/create-chat-completion) to handle message transmission.
 
 
-Once your agent is live, set up [alert rules](/features/alerting-overview) around chat volume, success rate, negative sentiment, or cost, so you hear about problems without needing to watch the dashboard constantly.
+Once your agent is live, set up [alert rules](/monitor/alerting-overview) around chat volume, success rate, negative sentiment, or cost, so you hear about problems without needing to watch the dashboard constantly.
 
 ## FAQ
 
@@ -111,6 +111,6 @@ Once your agent is live, set up [alert rules](/features/alerting-overview) aroun
   </Accordion>
 
   <Accordion title="How is billing calculated for chat agents?">
-    Chat is billed per message the agent sends, and add-ons like guardrails are also charged per message. Check [pricing](/pricing) for current rates.
+    Chat is billed per message the agent sends, and add-ons like guardrails are also charged per message. Check [pricing](/accounts/billing) for current rates.
   </Accordion>
 </AccordionGroup>

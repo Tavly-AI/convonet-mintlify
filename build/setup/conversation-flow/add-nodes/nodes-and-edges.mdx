@@ -9,7 +9,7 @@ og:title: 'Nodes & Edges in Tavly Conversation Flows'
 og:description: 'Nodes are the fundamental building blocks of a Tavly AI conversation flow. Learn how node types dictate dialogue, take actions, and transition via edges.'
 og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/cf/configure-node.jpeg'
 twitter:card: 'summary_large_image'
-icon: 'circle-nodes'
+icon: 'split'
 keywords: ['nodes and edges', 'Tavly AI conversation flow', 'call routing logic', 'AI node types', 'subagent nodes', 'dialogue branching']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -26,7 +26,7 @@ faq:
 
 A conversation flow is essentially a graph—**nodes** linked together by conditional **edges**. 
 
-Each node is strictly responsible for one discrete step of the call, whether that is handling dialogue, executing a backend tool, or transferring the session. Every edge carries a [transition condition](/build/conversation-flow/transition-condition) that explicitly governs when the agent moves to the next node.
+Each node is strictly responsible for one discrete step of the call, whether that is handling dialogue, executing a backend tool, or transferring the session. Every edge carries a [transition condition](/build/setup/conversation-flow/transition-conditions) that explicitly governs when the agent moves to the next node.
 
 Splitting the conversation into discrete nodes means you can tune, evaluate, and debug each step on its own, radically improving LLM reliability.
 
@@ -35,25 +35,25 @@ Splitting the conversation into discrete nodes means you can tune, evaluate, and
 Each node type is engineered for a specific task. You must pick the exact node that matches what that step of the call needs to accomplish.
 
 ### Nodes for Dialogue
-* [**Conversation Node**](/build/conversation-flow/conversation-node): Handles pure back-and-forth dialogue with no tool calling involved. Transitions get evaluated dynamically after every user response.
-* [**Subagent Node**](/build/conversation-flow/subagent-node): Handles dialogue while allowing the LLM to autonomously decide **whether and when** to execute available tools. If a tool absolutely *must* run at a given step deterministically, use a Function Node instead.
-* [**Extract DV Node**](/build/conversation-flow/extract-dv-node): Silently pulls information out of the prior conversation and saves it as dynamic variables the moment the node is entered. It is not meant for direct dialogue.
+* [**Conversation Node**](/build/setup/conversation-flow/add-nodes/conversation-node): Handles pure back-and-forth dialogue with no tool calling involved. Transitions get evaluated dynamically after every user response.
+* [**Subagent Node**](/build/setup/conversation-flow/add-nodes/subagent-node): Handles dialogue while allowing the LLM to autonomously decide **whether and when** to execute available tools. If a tool absolutely *must* run at a given step deterministically, use a Function Node instead.
+* [**Extract DV Node**](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node): Silently pulls information out of the prior conversation and saves it as dynamic variables the moment the node is entered. It is not meant for direct dialogue.
 
 ### Nodes That Take Action
-* [**Function Node**](/build/conversation-flow/function-node): Runs a single tool deterministically the exact moment the node is entered.
-* [**Code Node**](/build/conversation-flow/code-node): Executes custom JavaScript natively inside Tavly's sandbox on entry. Good for formatting output or doing simple read-only lookups through `fetch()`.
-* [**SMS Node**](/build/conversation-flow/sms-node): Sends a text message mid-call, either to the caller or a secondary number. *(Voice agents only.)*
-* [**MCP Node**](/build/conversation-flow/mcp-node): Calls a tool on an external MCP (Model Context Protocol) server immediately upon entry.
+* [**Function Node**](/build/setup/conversation-flow/function-node/call-function-node): Runs a single tool deterministically the exact moment the node is entered.
+* [**Code Node**](/build/setup/conversation-flow/add-nodes/code-node-run-javascript): Executes custom JavaScript natively inside Tavly's sandbox on entry. Good for formatting output or doing simple read-only lookups through `fetch()`.
+* [**SMS Node**](/build/setup/conversation-flow/add-nodes/sms-node): Sends a text message mid-call, either to the caller or a secondary number. *(Voice agents only.)*
+* [**MCP Node**](/build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow): Calls a tool on an external MCP (Model Context Protocol) server immediately upon entry.
 
 ### Nodes for Call Control
-* [**Call Transfer Node**](/build/conversation-flow/call-transfer-node): Transfers the active phone call to another PSTN number or SIP URI. *(Voice agents only.)*
-* [**Transfer Agent Node**](/build/conversation-flow/transfer-agent-node): Passes the conversation to an entirely different Tavly AI agent mid-call, inheriting full context without requiring a new phone number.
-* [**Press Digit Node**](/build/conversation-flow/press-digit-node): Navigates an external IVR menu by autonomously emitting DTMF tones. *(Voice agents only.)*
-* [**End Node**](/build/conversation-flow/end-node): Instantly terminates the call session. 
+* [**Call Transfer Node**](/build/setup/conversation-flow/add-nodes/call-transfer-node): Transfers the active phone call to another PSTN number or SIP URI. *(Voice agents only.)*
+* [**Transfer Agent Node**](/build/setup/conversation-flow/add-nodes/agent-transfer-node): Passes the conversation to an entirely different Tavly AI agent mid-call, inheriting full context without requiring a new phone number.
+* [**Press Digit Node**](/build/setup/conversation-flow/add-nodes/press-digit-node): Navigates an external IVR menu by autonomously emitting DTMF tones. *(Voice agents only.)*
+* [**End Node**](/build/setup/conversation-flow/add-nodes/end-node): Instantly terminates the call session. 
 
 ### Nodes for Logic and Structure
-* [**Logic Split Node**](/build/conversation-flow/logic-split-node): Silently evaluates equations and branches the flow immediately upon entry without speaking.
-* [**Subflow**](/build/conversation-flow/components): Bundles a reusable group of nodes into a single block on the canvas, allowing you to share complex logic chains across multiple agents.
+* [**Logic Split Node**](/build/setup/conversation-flow/add-nodes/logic-split-node): Silently evaluates equations and branches the flow immediately upon entry without speaking.
+* [**Subflow**](/build/setup/conversation-flow/components): Bundles a reusable group of nodes into a single block on the canvas, allowing you to share complex logic chains across multiple agents.
 
 ## How do Nodes Link Together?
 
@@ -83,7 +83,7 @@ Every node (except the End Node) pushes the call forward through routing edges.
   </Step>
 
   <Step title="Set up transitions">
-    Click the bottom portion of the node to add edges, then write out a [transition condition](/build/conversation-flow/transition-condition) for each one.
+    Click the bottom portion of the node to add edges, then write out a [transition condition](/build/setup/conversation-flow/transition-conditions) for each one.
   </Step>
 
   <Step title="Link it to other nodes">

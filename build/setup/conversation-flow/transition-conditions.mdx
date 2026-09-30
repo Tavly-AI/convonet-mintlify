@@ -8,7 +8,6 @@ seo:
 og:title: 'Transition Conditions: Control Conversation Flow'
 og:description: 'Master Tavly Transition Conditions to control exactly when and how your AI agent routes calls using LLM prompts and deterministic logic equations.'
 twitter:card: 'summary_large_image'
-icon: 'arrows-split-up-and-left'
 keywords: ['transition conditions', 'AI logic routing', 'deterministic logic', 'prompt conditions', 'conversation flow control', 'Tavly variables']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -49,7 +48,7 @@ There are two fundamental kinds of transition conditions: natural language Promp
 - {{name}} exists
 ```
 
-<Note> **Variable Dependency:** Equation conditions strictly evaluate against pre-existing dynamic variables. If the agent learns something for the first time mid-call, you must use a prompt condition, or formally extract it first using an [Extract Dynamic Variable Node](/build/conversation-flow/extract-dv-node).</Note>
+<Note> **Variable Dependency:** Equation conditions strictly evaluate against pre-existing dynamic variables. If the agent learns something for the first time mid-call, you must use a prompt condition, or formally extract it first using an [Extract Dynamic Variable Node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node).</Note>
 
 ## What are special edge types?
 
@@ -65,7 +64,7 @@ When a transition check initiates, the routing engine aggressively evaluates con
 
 1. **Always Edge:** If present, transitions immediately. Nothing else is evaluated.
 2. **Equation Conditions:** Evaluated deterministically top-to-bottom. The very first true equation wins instantly.
-3. **Prompt Conditions:** If no equation matched, the LLM weighs every prompt condition simultaneously against any [Global Node](/build/conversation-flow/global-node) entry conditions. It picks the single best fit.
+3. **Prompt Conditions:** If no equation matched, the LLM weighs every prompt condition simultaneously against any [Global Node](/build/setup/conversation-flow/advanced/global-node) entry conditions. It picks the single best fit.
 4. **Else Edge:** If no equations or prompts matched, the flow forcefully routes here.
 5. **Stay:** If all checks fail and no Else edge exists, the agent remains in the current node.
 
@@ -124,7 +123,7 @@ Ensure every condition makes contextual sense independently, without forcing the
 * **Poor:** `When they say yes`
 * **Optimal:** `When the user indicates they want to book a meeting`
 
-If a transition misfires, explicitly tighten the prompt condition to describe exactly what the user said, or aggressively deploy [Fine-Tune Examples](/build/conversation-flow/finetune-examples) to force the LLM to map raw transcripts to the correct routing decision.
+If a transition misfires, explicitly tighten the prompt condition to describe exactly what the user said, or aggressively deploy [Fine-Tune Examples](/build/setup/conversation-flow/advanced/finetune-examples) to force the LLM to map raw transcripts to the correct routing decision.
 
 
 ## FAQ
@@ -143,6 +142,6 @@ If a transition misfires, explicitly tighten the prompt condition to describe ex
   </Accordion>
 
   <Accordion title="Why did the agent transition to a node whose condition was never actually met?">
-    Take a look at your [global prompt](/build/conversation-flow/global-setting) and node instructions for numbered labels like "PRIORITY 1," "Step 2," or "ATTEMPT 1." When the agent is choosing its next node, numbers appearing in lists like these can get mixed up with its actual transition options, causing a transition to fire even though the real condition was never satisfied. Renaming these to letters ("PRIORITY A") or descriptive labels ("New service intent") usually fixes it — the underlying instructions themselves don't need to change.
+    Take a look at your [global prompt](/build/setup/conversation-flow/configure-global-settings) and node instructions for numbered labels like "PRIORITY 1," "Step 2," or "ATTEMPT 1." When the agent is choosing its next node, numbers appearing in lists like these can get mixed up with its actual transition options, causing a transition to fire even though the real condition was never satisfied. Renaming these to letters ("PRIORITY A") or descriptive labels ("New service intent") usually fixes it — the underlying instructions themselves don't need to change.
   </Accordion>
 </AccordionGroup>

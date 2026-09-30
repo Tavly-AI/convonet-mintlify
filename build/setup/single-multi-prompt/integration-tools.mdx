@@ -26,17 +26,17 @@ faq:
 
 **Integration tools** grant a single- or multi-prompt agent the ability to act directly on a connected third-party provider, such as pulling a CRM record, booking a calendar slot, or opening a support ticket.
 
-Tavly securely manages the provider's authentication and API execution entirely behind the scenes. Unlike a [custom function](/build/single-multi-prompt/custom-function), there is absolutely no endpoint for you to host or cryptographic signature to verify.
+Tavly securely manages the provider's authentication and API execution entirely behind the scenes. Unlike a [custom function](/build/setup/single-multi-prompt/custom-function), there is absolutely no endpoint for you to host or cryptographic signature to verify.
 
-For a comprehensive list of supported providers, tool capabilities, and connection setups, review the [integrations overview](/integrations/overview).
+For a comprehensive list of supported providers, tool capabilities, and connection setups, review the [integrations overview](/integrations/integrations-overview).
 
 ## Which tool type fits your needs?
 
 Choosing the right tool depends entirely on where your data lives and whether you want to host backend logic. Use integration tools for native platforms, custom functions for your own APIs, or code tools for sandbox execution.
 
 * **Integration tool:** Ideal for actions that execute inside a natively supported provider (e.g., a CRM update, a Zendesk ticket, a Cal.com booking). Absolutely no code is required, and there is nothing to host.
-* **[Custom function](/build/single-multi-prompt/custom-function):** Required for actions that live securely in your own backend systems, or for external providers Tavly does not natively support. You are responsible for hosting the endpoint.
-* **[Code tool](/build/single-multi-prompt/code-tool):** Designed for self-contained business logic or straightforward public API calls that can execute safely inside Tavly's isolated sandbox environment.
+* **[Custom function](/build/setup/single-multi-prompt/custom-function):** Required for actions that live securely in your own backend systems, or for external providers Tavly does not natively support. You are responsible for hosting the endpoint.
+* **[Code tool](/build/setup/single-multi-prompt/code-tool):** Designed for self-contained business logic or straightforward public API calls that can execute safely inside Tavly's isolated sandbox environment.
 
 ## How do you add an integration tool?
 
@@ -44,7 +44,7 @@ Adding an integration tool involves linking your provider at the workspace level
 
 <Steps>
   <Step title="Connect your provider">
-    This critical step happens once from the **Integrations** page in the dashboard. It is a workspace-wide setup detailed in the [integrations overview](/integrations/overview#connect-a-provider). Once securely connected, any agent in your workspace can access it.
+    This critical step happens once from the **Integrations** page in the dashboard. It is a workspace-wide setup detailed in the [integrations overview](/integrations/integrations-overview#how-do-you-connect-and-authenticate-a-provider). Once securely connected, any agent in your workspace can access it.
   </Step>
 
   <Step title="Attach the tool to your agent">
@@ -96,4 +96,4 @@ Adding an integration tool involves linking your provider at the workspace level
 Tool execution timeouts, fallback prompts, and workflow architecture differ slightly depending on the provider and agent structure you utilize.
 
 * **Timeouts:** API execution timeouts on individual tool calls range strictly from **3 to 14 seconds**, depending on the provider. If a call times out, the agent does not crash—it continues conversing. Ensure your prompt includes explicit fallback instructions (e.g., "If the lookup fails, politely tell the customer our system is down").
-* **Conversation Flow Agents:** Flow agents do not utilize this specific setup interface. They inherently attach integration tools directly through a function node. Review [integration tools in conversation flow](/build/conversation-flow/integration-tools) for architectural details.
+* **Conversation Flow Agents:** Flow agents do not utilize this specific setup interface. They inherently attach integration tools directly through a function node. Review [integration tools in conversation flow](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow) for architectural details.

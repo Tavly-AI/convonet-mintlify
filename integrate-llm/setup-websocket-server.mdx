@@ -30,9 +30,6 @@ faq:
   - question: "Can I test the custom LLM server without placing a telephone call?"
     answer: "Yes, you can test connectivity locally using testing tools like Postman or websocat by transmitting a mock JSON payload matching the response_required event schema."
 ---
-
-# Set up a custom LLM WebSocket server for your Tavly agent
-
 > Build the LLM WebSocket server that a Tavly custom LLM agent connects to: handle config and begin messages, respond to response_required events.
 
 By completing this guide, you will deploy a functional WebSocket server that accepts incoming call connections from Tavly, greets the caller with a customizable opening phrase, and replies to user speech with structured confirmation responses. This verifies that your transport layer and event handling function reliably before you introduce live model inference in the [connecting your LLM guide](/integrate-llm/integrate-llm).

@@ -27,7 +27,7 @@ faq:
 Phone call testing connects your voice agent directly to public telephony networks (PSTN), allowing you to audit features that [web call](/test/test-web) sessions cannot evaluate: carrier-grade audio compression, mobile network latency, dual-tone multi-frequency (DTMF) keypad inputs, and live line transfers. Conduct a phone test as your final pre-flight verification before routing live customer calls.
 
 <Note>
-  Telephony testing requires assigning an active [phone number](/deploy/purchase-number) to your agent. When placing or receiving a test call, the platform executes whichever [agent version](/agent/version) is linked to that number: an explicit version number, an environment tag, <code className="ui-btn">Latest Published</code>, or <code className="ui-btn">Latest Created</code>. Because <code className="ui-btn">Latest Created</code> dynamically resolves to your most recent draft, you can test work-in-progress agents without publishing them first.
+  Telephony testing requires assigning an active [phone number](/deploy/purchase-number) to your agent. When placing or receiving a test call, the platform executes whichever [agent version](/deploy/agents/version) is linked to that number: an explicit version number, an environment tag, <code className="ui-btn">Latest Published</code>, or <code className="ui-btn">Latest Created</code>. Because <code className="ui-btn">Latest Created</code> dynamically resolves to your most recent draft, you can test work-in-progress agents without publishing them first.
 </Note>
 
 ## What is phone call testing?
@@ -88,14 +88,14 @@ Audit the following capabilities during live phone verification:
 
 * **DTMF digit collection**: Confirm that the agent detects touch-tone keypad presses and navigates menu trees accurately.
 * **Telephony transfers**: Verify that cold transfers, warm handoffs, or agentic warm transfers complete successfully. External phone transfers cannot be simulated in browser audio.
-* **[Voicemail](/build/handle-voicemail) and IVR machine detection**: Ensure the answering machine detection (AMD) pipeline identifies voicemail greetings or IVR systems and executes configured branch logic. Machine detection runs exclusively on PSTN calls.
+* **[Voicemail](/build/telephony/handle-voicemail) and IVR machine detection**: Ensure the answering machine detection (AMD) pipeline identifies voicemail greetings or IVR systems and executes configured branch logic. Machine detection runs exclusively on PSTN calls.
 * **Outbound SMS notifications**: Validate that mid-call SMS dispatch actions deliver messages to real devices.
 * **Carrier audio codecs and network latency**: Evaluate speech clarity under cellular audio compression and verify how conversational turn-taking behaves under real-world network delay.
 
 For instance, if an agent is designed to hand off billing inquiries to a support representative while confirming a numeric account PIN, dial into the agent, input digits on your phone keypad, and confirm that the transfer bridge executes cleanly without dropping audio.
 
 <Tip>
-  Following a test conversation, use [Conductor](/conductor/test-and-improve) to inspect call transcripts and generate automated tuning recommendations.
+  Following a test conversation, use [Conductor](/test/test-overview) to inspect call transcripts and generate automated tuning recommendations.
 </Tip>
 
 ## Next Steps

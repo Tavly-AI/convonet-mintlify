@@ -85,13 +85,13 @@ Tavly ships a comprehensive set of natively built functions designed for common 
 
 | Function | What It Does | Typical Uses |
 | :--- | :--- | :--- |
-| [**End Call**](/build/single-multi-prompt/end-call) | Wraps up the conversation cleanly. | Once the task is completed, or the caller explicitly asks to hang up. |
-| [**Transfer Call**](/build/single-multi-prompt/transfer-call) | Sends the live call to a human. | Complex escalations, routing to the correct department. |
-| [**Press Digits**](/build/single-multi-prompt/press-digit) | Sends DTMF tones. | Getting through external IVR menus, entering a secure code. |
-| [**Send SMS**](/build/single-multi-prompt/send-sms) | Sends a text message. | Outbound confirmations, follow-up messages. |
+| [**End Call**](/build/setup/single-multi-prompt/end-call) | Wraps up the conversation cleanly. | Once the task is completed, or the caller explicitly asks to hang up. |
+| [**Transfer Call**](/build/setup/single-multi-prompt/transfer-call) | Sends the live call to a human. | Complex escalations, routing to the correct department. |
+| [**Press Digits**](/build/setup/single-multi-prompt/press-digit) | Sends DTMF tones. | Getting through external IVR menus, entering a secure code. |
+| [**Send SMS**](/build/setup/single-multi-prompt/send-sms) | Sends a text message. | Outbound confirmations, follow-up messages. |
 
 <Note>
-  If you require robust appointment scheduling, you must use the native [Cal.com integration](/integrations/cal-com) or [Calendly integration](/integrations/calendly). The legacy built-in **Check Availability** and **Book Calendar** tools are officially deprecated. Please review the [deprecation notice](/deprecation-notice/2026/10-31_legacy_calcom_tools) for migration details.
+  If you require robust appointment scheduling, you must use the native [Cal.com integration](/integrations/calendar/caldotcom/connect) or [Calendly integration](/integrations/calendar/calendly/connect). The legacy built-in **Check Availability** and **Book Calendar** tools are officially deprecated. Please review the [deprecation notice](/integrations/calendar/caldotcom/connect) for migration details.
 </Note>
 
 ### 2. Integration Tools
@@ -109,7 +109,7 @@ Custom functions provide:
 * **Failure handling:** Robust built-in fallbacks trigger dynamically when external systems fail.
 * **Control over agent speech:** Explicitly dictate exactly what the agent says while the function runs.
 
-[Learn more about custom functions →](/build/single-multi-prompt/custom-function)
+[Learn more about custom functions →](/build/setup/single-multi-prompt/custom-function)
 
 ### 4. Code Tool
 Execute raw JavaScript securely inside Tavly's internal sandbox—no external server needed. This is exceptionally handy for:
@@ -117,7 +117,7 @@ Execute raw JavaScript securely inside Tavly's internal sandbox—no external se
 * **Lightweight API calls:** Securely querying via the native built-in `fetch()` method.
 * **Logic and math:** Executing complex conditionals, rapid calculations, and string manipulation.
 
-[Learn more about the Code Tool →](/build/single-multi-prompt/code-tool)
+[Learn more about the Code Tool →](/build/setup/single-multi-prompt/code-tool)
 
 ## Where can you learn more?
 
@@ -130,4 +130,4 @@ Review our detailed video tutorial and comprehensive documentation links below t
 * [Function Calling Tutorial](https://semaphoreci.com/blog/function-calling) — A step-by-step external implementation walkthrough.
 * [Community Templates](https://docs.google.com/document/d/1hx6hdTEjAR4y4xXZ7RLMH2byQNVW1ABxC8S4FwvTx_Y/edit?tab=t.0#heading=h.wf5bktkelope) — Explore real function implementation examples sourced from the community.
 * [API Reference](/api-references/create-agent) — Access our full technical platform documentation.
-* [Best Practices](/build/prompt-engineering-guide) — Discover how to write robust prompts that trigger functions flawlessly.
+* [Best Practices](/build/response/prompt-engineering-guide) — Discover how to write robust prompts that trigger functions flawlessly.

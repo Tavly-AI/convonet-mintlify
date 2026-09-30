@@ -9,7 +9,7 @@ og:title: 'Post Call Extraction Overview and Custom Categories'
 og:description: 'Tavly Post Call Extraction automatically scores and structures customer calls post-completion: extract summaries, sentiment, success, and custom CRM data.'
 og:image: 'https://mintcdn.com/retellai/M9QYKZE4hbt00HfL/images/post-call-analysis-dashboard.png'
 twitter:card: 'summary_large_image'
-icon: 'file-magnifying-glass'
+icon: 'search'
 keywords: ['post call extraction', 'call analysis categories', 'call summary LLM', 'user sentiment analysis', 'call success criteria', 'Tavly AI analytics', 'structured CRM export']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -57,7 +57,7 @@ Every completed conversation includes four **built-in analysis fields**: high-le
 | Built-In Field | Data Type | Analytical Scope & Operational Behavior |
 | :--- | :--- | :--- |
 | `call_summary` | `string` | An executive-level condensation of the interaction, outlining key topics discussed, customer requests, and resolved items. Prompts are fully customizable. |
-| `user_sentiment` | `string` | Categorical classification (`Positive`, `Neutral`, `Negative`) inferred by an LLM strictly from the text transcript. Note that [AI QA Sentiment](/ai-qa/terminologies#sentiment-analysis) additionally factors in acoustic vocal features like pitch and tone. |
+| `user_sentiment` | `string` | Categorical classification (`Positive`, `Neutral`, `Negative`) inferred by an LLM strictly from the text transcript. Note that [AI QA Sentiment](/monitor/ai-qa/metrics#multimodal-sentiment-analysis) additionally factors in acoustic vocal features like pitch and tone. |
 | `call_successful` | `boolean` | Binary determination (`true` / `false`) evaluating whether the call achieved predefined operational objectives. Success criteria prompts can be tailored per agent. |
 | `in_voicemail` | `boolean` | Automated flag indicating whether the outbound agent encountered an answering machine or voicemail greeting instead of a live human recipient. |
 
@@ -87,7 +87,7 @@ To **access, consume, and rerun call analysis data**, listen for the asynchronou
 * **Webhook Ingestion**: Configure your application to receive the `call_analyzed` webhook event, triggering automated updates in Salesforce, HubSpot, or internal databases.
 * **REST API Polling**: Retrieve the full `call_analysis` payload on-demand using the [Get Call API](/api-references/get-call).
 * **Batch Re-Analysis**: When system prompts or success definitions change, use [Rerun Call Analysis](/monitor/rerun-call-analysis) to retroactively reprocess historical conversations.
-* **AI Quality Assurance Integration**: Filter sampled conversational cohorts using structured extraction properties when building [AI QA Cohorts](/ai-qa/create-cohort).
+* **AI Quality Assurance Integration**: Filter sampled conversational cohorts using structured extraction properties when building [AI QA Cohorts](/monitor/ai-qa/create-cohort).
 
 ---
 
@@ -117,4 +117,4 @@ To **access, consume, and rerun call analysis data**, listen for the asynchronou
 * [Consume analysis data guide](/monitor/post-call-analysis-consumption): Code examples for consuming analysis data via webhooks, APIs, and dashboards.
 * [Rerun call analysis](/monitor/rerun-call-analysis): Step-by-step workflow for batch reprocessing historical call records.
 * [Live monitoring console](/monitor/live-calls): Supervise active in-flight calls before post-call analysis begins.
-* [AI Quality Assurance overview](/ai-qa/overview): Enterprise scoring benchmarks covering hallucinations, sentiment, and protocol adherence.
+* [AI Quality Assurance overview](/monitor/ai-qa/overview): Enterprise scoring benchmarks covering hallucinations, sentiment, and protocol adherence.

@@ -9,7 +9,7 @@ og:title: "Sync Notion Pages to Knowledge Bases | Tavly AI"
 og:description: "Sync Notion workspace pages into Tavly AI knowledge bases with automated 24-hour delta refreshes, hierarchical page picking, and Markdown vector ingestion."
 og:image: "https://mintcdn.com/retellai/Pr-FUA6zy-J_81Bj/images/integration/notion-select-pages-picker.png?fit=max&auto=format&n=Pr-FUA6zy-J_81Bj&q=85&s=caec9341ad9abac9fd98d24942aeaf65"
 twitter:card: "summary_large_image"
-icon: "arrows-rotate"
+icon: "folder-sync"
 keywords:
   - "Notion knowledge base sync"
   - "Tavly AI Notion"
@@ -31,15 +31,11 @@ faq:
     answer: "Tavly preserves previously embedded vector content so your agent continues answering queries, while flagging future background synchronizations as unavailable."
 ---
 
-# Notion knowledge base sync
-
-> Sync Notion pages into a Tavly AI knowledge base: pick the pages shared with your connection, and edited pages re-sync automatically every 24 hours.
-
 ## How does Notion knowledge base sync work in Tavly AI?
 
 **Notion knowledge base sync** ingests selected documentation pages from your Notion workspace directly into Tavly conversational knowledge bases as searchable Markdown vector embeddings. When team members edit live Notion pages, Tavly automatically detects modifications through **24-hour delta refreshes**, re-syncing updated content so your voice and chat agents maintain continuous factual accuracy.
 
-Pages you import from Notion become dynamic [knowledge base](/build/knowledge-base) sources that mirror living workspace documentation. Instead of maintaining static exports that risk obsolescence, Tavly tracks page updates automatically.
+Pages you import from Notion become dynamic [knowledge base](/build/context/knowledge-base) sources that mirror living workspace documentation. Instead of maintaining static exports that risk obsolescence, Tavly tracks page updates automatically.
 
 Before selecting pages, ensure you have an active [connected Notion account](/integrations/knowledge-base/notion/connect) with your target documentation [shared with the internal connection](/integrations/knowledge-base/notion/connect#how-do-you-share-notion-pages-and-databases-with-the-internal-connection).
 
@@ -132,7 +128,7 @@ Because Tavly processes Notion content as semantic Markdown, structured text for
 </Note>
 
 <Tip>
-  Pages formatted with concise headers, short paragraphs, and clear topic clustering achieve the highest retrieval accuracy in Tavly. Consult the [knowledge base best practices guide](/build/knowledge-base#best-practices) for optimization techniques.
+  Pages formatted with concise headers, short paragraphs, and clear topic clustering achieve the highest retrieval accuracy in Tavly. Consult the [knowledge base best practices guide](/build/context/knowledge-base#structuring-content-for-retrieval) for optimization techniques.
 </Tip>
 
 ---
@@ -230,7 +226,7 @@ Notion pages update on a **24-hour auto-refresh cycle** or via manual sync trigg
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Knowledge base overview" icon="book" href="/build/knowledge-base">
+  <Card title="Knowledge base overview" icon="book" href="/build/context/knowledge-base">
     Configure vector search parameters, test query accuracy, and review best practices for source formatting.
   </Card>
 

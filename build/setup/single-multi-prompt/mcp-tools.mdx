@@ -26,7 +26,7 @@ faq:
 
 **MCP Tools** allow you to point your AI agent at a remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, instantly granting it the ability to call that server's tools during a live conversation.
 
-Rather than building a separate [custom function](/build/single-multi-prompt/custom-function) for every single backend action, you connect to an MCP server once and autonomously decide which of its native tools the active agent is permitted to reach.
+Rather than building a separate [custom function](/build/setup/single-multi-prompt/custom-function) for every single backend action, you connect to an MCP server once and autonomously decide which of its native tools the active agent is permitted to reach.
 
 ## When should you use an MCP server?
 
@@ -36,9 +36,9 @@ An MCP server is highly effective when the tools your agent requires are already
 * **You require multiple tools from a single integration:** Connect the server once, then selectively whitelist which tools the agent can access, bypassing the need to wire up individual API endpoints.
 * **You are using a third-party MCP service:** Plug directly into a hosted MCP service (e.g., search, CRM, internal tooling) that inherently speaks the protocol.
 
-If you strictly need to hit your own simple API endpoint, a [custom function](/build/single-multi-prompt/custom-function) is the more straightforward route. For isolated logic that requires no external server, utilize a [code tool](/build/single-multi-prompt/code-tool) instead.
+If you strictly need to hit your own simple API endpoint, a [custom function](/build/setup/single-multi-prompt/custom-function) is the more straightforward route. For isolated logic that requires no external server, utilize a [code tool](/build/setup/single-multi-prompt/code-tool) instead.
 
-<Note> This page explicitly covers connecting your agent **to** an external MCP server so it can utilize its tools. This differs entirely from [Tavly's own MCP server](/get-started/mcp-server), which allows external MCP clients (like Cursor or Claude Desktop) to manage your Tavly infrastructure natively.</Note>
+<Note> This page explicitly covers connecting your agent **to** an external MCP server so it can utilize its tools. This differs entirely from [Tavly's own MCP server](/build/setup/single-multi-prompt/mcp-tools), which allows external MCP clients (like Cursor or Claude Desktop) to manage your Tavly infrastructure natively.</Note>
 
 ### Example: Looking Up an Order via MCP
 
@@ -46,7 +46,7 @@ Say a retail support team already maintains an MCP server exposing `lookup_order
 
 ## How does the integration work?
 
-Once you successfully attach an MCP server to an agent, each explicitly enabled tool behaves identically to [custom functions](/build/single-multi-prompt/custom-function). The agent triggers them natively based on semantic prompts and tool descriptions.
+Once you successfully attach an MCP server to an agent, each explicitly enabled tool behaves identically to [custom functions](/build/setup/single-multi-prompt/custom-function). The agent triggers them natively based on semantic prompts and tool descriptions.
 
 Tavly securely reaches the remote server via Streamable HTTP, dynamically retrieves its list of available tools, and executes one by passing arguments inferred by the LLM based on the conversation context. Whatever structured data the tool returns is passed back to the agent, which can speak the payload aloud, act on it conditionally, or parse fields into explicit [dynamic variables](/build/context/dynamic-variables).
 
@@ -98,7 +98,7 @@ Connecting an MCP server involves configuring the base URL, defining authenticat
   </Step>
 </Steps>
 
-<Note> Conversation flow agents interact with MCP tools utilizing a dedicated [MCP node](/build/conversation-flow/mcp-node) rather than embedding them directly in the response engine, but the core server configuration behaves identically.</Note>
+<Note> Conversation flow agents interact with MCP tools utilizing a dedicated [MCP node](/build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow) rather than embedding them directly in the response engine, but the core server configuration behaves identically.</Note>
 
 ## Can I lock my MCP server down securely?
 

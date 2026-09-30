@@ -9,7 +9,7 @@ og:title: 'LLM Simulation Testing: Automated Agent Evaluation'
 og:description: 'Automatically test Tavly agents with LLM simulation: deploy synthetic personas, evaluate declarative success criteria, and prevent behavioral regressions.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'vial'
+icon: 'flask-conical'
 keywords: ['LLM simulation testing', 'automated agent testing', 'synthetic caller persona', 'agent success criteria', 'function mocking', 'batch testing', 'Tavly AI simulation']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -70,7 +70,7 @@ Open your agent workspace in the dashboard and navigate to the **Simulation** ta
 </Frame>
 
 <Tip>
-  Need to accelerate test creation? Conductor can synthesize robust test suites automatically from historical call recordings or functional outlines. Refer to [Testing with Conductor](/test/testing-with-conductor).
+  Need to accelerate test creation? Conductor can synthesize robust test suites automatically from historical call recordings or functional outlines. Refer to [Testing with Conductor](/test/llm-simulation-testing).
 </Tip>
 
 ## How do you construct a simulation test case?
@@ -109,7 +109,7 @@ From the **Test Cases** view, select **Test Case** to trigger the **Add a Test C
   </Step>
 
   <Step title="Select the simulated user model">
-    At the bottom of the modal, pick the foundation LLM that powers the caller's responses, then save the case. This selection strictly governs the synthetic persona. Your agent continues running on its dedicated [model configuration](/build/llm-options), and message consumption is metered independently for both entities.
+    At the bottom of the modal, pick the foundation LLM that powers the caller's responses, then save the case. This selection strictly governs the synthetic persona. Your agent continues running on its dedicated [model configuration](/build/response/llm-options), and message consumption is metered independently for both entities.
   </Step>
 </Steps>
 
@@ -133,7 +133,7 @@ The evaluation engine inspects the interaction holistically rather than providin
 In an Error state, the platform outputs the underlying execution error rather than a rubric grade.
 
 <Note>
-  This differs fundamentally from [AI QA](/ai-qa/overview) scoring on live production calls. AI QA computes granular pass/fail verdicts and rationales for each metric individually. Simulation testing delivers a binary holistic grade. To isolate evaluation of individual behaviors, distribute criteria into separate test cases or run AI QA evaluations on call logs.
+  This differs fundamentally from [AI QA](/monitor/ai-qa/overview) scoring on live production calls. AI QA computes granular pass/fail verdicts and rationales for each metric individually. Simulation testing delivers a binary holistic grade. To isolate evaluation of individual behaviors, distribute criteria into separate test cases or run AI QA evaluations on call logs.
 </Note>
 
 Structure criteria as clear, discrete, and verifiable assertions:
@@ -158,7 +158,7 @@ When your agent uses [dynamic variables](/build/context/dynamic-variables), assi
 
 Use variable assignments to validate branching logic. For example, if an agent greets callers with "Welcome back `{{customer_name}}`, let's discuss your `{{appointment_date}}` appointment," populating both parameters tests returning customer flows, whereas omitting `appointment_date` activates fallback branches for unscheduled callers.
 
-To streamline configuration across test suites, import values directly from an [environment tag](/agent/version). Agents include default `prod` and `staging` tags alongside any custom labels, with each tag maintaining its own parameter mapping. Use **Load Saved Values** to populate the test form from a tag. Modifications made within the test case remain local to that test and do not overwrite the tag.
+To streamline configuration across test suites, import values directly from an [environment tag](/deploy/agents/version). Agents include default `prod` and `staging` tags alongside any custom labels, with each tag maintaining its own parameter mapping. Use **Load Saved Values** to populate the test form from a tag. Modifications made within the test case remain local to that test and do not overwrite the tag.
 
 <Warning>
   Environment tag variables are active across live telephone lines and chat sessions bound to that tag. Updating a tag like `prod` directly from configuration alters real-time production traffic. Always exercise care when editing tag values directly.
@@ -166,9 +166,9 @@ To streamline configuration across test suites, import values directly from an [
 
 ### Custom Function Mocks
 
-Mocks intercept [function calls](/build/add-function-calling) emitted by the agent, returning static payloads to keep test runs deterministic and prevent unwanted mutations in production systems.
+Mocks intercept [function calls](/build/setup/single-multi-prompt/function-calling) emitted by the agent, returning static payloads to keep test runs deterministic and prevent unwanted mutations in production systems.
 
-Mocking is supported for all external integrations: custom webhooks, [code tools](/build/single-multi-prompt/code-tool), [integration tools](/integrations/overview#use-integration-tools-in-an-agent), native Cal.com integrations, call transfers, and outbound SMS. Conversely, built-in conversational actions execute natively in simulation and ignore mock definitions; these include call termination, DTMF keypad generation, variable extraction, and sub-agent transfers. **MCP tools also bypass mocks**: although visible in the function selector, tests execute real calls against your MCP server.
+Mocking is supported for all external integrations: custom webhooks, [code tools](/build/setup/single-multi-prompt/code-tool), [integration tools](/integrations/integrations-overview#how-do-you-configure-and-use-integration-tools-in-an-agent), native Cal.com integrations, call transfers, and outbound SMS. Conversely, built-in conversational actions execute natively in simulation and ignore mock definitions; these include call termination, DTMF keypad generation, variable extraction, and sub-agent transfers. **MCP tools also bypass mocks**: although visible in the function selector, tests execute real calls against your MCP server.
 
 In the **Custom Function Mocks** interface, click **+ Add** and choose the target operation from the **Function** list:
 
@@ -246,7 +246,7 @@ Adhere to the following guidelines when designing automated test suites:
 * **Isolate criteria to single checkable outcomes**: Write granular assertions focusing on verifiable states, events, or output parameters.
 * **Test distinct user journeys with dynamic variables**: Create separate test cases for distinct user states (such as new callers vs. existing account holders).
 * **Evaluate pass rates across iterations**: Because caller personas and grading judges use generative models, evaluate stability across repeated runs rather than relying on a single isolated failure.
-* **Derive test cases from production failures**: Ingest real edge-case transcripts into regression cases using [Testing with Conductor](/test/testing-with-conductor) or [AI QA](/ai-qa/overview).
+* **Derive test cases from production failures**: Ingest real edge-case transcripts into regression cases using [Testing with Conductor](/test/llm-simulation-testing) or [AI QA](/monitor/ai-qa/overview).
 * **Incorporate challenging edge cases**: Validate resilience against hostile personas, mid-call topic switches, and refusals to provide information.
 * **Run test suites automatically across updates**: Trigger regression batches upon prompt or graph changes prior to production deployment.
 
@@ -266,5 +266,5 @@ Adhere to the following guidelines when designing automated test suites:
 ## Next Steps
 
 * [Batch test your agent](/test/batch-test-simulation): Execute multi-case test batches and monitor pass rates over time.
-* [Testing with Conductor](/test/testing-with-conductor): Automatically synthesize test cases from call logs and specifications.
+* [Testing with Conductor](/test/llm-simulation-testing): Automatically synthesize test cases from call logs and specifications.
 * [Testing overview](/test/test-overview): Compare simulation testing with the LLM Playground and live telephony tests.

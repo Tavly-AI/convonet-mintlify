@@ -33,9 +33,9 @@ Grounding agents with a knowledge base explicitly prevents hallucinations and su
 * **Public Web Pages:** Ingested via direct URLs or path-based automated web crawlers.
 * **Uploaded Files:** Comprehensive format compatibility (PDF, DOCX, TXT, CSV, HTML, Markdown, etc.).
 * **Text Snippets:** Custom markdown or plain text blocks pasted directly into the dashboard.
-* **Google Workspace:** Docs, Sheets, and Drive files synchronized via [Google Drive Sync](/integrations/google-drive-knowledge-base/connect).
-* **Microsoft OneDrive:** Storage files integrated via [OneDrive Sync](/integrations/microsoft-onedrive-knowledge-base/connect).
-* **Notion:** Workspace documentation synchronized through [Notion Sync](/integrations/notion-knowledge-base).
+* **Google Workspace:** Docs, Sheets, and Drive files synchronized via [Google Drive Sync](/integrations/knowledge-base/google-drive/connect).
+* **Microsoft OneDrive:** Storage files integrated via [OneDrive Sync](/integrations/knowledge-base/onedrive/connect).
+* **Notion:** Workspace documentation synchronized through [Notion Sync](/integrations/knowledge-base/notion/connect).
 
 <Note> **Static Exports:** For documentation platforms lacking native cloud integrations (such as OneNote), export documents to PDF or Markdown and upload them as static files. Exported files do not synchronize automatically; you must re-upload documents whenever source materials change.</Note>
 
@@ -94,9 +94,9 @@ You can create multiple knowledge bases to bypass single-base limitations. Agent
     1. **URL**: Import live web pages (individual links or full paths with auto-updating).
     2. **File**: Upload documents (PDF, DOCX, TXT, etc., up to 50MB).
     3. **Text**: Paste custom notes, raw reference tables, or unique guidelines.
-    4. **Google Drive**: Synchronize Docs, Sheets, and files. First [Connect Google Drive](/integrations/google-drive/); your linked accounts will appear in the source menu. See [Google Drive knowledge base sync](/integrations/google-drive-knowledge-base/connect) for file selection rules.
-    5. **Microsoft OneDrive**: Sync enterprise or personal files. First [Connect OneDrive](/integrations/microsoft-onedrive). Review [OneDrive knowledge base sync](/integrations/microsoft-onedrive-knowledge-base/connect) for details (ensure browser pop-ups are permitted for Microsoft's picker).
-    6. **Notion**: Ingest workspace documents. First [Connect Notion](/integrations/notion) and grant page access. See [Notion knowledge base sync](/integrations/notion-knowledge-base) (sub-pages must be added individually).
+    4. **Google Drive**: Synchronize Docs, Sheets, and files. First [Connect Google Drive](/integrations/knowledge-base/google-drive/connect); your linked accounts will appear in the source menu. See [Google Drive knowledge base sync](/integrations/knowledge-base/google-drive/connect) for file selection rules.
+    5. **Microsoft OneDrive**: Sync enterprise or personal files. First [Connect OneDrive](/integrations/knowledge-base/onedrive/knowledge-base-sync). Review [OneDrive knowledge base sync](/integrations/knowledge-base/onedrive/connect) for details (ensure browser pop-ups are permitted for Microsoft's picker).
+    6. **Notion**: Ingest workspace documents. First [Connect Notion](/integrations/knowledge-base/notion/knowledge-base-sync) and grant page access. See [Notion knowledge base sync](/integrations/knowledge-base/notion/connect) (sub-pages must be added individually).
 
     <Frame caption="The Add Knowledge Base dialog with the source-type menu open.">
       <img src="https://mintcdn.com/retellai/sw161dEamz6pW1mD/images/knowledge-base/kb_2.png?fit=max&auto=format&n=sw161dEamz6pW1mD&q=85&s=2a14527f63e9ef3ad79284413fe2ff7e" alt="Add Knowledge Base dialog showing a name field and an Add menu with three source types: Add Web Pages, Upload Files, and Add Text." style={{ maxHeight: 520 }} width="1770" height="1120" data-path="images/knowledge-base/kb_2.png" />
@@ -174,7 +174,7 @@ The baseline default (3 chunks / 0.60 threshold) works optimally for standard vo
   </Step>
 </Steps>
 
-Retrieved passages are injected into the prompt under `## Related Knowledge Base Contexts`. These tokens count toward standard [prompt token surcharge](/accounts/billing-exceptions#rule-2-llm-price-scaling-for--4000-token-prompt-length) rules.
+Retrieved passages are injected into the prompt under `## Related Knowledge Base Contexts`. These tokens count toward standard [prompt token surcharge](/accounts/billing-exception#how-does-llm-price-scaling-work-for-prompts-over-4000-tokens) rules.
 
 ## Inspecting Retrieved Chunks
 

@@ -28,7 +28,7 @@ The **Extract Dynamic Variable tool** securely grabs contextual values from the 
 
 For instance, a scheduling agent can automatically capture a caller's first name and email address immediately when spoken, utilize `{{user_name}}` while confirming the booking slot, and securely hand off `{{user_email}}` to a custom backend webhook that issues an appointment confirmation.
 
-If you are developing a fixed conversation flow agent, utilize the [Extract Dynamic Variable node](/build/conversation-flow/extract-dv-node) instead.
+If you are developing a fixed conversation flow agent, utilize the [Extract Dynamic Variable node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node) instead.
 
 ## When should you use this tool?
 
@@ -38,10 +38,10 @@ You should reach for this tool whenever the active agent requires a spoken value
 | --- | --- |
 | Reuse a captured conversational value mid-call | **Extract Dynamic Variable tool** |
 | Collect structured analytics only after the call ends | [Post Call Extraction](monitor/post-call-analysis-overview) |
-| Guarantee extraction occurs at a rigid sequence step | [Extract Dynamic Variable node](/build/conversation-flow/extract-dv-node) |
-| Compute or transform an extracted numerical value | [Code Tool](/build/single-multi-prompt/code-tool) |
+| Guarantee extraction occurs at a rigid sequence step | [Extract Dynamic Variable node](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node) |
+| Compute or transform an extracted numerical value | [Code Tool](/build/setup/single-multi-prompt/code-tool) |
 
-Because the LLM autonomously decides exactly when to call this tool based on context, there is absolutely no guarantee it fires at an exact fixed moment. If a value strictly must be captured in a sequential order, deploy a [conversation flow agent](/build/conversation-flow/extract-dv-node).
+Because the LLM autonomously decides exactly when to call this tool based on context, there is absolutely no guarantee it fires at an exact fixed moment. If a value strictly must be captured in a sequential order, deploy a [conversation flow agent](/build/setup/conversation-flow/add-nodes/extract-dynamic-variable-node).
 
 ## How do you build the extraction tool?
 
@@ -96,4 +96,4 @@ Matching the declared type exactly to the kind of value you are capturing shapes
 | **Boolean** | A binary true or false condition | `true`, `false` |
 | **Enum** | A strict value selected from **Enum Options** | `"yes"`, `"no"`, `"maybe"` |
 
-Regardless of the configured type, every successfully extracted value is ultimately stored securely as a raw string literal. For example, a `Number` outputs as `"42"` and a `Boolean` translates to `"true"`. To convert these values back for mathematical operations inside a [Code Tool](/build/single-multi-prompt/code-tool), parse them explicitly (e.g., `Number(dv.order_count)`).
+Regardless of the configured type, every successfully extracted value is ultimately stored securely as a raw string literal. For example, a `Number` outputs as `"42"` and a `Boolean` translates to `"true"`. To convert these values back for mathematical operations inside a [Code Tool](/build/setup/single-multi-prompt/code-tool), parse them explicitly (e.g., `Number(dv.order_count)`).

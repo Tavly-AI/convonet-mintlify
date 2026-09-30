@@ -8,7 +8,7 @@ seo:
 og:title: 'Silent Responses in Tavly AI Voice Agents'
 og:description: 'Instruct a Tavly voice agent to remain completely silent during conversational hold states using the built-in NO_RESPONSE_NEEDED stop token.'
 twitter:card: 'summary'
-icon: 'microphone-slash'
+icon: 'volume-x'
 keywords: ['silent responses', 'conversational pauses', 'NO_RESPONSE_NEEDED', 'Tavly AI hold requests', 'LLM stop token']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -39,4 +39,4 @@ Add the following explicit instruction into your agent's prompt architecture:
 - If the user asks you to wait or says "hold on", reply strictly with: "NO_RESPONSE_NEEDED"
 ```
 
-<Note> **Reasoning Model Exception:** Heavy reasoning architectures (such as `gpt-5`) often refuse to output raw system tokens like `NO_RESPONSE_NEEDED`. For those models, use plain-language directives instead (e.g., "When the user says hold on, simply do not respond"). Review the [Prompt Situation Guide](/build/prompt-situation-guide#managing-pauses-and-hold-requests) for detailed reasoning model handling.</Note>
+<Note> **Reasoning Model Exception:** Heavy reasoning architectures (such as `gpt-5`) often refuse to output raw system tokens like `NO_RESPONSE_NEEDED`. For those models, use plain-language directives instead (e.g., "When the user says hold on, simply do not respond"). Review the [Prompt Situation Guide](/build/response/prompt-situation-guide#how-do-you-manage-hold-requests) for detailed reasoning model handling.</Note>

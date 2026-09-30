@@ -9,7 +9,6 @@ og:title: 'Website Widget: Embed Chat, Voice, and Callbacks'
 og:description: 'Embed the Tavly website widget with a single script tag: deploy interactive text chat, WebRTC voice calls, and phone callbacks with reCAPTCHA bot protection.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'window'
 keywords: ['website widget', 'embed chat widget', 'WebRTC voice widget', 'callback widget', 'Tavly website widget', 'public key authentication', 'reCAPTCHA v3 widget']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -53,7 +52,7 @@ Before embedding either widget mode, verify that you have:
    * For **Chat Mode**: Configure a chat agent following the [Create Chat Agent](/build/create-chat-agent) guide.
    * For **Voice or Callback Mode**: Configure a [voice agent](/build/overview) to handle audio conversations.
 2. **Retrieved Your Credentials**:
-   * Your [Tavly Public Key](/accounts/public-keys) for frontend API authorization.
+   * Your [Tavly Public Key](/accounts/keys/public-keys) for frontend API authorization.
    * Your target Tavly Agent IDs (`agent_id` for chat, `voice_agent_id` for voice).
    * Your active Tavly phone number (required only for the callback widget).
 
@@ -201,11 +200,11 @@ Tavly supports frictionless bot mitigation exclusively through Google reCAPTCHA 
 2. **Attach Site Key to Widget**:
    Add the attribute `data-recaptcha-key="YOUR_GOOGLE_RECAPTCHA_SITE_KEY"` to your widget `<script>` tag.
 3. **Enforce in Dashboard**:
-   Navigate to the [Public Keys settings](/accounts/public-keys) in your Tavly dashboard and enable reCAPTCHA verification. Incoming chat and voice requests lacking valid tokens will be rejected automatically.
+   Navigate to the [Public Keys settings](/accounts/keys/public-keys) in your Tavly dashboard and enable reCAPTCHA verification. Incoming chat and voice requests lacking valid tokens will be rejected automatically.
 
 ## Related Resources
 
 * [Create chat agent](/build/create-chat-agent): Configure response prompts, models, and tool integrations.
 * [Make a web call](/deploy/web-call): Build custom browser-based voice calling interfaces using our Web SDK.
-* [Public keys management](/accounts/public-keys): Create and restrict client-side public authentication keys.
-* [Make outbound calls](/deploy/outbound-call): Explore backend APIs powering automated callback telephony.
+* [Public keys management](/accounts/keys/public-keys): Create and restrict client-side public authentication keys.
+* [Make outbound calls](/deploy/outbound-calls): Explore backend APIs powering automated callback telephony.

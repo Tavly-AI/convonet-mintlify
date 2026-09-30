@@ -52,9 +52,9 @@ The companion **Test Audio** tab is reserved for [live voice testing](/test/test
 Beyond the agent workspace, you can launch existing conversation transcripts directly into the playground by clicking **View In Test Playground** across several dashboards:
 
 * The detail drawer of any past interaction in [Call History](/features/session-history) or Chat History.
-* An individual call record under [AI QA](/ai-qa/overview).
+* An individual call record under [AI QA](/monitor/ai-qa/overview).
 * A specific test execution record inside [Batch Testing History](/test/batch-test-simulation).
-* The **Test Subflow** tab within an isolated [Conversation Flow](/build/conversation-flow/overview) node.
+* The **Test Subflow** tab within an isolated [Conversation Flow](/build/setup/conversation-flow/conversation-flow-overview) node.
 
 <Frame caption="The LLM Playground on the Test LLM tab.">
   <img height="700" src="https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png?fit=max&auto=format&n=pRGcctz_zOqy0mSt&q=85&s=fa9e0b2f8326de3eda9f09468a792b1d" alt="LLM Playground open on the Test LLM tab, showing the Manual Chat and AI Simulated Chat options and the conversation area." data-path="images/test-llm/test-llm-full.png" />
@@ -115,7 +115,7 @@ During execution, you can pause active exchanges, abort the run, or adjust promp
 
 **Interactive transcript debugging** lets you load completed sessions into an editable Manual Chat canvas from call records, QA logs, or batch runs. Once imported, you can edit historical caller messages, regenerate alternative agent replies, prune isolated turns, replay conversations against updated system prompts, or continue dialog down previously unexplored branches.
 
-Load completed sessions into the Playground from [Batch Testing History](/test/batch-test-simulation), [Call History](/features/session-history), Chat History, or [AI QA](/ai-qa/overview) by selecting **View In Test Playground**. The transcript populates within an editable **Manual Chat** canvas in a new window, offering granular control over past turns:
+Load completed sessions into the Playground from [Batch Testing History](/test/batch-test-simulation), [Call History](/features/session-history), Chat History, or [AI QA](/monitor/ai-qa/overview) by selecting **View In Test Playground**. The transcript populates within an editable **Manual Chat** canvas in a new window, offering granular control over past turns:
 
 * **Edit user utterances**: Updating a previous caller message truncates all subsequent exchanges and generates new agent replies from that point forward.
 * **Regenerate agent turns**: Discard the current agent response and downstream history to produce an alternative generation.

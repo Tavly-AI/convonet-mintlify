@@ -35,9 +35,9 @@ IVR menus typically fall into two categories:
 You should implement the Press Digit tool whenever a single or multi-prompt voice agent makes outbound calls that run directly into DTMF routing menus—such as dialing a scheduling line, keying in an extension, or navigating a partner's support tree.
 
 A few specific scenarios require an alternative approach:
-* Building a **conversation flow** agent? Utilize the [Press Digit Node](/build/conversation-flow/press-digit-node), which inherently handles DTMF as an independent node with dedicated transitions.
-* Need to capture digits the **caller** enters (e.g., a PIN or menu selection) rather than having the agent press them? See [Capture DTMF input from user](/build/user-dtmf).
-* Want the agent to automatically **hang up** the moment it hits an IVR instead of navigating it? Review [IVR hangup](/build/handle-voicemail#ivr-hangup).
+* Building a **conversation flow** agent? Utilize the [Press Digit Node](/build/setup/conversation-flow/add-nodes/press-digit-node), which inherently handles DTMF as an independent node with dedicated transitions.
+* Need to capture digits the **caller** enters (e.g., a PIN or menu selection) rather than having the agent press them? See [Capture DTMF input from user](/build/telephony/user-dtmf).
+* Want the agent to automatically **hang up** the moment it hits an IVR instead of navigating it? Review [IVR hangup](/build/telephony/handle-voicemail#how-do-you-handle-ivr-disconnection).
 
 <Note>
   Press Digit exclusively works on voice agents — it is not available for chat-based agents.
@@ -215,7 +215,7 @@ If you're bringing your own LLM instead of using Tavly's, you won't add the Pres
 </AccordionGroup>
 
 ## Related Pages
-* [Press Digit Node](/build/conversation-flow/press-digit-node) — The conversation-flow equivalent of this tool.
-* [Capture DTMF input from user](/build/user-dtmf) — For actively accepting keypad input transmitted by the caller.
-* [Handle voicemail and IVR](/build/handle-voicemail) — Best practices for detecting voicemails and hanging up automatically.
-* [Function calling](/build/single-multi-prompt/function-calling) — The complete reference for all tools available to an agent.
+* [Press Digit Node](/build/setup/conversation-flow/add-nodes/press-digit-node) — The conversation-flow equivalent of this tool.
+* [Capture DTMF input from user](/build/telephony/user-dtmf) — For actively accepting keypad input transmitted by the caller.
+* [Handle voicemail and IVR](/build/telephony/handle-voicemail) — Best practices for detecting voicemails and hanging up automatically.
+* [Function calling](/build/setup/single-multi-prompt/function-calling) — The complete reference for all tools available to an agent.

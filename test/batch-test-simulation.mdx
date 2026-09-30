@@ -9,7 +9,7 @@ og:title: 'Batch Testing: Evaluate Multi-Scenario Simulation Suites'
 og:description: 'Execute Tavly batch tests across simulation cases concurrently: evaluate aggregate pass rates, inspect turn-level logs, and automate CI/CD regression gates.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'layer-group'
+icon: 'layers'
 keywords: ['batch testing', 'agent batch simulation', 'regression testing suite', 'aggregate pass rate', 'turn-level logs', 'CI/CD regression gates', 'Tavly AI batch']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -67,7 +67,7 @@ The historical ledger in <code className="ui-btn">Batch Testing History</code> c
 * The completion timestamp
 * The aggregate pass rate (the percentage of test cases satisfying all assigned success criteria)
 
-History views are partitioned by [agent version](/agent/version), indicated by the version badge above the list. The panel defaults to your latest version; earlier batches become visible when selecting that specific version in the agent version drawer. To clear an active version filter and return to the latest build, click the <code className="ui-btn">X</code> icon on the version pill.
+History views are partitioned by [agent version](/deploy/agents/version), indicated by the version badge above the list. The panel defaults to your latest version; earlier batches become visible when selecting that specific version in the agent version drawer. To clear an active version filter and return to the latest build, click the <code className="ui-btn">X</code> icon on the version pill.
 
 Select any batch in the ledger to view its granular breakdown, with quick filters for <code className="ui-btn">All</code>, <code className="ui-btn">Passed</code>, and <code className="ui-btn">Failed</code>. An **Error** tally isolates executions that failed to finish evaluation (such as runs hitting timeout thresholds or conversational turn limits).
 
@@ -106,5 +106,5 @@ Consult the [simulation testing](/test/llm-simulation-testing#how-do-you-manage-
 ## Next Steps
 
 * [Simulation testing](/test/llm-simulation-testing): Configure automated test cases and evaluation assertions.
-* [Testing with Conductor](/test/testing-with-conductor): Generate test cases automatically from call records and conversational goals.
+* [Testing with Conductor](/test/llm-simulation-testing): Generate test cases automatically from call records and conversational goals.
 * [Testing overview](/test/test-overview): Compare batch simulations with interactive playground sessions and live telephony validation.

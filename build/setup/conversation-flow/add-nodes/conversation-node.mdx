@@ -26,7 +26,7 @@ faq:
 
 The **Conversation Node** is the most frequently utilized building block in a conversation flow. It executes pure, multi-turn spoken dialogue with the caller **without calling any tools**. 
 
-If the agent strictly needs to execute tools during the dialogue, utilize a [Subagent Node](/build/conversation-flow/subagent-node) instead. If a tool must fire deterministically at a fixed sequence point, use a [Function Node](/build/conversation-flow/function-node).
+If the agent strictly needs to execute tools during the dialogue, utilize a [Subagent Node](/build/setup/conversation-flow/add-nodes/subagent-node) instead. If a tool must fire deterministically at a fixed sequence point, use a [Function Node](/build/setup/conversation-flow/function-node/call-function-node).
 
 <Note> A single node securely handles a conversation across multiple continuous turns. You do not need to create a new node for every single line the agent speaks. As a strict rule of thumb, split the flow into a new node only when a logical branch point occurs, or when the agent prompt becomes too complex.</Note>
 
@@ -47,7 +47,7 @@ You control exactly how the agent generates outbound speech within the node by c
 
 The conversation flow natively transitions away from the active node based on caller input or strictly defined settings.
 
-* **Dynamic evaluation:** Once the caller stops speaking, the agent evaluates the input against the [evaluation order](/build/conversation-flow/transition-condition#evaluation-order) for active transition conditions.
+* **Dynamic evaluation:** Once the caller stops speaking, the agent evaluates the input against the [evaluation order](/build/setup/conversation-flow/transition-conditions#in-what-order-are-conditions-checked) for active transition conditions.
 * **Immediate transition:** If **Skip Response** is toggled on, the node transitions instantaneously the exact moment the agent finishes speaking.
 
 ## What settings are available on this node?
@@ -55,12 +55,12 @@ The conversation flow natively transitions away from the active node based on ca
 Conversation nodes provide robust, node-specific configuration settings that override global defaults, empowering you to fine-tune speech parameters, LLM models, and knowledge access.
 
 * **Skip Response:** Restricts the node to a singular edge that fires immediately after the agent finishes speaking, completely bypassing any expectation of a human reply. Highly useful for disclaimers right before a call transfer.
-* **Knowledge Base:** Actively attach a node-specific knowledge base that seamlessly layers on top of the agent's global configuration. Read the [Knowledge Base Guide](/build/knowledge-base).
-* **Global Node:** Transforms this node into a globally reachable destination from anywhere else in the overarching flow once its condition is met. Read the [Global Node Guide](/build/conversation-flow/global-node).
+* **Knowledge Base:** Actively attach a node-specific knowledge base that seamlessly layers on top of the agent's global configuration. Read the [Knowledge Base Guide](/build/context/knowledge-base).
+* **Global Node:** Transforms this node into a globally reachable destination from anywhere else in the overarching flow once its condition is met. Read the [Global Node Guide](/build/setup/conversation-flow/advanced/global-node).
 * **LLM Override:** Explicitly pick a different underlying LLM exclusively for this node's generation—deploy a cheaper model for simple routing, or a highly advanced model for demanding logic.
 * **Speech Overrides:** Explicitly override the agent-wide global speech settings strictly for this node:
   * **Interruption sensitivity:** (0–1)
   * **Response wait time:** (0–5.5s)
   * **Voice speed:** (0.5–2)
   * **DTMF Interruption:** Controls whether the agent can be actively interrupted by physical keypad presses.
-* **Fine-Tuning Examples:** Inject precise sample transcripts to drastically sharpen how this exact node generates responses and calculates transitions. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).
+* **Fine-Tuning Examples:** Inject precise sample transcripts to drastically sharpen how this exact node generates responses and calculates transitions. Read the [Fine-Tune Examples Guide](/build/setup/conversation-flow/advanced/finetune-examples).

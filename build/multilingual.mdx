@@ -25,7 +25,7 @@ faq:
 
 Deploy a multilingual agent strictly when your callers might speak diverse languages and you cannot detect their language before the call connects. 
 
-If you *can* determine a caller's language via CRM context or the dialed phone number, you will achieve significantly higher accuracy by deploying single-language agents and dynamically routing calls via the [inbound call webhook](/features/inbound-call-webhook).
+If you *can* determine a caller's language via CRM context or the dialed phone number, you will achieve significantly higher accuracy by deploying single-language agents and dynamically routing calls via the [inbound call webhook](/deploy/inbound-call-webhook).
 
 ## How do you configure multiple languages?
 
@@ -61,7 +61,7 @@ Speech recognition explicitly struggles to differentiate languages that share vo
 Relying on auto-detection for these combinations frequently results in improper transcriptions and the agent responding in the wrong language entirely.
 
 **Best Practices for Related Dialects:**
-* **Force Single-Language Agents:** Route callers to dedicated agents or override the language per call via the [inbound call webhook](/features/inbound-call-webhook).
+* **Force Single-Language Agents:** Route callers to dedicated agents or override the language per call via the [inbound call webhook](/deploy/inbound-call-webhook).
 * **Never Rely on Auto-Detect:** Multilingual agents covering both Cantonese and Mandarin will confuse the two regardless of the underlying ASR provider.
 * **Verify Provider Support:** Check the dashboard picker to ensure your ASR provider natively supports complex mixes (e.g., Cantonese + English). Review [Language support by provider](/build/language-support).
 

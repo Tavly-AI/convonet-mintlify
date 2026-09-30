@@ -30,7 +30,7 @@ The executing code maintains secure access to dynamic variables and call metadat
 
 For example, a Code Node might instantly normalize an appointment timestamp string, securely return an `appointment_label`, and immediately let the flow branch depending on whether that exact timestamp was logically valid.
 
-If you are developing a single- or multi-prompt agent instead, refer to the [Code Tool Guide](/build/single-multi-prompt/code-tool).
+If you are developing a single- or multi-prompt agent instead, refer to the [Code Tool Guide](/build/setup/single-multi-prompt/code-tool).
 
 <Frame caption="A Code node on the conversation flow canvas.">
   <img src="https://mintcdn.com/retellai/9xto-Or-KLZnnbLr/images/cf/code-node.png?fit=max&auto=format&n=9xto-Or-KLZnnbLr&q=85&s=47f4edf2355f4b2f96ca573723392a7f" alt="Conversation flow canvas with a Code node" width="150" height="159" data-path="images/cf/code-node.png" />
@@ -43,12 +43,12 @@ The Code Node runs internally within Tavly's secure sandbox, whereas a Custom Fu
 | Feature | Code Node | Custom Function |
 | --- | --- | --- |
 | **Execution Environment** | JavaScript executing securely inside Tavly's sandbox | An outbound HTTP request to your proprietary backend server |
-| **Trigger Logic** | Fires automatically the precise moment the flow enters the node | Fires automatically when the flow enters a [Function Node](/build/conversation-flow/function-node) |
+| **Trigger Logic** | Fires automatically the precise moment the flow enters the node | Fires automatically when the flow enters a [Function Node](/build/setup/conversation-flow/function-node/call-function-node) |
 | **Data Inputs** | Dynamic variables plus call/chat metadata | Payload parameters, dynamic variables, and request data |
 | **Best For** | Formatting, internal calculations, and low-risk HTTP lookups | Authenticated API integrations and production-grade database workflows |
 | **Max Code Size** | 20,000 characters | N/A |
 
-<Warning> Reserve the Code Node strictly for execution logic that does not touch highly sensitive secrets. Dynamic variables and metadata are permanently stored in plaintext alongside the active call record. For anything explicitly involving robust authentication, credential management, or production database writes, natively deploy a [Custom Function](/build/conversation-flow/custom-function) on your own hardened backend.</Warning>
+<Warning> Reserve the Code Node strictly for execution logic that does not touch highly sensitive secrets. Dynamic variables and metadata are permanently stored in plaintext alongside the active call record. For anything explicitly involving robust authentication, credential management, or production database writes, natively deploy a [Custom Function](/build/setup/conversation-flow/function-node/custom-function-in-conversation-flow) on your own hardened backend.</Warning>
 
 ## How do you set up a Code Node?
 
@@ -196,7 +196,7 @@ Response-variable extraction always uses the full return value, even in cases wh
 Code Nodes offer robust behavioral settings to rigidly configure execution timeouts, agent conversational fillers, and LLM overrides.
 If **Talk While Waiting** is on, the agent delivers whatever prompt or static sentence you've configured before transitioning. Should the caller speak while the code is still running, the agent can still respond to that turn. Turning **Talk While Waiting** off only suppresses the node's own entry message — it has no effect on the agent's ability to respond if the caller interrupts.
 
-For anything that confirms an action succeeded, base it on [transition conditions](/build/conversation-flow/transition-condition) that check the stored result fields, rather than relying on conversational context alone.
+For anything that confirms an action succeeded, base it on [transition conditions](/build/setup/conversation-flow/transition-conditions) that check the stored result fields, rather than relying on conversational context alone.
 
 ## Configure settings for code-node in Tavly
 

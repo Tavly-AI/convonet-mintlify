@@ -28,7 +28,7 @@ An **MCP Node** securely triggers and executes tools hosted on an external **Mod
 
 While this structural node is not strictly intended for holding a fluid conversation with the caller, the agent can optionally speak while the tool executes to prevent awkward dead air.
 
-<Note> **Different architectures:** For single-prompt and multi-prompt agents, MCP servers are connected entirely differently (via the response engine). Read the [MCP Tools for Single/Multi-Prompt Agents](/build/single-multi-prompt/mcp) guide.</Note>
+<Note> **Different architectures:** For single-prompt and multi-prompt agents, MCP servers are connected entirely differently (via the response engine). Read the [MCP Tools for Single/Multi-Prompt Agents](/build/setup/single-multi-prompt/mcp-tools) guide.</Note>
 
 <Frame caption="MCP node on the conversation flow canvas">
   <img width="250px" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/cf/mcp/node.png?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=e0bfeacf317232bd2956dcd06f8190a7" data-path="images/cf/mcp/node.png" />
@@ -102,5 +102,5 @@ You must globally register your external MCP server with Tavly before you can de
 
 The MCP Node provides targeted settings to dictate exactly how globally accessible it is and how transitions are logically calculated.
 
-* **Global Node:** Transforms the MCP Node into a universally reachable execution point from anywhere in the flow. Read the [Global Node Guide](/build/conversation-flow/global-node).
-* **Fine-Tuning Examples:** Inject custom examples explicitly into this node to teach the LLM how to parse complex or unexpected JSON responses. Read the [Fine-Tune Examples Guide](/build/conversation-flow/finetune-examples).
+* **Global Node:** Transforms the MCP Node into a universally reachable execution point from anywhere in the flow. Read the [Global Node Guide](/build/setup/conversation-flow/advanced/global-node).
+* **Fine-Tuning Examples:** Inject custom examples explicitly into this node to teach the LLM how to parse complex or unexpected JSON responses. Read the [Fine-Tune Examples Guide](/build/setup/conversation-flow/advanced/finetune-examples).

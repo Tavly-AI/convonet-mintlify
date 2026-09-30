@@ -146,7 +146,7 @@
                   "build/speech/platform-voices",
                   "build/speech/expressive-mode",
                   "build/speech/tts-provider-comparison",
-                  "build/speech/add-pronounciation",
+                  "build/speech/add-pronunciation",
                   "build/speech/no-response",
                   "build/speech/add-pause",
                   "build/speech/tts-fallback"

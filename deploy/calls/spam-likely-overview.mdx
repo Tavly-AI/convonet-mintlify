@@ -9,7 +9,7 @@ og:title: 'Spam Likely Overview: Reputation, Verification, and Branded Calling'
 og:description: 'Understand why carriers flag numbers as Spam Likely, detect SIP 608 rejections, and elevate outbound pickup rates with Tavly verified and branded caller ID.'
 og:image: 'https://mintcdn.com/retellai/zL2HeUqUnagEN9eK/images/b_1.PNG'
 twitter:card: 'summary_large_image'
-icon: 'shield-phone'
+icon: 'shield-alert'
 keywords: ['spam likely', 'branded calling', 'verified phone number', 'SIP 608 rejection', 'STIR SHAKEN attestation', 'outbound pickup rate', 'iOS call screening']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -75,12 +75,12 @@ Cross-reference your active caller IDs against industry phone intelligence platf
 
 Tavly provides two enterprise telephony services to safeguard outbound reach:
 
-| Capability | [Verified Phone Number](/build/telephony/verified-phone) | [Branded Call (Rich Call Data)](/build/telephony/branded-call) |
+| Capability | [Verified Phone Number](/deploy/calls/verified-phone) | [Branded Call (Rich Call Data)](/deploy/calls/branded-calls) |
 | :--- | :--- | :--- |
 | **Primary Mechanism** | Carrier database whitelist registration | Dynamic CNAM and mobile handset push display |
 | **Handset Appearance** | Neutral standard phone number without spam warnings | Displays verified business name, logo, and call reason |
 | **Spam Mitigation** | Guarantees STIR/SHAKEN Level-A attestation | Overrides carrier spam filters with authenticated identity |
-| **Prerequisites** | Approved [Business Profile](/build/telephony/business-profile) | Approved Business Profile and active phone line |
+| **Prerequisites** | Approved [Business Profile](/deploy/calls/business-profile) | Approved Business Profile and active phone line |
 | **Best For** | Baseline outbound calling and transactional alerts | High-touch customer success, sales, and urgent notices |
 
 ```mermaid
@@ -101,9 +101,9 @@ graph LR
 
 ### Setup and Lifecycle Operations
 
-1. **Prerequisite**: Complete your verified [Business Profile](/build/telephony/business-profile) with legal EIN registration.
-2. **Rejection Management**: If an application is denied due to website mismatch or documentation errors, follow [How to Handle a Rejection](/build/telephony/branded-call-rejection).
-3. **Deprovisioning**: If a phone number is retired, see [Stop Caller ID Service](/build/telephony/delete-service) to release carrier subscriptions.
+1. **Prerequisite**: Complete your verified [Business Profile](/deploy/calls/business-profile) with legal EIN registration.
+2. **Rejection Management**: If an application is denied due to website mismatch or documentation errors, follow [How to Handle a Rejection](/deploy/calls/branded-call-rejection).
+3. **Deprovisioning**: If a phone number is retired, see [Stop Caller ID Service](/deploy/calls/delete-service) to release carrier subscriptions.
 
 ---
 
@@ -159,7 +159,7 @@ A: "This is Alex from Tavly Care calling regarding your scheduled consultation t
 
 ## Related Resources
 
-* [Verified phone number guide](/build/telephony/verified-phone): Step-by-step registration for STIR/SHAKEN Level-A carrier verification.
-* [Branded calling deployment](/build/telephony/branded-call): Display enterprise names and logos on recipient handsets.
-* [Telephony business profile setup](/build/telephony/business-profile): Register legal business identities with telecom carriers.
-* [Outbound call API](/deploy/outbound-call): Place automated voice calls with custom metadata and error handling.
+* [Verified phone number guide](/deploy/calls/verified-phone): Step-by-step registration for STIR/SHAKEN Level-A carrier verification.
+* [Branded calling deployment](/deploy/calls/branded-calls): Display enterprise names and logos on recipient handsets.
+* [Telephony business profile setup](/deploy/calls/business-profile): Register legal business identities with telecom carriers.
+* [Outbound call API](/deploy/outbound-calls): Place automated voice calls with custom metadata and error handling.

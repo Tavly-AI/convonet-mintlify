@@ -231,7 +231,7 @@ To **verify and troubleshoot active webhook deliveries**, initiate a simulated b
   </Step>
 
   <Step title="Verify cryptographic signatures">
-    In production environments, always validate the `x-tavly-signature` header against your raw request body using HMAC-SHA256 and your Tavly API key. Review the [secure webhook documentation](/features/secure-webhook).
+    In production environments, always validate the `x-tavly-signature` header against your raw request body using HMAC-SHA256 and your Tavly API key. Review the [secure webhook documentation](/monitor/secure-webhook).
   </Step>
 
   <Step title="Check server response codes and latency">
@@ -264,6 +264,6 @@ To **verify and troubleshoot active webhook deliveries**, initiate a simulated b
 ## Related Resources
 
 * [Webhooks overview guide](/monitor/webhook-overview): Review the full lifecycle event matrix and JSON schemas.
-* [Secure webhook signature verification](/features/secure-webhook): Implement cryptographic HMAC-SHA256 signature validation.
+* [Secure webhook signature verification](/monitor/secure-webhook): Implement cryptographic HMAC-SHA256 signature validation.
 * [Dynamic variables guide](/build/context/dynamic-variables): Configure runtime variables for URL query string interpolation.
 * [Web call deployment](/deploy/web-call): Test voice agents directly in the browser to trigger webhook events.

@@ -71,7 +71,7 @@ When prompts grow beyond manageable complexity, adhere to these structural best 
 
 * **Single Responsibility per Step**: Rather than commanding an agent to *"collect customer name, email, billing address, and issue description,"* partition data collection into sequential questions.
 * **Explicit Guardrails**: Frame instructions with explicit boundaries (e.g., *"Never confirm a booking without first receiving a validated confirmation number from the lookup tool"*).
-* **Separate Knowledge from Instructions**: Offload lengthy product catalogs, policy documents, and company FAQs into a dedicated [Knowledge Base](/build/knowledge-base) rather than overloading the primary prompt buffer.
+* **Separate Knowledge from Instructions**: Offload lengthy product catalogs, policy documents, and company FAQs into a dedicated [Knowledge Base](/build/context/knowledge-base) rather than overloading the primary prompt buffer.
 * **Transition Logic**: For multi-turn workflows, specify exact triggers for step progression (e.g., *"Once the user confirms their account number, transition to Step 2: Verification"*).
 
 ## How do fine-tuning examples and tool audits resolve edge cases?

@@ -9,7 +9,7 @@ og:title: "Sync Microsoft OneDrive to Knowledge Bases | Tavly AI"
 og:description: "Sync Microsoft OneDrive documents into Tavly AI knowledge bases with automated 24-hour delta refreshes, native file picking, and semantic vector ingestion."
 og:image: "https://mintcdn.com/retellai/1tHVSSAFz8J09UUc/images/integration/knowledge-base-add-menu-onedrive.png?fit=max&auto=format&n=1tHVSSAFz8J09UUc&q=85&s=f087015e79187d6319ebfca012217152"
 twitter:card: "summary_large_image"
-icon: "arrows-rotate"
+icon: "folder-sync"
 keywords:
   - "Microsoft OneDrive knowledge base sync"
   - "Tavly AI OneDrive sync"
@@ -31,15 +31,11 @@ faq:
     answer: "Tavly retains previously embedded vector content so your agent continues answering queries, while marking the source status as Sync not available."
 ---
 
-# OneDrive knowledge base sync
-
-> Sync Microsoft OneDrive files into a Tavly AI knowledge base: pick files in Microsoft's file picker, and changed files re-sync every 24 hours.
-
 ## How does Microsoft OneDrive knowledge base sync work in Tavly AI?
 
 **Microsoft OneDrive knowledge base sync** imports Word documents, Excel workbooks, and PDFs from your personal or business OneDrive directly into Tavly conversational knowledge bases. When team members edit files in OneDrive, Tavly automatically detects modifications through **24-hour delta refreshes**, re-indexing updated content so your voice and chat agents quote accurate documentation.
 
-Files imported from Microsoft OneDrive become living [knowledge base](/build/knowledge-base) sources that mirror active workspace files. When a team member modifies a document in OneDrive, Tavly detects the edit on the subsequent scheduled refresh and updates the semantic vector index automatically.
+Files imported from Microsoft OneDrive become living [knowledge base](/build/context/knowledge-base) sources that mirror active workspace files. When a team member modifies a document in OneDrive, Tavly detects the edit on the subsequent scheduled refresh and updates the semantic vector index automatically.
 
 Importing OneDrive documents requires an active [connected OneDrive account](/integrations/knowledge-base/onedrive/connect).
 
@@ -117,7 +113,7 @@ Tavly limits OneDrive sources to **25 files** per knowledge base and enforces a 
 
 Tavly ingests common office formats including **Word (.docx, .doc), Excel (.xlsx, .xls), PDFs, plain text, presentations (.pptx), HTML, and email files (.eml, .msg)**. Files must contain extractable text; scanned, image-only PDFs lacking OCR layers produce no content to index and fail processing during knowledge base ingestion.
 
-OneDrive sources utilize the identical parsing architecture used for standard [document uploads](/build/knowledge-base):
+OneDrive sources utilize the identical parsing architecture used for standard [document uploads](/build/context/knowledge-base):
 
 ### Supported format matrix
 
@@ -211,7 +207,7 @@ OneDrive documents update on a **24-hour auto-refresh cycle** or via manual sync
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Knowledge base overview" icon="book" href="/build/knowledge-base">
+  <Card title="Knowledge base overview" icon="book" href="/build/context/knowledge-base">
     Configure retrieval thresholds, explore semantic search testing, and optimize source formatting.
   </Card>
 

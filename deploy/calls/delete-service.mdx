@@ -28,7 +28,7 @@ faq:
 
 When you **stop a caller ID service in Tavly AI**, the system de-registers the enhancement from carrier registries without disrupting your underlying telephony. Your voice agents continue placing and answering phone calls seamlessly; only the rich corporate name display or STIR/SHAKEN verified status is deactivated from outbound transmissions.
 
-Both [Branded Calls](/build/telephony/branded-call) and [Verified Phone Numbers](/build/telephony/verified-phone) operate as modular add-ons layered over your underlying telephony trunk. Because voice routing and caller ID management are decoupled, deactivating an add-on never disconnects a phone number or terminates active voice agent conversations.
+Both [Branded Calls](/deploy/calls/branded-calls) and [Verified Phone Numbers](/deploy/calls/verified-phone) operate as modular add-ons layered over your underlying telephony trunk. Because voice routing and caller ID management are decoupled, deactivating an add-on never disconnects a phone number or terminates active voice agent conversations.
 
 <Frame caption="The Delete Service confirmation dialogue in the Tavly dashboard.">
   <img height="700" src="https://mintcdn.com/retellai/rxvYffEkEJPRL1KD/images/delete_service.png?fit=max&auto=format&n=rxvYffEkEJPRL1KD&q=85&s=1ab297f0299ad72e27b8966f4530ea4d" alt="Delete service" data-path="images/delete_service.png" />
@@ -64,11 +64,11 @@ The **operational impact on outbound calls** differs by service: stopping Brande
 
 | Telephony Add-On | Handset Behavior After Deletion | Underlying Call Handling | Carrier Whitelist Status |
 | :--- | :--- | :--- | :--- |
-| **[Branded Calls](/build/telephony/branded-call)** | Displays standard E.164 phone number without corporate name or logo | Continues uninterrupted | Alphanumeric CNAM and rich call data de-registered |
-| **[Verified Phone Numbers](/build/telephony/verified-phone)** | Displays standard phone number; risk of **Spam Likely** warnings resumes | Continues uninterrupted | STIR/SHAKEN Level-A whitelist record de-registered |
+| **[Branded Calls](/deploy/calls/branded-calls)** | Displays standard E.164 phone number without corporate name or logo | Continues uninterrupted | Alphanumeric CNAM and rich call data de-registered |
+| **[Verified Phone Numbers](/deploy/calls/verified-phone)** | Displays standard phone number; risk of **Spam Likely** warnings resumes | Continues uninterrupted | STIR/SHAKEN Level-A whitelist record de-registered |
 
 <Warning>
-  **Re-Registration Notice**: If you plan to [re-register a verified phone number](/build/telephony/verified-phone) at a later date, carrier vetting and database propagation require 1 to 2 weeks. Your numbers may face carrier throttling or negative spam tagging in the interim.
+  **Re-Registration Notice**: If you plan to [re-register a verified phone number](/deploy/calls/verified-phone) at a later date, carrier vetting and database propagation require 1 to 2 weeks. Your numbers may face carrier throttling or negative spam tagging in the interim.
 </Warning>
 
 ---

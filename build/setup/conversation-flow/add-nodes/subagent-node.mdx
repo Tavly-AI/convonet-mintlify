@@ -26,7 +26,7 @@ faq:
 
 A **Subagent Node** seamlessly blends multi-turn dialogue with dynamic, on-the-fly tool execution. Rather than firing a tool automatically, the LLM evaluates the conversational context and intelligently decides if, and exactly when, an attached tool should be utilized.
 
-If your workflow requires pure dialogue without any tool calling, deploy a standard [Conversation Node](/build/conversation-flow/conversation-node) instead.
+If your workflow requires pure dialogue without any tool calling, deploy a standard [Conversation Node](/build/setup/conversation-flow/add-nodes/conversation-node) instead.
 
 For example, a customer-support agent might use a single subagent node to actively handle order inquiries—chatting normally with the caller, and only executing an order-lookup tool when the caller explicitly provides an order number. 
 
@@ -40,7 +40,7 @@ When a subagent node has tools successfully attached, the LLM natively processes
 
 ## How does it compare to a Function Node?
 
-Subagent nodes and [Function Nodes](/build/conversation-flow/function-node) serve distinctly different architectural purposes within a conversation flow.
+Subagent nodes and [Function Nodes](/build/setup/conversation-flow/function-node/call-function-node) serve distinctly different architectural purposes within a conversation flow.
 
 | Feature | Function Node | Subagent Node |
 | --- | --- | --- |
@@ -84,16 +84,16 @@ You can directly attach a wide variety of native integrations, backend actions, 
 
 | Tool type | Core Capability |
 | --- | --- |
-| **[Custom Function](/build/conversation-flow/custom-function)** | Execute standard HTTP requests to your proprietary external APIs |
-| **[Code Tool](/build/single-multi-prompt/code-tool)** | Natively execute JavaScript directly within Tavly's secure sandbox |
-| **[Integration Tools](/build/conversation-flow/integration-tools)** | Trigger native actions on connected providers like HubSpot or Cal.com |
-| **[End Call](/build/single-multi-prompt/end-call)** | Forcibly terminate the active call |
-| **[Transfer Call](/build/single-multi-prompt/transfer-call)** | Route the call via SIP/PSTN to an external phone number |
-| **[Transfer Agent](/build/single-multi-prompt/transfer-agent)** | Instantly hand off the active call to a different specialized AI agent |
-| **[Press Digit](/build/single-multi-prompt/press-digit)** | Generate and dispatch telephonic DTMF tones |
-| **[Send SMS](/build/single-multi-prompt/send-sms)** | Dispatch an automated text message |
-| **[Extract Dynamic Variable](/build/single-multi-prompt/extract-dv)** | Securely pull explicitly defined data variables directly from the conversation |
-| **[MCP Tool](/build/conversation-flow/mcp-node)** | Dynamically call natively hosted tools on a connected Model Context Protocol server |
+| **[Custom Function](/build/setup/conversation-flow/function-node/custom-function-in-conversation-flow)** | Execute standard HTTP requests to your proprietary external APIs |
+| **[Code Tool](/build/setup/single-multi-prompt/code-tool)** | Natively execute JavaScript directly within Tavly's secure sandbox |
+| **[Integration Tools](/build/setup/conversation-flow/function-node/integration-tools-in-conversation-flow)** | Trigger native actions on connected providers like HubSpot or Cal.com |
+| **[End Call](/build/setup/single-multi-prompt/end-call)** | Forcibly terminate the active call |
+| **[Transfer Call](/build/setup/single-multi-prompt/transfer-call)** | Route the call via SIP/PSTN to an external phone number |
+| **[Transfer Agent](/build/setup/single-multi-prompt/agent-transfer-tool)** | Instantly hand off the active call to a different specialized AI agent |
+| **[Press Digit](/build/setup/single-multi-prompt/press-digit)** | Generate and dispatch telephonic DTMF tones |
+| **[Send SMS](/build/setup/single-multi-prompt/send-sms)** | Dispatch an automated text message |
+| **[Extract Dynamic Variable](/build/setup/single-multi-prompt/extract-dynamic-variables)** | Securely pull explicitly defined data variables directly from the conversation |
+| **[MCP Tool](/build/setup/conversation-flow/add-nodes/mcp-node-in-conversation-flow)** | Dynamically call natively hosted tools on a connected Model Context Protocol server |
 
 ## How do you control agent speech during execution?
 
@@ -126,7 +126,7 @@ With this on (which is the default), the agent hands control back to the LLM onc
 
 ## When the Node Transitions
 
-* Once the caller finishes speaking, following the [evaluation order](/build/conversation-flow/transition-condition#evaluation-order).
+* Once the caller finishes speaking, following the [evaluation order](/build/setup/conversation-flow/transition-conditions#in-what-order-are-conditions-checked).
 * Immediately, if **Skip Response** is enabled — the moment the agent stops talking.
 
 Since tool calls happen inside the subagent node itself, the node can remain active across multiple turns and multiple tool calls before it finally moves on.
@@ -145,5 +145,5 @@ Subagent nodes offer advanced settings to tightly configure speech dynamics, mod
 ## Best Practices
 
 * **Be explicit in the node's instruction.** Spell out exactly when each tool should come into play.
-* **Rely on function nodes for guaranteed execution.** If a tool absolutely has to run at a specific point in the flow, use a [function node](/build/conversation-flow/function-node) there instead.
+* **Rely on function nodes for guaranteed execution.** If a tool absolutely has to run at a specific point in the flow, use a [function node](/build/setup/conversation-flow/function-node/call-function-node) there instead.
 * **Don't overload a single subagent node with tools.** There's no hard cap, but the more options the LLM has to choose from, the more likely it is to pick the wrong one. Spread tools across multiple subagent nodes instead.

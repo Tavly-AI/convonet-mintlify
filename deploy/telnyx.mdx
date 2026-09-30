@@ -9,7 +9,7 @@ og:title: 'Telnyx Integration: Connect Elastic SIP Trunking'
 og:description: 'Connect Telnyx phone numbers to Tavly via elastic SIP trunking: configure FQDN routing, outbound auth credentials, custom SIP headers, and import numbers.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'phone'
+icon: 'triangle'
 keywords: ['Telnyx integration', 'elastic SIP trunking', 'Telnyx FQDN routing', 'SIP credentials', 'X-Telnyx-Username header', 'Tavly AI Telnyx', 'voice AI telephony']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -66,7 +66,7 @@ Follow these step-by-step instructions to complete the setup:
     <img height="200" src="https://mintcdn.com/retellai/32uO5g9DswfoJ9j7/images/custom-telephony/telnyx/outbound-auth.jpeg?fit=max&auto=format&n=32uO5g9DswfoJ9j7&q=85&s=87ba94312ebb879e7dc9b19ed27e5bf6" data-path="images/custom-telephony/telnyx/outbound-auth.jpeg" />
 
     <Note>
-      Telnyx requires the header `X-Telnyx-Username: <username>` to be included in outbound calls when using credentials as the authentication mechanism. See Telnyx [documentation](https://support.telnyx.com/en/articles/5271423-guide-to-sip-anchorsite-settings#h_0b59d6992a) for more details. You can find details on adding [custom SIP headers](/build/telephony/sip-headers), or on the [Make outbound calls](/deploy/outbound-call#step-2-make-outbound-calls) page.
+      Telnyx requires the header `X-Telnyx-Username: <username>` to be included in outbound calls when using credentials as the authentication mechanism. See Telnyx [documentation](https://support.telnyx.com/en/articles/5271423-guide-to-sip-anchorsite-settings#h_0b59d6992a) for more details. You can find details on adding [custom SIP headers](/build/telephony/sip-headers), or on the [Make outbound calls](/deploy/outbound-calls#how-do-you-make-outbound-calls-programmatically-via-api) page.
     </Note>
 
     4. Set up inbound settings:
@@ -137,6 +137,6 @@ Examine the following diagnostics when encountering call connectivity errors:
 
 * [Custom telephony overview](/deploy/custom-telephony): Overview of elastic SIP trunking vs. direct SIP URI routing.
 * [Twilio integration guide](/deploy/twilio): Connect numbers from Twilio via elastic SIP trunking.
-* [Inbound call routing](/deploy/inbound-call): Route inbound telephony calls directly to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Trigger automated phone calls using your custom SIP numbers.
+* [Inbound call routing](/deploy/receive-calls): Route inbound telephony calls directly to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Trigger automated phone calls using your custom SIP numbers.
 * [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session context across SIP carriers.

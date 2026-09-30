@@ -38,7 +38,7 @@ faq:
 
 > Call HubSpot, Salesforce, Zendesk, or Cal.com tools from a function node inside a Tavly conversation flow, then branch the flow based on what comes back.
 
-Within a conversation flow, integration tools execute through a dedicated [**function node**](/build/conversation-flow/function-node). As soon as the agent enters the node, the tool triggers deterministically, returning live payload data that steers the call's next step. Because Tavly AI manages all API connectivity and credentials, you do not need to host or maintain an intermediary webhook service.
+Within a conversation flow, integration tools execute through a dedicated [**function node**](/build/setup/conversation-flow/function-node/call-function-node). As soon as the agent enters the node, the tool triggers deterministically, returning live payload data that steers the call's next step. Because Tavly AI manages all API connectivity and credentials, you do not need to host or maintain an intermediary webhook service.
 
 ### Integration tool runtime environments
 
@@ -46,12 +46,12 @@ Integration tools can be invoked across various structural components within the
 
 | Component Type | Execution Behavior | Configuration Guide |
 | :--- | :--- | :--- |
-| [**Function Node**](/build/conversation-flow/function-node) | Executes deterministically immediately upon entering the node. | Attached directly inside the conversation flow canvas. |
-| [**Subagent Node**](/build/conversation-flow/subagent-node) | The LLM dynamically decides whether and when to invoke the tool mid-dialogue. | Added alongside custom functions and tools. |
+| [**Function Node**](/build/setup/conversation-flow/function-node/call-function-node) | Executes deterministically immediately upon entering the node. | Attached directly inside the conversation flow canvas. |
+| [**Subagent Node**](/build/setup/conversation-flow/add-nodes/subagent-node) | The LLM dynamically decides whether and when to invoke the tool mid-dialogue. | Added alongside custom functions and tools. |
 | [**Prompt Agents**](/build/setup/single-multi-prompt/integration-tools) | Autonomous tool execution available across single- or multi-prompt architectures. | Managed via the dashboard Functions section. |
-| [**Agent Workflow**](/agent/agent-workflow) | Runs actions outside the live call lifecycle (pre-call setup or post-call wrap-up). | Configured in call lifecycle automation workflows. |
+| [**Agent Workflow**](/build/agent-workflow) | Runs actions outside the live call lifecycle (pre-call setup or post-call wrap-up). | Configured in call lifecycle automation workflows. |
 
-For a comprehensive catalog of supported third-party providers, operational capabilities, and credential setup, see the [integrations overview](/integrations/overview).
+For a comprehensive catalog of supported third-party providers, operational capabilities, and credential setup, see the [integrations overview](/integrations/integrations-overview).
 
 ---
 
@@ -61,7 +61,7 @@ To add an **integration tool**, first connect the target provider in the workspa
 
 <Steps>
   <Step title="Connect the provider">
-    Complete a one-time connection setup from the Tavly AI dashboard under the **Integrations** page at the workspace level. Detailed connection instructions are outlined in [connect a provider](/integrations/overview#connect-a-provider).
+    Complete a one-time connection setup from the Tavly AI dashboard under the **Integrations** page at the workspace level. Detailed connection instructions are outlined in [connect a provider](/integrations/integrations-overview#how-do-you-connect-and-authenticate-a-provider).
   </Step>
 
   <Step title="Pick the tool from the function menu">
@@ -94,7 +94,7 @@ Conversation flows branch using **transition conditions** linked directly to the
 
 To construct resilient branching logic:
 
-* **Conditional routing**: Because function nodes factor the tool's result into their transition timing (see [when transitions happen](/build/conversation-flow/function-node#when-can-transition-happen)), configure [transition conditions](/build/conversation-flow/transition-condition) to branch on specific return data—such as creating one edge for a successful contact match and an alternative edge when no record exists.
+* **Conditional routing**: Because function nodes factor the tool's result into their transition timing (see [when transitions happen](/build/setup/conversation-flow/function-node/call-function-node#when-does-a-function-node-transition-to-the-next-step)), configure [transition conditions](/build/setup/conversation-flow/transition-conditions) to branch on specific return data—such as creating one edge for a successful contact match and an alternative edge when no record exists.
 * **Provider timeout windows**: Each integration tool call times out between **3 and 14 seconds**, depending on the specific provider and tool requested (accurate as of August 2026).
 * **Dedicated error handling**: If a third-party tool call times out or encounters an API error, the flow continues advancing. Always create dedicated failure and timeout transition edges to handle fallback logic gracefully rather than allowing failures to cascade through default success pathways.
 
@@ -108,7 +108,7 @@ To construct resilient branching logic:
   </Accordion>
 
   <Accordion title="Can integration tools be executed by autonomous subagents?">
-    Yes. In addition to deterministic execution inside a function node, integration tools can be mounted inside a [subagent node](/build/conversation-flow/subagent-node). In a subagent node, the LLM autonomously decides whether and when to trigger the tool based on conversation dialogue.
+    Yes. In addition to deterministic execution inside a function node, integration tools can be mounted inside a [subagent node](/build/setup/conversation-flow/add-nodes/subagent-node). In a subagent node, the LLM autonomously decides whether and when to trigger the tool based on conversation dialogue.
   </Accordion>
 
   <Accordion title="How should timeouts and third-party API errors be handled?">

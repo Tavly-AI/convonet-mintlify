@@ -8,7 +8,7 @@ seo:
 og:title: 'Finetune Examples: Train Node Behavior'
 og:description: 'Learn how to attach concrete conversation transcripts to Tavly nodes to act as few-shot demonstrations for fixing response tones and transition routing.'
 twitter:card: 'summary_large_image'
-icon: 'wand-magic-sparkles'
+icon: 'antenna'
 keywords: ['finetune examples', 'few-shot prompting', 'train AI transitions', 'node behavior', 'conversation flow training']
 date: '2023-10-25'
 author: 'Tavly AI Team'
@@ -87,7 +87,7 @@ Agent: Great, you're all set!
 **Transition Best Practices:**
 * Aggressively match the example to the exact phrasing pattern the model currently fails on.
 * Target extreme edge cases: one-word answers, ambiguous phrasing, or polite deflections.
-* Harvest real failures from the [Call History Transcript](/build/conversation-flow/debug-guide) to use as highly effective training data.
+* Harvest real failures from the [Call History Transcript](/build/setup/conversation-flow/debug-guide) to use as highly effective training data.
 
 ## What are the limits and best practices?
 
@@ -103,4 +103,4 @@ Finetune examples dynamically increase prompt complexity and token usage. They m
 
 * **Token Costs:** Finetune examples add tokens to **every single LLM call** executed within that node. Keep them ruthlessly brief to minimize latency.
 * **Not a Crutch:** Use examples exclusively to fix observed failures—they are absolutely not a replacement for writing clear, logical node instructions.
-* **Escalation:** If a problem persists despite adding 5+ examples, you must split the node into smaller chunks or upgrade to a more capable LLM. See the [Debug Guide](/build/conversation-flow/debug-guide).
+* **Escalation:** If a problem persists despite adding 5+ examples, you must split the node into smaller chunks or upgrade to a more capable LLM. See the [Debug Guide](/build/setup/conversation-flow/debug-guide).

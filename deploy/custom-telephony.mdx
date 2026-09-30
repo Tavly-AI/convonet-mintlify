@@ -9,7 +9,7 @@ og:title: 'Custom Telephony: Connect SIP Trunks & Private Carriers'
 og:description: 'Connect Tavly voice agents to custom telephony: integrate your own carrier via elastic SIP trunking or direct SIP URI dialing with TLS and mTLS encryption.'
 og:image: 'https://mintcdn.com/retellai/pRGcctz_zOqy0mSt/images/test-llm/test-llm-full.png'
 twitter:card: 'summary_large_image'
-icon: 'network-wired'
+icon: 'utility-pole'
 keywords: ['custom telephony', 'elastic SIP trunking', 'SIP URI dialing', 'carrier integration', 'Twilio Telnyx SIP', 'mTLS voice security', 'Tavly AI SIP']
 date: '2026-09-24'
 author: 'Tavly AI Team'
@@ -61,7 +61,7 @@ To use a different transport for inbound calls, append the transport method to t
 
 **Elastic SIP Trunking** is the recommended custom telephony method, connecting your carrier or PBX infrastructure to Tavly's SIP gateway over the internet. You configure inbound origination to point to Tavly's SIP server, supply your provider's outbound termination URI when importing the number, and route calls with full PSTN transfer support.
 
-Elastic SIP trunking connects Tavly's VoIP with PSTN so your agents can [make outbound calls](/deploy/outbound-call) and [receive inbound calls](/deploy/inbound-call). All telephony features supported by Tavly numbers work here too, as long as your provider supports them.
+Elastic SIP trunking connects Tavly's VoIP with PSTN so your agents can [make outbound calls](/deploy/outbound-calls) and [receive inbound calls](/deploy/receive-calls). All telephony features supported by Tavly numbers work here too, as long as your provider supports them.
 
 ### Origination vs Termination
 
@@ -100,7 +100,7 @@ Other telephony providers that support SIP trunks work too; use these guides as 
   </Accordion>
 
   <Accordion title="Will I be able to press digit using SIP trunking?">
-    Yes, you can. See [Capture DTMF input](/build/user-dtmf) to read digits the caller presses.
+    Yes, you can. See [Capture DTMF input](/build/telephony/user-dtmf) to read digits the caller presses.
   </Accordion>
 
   <Accordion title="Does Tavly handle SIP re-INVITEs from my carrier or SBC?">
@@ -187,7 +187,7 @@ server.app.post(
   </Accordion>
 
   <Accordion title="Can I use telephony provider's other features like AMD detection using this method?">
-    Yes, using this method gives you full control over telephony functionalities, allowing you to leverage external provider features. Tavly also provides built-in [voicemail and IVR detection](/build/handle-voicemail) if you prefer native detection on our side.
+    Yes, using this method gives you full control over telephony functionalities, allowing you to leverage external provider features. Tavly also provides built-in [voicemail and IVR detection](/build/telephony/handle-voicemail) if you prefer native detection on our side.
   </Accordion>
 </AccordionGroup>
 
@@ -261,7 +261,7 @@ If you need to manipulate the SIP call flow or have custom needs Tavly doesn't d
 
 ## Related Resources
 
-* [Inbound call routing](/deploy/inbound-call): Route inbound calls to conversational voice agents.
-* [Outbound calls](/deploy/outbound-call): Dispatch outbound voice campaigns.
-* [Capture DTMF input](/build/user-dtmf): Read touch-tone keypad input from callers.
+* [Inbound call routing](/deploy/receive-calls): Route inbound calls to conversational voice agents.
+* [Outbound calls](/deploy/outbound-calls): Dispatch outbound voice campaigns.
+* [Capture DTMF input](/build/telephony/user-dtmf): Read touch-tone keypad input from callers.
 * [Custom SIP headers](/build/telephony/sip-headers): Pass metadata and session tokens over SIP trunks.
